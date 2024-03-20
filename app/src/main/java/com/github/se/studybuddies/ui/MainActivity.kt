@@ -1,7 +1,9 @@
 package com.github.se.studybuddies.ui
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -96,7 +98,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
     val context = LocalContext.current
     val signInLauncher =
         rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            onSignInResult(res, navigationActions)
+            onSignInResult(res, navigationActions,context)
         }
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -152,12 +154,16 @@ fun LoginScreen(navigationActions: NavigationActions) {
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    context : Context
 ) {
     val response = result.idpResponse
     if (result.resultCode == Activity.RESULT_OK) {
         val user = FirebaseAuth.getInstance().currentUser
+        Toast.makeText(context, "Sign in successfully", Toast.LENGTH_LONG).show()
         navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[1])
+    }else{
+        Toast.makeText(context, "Sign in failed", Toast.LENGTH_LONG).show()
     }
 }
 
