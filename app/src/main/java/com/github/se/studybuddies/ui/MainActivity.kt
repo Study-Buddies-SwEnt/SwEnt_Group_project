@@ -47,63 +47,63 @@ import com.github.se.studybuddies.ui.navigation.NavigationActions
 import com.github.se.studybuddies.ui.navigation.Route
 import com.github.se.studybuddies.ui.navigation.TOP_LEVEL_DESTINATIONS
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-    //private val overviewViewModel: OverviewViewModel by viewModels()
+  private lateinit var auth: FirebaseAuth
+  // private val overviewViewModel: OverviewViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        auth = FirebaseAuth.getInstance()
-        //FirebaseApp.initializeApp(this)
-        setContent {
-            StudyBuddiesTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    val navController = rememberNavController()
-                    val navigationActions = NavigationActions(navController)
-                    val currentUser = auth.currentUser
-                    val startDestination = if (currentUser != null) {
-                        Route.HOME
-                    } else {
-                        Route.SIGNIN
-                    }
-                    NavHost(navController = navController, startDestination = startDestination) {
-                        composable(Route.SIGNIN) { LoginScreen(navigationActions) }
-                        composable(Route.HOME) { HomeScreen(navigationActions) }
-                        /*
-                        composable(Route.OVERVIEW) { Overview(overviewViewModel, navigationActions) }
-                        composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
-                        composable(
-                            route = "${Route.EDITTODO}/{todoUID}",
-                            arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
-                                backStackEntry ->
-                            val todoUID = backStackEntry.arguments?.getString("todoUID")
-                            if (todoUID != null) {
-                                EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
-                            }
-                        }
-                        composable(Route.MAP) { MapView(overviewViewModel, navigationActions) }
-                         */
-                    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    auth = FirebaseAuth.getInstance()
+    // FirebaseApp.initializeApp(this)
+    setContent {
+      StudyBuddiesTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+          val navController = rememberNavController()
+          val navigationActions = NavigationActions(navController)
+          val currentUser = auth.currentUser
+          val startDestination =
+              if (currentUser != null) {
+                Route.HOME
+              } else {
+                Route.SIGNIN
+              }
+          NavHost(navController = navController, startDestination = startDestination) {
+            composable(Route.SIGNIN) { LoginScreen(navigationActions) }
+            composable(Route.HOME) { HomeScreen(navigationActions) }
+            /*
+            composable(Route.OVERVIEW) { Overview(overviewViewModel, navigationActions) }
+            composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
+            composable(
+                route = "${Route.EDITTODO}/{todoUID}",
+                arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                val todoUID = backStackEntry.arguments?.getString("todoUID")
+                if (todoUID != null) {
+                    EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
                 }
             }
+            composable(Route.MAP) { MapView(overviewViewModel, navigationActions) }
+             */
+          }
         }
+      }
     }
+  }
 }
 
 @Composable
 fun LoginScreen(navigationActions: NavigationActions) {
-    val context = LocalContext.current
-    val signInLauncher =
-        rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            onSignInResult(res, navigationActions,context)
-        }
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
+  val context = LocalContext.current
+  val signInLauncher =
+      rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
+        onSignInResult(res, navigationActions, context)
+      }
+  Column(
+      modifier = Modifier.fillMaxSize(),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Center) {
         Image(
             painter = painterResource(R.drawable.logo),
             contentDescription = null,
@@ -113,58 +113,57 @@ fun LoginScreen(navigationActions: NavigationActions) {
         Text(
             text = "Welcome",
             style =
-            TextStyle(
-                fontSize = 48.sp,
-                fontWeight = FontWeight(700),
-                textAlign = TextAlign.Center,
-            ),
+                TextStyle(
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight(700),
+                    textAlign = TextAlign.Center,
+                ),
             modifier = Modifier.width(258.dp).height(70.dp).testTag("LoginTitle"))
         Spacer(Modifier.height(150.dp))
         Button(
             onClick = {
-                val signInIntent =
-                    AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
-                        .setIsSmartLockEnabled(false)
-                        .build()
-                signInLauncher.launch(signInIntent)
+              val signInIntent =
+                  AuthUI.getInstance()
+                      .createSignInIntentBuilder()
+                      .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
+                      .setIsSmartLockEnabled(false)
+                      .build()
+              signInLauncher.launch(signInIntent)
             },
             colors =
-            ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-            ),
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                ),
             modifier =
-            Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
-                .background(color = Color.Transparent, shape = RoundedCornerShape(50))
-                .width(250.dp)
-                .height(50.dp)
-                .testTag("LoginButton"),
-            shape = RoundedCornerShape(50)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.google),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Sign in with Google", color = Color.Black)
-        }
-    }
+                Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
+                    .background(color = Color.Transparent, shape = RoundedCornerShape(50))
+                    .width(250.dp)
+                    .height(50.dp)
+                    .testTag("LoginButton"),
+            shape = RoundedCornerShape(50)) {
+              Image(
+                  painter = painterResource(R.drawable.google),
+                  contentDescription = null,
+                  modifier = Modifier.size(40.dp))
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("Sign in with Google", color = Color.Black)
+            }
+      }
 }
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
     navigationActions: NavigationActions,
-    context : Context
+    context: Context
 ) {
-    val response = result.idpResponse
-    if (result.resultCode == Activity.RESULT_OK) {
-        val user = FirebaseAuth.getInstance().currentUser
-        Toast.makeText(context, "Sign in successfully", Toast.LENGTH_LONG).show()
-        navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[1])
-    }else{
-        Toast.makeText(context, "Sign in failed", Toast.LENGTH_LONG).show()
-    }
+  val response = result.idpResponse
+  if (result.resultCode == Activity.RESULT_OK) {
+    val user = FirebaseAuth.getInstance().currentUser
+    Toast.makeText(context, "Sign in successfully", Toast.LENGTH_LONG).show()
+    navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[1])
+  } else {
+    Toast.makeText(context, "Sign in failed", Toast.LENGTH_LONG).show()
+  }
 }
 
 /*@Preview(showBackground = true)
