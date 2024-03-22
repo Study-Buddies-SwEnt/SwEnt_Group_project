@@ -1,11 +1,8 @@
 package com.github.se.studybuddies.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -23,28 +20,26 @@ import com.github.se.studybuddies.ui.navigation.TOP_LEVEL_DESTINATIONS
 
 @Composable
 fun SignOutButton(navigationActions: NavigationActions) {
-    val context = LocalContext.current // Get the context here
-    Button(
-        onClick = {
-            AuthUI.getInstance().signOut(context).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[0])
-                    }
-                }
-
-        },
-        colors =
-        ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-        ),
-        modifier =
-        Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
-            .background(color = Color.Transparent, shape = RoundedCornerShape(50))
-            .width(250.dp)
-            .height(50.dp)
-            .testTag("LoginButton"),
-        shape = RoundedCornerShape(50)
-    ) {
+  val context = LocalContext.current // Get the context here
+  Button(
+      onClick = {
+        AuthUI.getInstance().signOut(context).addOnCompleteListener {
+          if (it.isSuccessful) {
+            navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[0])
+          }
+        }
+      },
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = Color.White,
+          ),
+      modifier =
+          Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
+              .background(color = Color.Transparent, shape = RoundedCornerShape(50))
+              .width(250.dp)
+              .height(50.dp)
+              .testTag("LoginButton"),
+      shape = RoundedCornerShape(50)) {
         Text("Sign out", color = Color.Black)
-    }
+      }
 }
