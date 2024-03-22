@@ -2,11 +2,8 @@ package com.github.se.studybuddies.ui
 
 import android.app.Activity
 import android.content.Context
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,8 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,62 +31,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.navigation.NavigationActions
-import com.github.se.studybuddies.ui.navigation.Route
 import com.github.se.studybuddies.ui.navigation.TOP_LEVEL_DESTINATIONS
-import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
-class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-    //private val overviewViewModel: OverviewViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        auth = FirebaseAuth.getInstance()
-        //FirebaseApp.initializeApp(this)
-        setContent {
-            StudyBuddiesTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    val navController = rememberNavController()
-                    val navigationActions = NavigationActions(navController)
-                    val currentUser = auth.currentUser
-                    val startDestination = if (currentUser != null) {
-                        Route.HOME
-                    } else {
-                        Route.SIGNIN
-                    }
-                    NavHost(navController = navController, startDestination = startDestination) {
-                        composable(Route.SIGNIN) { LoginScreen(navigationActions) }
-                        composable(Route.HOME) { HomeScreen(navigationActions) }
-                        /*
-                        composable(Route.OVERVIEW) { Overview(overviewViewModel, navigationActions) }
-                        composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
-                        composable(
-                            route = "${Route.EDITTODO}/{todoUID}",
-                            arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
-                                backStackEntry ->
-                            val todoUID = backStackEntry.arguments?.getString("todoUID")
-                            if (todoUID != null) {
-                                EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
-                            }
-                        }
-                        composable(Route.MAP) { MapView(overviewViewModel, navigationActions) }
-                         */
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun LoginScreen(navigationActions: NavigationActions) {
@@ -166,9 +113,3 @@ private fun onSignInResult(
         Toast.makeText(context, "Sign in failed", Toast.LENGTH_LONG).show()
     }
 }
-
-/*@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    SwEntBootcampTheme { LoginScreen(navController) }
-}*/
