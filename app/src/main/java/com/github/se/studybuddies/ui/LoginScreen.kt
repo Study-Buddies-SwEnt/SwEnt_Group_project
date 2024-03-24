@@ -35,8 +35,8 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.ui.navigation.NavigationActions
-import com.github.se.studybuddies.ui.navigation.TOP_LEVEL_DESTINATIONS
+import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.TOP_LEVEL_DESTINATIONS
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -106,7 +106,7 @@ private fun onSignInResult(
 ) {
     val response = result.idpResponse
     if (result.resultCode == Activity.RESULT_OK) {
-        val user = FirebaseAuth.getInstance().currentUser
+        val user = FirebaseAuth.getInstance().currentUser?.uid
         Toast.makeText(context, "Sign in successfully", Toast.LENGTH_LONG).show()
         navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[1])
     }else{

@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,8 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.firebase.ui.auth.AuthUI
-import com.github.se.studybuddies.ui.navigation.NavigationActions
-import com.github.se.studybuddies.ui.navigation.TOP_LEVEL_DESTINATIONS
+import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.TOP_LEVEL_DESTINATIONS
 
 @Composable
 fun SignOutButton(navigationActions: NavigationActions) {

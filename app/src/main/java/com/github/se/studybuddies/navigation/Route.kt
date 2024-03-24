@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.navigation
+package com.github.se.studybuddies.navigation
 
 object Route {
     const val SIGNIN = "LoginScreen"

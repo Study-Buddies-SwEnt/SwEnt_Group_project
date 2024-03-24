@@ -13,8 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.github.se.studybuddies.ui.HomeScreen
 import com.github.se.studybuddies.ui.LoginScreen
-import com.github.se.studybuddies.ui.navigation.NavigationActions
-import com.github.se.studybuddies.ui.navigation.Route
+import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.google.firebase.auth.FirebaseAuth
 

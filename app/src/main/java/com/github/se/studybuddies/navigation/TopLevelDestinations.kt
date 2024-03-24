@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.navigation
+package com.github.se.studybuddies.navigation
 
 import com.github.se.studybuddies.R
 
