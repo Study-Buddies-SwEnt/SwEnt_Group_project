@@ -1,112 +1,105 @@
 package com.github.se.studybuddies.viewModels
 
+import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
+import com.github.se.studybuddies.data.User
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.storage.FirebaseStorage
 import java.time.ZoneId
 import java.util.Date
 import kotlinx.coroutines.tasks.await
 
-class FirebaseConnection {
+class DatabaseConnection {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val userData = db.collection("userData")
+    private val storage = FirebaseStorage.getInstance().reference
+
+    // all collections
+    private val userDataCollection = db.collection("userData")
 
     fun getCurrentUserUID(): String {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         return if (uid != null) {
+            Log.d("MyPrint", "Fetched user UID is $uid")
             uid
         } else {
-            Log.d("ErrorPrint", "Failed to get current user UID")
+            Log.d("MyPrint", "Failed to get current user UID")
             ""
         }
     }
 
     fun getUserData(uid: String): Task<DocumentSnapshot> {
-        return userData.document(uid).get()
+        return userDataCollection.document(uid).get()
+    }
+    suspend fun getDefaultProfilePicture(): Uri {
+        return storage.child("userData/default.jpg").downloadUrl.await()
     }
 
-    /*
-    fun updateTodo(
-        todoId: String,
-        name: String,
-        assigneeName: String,
-        dueDate: Date,
-        location: String,
-        description: String,
-        status: String
-    ) {
-        val task =
-            hashMapOf(
-                "title" to name,
-                "assigneeName" to assigneeName,
-                "dueDate" to dueDate,
-                "location" to location,
-                "description" to description,
-                "status" to status)
-        todoCollection
-            .document(todoId)
-            .update(task as Map<String, Any>)
-            .addOnSuccessListener { Log.d("MyPrint", "Task $todoId succesfully updated") }
-            .addOnFailureListener { Log.d("MyPrint", "Task $todoId failed to update") }
+    fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+        val user = hashMapOf(
+            "email" to email,
+            "username" to username,
+            "photoUrl" to profilePictureUri.toString()
+        )
+        userDataCollection.document(uid).set(user)
+            .addOnSuccessListener {
+                val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
+                pictureRef.putFile(profilePictureUri)
+                    .addOnSuccessListener {
+                        pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                            userDataCollection.document(uid).update("photoUrl", uri.toString())
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                    }
+                Log.d("MyPrint", "User data successfully created")
+            }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to create user data with error: ", e)
+            }
     }
 
-    suspend fun getAllItems(): ToDoList {
-        val querySnapshot = todoCollection.get().await()
-        val items = mutableListOf<ToDo>()
+    fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
+        val task = hashMapOf("email" to email, "username" to username)
+        userDataCollection.document(uid).update(task as Map<String, Any>)
+            .addOnSuccessListener {
+                val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
+                pictureRef.putFile(profilePictureUri)
+                    .addOnSuccessListener {
+                        pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                            userDataCollection.document(uid).update("photoUrl", uri.toString())
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                    }
+                Log.d("MyPrint", "User data successfully updated")
+            }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to update user data with error: ", e)
+            }
 
-        for (document in querySnapshot.documents) {
-            val uid = document.id
-            val name = document.getString("title") ?: ""
-            val assigneeName = document.getString("assigneeName") ?: ""
-            val dueDate = document.getDate("dueDate")
-            val convertedDate = dueDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            val locationString = document.getString("location") ?: ""
-            val location = Location.fromString(locationString)
-            val description = document.getString("description") ?: ""
-            val status = ToDoStatus.valueOf(document.getString("status") ?: "")
 
-            val item = ToDo(uid, name, assigneeName, convertedDate, location, description, status)
-            items.add(item)
-        }
-
-        return ToDoList(items)
     }
 
-    fun addNewTodo(
-        name: String,
-        assigneeName: String,
-        dueDate: Date,
-        location: String,
-        description: String,
-        status: String
-    ) {
-        val task =
-            hashMapOf(
-                "title" to name,
-                "assigneeName" to assigneeName,
-                "dueDate" to dueDate,
-                "location" to location,
-                "description" to description,
-                "status" to status)
-        todoCollection
-            .add(task)
-            .addOnSuccessListener { Log.d("MyPrint", "Task succesfully added") }
-            .addOnFailureListener { Log.d("MyPrint", "Failed to add task") }
+    fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
+        userDataCollection.document(uid).get()
+            .addOnSuccessListener { document ->
+                onSuccess(document.exists())
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
     }
-
-    fun fetchTaskByUID(uid: String): Task<DocumentSnapshot> {
-        return todoCollection.document(uid).get()
-    }
-
-    fun deleteTodo(todoId: String) {
-        todoCollection
-            .document(todoId)
-            .delete()
-            .addOnSuccessListener { Log.d("MyPrint", "Successfully deleted task") }
-            .addOnFailureListener { Log.d("MyPrint", "Failed to delete task") }
-    }
-     */
 }

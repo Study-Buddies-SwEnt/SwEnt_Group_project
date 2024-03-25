@@ -2,6 +2,7 @@ package com.github.se.studybuddies
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,16 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.github.se.studybuddies.ui.HomeScreen
 import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.groups.GroupsHome
+import com.github.se.studybuddies.ui.settings.AccountSettings
+import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
+import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-    //private val overviewViewModel: OverviewViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,13 +35,33 @@ class MainActivity : ComponentActivity() {
                     val navigationActions = NavigationActions(navController)
                     val currentUser = auth.currentUser
                     val startDestination = if (currentUser != null) {
-                        Route.HOME
+                        Route.GROUPSHOME
                     } else {
-                        Route.SIGNIN
+                        Route.LOGIN
                     }
                     NavHost(navController = navController, startDestination = startDestination) {
-                        composable(Route.SIGNIN) { LoginScreen(navigationActions) }
-                        composable(Route.HOME) { HomeScreen(navigationActions) }
+                        composable(Route.LOGIN) {
+                            LoginScreen(navigationActions)
+                            Log.d("MyPrint", "Successfully navigated to LoginScreen")
+                        }
+                        composable(Route.GROUPSHOME) {
+                            if (currentUser != null) {
+                                GroupsHome(navigationActions)
+                                Log.d("MyPrint", "Successfully navigated to GroupsHome")
+                            }
+                        }
+                        composable(Route.ACCOUNT) {
+                            if (currentUser != null) {
+                                AccountSettings(currentUser.uid, UserViewModel(currentUser.uid), navigationActions)
+                                Log.d("MyPrint", "Successfully navigated to AccountSettings")
+                            }
+                        }
+                        composable(Route.CREATEACCOUNT) {
+                            if (currentUser != null) {
+                                CreateAccount(UserViewModel(), navigationActions)
+                                Log.d("MyPrint", "Successfully navigated to CreateAccount")
+                            }
+                        }
                         /*
                         composable(Route.OVERVIEW) { Overview(overviewViewModel, navigationActions) }
                         composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }

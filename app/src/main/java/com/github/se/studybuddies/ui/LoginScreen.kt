@@ -1,8 +1,7 @@
 package com.github.se.studybuddies.ui
 
 import android.app.Activity
-import android.content.Context
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -36,19 +34,19 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.TOP_LEVEL_DESTINATIONS
+import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.viewModels.DatabaseConnection
 import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
 fun LoginScreen(navigationActions: NavigationActions) {
-    val context = LocalContext.current
     val signInLauncher =
         rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            onSignInResult(res, navigationActions,context)
+            onSignInResult(res, navigationActions)
         }
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
         Image(
@@ -87,8 +85,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                 .width(250.dp)
                 .height(50.dp)
                 .testTag("LoginButton"),
-            shape = RoundedCornerShape(50)
-        ) {
+            shape = RoundedCornerShape(50)) {
             Image(
                 painter = painterResource(R.drawable.google),
                 contentDescription = null,
@@ -101,15 +98,24 @@ fun LoginScreen(navigationActions: NavigationActions) {
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions,
-    context : Context
+    navigationActions: NavigationActions
 ) {
-    val response = result.idpResponse
     if (result.resultCode == Activity.RESULT_OK) {
-        val user = FirebaseAuth.getInstance().currentUser?.uid
-        Toast.makeText(context, "Sign in successfully", Toast.LENGTH_LONG).show()
-        navigationActions.navigateTo(TOP_LEVEL_DESTINATIONS[1])
-    }else{
-        Toast.makeText(context, "Sign in failed", Toast.LENGTH_LONG).show()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = DatabaseConnection()
+            db.userExists(userId, onSuccess = { userExists ->
+                if (!userExists) {
+                    navigationActions.navigateTo(Route.CREATEACCOUNT)
+                } else {
+                    navigationActions.navigateTo(Route.ACCOUNT)
+                }
+            }, onFailure = { e ->
+                Log.d("MyPrint", "Failed to check user existence with error: $e")
+            })
+        }
+        Log.d("MyPrint", "Sign in successful")
+    } else {
+        Log.d("MyPrint", "Sign in failed")
     }
 }
