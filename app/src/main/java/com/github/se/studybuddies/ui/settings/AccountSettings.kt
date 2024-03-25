@@ -17,12 +17,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,11 +41,14 @@ import coil.compose.rememberImagePainter
 import com.firebase.ui.auth.AuthUI
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.DrawerMenu
+import com.github.se.studybuddies.ui.SecondaryTopBar
 import com.github.se.studybuddies.viewModels.UserViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun AccountSettings(uid: String, userViewModel: UserViewModel, navigationActions: NavigationActions) {
+fun AccountSettings(uid: String, userViewModel: UserViewModel, backRoute: String, navigationActions: NavigationActions) {
     userViewModel.fetchUserData(uid)
     val userData by userViewModel.userData.observeAsState()
 
@@ -74,6 +80,9 @@ fun AccountSettings(uid: String, userViewModel: UserViewModel, navigationActions
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center)
     {
+        SecondaryTopBar {
+            navigationActions.navigateTo(backRoute)
+        }
         SignOutButton(navigationActions)
         Spacer(Modifier.height(150.dp))
         SetProfilePicture(photoState) { getContent.launch("image/*") }

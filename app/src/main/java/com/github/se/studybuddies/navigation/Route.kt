@@ -1,8 +1,12 @@
 package com.github.se.studybuddies.navigation
 
+import android.provider.Settings
+
 object Route {
     const val LOGIN = "LoginScreen"
     const val GROUPSHOME = "GroupsHome"
+    const val GROUP = "Group"
+    const val SETTINGS = "Settings"
     const val ACCOUNT = "AccountSettings"
     const val CREATEACCOUNT = "CreateAccount"
     /*

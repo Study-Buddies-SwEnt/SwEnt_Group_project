@@ -3,6 +3,8 @@ package com.github.se.studybuddies.viewModels
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
+import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.User
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
@@ -15,10 +17,14 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import java.time.ZoneId
 import java.util.Date
+import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.awaitAll
+
 
 class DatabaseConnection {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -26,7 +32,10 @@ class DatabaseConnection {
 
     // all collections
     private val userDataCollection = db.collection("userData")
+    private val userMembershipsCollection = db.collection("userMemberships")
+    private val groupDataCollection = db.collection("groupData")
 
+    // using the userData collection
     fun getCurrentUserUID(): String {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         return if (uid != null) {
@@ -41,6 +50,7 @@ class DatabaseConnection {
     fun getUserData(uid: String): Task<DocumentSnapshot> {
         return userDataCollection.document(uid).get()
     }
+
     suspend fun getDefaultProfilePicture(): Uri {
         return storage.child("userData/default.jpg").downloadUrl.await()
     }
@@ -68,6 +78,16 @@ class DatabaseConnection {
             .addOnFailureListener { e ->
                 Log.d("MyPrint", "Failed to create user data with error: ", e)
             }
+
+        val membership = hashMapOf("groups" to emptyList<String>())
+        userMembershipsCollection.document(uid).set(membership)
+            .addOnSuccessListener {
+                Log.d("MyPrint", "User memberships successfully created")
+            }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to create user memberships with error: ", e)
+            }
+
     }
 
     fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
@@ -101,5 +121,33 @@ class DatabaseConnection {
             .addOnFailureListener { e ->
                 onFailure(e)
             }
+    }
+
+    // using the groups & userMemberships collections
+    suspend fun getAllGroups(uid: String): GroupList {
+        try {
+            val snapshot = userMembershipsCollection.document(uid).get().await()
+            val items = mutableListOf<Group>()
+
+            if (snapshot.exists()) {
+                val groupUIDs = snapshot.data?.get("groups") as? List<String>
+                groupUIDs?.let { groupsIDs ->
+                    groupsIDs.forEach { groupUID ->
+                        val document = groupDataCollection.document(groupUID.toString()).get().await()
+                        val name = document.getString("name") ?: ""
+                        val photo = Uri.parse(document.getString("picture") ?: "")
+                        val members = document.get("members") as? List<String> ?: emptyList()
+                        items.add(Group(groupUID, name, photo, members))
+                    }
+                }
+                return GroupList(items)
+            } else {
+                Log.d("MyPrint", "User with uid $uid does not exist")
+                return GroupList(emptyList())
+            }
+        } catch (e: Exception) {
+            Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
+        }
+        return GroupList(emptyList())
     }
 }

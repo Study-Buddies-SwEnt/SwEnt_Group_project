@@ -108,7 +108,7 @@ private fun onSignInResult(
                 if (!userExists) {
                     navigationActions.navigateTo(Route.CREATEACCOUNT)
                 } else {
-                    navigationActions.navigateTo(Route.ACCOUNT)
+                    navigationActions.navigateTo(Route.GROUPSHOME)
                 }
             }, onFailure = { e ->
                 Log.d("MyPrint", "Failed to check user existence with error: $e")
