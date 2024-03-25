@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.settings.AccountSettings
@@ -92,6 +93,12 @@ class MainActivity : ComponentActivity() {
                             if (currentUser != null) {
                                 CreateAccount(UserViewModel(), navigationActions)
                                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
+                            }
+                        }
+                        composable(Route.CREATEGROUP) {
+                            if (currentUser != null) {
+                                CreateGroup(GroupViewModel(), navigationActions)
+                                Log.d("MyPrint", "Successfully navigated to CreateGroup")
                             }
                         }
                     }

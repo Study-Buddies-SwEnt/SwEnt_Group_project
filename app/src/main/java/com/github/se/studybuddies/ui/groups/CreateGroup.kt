@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.settings
+package com.github.se.studybuddies.ui.groups
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -6,41 +6,33 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DrawerMenu
-import com.github.se.studybuddies.viewModels.UserViewModel
-import com.google.firebase.auth.FirebaseAuth
+import com.github.se.studybuddies.ui.SecondaryTopBar
+import com.github.se.studybuddies.ui.settings.AccountFields
+import com.github.se.studybuddies.ui.settings.SetProfilePicture
+import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationActions) {
-    val uid = userViewModel.getCurrentUserUID()
-
-    val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
-    val usernameState = remember { mutableStateOf("") }
+fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
+    val nameState = remember { mutableStateOf("") }
     val photoState = remember { mutableStateOf(Uri.EMPTY) }
 
     LaunchedEffect(key1 = true) {
-        val defaultProfilePictureUri = withContext(Dispatchers.IO) { userViewModel.getDefaultProfilePicture() }
+        val defaultProfilePictureUri = withContext(Dispatchers.IO) { groupViewModel.getDefaultPicture() }
         photoState.value = defaultProfilePictureUri
     }
 
@@ -50,7 +42,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize())
+    Column(modifier = Modifier.fillMaxWidth())
     {
         LazyColumn(
             modifier = Modifier
@@ -64,13 +56,16 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    Text("You signed in with the email address $email")
+                    SecondaryTopBar {
+                        navigationActions.navigateTo(Route.GROUPSHOME)
+                    }
+                    Text("Create a group")
                     Spacer(modifier = Modifier.padding(20.dp))
-                    AccountFields(usernameState)
+                    GroupFields(nameState)
                     Spacer(modifier = Modifier.padding(20.dp))
                     SetProfilePicture(photoState) { getContent.launch("image/*") }
-                    SaveButton(usernameState) {
-                        userViewModel.createUser(uid, email, usernameState.value, photoState.value)
+                    SaveButton(nameState) {
+                        groupViewModel.createGroup(nameState.value, photoState.value)
                         navigationActions.navigateTo(Route.GROUPSHOME)
                     }
                 }

@@ -20,8 +20,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.IconButton
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -55,8 +58,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
+import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.navigation.SETTINGS_DESTINATIONS
@@ -81,28 +86,60 @@ fun GroupsHome(uid: String, groupsHomeViewModel: GroupsHomeViewModel, navigation
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    DrawerMenu(navigationActions, Route.GROUPSHOME) { innerPadding ->
-        if (groupList.value.isEmpty()) {
-            Text(
-                text = "Join a group or create one.",
-                style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-                modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .wrapContentHeight(Alignment.CenterVertically),
-                textAlign = TextAlign.Center)
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                horizontalAlignment = Alignment.Start,
-                content = {
-                    items(groupList.value) { group -> GroupItem(group, navigationActions) }
-                })
+    DrawerMenu(
+        navigationActions,
+        Route.GROUPSHOME,
+        topBarContent = {
+            GroupsSettingsButton(navigationActions)
+        },
+        content = { innerPadding ->
+            if (groupList.value.isEmpty()) {
+                Text(
+                    text = "Join a group or create one.",
+                    style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+                    modifier =
+                    Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .wrapContentHeight(Alignment.CenterVertically),
+                    textAlign = TextAlign.Center)
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.Start,
+                    content = {
+                        items(groupList.value) { group -> GroupItem(group, navigationActions) }
+                    })
+            }
+        }
+    )
+}
+
+@Composable
+fun GroupsSettingsButton(navigationActions: NavigationActions) {
+    val expandedState = remember { mutableStateOf(false) }
+    IconButton(
+        onClick = { expandedState.value = true },
+    ) {
+        Icon(painter = painterResource(R.drawable.dots_menu), contentDescription = "Dots Menu")
+    }
+    DropdownMenu(
+        expanded = expandedState.value,
+        onDismissRequest = { expandedState.value = false }
+    ) {
+        GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
+            DropdownMenuItem(
+                onClick = {
+                    expandedState.value = false
+                    navigationActions.navigateTo(item.route)
+                }
+            ) {
+                Text(item.textId)
+            }
         }
     }
 }

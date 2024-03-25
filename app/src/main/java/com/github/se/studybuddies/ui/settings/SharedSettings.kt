@@ -35,7 +35,7 @@ fun AccountFields( usernameState: MutableState<String>) {
         value = usernameState.value,
         onValueChange = { usernameState.value = it },
         label = { Text("Username") },
-        placeholder = { Text("Choose a username") },
+        placeholder = { Text("Enter a username") },
         singleLine = true,
         modifier = Modifier
             .padding(0.dp)

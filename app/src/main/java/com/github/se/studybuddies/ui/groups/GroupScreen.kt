@@ -51,25 +51,32 @@ fun GroupScreen(groupUID: String, groupViewModel: GroupViewModel, navigationActi
         membersState.value = it.members
     }
 
-    DrawerMenu(navigationActions, Route.GROUPSHOME) { innerPadding ->
-        Image(
-            painter = rememberImagePainter(pictureState.value),
-            contentDescription = "Group picture",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            contentScale = ContentScale.Crop
-        )
-        Text(
-            text = "In group ${nameState.value} with uid $groupUID",
-            style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-            modifier =
-            Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
-                .wrapContentHeight(Alignment.CenterVertically),
-            textAlign = TextAlign.Center
-        )
-    }
+    DrawerMenu(
+        navigationActions,
+        Route.GROUPSHOME,
+        topBarContent = {
+            // TODO: Mute group, leave group, etc...
+        },
+        content = { innerPadding ->
+            Image(
+                painter = rememberImagePainter(pictureState.value),
+                contentDescription = "Group picture",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = "In group ${nameState.value} with uid $groupUID",
+                style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+                modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .wrapContentHeight(Alignment.CenterVertically),
+                textAlign = TextAlign.Center
+            )
+        }
+    )
 }

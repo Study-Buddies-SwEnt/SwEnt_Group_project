@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObject
@@ -149,5 +150,43 @@ class DatabaseConnection {
             Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
         }
         return GroupList(emptyList())
+    }
+    fun getGroupData(groupUID: String): Task<DocumentSnapshot> {
+        return groupDataCollection.document(groupUID).get()
+    }
+    suspend fun getDefaultPicture(): Uri {
+        return storage.child("groupData/default_group.jpg").downloadUrl.await()
+    }
+    fun createGroup( name: String, photoUri: Uri) {
+        val uid = getCurrentUserUID()
+        val group = hashMapOf(
+            "name" to name,
+            "picture" to photoUri.toString(),
+            "members" to listOf(uid)
+        )
+        groupDataCollection.add(group)
+            .addOnSuccessListener { documentReference ->
+                val groupUID = documentReference.id
+                userMembershipsCollection.document(uid).update("groups", FieldValue.arrayUnion(groupUID))
+                    .addOnSuccessListener {
+                        Log.d("MyPrint", "Group successfully created")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to update user memberships with error: ", e)
+                    }
+                val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+                pictureRef.putFile(photoUri)
+                    .addOnSuccessListener {
+                        pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                            groupDataCollection.document(groupUID).update("picture", uri.toString())
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to create group with error: ", e)
+            }
     }
 }
