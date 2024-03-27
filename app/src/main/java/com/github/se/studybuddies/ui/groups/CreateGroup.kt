@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.SecondaryTopBar
-import com.github.se.studybuddies.ui.settings.AccountFields
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,48 +27,41 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
-    val nameState = remember { mutableStateOf("") }
-    val photoState = remember { mutableStateOf(Uri.EMPTY) }
+  val nameState = remember { mutableStateOf("") }
+  val photoState = remember { mutableStateOf(Uri.EMPTY) }
 
-    LaunchedEffect(key1 = true) {
-        val defaultProfilePictureUri = withContext(Dispatchers.IO) { groupViewModel.getDefaultPicture() }
-        photoState.value = defaultProfilePictureUri
-    }
+  LaunchedEffect(key1 = true) {
+    val defaultProfilePictureUri =
+        withContext(Dispatchers.IO) { groupViewModel.getDefaultPicture() }
+    photoState.value = defaultProfilePictureUri
+  }
 
-    val getContent = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { profilePictureUri ->
-            photoState.value = profilePictureUri
-        }
-    }
+  val getContent =
+      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
+      }
 
-    Column(modifier = Modifier.fillMaxWidth())
-    {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    SecondaryTopBar {
-                        navigationActions.navigateTo(Route.GROUPSHOME)
-                    }
-                    Text("Create a group")
-                    Spacer(modifier = Modifier.padding(20.dp))
-                    GroupFields(nameState)
-                    Spacer(modifier = Modifier.padding(20.dp))
-                    SetProfilePicture(photoState) { getContent.launch("image/*") }
-                    SaveButton(nameState) {
-                        groupViewModel.createGroup(nameState.value, photoState.value)
-                        navigationActions.navigateTo(Route.GROUPSHOME)
-                    }
+  Column(modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+          item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                  SecondaryTopBar { navigationActions.navigateTo(Route.GROUPSHOME) }
+                  Text("Create a group")
+                  Spacer(modifier = Modifier.padding(20.dp))
+                  GroupFields(nameState)
+                  Spacer(modifier = Modifier.padding(20.dp))
+                  SetProfilePicture(photoState) { getContent.launch("image/*") }
+                  SaveButton(nameState) {
+                    groupViewModel.createGroup(nameState.value, photoState.value)
+                    navigationActions.navigateTo(Route.GROUPSHOME)
+                  }
                 }
-            }
+          }
         }
-    }
+  }
 }

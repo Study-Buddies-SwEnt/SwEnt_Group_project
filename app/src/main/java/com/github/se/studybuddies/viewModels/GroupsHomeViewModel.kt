@@ -8,25 +8,25 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.GroupList
 import kotlinx.coroutines.launch
 
-class GroupsHomeViewModel(private val uid: String? = null): ViewModel() {
-    private val db = DatabaseConnection()
-    private val _groups = MutableLiveData(GroupList(emptyList()))
-    val groups: LiveData<GroupList> = _groups
+class GroupsHomeViewModel(private val uid: String? = null) : ViewModel() {
+  private val db = DatabaseConnection()
+  private val _groups = MutableLiveData(GroupList(emptyList()))
+  val groups: LiveData<GroupList> = _groups
 
-    init {
-        if (uid != null) {
-            fetchGroups(uid)
-        }
+  init {
+    if (uid != null) {
+      fetchGroups(uid)
     }
+  }
 
-    fun fetchGroups(uid: String) {
-        viewModelScope.launch {
-            try {
-                val groups = db.getAllGroups(uid)
-                _groups.value = groups
-            } catch (e: Exception) {
-                Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
-            }
-        }
+  fun fetchGroups(uid: String) {
+    viewModelScope.launch {
+      try {
+        val groups = db.getAllGroups(uid)
+        _groups.value = groups
+      } catch (e: Exception) {
+        Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
+      }
     }
+  }
 }

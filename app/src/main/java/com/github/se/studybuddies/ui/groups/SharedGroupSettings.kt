@@ -19,33 +19,32 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GroupFields(nameState: MutableState<String>) {
-    Text("This is the name of the group.")
-    Spacer(Modifier.height(20.dp))
-    OutlinedTextField(
-        value = nameState.value,
-        onValueChange = { nameState.value = it },
-        label = { Text("Group Name") },
-        placeholder = { Text("Enter a group name") },
-        singleLine = true,
-        modifier = Modifier
-            .padding(0.dp)
-            .width(300.dp)
-            .height(65.dp))
+  Text("This is the name of the group.")
+  Spacer(Modifier.height(20.dp))
+  OutlinedTextField(
+      value = nameState.value,
+      onValueChange = { nameState.value = it },
+      label = { Text("Group Name") },
+      placeholder = { Text("Enter a group name") },
+      singleLine = true,
+      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp))
 }
+
 @Composable
 fun SaveButton(nameState: MutableState<String>, save: () -> Unit) {
-    Button(
-        onClick = save,
-        enabled = nameState.value.isNotBlank(),
-        modifier = Modifier.padding(0.dp)
-            .width(300.dp)
-            .height(50.dp)
-            .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-            .testTag("todoSave"),
-        colors =
-        ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF8A8AF0),
-        )) {
+  Button(
+      onClick = save,
+      enabled = nameState.value.isNotBlank(),
+      modifier =
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(50.dp)
+              .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
+              .testTag("todoSave"),
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = Color(0xFF8A8AF0),
+          )) {
         Text("Save")
-    }
+      }
 }

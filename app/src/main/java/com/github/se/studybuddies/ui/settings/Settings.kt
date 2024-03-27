@@ -8,10 +8,8 @@ import com.github.se.studybuddies.ui.SecondaryTopBar
 
 @Composable
 fun Settings(backRoute: String, navigationActions: NavigationActions) {
-    Column {
-        SecondaryTopBar {
-            navigationActions.navigateTo(backRoute)
-        }
-        Text("Settings")
-    }
+  Column {
+    SecondaryTopBar { navigationActions.navigateTo(backRoute) }
+    Text("Settings")
+  }
 }
