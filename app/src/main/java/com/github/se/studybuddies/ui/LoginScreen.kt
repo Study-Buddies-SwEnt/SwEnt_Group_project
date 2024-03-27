@@ -113,6 +113,8 @@ private fun onSignInResult(
             }
           },
           onFailure = { e -> Log.d("MyPrint", "Failed to check user existence with error: $e") })
+    } else {
+        Log.e("MyPrint", "Failed to get user ID")
     }
     Log.d("MyPrint", "Sign in successful")
   } else {
