@@ -41,7 +41,8 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
 
-  Column(modifier = Modifier.fillMaxWidth()) {
+  Column(modifier = Modifier.fillMaxWidth())
+  {
     LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
