@@ -56,10 +56,13 @@ class DatabaseConnection {
                 pictureRef.downloadUrl.addOnSuccessListener { uri ->
                   userDataCollection.document(uid).update("photoUrl", uri.toString())
                 }
-                  Log.e("MyPrint", "User data successfully created")
+                Log.e("MyPrint", "User data successfully created")
               }
               .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to upload photo with error with link $profilePictureUri: ", e)
+                Log.d(
+                    "MyPrint",
+                    "Failed to upload photo with error with link $profilePictureUri: ",
+                    e)
               }
           Log.d("MyPrint", "User data successfully created for uid $uid")
         }
