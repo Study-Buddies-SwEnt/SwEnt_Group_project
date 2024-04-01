@@ -41,9 +41,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.BottomNavigationBar
 import com.github.se.studybuddies.ui.DrawerMenu
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 
@@ -67,24 +69,41 @@ fun GroupsHome(
       Route.GROUPSHOME,
       topBarContent = { GroupsSettingsButton(navigationActions) },
       content = { innerPadding ->
-        if (groupList.value.isEmpty()) {
-          Text(
-              text = "Join a group or create one.",
-              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-              modifier =
+          if (groupList.value.isEmpty()) {
+              Text(
+                  text = "Join a group or create one.",
+                  style = TextStyle(
+                      fontSize = 16.sp,
+                      lineHeight = 24.sp,
+                      letterSpacing = 0.5.sp
+                  ),
+                  modifier =
                   Modifier.padding(innerPadding)
                       .fillMaxSize()
                       .padding(16.dp)
                       .wrapContentHeight(Alignment.CenterVertically),
-              textAlign = TextAlign.Center)
-        } else {
-          LazyColumn(
-              modifier = Modifier.padding(innerPadding).fillMaxSize(),
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-              horizontalAlignment = Alignment.Start,
-              content = { items(groupList.value) { group -> GroupItem(group, navigationActions) } })
-        }
-      })
+                  textAlign = TextAlign.Center
+              )
+          } else {
+              LazyColumn(
+                  modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.Start,
+                  content = {
+                      items(groupList.value) { group ->
+                          GroupItem(
+                              group,
+                              navigationActions
+                          )
+                      }
+                  })
+          }
+          BottomNavigationBar(
+              navigationActions,
+              BOTTOM_NAVIGATION_DESTINATIONS)
+      }
+  )
+
 }
 
 @Composable
