@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+        package com.github.se.studybuddies.ui
 
 import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
