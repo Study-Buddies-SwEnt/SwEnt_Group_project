@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.BadgedBox
@@ -20,6 +21,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
@@ -33,6 +35,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -40,6 +44,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.SETTINGS_DESTINATIONS
+import com.github.se.studybuddies.ui.theme.Red
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,7 +66,7 @@ fun DrawerMenu(
           Spacer(modifier = Modifier.size(16.dp))
           SETTINGS_DESTINATIONS.forEachIndexed { index, item ->
             NavigationDrawerItem(
-                label = { Text(item.textId) },
+                label = { Text(item.textId,color = Red) },
                 selected = false,
                 onClick = {
                   navigationActions.navigateTo("${item.route}/$backRoute")
@@ -69,7 +74,7 @@ fun DrawerMenu(
                   scope.launch { drawerState.close() }
                 },
                 icon = {
-                  Icon(painter = painterResource(item.icon), contentDescription = item.textId)
+                  Icon(painter = painterResource(item.icon), contentDescription = item.textId,tint = Red)
                 },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
           }
@@ -130,7 +135,8 @@ private fun MenuButton(onClick: () -> Unit) {
         Icon(
             painterResource(R.drawable.menu),
             contentDescription = "Settings",
-            modifier = Modifier.size(28.dp))
+            modifier = Modifier.size(28.dp),
+            tint = Red)
       }
 }
 
@@ -145,7 +151,11 @@ fun BottomNavigationBar(
     }
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar (
+                 modifier = Modifier.clip(RoundedCornerShape(50.dp))
+                     .padding(8.dp),
+
+            ){
                 destinations.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = selectedItemIndex == index,
@@ -154,13 +164,14 @@ fun BottomNavigationBar(
                             navigationActions.navigateTo(item.route)
                             },
                         label = {
-                            Text(text = item.textId)
+                            Text(text = item.textId, color = Red)
                         },
                         alwaysShowLabel = true,
                         icon = {
                             Icon(
                                 painter = painterResource(item.icon),
-                                contentDescription = item.textId
+                                contentDescription = item.textId,
+                                tint = Red
                             )
                         }
                     )
@@ -170,3 +181,4 @@ fun BottomNavigationBar(
     ) {
     }
 }
+
