@@ -224,6 +224,8 @@ fun TopNavigationBar(
         title = {
             Text(
                 text = "Study Buddies",
+                fontFamily = FontFamily(Font(R.font.playball_regular)),
+                fontSize = 45.sp,
             )
         },
         navigationIcon = {

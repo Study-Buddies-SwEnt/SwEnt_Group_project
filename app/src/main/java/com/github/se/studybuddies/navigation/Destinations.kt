@@ -14,7 +14,7 @@ val GROUPS_SETTINGS_DESTINATIONS =
 
 val BOTTOM_NAVIGATION_DESTINATIONS =
     listOf(
-        Destination(route = Route.GROUPSHOME, icon = R.drawable.user_v2, textId = "Solo study"),
+        Destination(route = Route.SOLOSTUDYHOME, icon = R.drawable.user_v2, textId = "Solo study"),
         Destination(route = Route.GROUPSHOME, icon = R.drawable.groups, textId = "Groups"),
         Destination(route = Route.CREATEGROUP, icon = R.drawable.messages, textId = "Messages"),
         Destination(route = Route.CREATEGROUP, icon = R.drawable.map, textId = "Map"))
