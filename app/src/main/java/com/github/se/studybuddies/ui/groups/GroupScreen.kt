@@ -45,12 +45,10 @@ fun GroupScreen(
     membersState.value = it.members
   }
 
+
   DrawerMenu(
       navigationActions,
       Route.GROUPSHOME,
-      topBarContent = {
-        // TODO: Mute group, leave group, etc...
-      },
       content = { innerPadding ->
         Image(
             painter = rememberImagePainter(pictureState.value),
