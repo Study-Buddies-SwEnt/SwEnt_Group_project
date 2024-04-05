@@ -81,11 +81,13 @@ import com.github.se.studybuddies.ui.theme.Red
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun DrawerMenu(
     navigationActions: NavigationActions,
     backRoute: String,
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
+    iconOption: @Composable () -> Unit // SearchIcon as a parameter
 ) {
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
@@ -116,7 +118,12 @@ fun DrawerMenu(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                TopNavigationBar(navigationActions = navigationActions,scope,drawerState)
+                TopNavigationBar(title = {StudyBuddiesTitle()},
+                    navigationIcon = { scope, drawerState -> DrawerMenuIcon(scope, drawerState) },
+                    actions = { SearchIcon()},
+                    navigationActions = navigationActions,
+                    scope = scope,
+                    drawerState = drawerState)
             },
             bottomBar = {
                 BottomNavigationBar(navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
@@ -125,52 +132,6 @@ fun DrawerMenu(
       }
 }
 
-@Composable
-fun MainTopBar(content: @Composable() (RowScope.() -> Unit)) {
-  TopAppBar(
-      modifier = Modifier
-          .width(412.dp)
-          .height(90.dp)
-          .padding(bottom = 2.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
-      elevation = 0.dp,
-      content = content)
-}
-
-@Composable
-fun SecondaryTopBar(onClick: () -> Unit) {
-  TopAppBar(
-      modifier = Modifier
-          .width(412.dp)
-          .height(90.dp)
-          .padding(bottom = 2.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
-      elevation = 0.dp) {
-        IconButton(onClick = { onClick() }) {
-          Icon(
-              painterResource(R.drawable.arrow_back),
-              contentDescription = "Go back button",
-              modifier = Modifier.size(28.dp))
-        }
-      }
-}
-
-@Composable
-private fun MenuButton(onClick: () -> Unit) {
-  IconButton(
-      onClick = {
-        onClick()
-        Log.d("MyPrint", "Clicked on the menu button")
-      }) {
-        Icon(
-            painterResource(R.drawable.menu),
-            contentDescription = "Settings",
-            modifier = Modifier.size(28.dp),
-            tint = Red)
-      }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -215,45 +176,61 @@ fun BottomNavigationBar(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TopNavigationBar(
+    title : @Composable () -> Unit,
+    navigationIcon : @Composable (CoroutineScope, DrawerState) -> Unit,
+    actions: @Composable () -> Unit,
     navigationActions: NavigationActions,
     scope : CoroutineScope,
-    drawerState: DrawerState
-){
-    val expandedState = remember { mutableStateOf(false) }
+    drawerState: DrawerState,
+
+    ){
     CenterAlignedTopAppBar(
         title = {
-            Text(
-                text = "Study Buddies",
-                fontFamily = FontFamily(Font(R.font.playball_regular)),
-                fontSize = 45.sp,
-            )
+            title()
         },
         navigationIcon = {
-            IconButton(onClick = {  scope.launch {
-                drawerState.open()
-            } }) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Go back"
-                )
-            }
+            navigationIcon(scope,drawerState)
         },
             actions = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    tint = Red,
-                    contentDescription = "Search groups"
-                )
-            }
+                actions()
         },
-        //modifier = Modifier.height(50.dp)
     )
 }
 
+@Composable
+fun StudyBuddiesTitle(){
+    Text(
+        text = "Study Buddies",
+        fontFamily = FontFamily(Font(R.font.playball_regular)),
+        fontSize = 45.sp,
+    )
+}
 
+@Composable
+fun DrawerMenuIcon(
+    scope : CoroutineScope,
+    drawerState: DrawerState,
+){
+    IconButton(onClick = {  scope.launch {
+        drawerState.open()
+    } }) {
+        Icon(
+            imageVector = Icons.Default.Menu,
+            contentDescription = "Go back"
+        )
+    }
+}
 
-
+@Composable
+fun SearchIcon(){
+    IconButton(onClick = { /*TODO*/ }) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            tint = Red,
+            contentDescription = "Search groups"
+        )
+    }
+}
 
 
 @Composable
@@ -302,5 +279,54 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
                 contentScale = ContentScale.Crop)
             Text(text = group.name, style = TextStyle(fontSize = 16.sp), lineHeight = 28.sp)
         }
+    }
+}
+
+
+
+@Composable
+fun MainTopBar(content: @Composable() (RowScope.() -> Unit)) {
+    TopAppBar(
+        modifier = Modifier
+            .width(412.dp)
+            .height(90.dp)
+            .padding(bottom = 2.dp),
+        contentColor = Color.Transparent,
+        backgroundColor = Color.Transparent,
+        elevation = 0.dp,
+        content = content)
+}
+
+@Composable
+fun SecondaryTopBar(onClick: () -> Unit) {
+    TopAppBar(
+        modifier = Modifier
+            .width(412.dp)
+            .height(90.dp)
+            .padding(bottom = 2.dp),
+        contentColor = Color.Transparent,
+        backgroundColor = Color.Transparent,
+        elevation = 0.dp) {
+        IconButton(onClick = { onClick() }) {
+            Icon(
+                painterResource(R.drawable.arrow_back),
+                contentDescription = "Go back button",
+                modifier = Modifier.size(28.dp))
+        }
+    }
+}
+
+@Composable
+private fun MenuButton(onClick: () -> Unit) {
+    IconButton(
+        onClick = {
+            onClick()
+            Log.d("MyPrint", "Clicked on the menu button")
+        }) {
+        Icon(
+            painterResource(R.drawable.menu),
+            contentDescription = "Settings",
+            modifier = Modifier.size(28.dp),
+            tint = Red)
     }
 }

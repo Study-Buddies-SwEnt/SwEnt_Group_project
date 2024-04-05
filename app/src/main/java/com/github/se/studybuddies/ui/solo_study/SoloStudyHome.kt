@@ -66,7 +66,8 @@ fun SoloStudyHome(
             }
         }
 
-    }
+    },
+        iconOption = {}
     )
 
 

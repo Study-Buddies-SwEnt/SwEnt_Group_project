@@ -56,6 +56,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.BottomNavigationBar
 import com.github.se.studybuddies.ui.DrawerMenu
+import com.github.se.studybuddies.ui.SearchIcon
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 
@@ -86,7 +87,8 @@ fun GroupsHome(
                       letterSpacing = 0.5.sp
                   ),
                   modifier =
-                  Modifier.padding(innerPadding)
+                  Modifier
+                      .padding(innerPadding)
                       .fillMaxSize()
                       .padding(16.dp)
                       .wrapContentHeight(Alignment.CenterVertically),
@@ -94,7 +96,9 @@ fun GroupsHome(
               )
           } else {
               LazyColumn(
-                  modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                  modifier = Modifier
+                      .padding(innerPadding)
+                      .fillMaxSize(),
                   verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                   horizontalAlignment = Alignment.Start,
                   content = {
@@ -106,7 +110,8 @@ fun GroupsHome(
                       }
                   })
           }
-      }
+      },
+       iconOption = { SearchIcon()}
   )
 
 }
