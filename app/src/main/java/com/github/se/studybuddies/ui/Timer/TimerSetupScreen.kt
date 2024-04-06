@@ -40,7 +40,7 @@ fun TimerSetupScreen(viewModel: TimeViewModel = viewModel()) {
         OutlinedTextField(
             value = seconds,
             onValueChange = { seconds = it },
-            label = { Text("Seconds") },
+            label = { Text("Seconds ") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
         Button(onClick = {
