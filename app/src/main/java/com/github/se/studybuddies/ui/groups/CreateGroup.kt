@@ -66,7 +66,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                 navigationIcon = {
                     Icon(imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Go back",
-                        modifier = Modifier.clickable { navigationActions.goBack() })
+                        modifier = Modifier.clickable { navigationActions.navigateTo(Route.GROUPSHOME) })
                 }
             )
             Divider(color = Red, thickness = 4.dp)
