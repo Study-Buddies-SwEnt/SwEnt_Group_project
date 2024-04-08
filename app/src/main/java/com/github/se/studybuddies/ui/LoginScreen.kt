@@ -47,9 +47,9 @@ fun LoginScreen(navigationActions: NavigationActions) {
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
         onSignInResult(res, navigationActions)
       }
-    val Playball = FontFamily(Font(R.font.playball_regular))
+  val Playball = FontFamily(Font(R.font.playball_regular))
 
-    Column(
+  Column(
       modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center) {

@@ -104,12 +104,12 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
-              composable(Route.SOLOSTUDYHOME){
-                  if(currentUser != null){
-                      SoloStudyHome(navigationActions)
-                      Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
-                  }
+            composable(Route.SOLOSTUDYHOME) {
+              if (currentUser != null) {
+                SoloStudyHome(navigationActions)
+                Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
               }
+            }
           }
         }
       }

@@ -46,7 +46,6 @@ fun GroupScreen(
     membersState.value = it.members
   }
 
-
   DrawerMenu(
       navigationActions,
       Route.GROUPSHOME,
@@ -54,20 +53,17 @@ fun GroupScreen(
         Image(
             painter = rememberImagePainter(pictureState.value),
             contentDescription = "Group picture",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
+            modifier = Modifier.fillMaxWidth().height(200.dp),
             contentScale = ContentScale.Crop)
         Text(
             text = "In group ${nameState.value} with uid $groupUID",
             style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
             modifier =
-            Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
-                .wrapContentHeight(Alignment.CenterVertically),
+                Modifier.padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .wrapContentHeight(Alignment.CenterVertically),
             textAlign = TextAlign.Center)
       },
-      iconOption = { SearchIcon()})
+      iconOption = { SearchIcon() })
 }
