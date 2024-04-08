@@ -69,41 +69,25 @@ fun GroupsHome(
       Route.GROUPSHOME,
       topBarContent = { GroupsSettingsButton(navigationActions) },
       content = { innerPadding ->
-          if (groupList.value.isEmpty()) {
-              Text(
-                  text = "Join a group or create one.",
-                  style = TextStyle(
-                      fontSize = 16.sp,
-                      lineHeight = 24.sp,
-                      letterSpacing = 0.5.sp
-                  ),
-                  modifier =
+        if (groupList.value.isEmpty()) {
+          Text(
+              text = "Join a group or create one.",
+              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+              modifier =
                   Modifier.padding(innerPadding)
                       .fillMaxSize()
                       .padding(16.dp)
                       .wrapContentHeight(Alignment.CenterVertically),
-                  textAlign = TextAlign.Center
-              )
-          } else {
-              LazyColumn(
-                  modifier = Modifier.padding(innerPadding).fillMaxSize(),
-                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.Start,
-                  content = {
-                      items(groupList.value) { group ->
-                          GroupItem(
-                              group,
-                              navigationActions
-                          )
-                      }
-                  })
-          }
-          BottomNavigationBar(
-              navigationActions,
-              BOTTOM_NAVIGATION_DESTINATIONS)
-      }
-  )
-
+              textAlign = TextAlign.Center)
+        } else {
+          LazyColumn(
+              modifier = Modifier.padding(innerPadding).fillMaxSize(),
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+              horizontalAlignment = Alignment.Start,
+              content = { items(groupList.value) { group -> GroupItem(group, navigationActions) } })
+        }
+        BottomNavigationBar(navigationActions, BOTTOM_NAVIGATION_DESTINATIONS)
+      })
 }
 
 @Composable

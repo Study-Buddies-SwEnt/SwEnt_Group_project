@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -91,10 +90,7 @@ fun DrawerMenu(
 @Composable
 fun MainTopBar(content: @Composable() (RowScope.() -> Unit)) {
   TopAppBar(
-      modifier = Modifier
-          .width(412.dp)
-          .height(90.dp)
-          .padding(bottom = 2.dp),
+      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
       contentColor = Color.Transparent,
       backgroundColor = Color.Transparent,
       elevation = 0.dp,
@@ -104,10 +100,7 @@ fun MainTopBar(content: @Composable() (RowScope.() -> Unit)) {
 @Composable
 fun SecondaryTopBar(onClick: () -> Unit) {
   TopAppBar(
-      modifier = Modifier
-          .width(412.dp)
-          .height(90.dp)
-          .padding(bottom = 2.dp),
+      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
       contentColor = Color.Transparent,
       backgroundColor = Color.Transparent,
       elevation = 0.dp) {
@@ -136,37 +129,24 @@ private fun MenuButton(onClick: () -> Unit) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigationBar(
-    navigationActions: NavigationActions,
-    destinations: List<Destination>
-){
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                destinations.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedItemIndex == index,
-                        onClick = {
-                            selectedItemIndex = index
-                            navigationActions.navigateTo(item.route)
-                            },
-                        label = {
-                            Text(text = item.textId)
-                        },
-                        alwaysShowLabel = true,
-                        icon = {
-                            Icon(
-                                painter = painterResource(item.icon),
-                                contentDescription = item.textId
-                            )
-                        }
-                    )
-                }
-            }
+fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
+  var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
+  Scaffold(
+      bottomBar = {
+        NavigationBar {
+          destinations.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selectedItemIndex == index,
+                onClick = {
+                  selectedItemIndex = index
+                  navigationActions.navigateTo(item.route)
+                },
+                label = { Text(text = item.textId) },
+                alwaysShowLabel = true,
+                icon = {
+                  Icon(painter = painterResource(item.icon), contentDescription = item.textId)
+                })
+          }
         }
-    ) {
-    }
+      }) {}
 }
