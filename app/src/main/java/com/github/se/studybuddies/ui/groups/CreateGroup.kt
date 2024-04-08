@@ -3,13 +3,25 @@ package com.github.se.studybuddies.ui.groups
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -21,29 +33,65 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.SecondaryTopBar
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
+import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
-  val nameState = remember { mutableStateOf("") }
-  val photoState = remember { mutableStateOf(Uri.EMPTY) }
+    val nameState = remember { mutableStateOf("") }
+    val photoState = remember { mutableStateOf(Uri.EMPTY) }
 
-  LaunchedEffect(key1 = true) {
-    val defaultProfilePictureUri =
-        withContext(Dispatchers.IO) { groupViewModel.getDefaultPicture() }
-    photoState.value = defaultProfilePictureUri
-  }
+    LaunchedEffect(key1 = true) {
+        val defaultProfilePictureUri =
+            withContext(Dispatchers.IO) { groupViewModel.getDefaultPicture() }
+        photoState.value = defaultProfilePictureUri
+    }
 
-  val getContent =
-      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
-      }
+    val getContent =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
+        }
 
-  Column(modifier = Modifier.fillMaxWidth()) {
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
+    Surface(color = White, modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TopAppBar(title = { Text("Create a group") },
+                navigationIcon = {
+                    Icon(imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Go back",
+                        modifier = Modifier.clickable { navigationActions.goBack() })
+                }
+            )
+            Divider(color = Red, thickness = 4.dp)
+            Spacer(modifier = Modifier.padding(20.dp))
+            GroupFields(nameState)
+            Spacer(modifier = Modifier.padding(40.dp))
+            SetProfilePicture(photoState) { getContent.launch("image/*") }
+            Spacer(modifier = Modifier.padding(100.dp))
+            SaveButton(nameState) {
+                groupViewModel.createGroup(nameState.value, photoState.value)
+                navigationActions.navigateTo(Route.GROUPSHOME)
+
+            }
+        }
+    }
+}
+
+
+
+
+        /*
+      LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
@@ -64,4 +112,8 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
           }
         }
   }
-}
+
+         */
+
+         */
+

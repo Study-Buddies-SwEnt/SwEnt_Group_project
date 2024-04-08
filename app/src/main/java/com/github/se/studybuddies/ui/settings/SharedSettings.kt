@@ -22,6 +22,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.White
 
 @Composable
 fun AccountFields(usernameState: MutableState<String>) {
@@ -41,7 +43,7 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberImagePainter(photoState.value),
       contentDescription = "Profile Picture",
-      modifier = Modifier.size(100.dp),
+      modifier = Modifier.size(200.dp),
       contentScale = ContentScale.Crop)
   Spacer(Modifier.height(20.dp))
   Text(text = "Select a profile picture", modifier = Modifier.clickable { onClick() })
@@ -61,8 +63,8 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
               .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
-              containerColor = Color(0xFF8A8AF0),
+              containerColor = Red,
           )) {
-        Text("Save")
+        Text("Save",color = White)
       }
 }

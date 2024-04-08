@@ -2,12 +2,17 @@ package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,9 +21,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,10 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +58,9 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DrawerMenu
 import com.github.se.studybuddies.ui.SearchIcon
+import com.github.se.studybuddies.ui.StudyBuddiesTitle
+import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,20 +86,42 @@ fun GroupsHome(
               text = "Join a group or create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
               modifier =
-                  Modifier.padding(innerPadding)
-                      .fillMaxSize()
-                      .padding(16.dp)
-                      .wrapContentHeight(Alignment.CenterVertically),
+              Modifier
+                  .padding(innerPadding)
+                  .fillMaxSize()
+                  .padding(16.dp)
+                  .wrapContentHeight(Alignment.CenterVertically),
               textAlign = TextAlign.Center)
         } else {
-          LazyColumn(
-              modifier = Modifier.padding(innerPadding).fillMaxSize(),
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-              horizontalAlignment = Alignment.Start,
-              content = { items(groupList.value) { group -> GroupItem(group, navigationActions) } })
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.Start,
+                    content = {
+                        items(groupList.value) { group ->
+                            GroupItem(
+                                group,
+                                navigationActions
+                            )
+                        }
+                        item {
+                            AddGroupButton(navigationActions)
+                        }
+
+                    })
+
+            }
         }
       },
-      iconOption = { SearchIcon() })
+      title = {StudyBuddiesTitle()},
+      iconOptions = { SearchIcon() })
 }
 
 @Composable
@@ -92,7 +130,7 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
   IconButton(
       onClick = { expandedState.value = true },
   ) {
-    Icon(painter = painterResource(R.drawable.dots_menu), contentDescription = "Dots Menu")
+    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Dots Menu")
   }
   DropdownMenu(expanded = expandedState.value, onDismissRequest = { expandedState.value = false }) {
     GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
@@ -101,6 +139,7 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
             expandedState.value = false
             navigationActions.navigateTo(item.route)
           }) {
+            Spacer(modifier = Modifier.size(16.dp))
             Text(item.textId)
           }
     }
@@ -111,23 +150,56 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
 fun GroupItem(group: Group, navigationActions: NavigationActions) {
   Box(
       modifier =
-          Modifier.fillMaxWidth()
-              .clickable {
-                val groupUid = group.uid
-                navigationActions.navigateTo("${Route.GROUP}/$groupUid")
-              }
-              .drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+      Modifier
+          .fillMaxWidth()
+          .background(Color.White)
+          .clickable {
+              val groupUid = group.uid
+              navigationActions.navigateTo("${Route.GROUP}/$groupUid")
+          }
+          .drawBehind {
+              val strokeWidth = 1f
+              val y = size.height - strokeWidth / 2
+              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+          }) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
           Image(
               painter = rememberImagePainter(group.picture),
               contentDescription = "Group profile picture",
               modifier = Modifier.size(32.dp),
               contentScale = ContentScale.Crop)
+            Spacer(modifier = Modifier.size(16.dp))
           Text(text = group.name, style = TextStyle(fontSize = 16.sp), lineHeight = 28.sp)
+            Spacer(modifier = Modifier.weight(1f))
+            GroupsSettingsButton(navigationActions)
         }
       }
+}
+
+
+
+@Composable
+fun AddGroupButton(navigationActions: NavigationActions) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.End
+    ) {
+        Button(onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
+            modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium))
+        {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Create a task",
+                tint = White
+            )
+        }
+    }
 }
