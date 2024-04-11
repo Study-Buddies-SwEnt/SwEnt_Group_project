@@ -16,10 +16,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.SecondaryTopBar
+import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,7 @@ import kotlinx.coroutines.withContext
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
   val nameState = remember { mutableStateOf("") }
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
+  val context = LocalContext.current
 
   LaunchedEffect(key1 = true) {
     val defaultProfilePictureUri =
@@ -40,6 +43,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
+  val permissionGranted = checkPermission(context, "Manifest.permission.READ_EXTERNAL_STORAGE", 101)
 
   Column(modifier = Modifier.fillMaxWidth()) {
     LazyColumn(
