@@ -4,17 +4,25 @@ import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
+import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.User
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
+
+  val rt_db =
+      Firebase.database(
+          "https://study-buddies-e655a-default-rtdb.europe-west1.firebasedatabase.app/")
 
   // all collections
   private val userDataCollection = db.collection("userData")
@@ -176,5 +184,26 @@ class DatabaseConnection {
               }
         }
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+  }
+
+  fun sendGroupMessage(groupUID: String, message: Message) {
+    // TODO replace hardcoded strings with constants
+    val ref = rt_db.getReference("groups/${groupUID}/messages/${message.uid}")
+    ref.child("text").setValue(message.text)
+    ref.child("senderId").setValue(getCurrentUserUID())
+    //    ref.child("senderId").setValue(message.sender.uid)
+
+    ref.child("timestamp").setValue(message.timestamp)
+  }
+
+  fun getUser(uid: String): User {
+    // TODO implement this method (or modify getUserData to return User object)
+    return User(uid, "email", "username", Uri.parse("photoUrl"))
+  }
+
+  fun getCurrentUser(): User {
+    //        return getUser(getCurrentUserUID())
+    Log.d("MyPrint", "getCurrentUser called ${getCurrentUserUID()}")
+    return User(getCurrentUserUID(), "email", "username", Uri.parse("photoUrl"))
   }
 }
