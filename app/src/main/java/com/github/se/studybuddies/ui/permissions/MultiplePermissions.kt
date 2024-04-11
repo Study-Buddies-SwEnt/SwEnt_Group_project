@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.permissions
 
-import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.widget.Toast
@@ -8,18 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.github.se.studybuddies.ui.permissions.PermissionsCode.CAMERA_PERMISSION_CODE
-import com.github.se.studybuddies.ui.permissions.PermissionsCode.LOCATION_PERMISSION_CODE
-import com.github.se.studybuddies.ui.permissions.PermissionsCode.MICROPHONE_PERMISSION_CODE
-import com.github.se.studybuddies.ui.permissions.PermissionsCode.STORAGE_PERMISSION_CODE
 
 class MultiplePermissions {
 
   companion object {
-    private const val CAMERA = Manifest.permission.CAMERA
-    private const val MIC = Manifest.permission.RECORD_AUDIO
-    private const val STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE
-    private const val LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+    const val CAMERA_PERMISSION_CODE = 100
+    const val STORAGE_PERMISSION_CODE = 101
+    const val LOCATION_PERMISSION_CODE = 102
+    const val MICROPHONE_PERMISSION_CODE = 103
   }
 
   // Function to check and request permission.
