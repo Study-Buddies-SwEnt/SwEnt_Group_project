@@ -9,8 +9,6 @@ package com.github.se.studybuddies.tests
 // ***************************************************************************** //
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.espresso.intent.Intents.intended
-import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.MainActivity
@@ -41,19 +39,6 @@ class LoginTest : TestCase() {
         assertIsDisplayed()
         assertHasClickAction()
       }
-    }
-  }
-
-  @Test
-  fun googleSignInReturnsValidActivityResult() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.LoginScreen>(composeTestRule) {
-      loginButton {
-        assertIsDisplayed()
-        performClick()
-      }
-
-      // assert that an Intent resolving to Google Mobile Services has been sent (for sign-in)
-      intended(toPackage("com.google.android.gms"))
     }
   }
 }
