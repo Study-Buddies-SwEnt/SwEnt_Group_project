@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +59,8 @@ import com.github.se.studybuddies.ui.Main_title
 import com.github.se.studybuddies.ui.SearchIcon
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -67,14 +70,18 @@ fun GroupsHome(
     groupsHomeViewModel: GroupsHomeViewModel,
     navigationActions: NavigationActions
 ) {
+    val coroutineScope = rememberCoroutineScope()
   groupsHomeViewModel.fetchGroups(uid)
   val groups by groupsHomeViewModel.groups.observeAsState()
   val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
   var isLoading by remember { mutableStateOf(true) }
-
+    
   groups?.let {
       groupList.value = it.getAllTasks()
-      isLoading = false
+      coroutineScope.launch {
+          delay(1000L) // delay for 1 second
+          isLoading = false
+      }
   }
 
   DrawerMenu(
