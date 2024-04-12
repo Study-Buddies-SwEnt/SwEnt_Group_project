@@ -8,6 +8,7 @@ object Route {
   const val SETTINGS = "Settings"
   const val ACCOUNT = "AccountSettings"
   const val CREATEACCOUNT = "CreateAccount"
+  const val CHAT = "GeneralChat"
   /*
   const val OVERVIEW = "Overview"
   const val MAP = "Map"

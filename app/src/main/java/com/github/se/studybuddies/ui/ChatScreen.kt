@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -75,6 +78,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                 .fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
+        textStyle = TextStyle(color = Black),
         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
         keyboardActions =
             KeyboardActions(
@@ -91,6 +95,18 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                 Icon(Icons.Outlined.Add, contentDescription = "Icon", tint = Blue)
               }
         },
+        trailingIcon = {
+          IconButton(
+              modifier = Modifier.size(48.dp).padding(6.dp),
+              onClick = {
+                if (textToSend.isNotBlank()) {
+                  viewModel.sendMessage(textToSend)
+                  textToSend = ""
+                }
+              }) {
+                Icon(Icons.Outlined.Send, contentDescription = "Icon", tint = Blue)
+              }
+        },
         placeholder = { Text("Type a message") })
   }
 }
@@ -99,7 +115,10 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 fun OwnTextBubble(message: Message) {
   BoxWithConstraints(
       modifier = Modifier.background(Color.White, RoundedCornerShape(20.dp)).padding(1.dp)) {
-        Text(text = message.text, modifier = Modifier.padding(8.dp))
+        Text(
+            text = message.text,
+            modifier = Modifier.padding(8.dp),
+            style = TextStyle(color = Black))
       }
 }
 
@@ -109,8 +128,9 @@ fun OtherTextBubble(message: Message) {
     Column(modifier = Modifier.padding(8.dp)) {
       Text(
           text = message.sender.username,
-          fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-      Text(text = message.text, modifier = Modifier.padding(0.dp))
+          fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+          style = TextStyle(color = Black))
+      Text(text = message.text, style = TextStyle(color = Black))
     }
   }
 }

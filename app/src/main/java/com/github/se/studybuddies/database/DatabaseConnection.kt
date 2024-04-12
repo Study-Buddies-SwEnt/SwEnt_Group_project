@@ -203,7 +203,7 @@ class DatabaseConnection {
 
   fun getUser(uid: String): User {
     // TODO implement this method (or modify getUserData to return User object)
-    return User(uid, "email", "username", Uri.parse("photoUrl"))
+    return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
   }
 
   fun getCurrentUser(): User {

@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.ChatScreen
 import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
@@ -25,6 +26,7 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
+import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -101,6 +103,11 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 CreateGroup(GroupViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
+              }
+            }
+            composable(Route.CHAT) {
+              if (currentUser != null) {
+                ChatScreen(MessageViewModel("general_group"), navigationActions)
               }
             }
           }
