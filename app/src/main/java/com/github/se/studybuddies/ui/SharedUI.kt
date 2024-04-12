@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -20,9 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,8 +31,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalAbsoluteTonalElevation
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
@@ -41,10 +38,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -60,6 +55,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -75,10 +71,8 @@ import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.navigation.SETTINGS_DESTINATIONS
-import com.github.se.studybuddies.ui.theme.Light_Pink
-import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
-import com.google.android.material.shape.MaterialShapeDrawable.CompatibilityShadowMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -90,7 +84,7 @@ fun DrawerMenu(
     content: @Composable (PaddingValues) -> Unit,
     title: @Composable () -> Unit,
     iconOptions: @Composable () -> Unit,
-    ) {
+) {
 
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
@@ -104,7 +98,7 @@ fun DrawerMenu(
           Spacer(modifier = Modifier.size(16.dp))
           SETTINGS_DESTINATIONS.forEachIndexed { index, item ->
             NavigationDrawerItem(
-                label = { Text(item.textId, color = Red) },
+                label = { Text(item.textId, color = Blue) },
                 selected = false,
                 onClick = {
                   navigationActions.navigateTo("${item.route}/$backRoute")
@@ -115,7 +109,7 @@ fun DrawerMenu(
                   Icon(
                       painter = painterResource(item.icon),
                       contentDescription = item.textId,
-                      tint = Red)
+                      tint = Blue)
                 },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
           }
@@ -124,84 +118,70 @@ fun DrawerMenu(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                Box {
-                    CenterAlignedTopAppBar(
-                        title = { title() },
-                        navigationIcon = { DrawerMenuIcon(scope, drawerState) },
-                        actions = { iconOptions() }
-                    )
-                    Divider(color = Red, thickness = 4.dp,modifier = Modifier.align(Alignment.BottomStart))
-                }
+              Box {
+                CenterAlignedTopAppBar(
+                    title = { title() },
+                    navigationIcon = { DrawerMenuIcon(scope, drawerState) },
+                    actions = { iconOptions() })
+                Divider(
+                    color = Blue,
+                    thickness = 4.dp,
+                    modifier = Modifier.align(Alignment.BottomStart))
+              }
             },
             bottomBar = {
               BottomNavigationBar(
                   navigationActions = navigationActions,
                   destinations = BOTTOM_NAVIGATION_DESTINATIONS)
             },
-            content = content
-
-        )
+            content = content)
       }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigationBar(navigationActions: NavigationActions,
-                        destinations: List<Destination>)
-{
+fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
-        NavigationBar(
-            modifier = Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp),
-            containerColor = Color.White,
-            contentColor = Color.White,
-            tonalElevation = 0.dp,
-        ) {
-            destinations.forEachIndexed { index, item ->
-                NavigationBarItem(
-                    selected = selectedItemIndex == index,
-                    onClick = {
-                        selectedItemIndex = index
-                        navigationActions.navigateTo(item.route)
-                    },
-                    label = { Text(text = item.textId, color = Red) },
-                    alwaysShowLabel = true,
-                    icon = {
-                        Icon(
-                            painter = painterResource(item.icon),
-                            contentDescription = item.textId,
-                            tint = Red
-                        )
-                    },
-                    colors = androidx.compose.material3.NavigationBarItemDefaults
-                        .colors(
-                            selectedIconColor = Red,
-                            indicatorColor = Light_Pink
-                        ))
-
-            }
-        }
-
+  NavigationBar(
+      modifier =
+          Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp).testTag("Bottom Navigation Bar"),
+      containerColor = Color.White,
+      contentColor = Color.White,
+      tonalElevation = 0.dp,
+  ) {
+    destinations.forEachIndexed { index, item ->
+      NavigationBarItem(
+          selected = selectedItemIndex == index,
+          onClick = {
+            selectedItemIndex = index
+            navigationActions.navigateTo(item.route)
+          },
+          label = { Text(text = item.textId, color = Blue) },
+          alwaysShowLabel = true,
+          icon = {
+            Icon(
+                painter = painterResource(item.icon), contentDescription = item.textId, tint = Blue)
+          },
+          colors =
+              androidx.compose.material3.NavigationBarItemDefaults.colors(
+                  selectedIconColor = Color.Transparent, indicatorColor = White))
+    }
+  }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TopNavigationBar(
-    title: @Composable () -> Unit,
-    navigationIcon: @Composable () -> Unit,
-    actions: @Composable () -> Unit,
-) {
-  CenterAlignedTopAppBar(
-      title = { title() },
-      navigationIcon = { navigationIcon() },
-      actions = { actions() },
+fun Main_title(title: String) {
+  Text(
+      text = title,
+      fontFamily = FontFamily(Font(R.font.playball_regular)),
+      fontSize = 45.sp,
   )
 }
 
 @Composable
-fun StudyBuddiesTitle() {
+fun Sub_title(title: String) {
   Text(
-      text = "Study Buddies",
+      text = title,
       fontFamily = FontFamily(Font(R.font.playball_regular)),
       fontSize = 45.sp,
   )
@@ -220,8 +200,29 @@ fun DrawerMenuIcon(
 @Composable
 fun SearchIcon() {
   IconButton(onClick = { /*TODO*/}) {
-    Icon(imageVector = Icons.Default.Search, tint = Red, contentDescription = "Search groups")
+    Icon(imageVector = Icons.Default.Search, tint = Blue, contentDescription = "Search groups")
   }
+}
+
+@Composable
+fun GoBackButton(
+    navigationActions: NavigationActions,
+) {
+  Icon(
+      imageVector = Icons.Default.ArrowBack,
+      contentDescription = "Go back",
+      modifier = Modifier.clickable { navigationActions.goBack() })
+}
+
+@Composable
+fun GoBackRouteButton(
+    navigationActions: NavigationActions,
+    backRoute: String,
+) {
+  Icon(
+      imageVector = Icons.Default.ArrowBack,
+      contentDescription = "Go back",
+      modifier = Modifier.clickable { navigationActions.navigateTo(backRoute) })
 }
 
 @Composable
@@ -307,6 +308,6 @@ private fun MenuButton(onClick: () -> Unit) {
             painterResource(R.drawable.menu),
             contentDescription = "Settings",
             modifier = Modifier.size(28.dp),
-            tint = Red)
+            tint = Blue)
       }
 }

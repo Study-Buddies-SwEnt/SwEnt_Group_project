@@ -37,7 +37,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.DatabaseConnection
 import com.google.firebase.auth.FirebaseAuth
 
@@ -85,7 +85,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                     containerColor = Color.White,
                 ),
             modifier =
-                Modifier.border(width = 2.dp, color = Red, shape = RoundedCornerShape(50))
+                Modifier.border(width = 2.dp, color = Blue, shape = RoundedCornerShape(50))
                     .background(color = Color.Transparent, shape = RoundedCornerShape(50))
                     .width(302.dp)
                     .height(76.dp)
@@ -96,7 +96,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                   contentDescription = null,
                   modifier = Modifier.size(40.dp))
               Spacer(modifier = Modifier.width(8.dp))
-              Text("Sign in with Google", color = Red)
+              Text("Sign in with Google", color = Blue)
             }
       }
 }

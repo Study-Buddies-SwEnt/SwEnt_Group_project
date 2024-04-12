@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
 data class SoloStudyOption(val name: String, val icon: ImageVector, val route: String) {}
@@ -50,7 +50,7 @@ fun solo_study_buttons(option: SoloStudyOption) {
               imageVector = option.icon,
               contentDescription = option.name,
               modifier = Modifier.height(160.dp).width(160.dp))
-          Text("Flash card", color = Red, fontSize = 20.sp)
+          Text("Flash card", color = Blue, fontSize = 20.sp)
         }
       }
 }

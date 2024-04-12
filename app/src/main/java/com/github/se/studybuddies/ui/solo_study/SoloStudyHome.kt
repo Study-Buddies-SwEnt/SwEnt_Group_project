@@ -10,11 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DrawerMenu
-import com.github.se.studybuddies.ui.StudyBuddiesTitle
+import com.github.se.studybuddies.ui.Main_title
 
 @Composable
 fun SoloStudyHome(navigationActions: NavigationActions) {
@@ -23,7 +24,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
       Route.SOLOSTUDYHOME,
       content = {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("SoloStudyHome"),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(
@@ -41,6 +42,6 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
                   }
             }
       },
-      title = { StudyBuddiesTitle()},
+      title = { Main_title("Solo Study") },
       iconOptions = {})
 }

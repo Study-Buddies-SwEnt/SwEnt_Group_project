@@ -22,7 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
-import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
 @Composable
@@ -63,8 +63,8 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
               .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
-              containerColor = Red,
+              containerColor = Blue,
           )) {
-        Text("Save",color = White)
+        Text("Save", color = White)
       }
 }
