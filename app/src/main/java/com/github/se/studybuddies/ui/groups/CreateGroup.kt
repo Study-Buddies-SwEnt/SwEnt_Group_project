@@ -12,13 +12,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -40,8 +41,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class)
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
   val nameState = remember { mutableStateOf("") }
@@ -74,15 +74,16 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       }
 
   Surface(color = White, modifier = Modifier.fillMaxSize()) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                  TopAppBar(
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                  CenterAlignedTopAppBar(
                       title = { Sub_title("Create a group") },
                       navigationIcon = {
                         Icon(

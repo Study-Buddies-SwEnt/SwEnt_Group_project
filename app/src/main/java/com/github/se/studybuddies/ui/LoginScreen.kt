@@ -39,7 +39,6 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.viewModels.DatabaseConnection
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
