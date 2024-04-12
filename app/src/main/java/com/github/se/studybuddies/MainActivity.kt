@@ -106,11 +106,11 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
-              composable(Route.CHAT) {
-                  if (currentUser != null) {
-                      ChatScreen(MessageViewModel("general_group"), navigationActions)
-                  }
+            composable(Route.CHAT) {
+              if (currentUser != null) {
+                ChatScreen(MessageViewModel("general_group"), navigationActions)
               }
+            }
             composable(Route.SOLOSTUDYHOME) {
               if (currentUser != null) {
                 SoloStudyHome(navigationActions)
