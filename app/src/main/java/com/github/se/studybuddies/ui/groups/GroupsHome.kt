@@ -70,30 +70,29 @@ fun GroupsHome(
     groupsHomeViewModel: GroupsHomeViewModel,
     navigationActions: NavigationActions
 ) {
-    val coroutineScope = rememberCoroutineScope()
+  val coroutineScope = rememberCoroutineScope()
   groupsHomeViewModel.fetchGroups(uid)
   val groups by groupsHomeViewModel.groups.observeAsState()
   val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
   var isLoading by remember { mutableStateOf(true) }
 
   groups?.let {
-      groupList.value = it.getAllTasks()
-      coroutineScope.launch {
-          delay(2000L) // delay for 1 second
-          isLoading = false
-      }
+    groupList.value = it.getAllTasks()
+    coroutineScope.launch {
+      delay(2000L) // delay for 1 second
+      isLoading = false
+    }
   }
 
   DrawerMenu(
       navigationActions,
       Route.GROUPSHOME,
       content = { innerPadding ->
-          if (isLoading) {
-              Box(modifier = Modifier.fillMaxSize()) {
-                  CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-              }
+        if (isLoading) {
+          Box(modifier = Modifier.fillMaxSize()) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
-        else if (groupList.value.isEmpty()) {
+        } else if (groupList.value.isEmpty()) {
           Text(
               text = "Join a group or create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
