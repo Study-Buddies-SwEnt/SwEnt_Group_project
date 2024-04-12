@@ -64,35 +64,33 @@ fun GroupsHome(
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
 
-  Column(
-      modifier = Modifier.testTag("GroupsHomeScreen")
-
-  ) {
-      DrawerMenu(
-          navigationActions,
-          Route.GROUPSHOME,
-          topBarContent = { GroupsSettingsButton(navigationActions) },
-          content = { innerPadding ->
-              if (groupList.value.isEmpty()) {
-                  Text(
-                      text = "Join a group or create one.",
-                      style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-                      modifier =
-                      Modifier.padding(innerPadding)
-                          .fillMaxSize()
-                          .padding(16.dp)
-                          .wrapContentHeight(Alignment.CenterVertically),
-                      textAlign = TextAlign.Center)
-              } else {
-                  LazyColumn(
-                      modifier = Modifier.padding(innerPadding).fillMaxSize(),
-                      verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                      horizontalAlignment = Alignment.Start,
-                      content = { items(groupList.value) { group -> GroupItem(group, navigationActions) } })
-              }
-          })
+  Column(modifier = Modifier.testTag("GroupsHomeScreen")) {
+    DrawerMenu(
+        navigationActions,
+        Route.GROUPSHOME,
+        topBarContent = { GroupsSettingsButton(navigationActions) },
+        content = { innerPadding ->
+          if (groupList.value.isEmpty()) {
+            Text(
+                text = "Join a group or create one.",
+                style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+                modifier =
+                    Modifier.padding(innerPadding)
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .wrapContentHeight(Alignment.CenterVertically),
+                textAlign = TextAlign.Center)
+          } else {
+            LazyColumn(
+                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                horizontalAlignment = Alignment.Start,
+                content = {
+                  items(groupList.value) { group -> GroupItem(group, navigationActions) }
+                })
+          }
+        })
   }
-
 }
 
 @Composable

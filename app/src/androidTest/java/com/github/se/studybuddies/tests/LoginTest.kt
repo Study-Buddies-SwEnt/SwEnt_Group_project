@@ -22,38 +22,38 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class LoginTest : TestCase() {
-    @get:Rule val composeTestRule = createAndroidComposeRule<MainActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    // The IntentsTestRule simply calls Intents.init() before the @Test block
-    // and Intents.release() after the @Test block is completed. IntentsTestRule
-    // is deprecated, but it was MUCH faster than using IntentsRule in our tests
-    @get:Rule val intentsTestRule = IntentsTestRule(MainActivity::class.java)
+  // The IntentsTestRule simply calls Intents.init() before the @Test block
+  // and Intents.release() after the @Test block is completed. IntentsTestRule
+  // is deprecated, but it was MUCH faster than using IntentsRule in our tests
+  @get:Rule val intentsTestRule = IntentsTestRule(MainActivity::class.java)
 
-    @Test
-    fun titleAndButtonAreCorrectlyDisplayed() {
-        ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.LoginScreen>(composeTestRule) {
-            // Test the UI elements
-            loginTitle {
-                assertIsDisplayed()
-                assertTextEquals("Welcome")
-            }
-            loginButton {
-                assertIsDisplayed()
-                assertHasClickAction()
-            }
-        }
+  @Test
+  fun titleAndButtonAreCorrectlyDisplayed() {
+    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.LoginScreen>(composeTestRule) {
+      // Test the UI elements
+      loginTitle {
+        assertIsDisplayed()
+        assertTextEquals("Welcome")
+      }
+      loginButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
     }
+  }
 
-    @Test
-    fun googleSignInReturnsValidActivityResult() {
-        ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.LoginScreen>(composeTestRule) {
-            loginButton {
-                assertIsDisplayed()
-                performClick()
-            }
+  @Test
+  fun googleSignInReturnsValidActivityResult() {
+    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.LoginScreen>(composeTestRule) {
+      loginButton {
+        assertIsDisplayed()
+        performClick()
+      }
 
-            // assert that an Intent resolving to Google Mobile Services has been sent (for sign-in)
-            intended(toPackage("com.google.android.gms"))
-        }
+      // assert that an Intent resolving to Google Mobile Services has been sent (for sign-in)
+      intended(toPackage("com.google.android.gms"))
     }
+  }
 }
