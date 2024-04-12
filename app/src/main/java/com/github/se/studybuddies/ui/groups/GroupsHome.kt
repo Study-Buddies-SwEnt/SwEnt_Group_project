@@ -75,11 +75,11 @@ fun GroupsHome(
   val groups by groupsHomeViewModel.groups.observeAsState()
   val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
   var isLoading by remember { mutableStateOf(true) }
-    
+
   groups?.let {
       groupList.value = it.getAllTasks()
       coroutineScope.launch {
-          delay(1000L) // delay for 1 second
+          delay(2000L) // delay for 1 second
           isLoading = false
       }
   }
