@@ -4,17 +4,26 @@ import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
+import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.MessageVal
+import com.github.se.studybuddies.data.User
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
+
+  val rt_db =
+      Firebase.database(
+          "https://study-buddies-e655a-default-rtdb.europe-west1.firebasedatabase.app/")
 
   // all collections
   private val userDataCollection = db.collection("userData")
@@ -176,5 +185,32 @@ class DatabaseConnection {
               }
         }
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+  }
+
+  fun sendGroupMessage(groupUID: String, message: Message) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    val messageData =
+        mapOf(
+            MessageVal.TEXT to message.text,
+            MessageVal.SENDER_UID to message.sender.uid,
+            MessageVal.TIMESTAMP to message.timestamp)
+    rt_db
+        .getReference(messagePath)
+        .updateChildren(messageData)
+        .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
+        .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
+  }
+
+  fun getUser(uid: String): User {
+    // TODO implement this method (or modify getUserData to return User object)
+    return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
+  }
+
+  fun getCurrentUser(): User {
+    return getUser(getCurrentUserUID())
+  }
+
+  fun getGroupMessagesPath(groupUID: String): String {
+    return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
   }
 }
