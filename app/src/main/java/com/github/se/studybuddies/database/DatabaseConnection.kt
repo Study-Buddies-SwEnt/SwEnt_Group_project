@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.viewModels
+package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.GroupList
+import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.launch
 
 class GroupsHomeViewModel(private val uid: String? = null) : ViewModel() {
