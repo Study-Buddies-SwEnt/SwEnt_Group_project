@@ -33,7 +33,7 @@ class LoginTest : TestCase() {
       // Test the UI elements
       loginTitle {
         assertIsDisplayed()
-        assertTextEquals("Welcome")
+        assertTextEquals("Study Buddies")
       }
       loginButton {
         assertIsDisplayed()

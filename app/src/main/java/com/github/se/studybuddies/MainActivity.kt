@@ -22,6 +22,7 @@ import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.settings.AccountSettings
 import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
+import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
           val currentUser = auth.currentUser
           val startDestination =
               if (currentUser != null) {
-                Route.GROUPSHOME
+                Route.SOLOSTUDYHOME
               } else {
                 Route.LOGIN
               }
@@ -101,6 +102,12 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 CreateGroup(GroupViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
+              }
+            }
+            composable(Route.SOLOSTUDYHOME) {
+              if (currentUser != null) {
+                SoloStudyHome(navigationActions)
+                Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
               }
             }
           }

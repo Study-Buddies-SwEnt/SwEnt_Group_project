@@ -8,6 +8,12 @@ object Route {
   const val SETTINGS = "Settings"
   const val ACCOUNT = "AccountSettings"
   const val CREATEACCOUNT = "CreateAccount"
+  const val SOLOSTUDYHOME = "SoloStudyHome"
+  const val FLASHCARD = "FlashCard"
+  const val TODOLIST = "Todo list"
+  const val FOCUSMODE = "Focus Mode"
+  const val TIMER = "Timer"
+  const val CALENDAR = "Calendar"
   /*
   const val OVERVIEW = "Overview"
   const val MAP = "Map"
