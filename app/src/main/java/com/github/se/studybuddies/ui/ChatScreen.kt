@@ -36,19 +36,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.theme.background_blue
-import com.github.se.studybuddies.ui.theme.blue
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
 @Composable
 fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions) {
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
-  var text_to_send by remember { mutableStateOf("") }
+  var textToSend by remember { mutableStateOf("") }
 
   // TODO issue when open keyboard, the list of messages goes up
-  Column(modifier = Modifier.fillMaxSize().background(background_blue).navigationBarsPadding()) {
-    SecondaryTopBar { navigationActions.navigateTo(Route.GROUPSHOME) }
+  Column(modifier = Modifier.fillMaxSize().background(LightBlue).navigationBarsPadding()) {
+    SecondaryTopBar { navigationActions.goBack() }
     LazyColumn(Modifier.weight(1f).padding(8.dp)) {
       items(messages) { message ->
         Row(
@@ -69,8 +68,8 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
     }
 
     OutlinedTextField(
-        value = text_to_send,
-        onValueChange = { text_to_send = it },
+        value = textToSend,
+        onValueChange = { textToSend = it },
         modifier =
             Modifier.padding(8.dp)
                 .fillMaxWidth()
@@ -80,19 +79,16 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
         keyboardActions =
             KeyboardActions(
                 onSend = {
-                  if (text_to_send.isNotBlank()) {
-                    viewModel.sendMessage(text_to_send)
-                    text_to_send = ""
+                  if (textToSend.isNotBlank()) {
+                    viewModel.sendMessage(textToSend)
+                    textToSend = ""
                   }
                 }),
         leadingIcon = {
           IconButton(
               modifier = Modifier.size(48.dp).padding(6.dp),
               onClick = { /*TODO add more message option as send photos*/}) {
-                Icon(
-                    Icons.Outlined.Add, // Replace with your icon painter
-                    contentDescription = "Icon",
-                    tint = blue)
+                Icon(Icons.Outlined.Add, contentDescription = "Icon", tint = Blue)
               }
         },
         placeholder = { Text("Type a message") })
