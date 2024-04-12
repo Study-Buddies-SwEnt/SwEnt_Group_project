@@ -92,7 +92,7 @@ fun GroupsHome(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
         } else if (groupList.value.isEmpty()) {
-           Column(
+          Column(
               modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
