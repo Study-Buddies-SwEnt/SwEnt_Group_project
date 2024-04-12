@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.viewModels
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.github.se.studybuddies.data.Message
@@ -7,15 +9,14 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 
 class MessageViewModel(val groupUID: String) : ViewModel() {
 
   val db = DatabaseConnection()
   private val dbRef = db.rt_db.getReference("groups/${groupUID}/messages/")
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
-  // TODO : sort messages by timestamp
-  val messages = _messages.asStateFlow()
+  val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
 
   init {
     listenToMessages()
@@ -24,23 +25,26 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   private fun listenToMessages() {
     dbRef.addValueEventListener(
         object : ValueEventListener {
+          private var handler = Handler(Looper.getMainLooper())
+          private var runnable: Runnable? = null
+
           override fun onDataChange(snapshot: DataSnapshot) {
-            for (postSnapshot in snapshot.children) {
-              val message =
-                  Message(
-                      // TODO replace hardcoded strings with constants
-                      postSnapshot.key.toString(),
-                      postSnapshot.child("text").value.toString(),
-                      db.getUser(postSnapshot.child("senderId").value.toString()),
-                      // TODO : crash when sending message
-                      //
-                      // postSnapshot.child("timestamp").value.toString().toLong()
-                      1234567890)
-              // Only add the message if it is not already in the list
-              if (!_messages.value.contains(message)) {
-                _messages.value += message
+            runnable?.let { handler.removeCallbacks(it) }
+            runnable = Runnable {
+              snapshot.children.forEach { postSnapshot ->
+                val message =
+                    Message(
+                        // TODO replace hardcoded strings with constants
+                        postSnapshot.key.toString(),
+                        postSnapshot.child("text").value.toString(),
+                        db.getUser(postSnapshot.child("senderId").value.toString()),
+                        postSnapshot.child("timestamp").value.toString().toLong())
+                if (!_messages.value.contains(message)) {
+                  _messages.value += message
+                }
               }
             }
+            handler.postDelayed(runnable!!, 500) // Delay the execution
           }
 
           override fun onCancelled(error: DatabaseError) {

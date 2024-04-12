@@ -188,12 +188,17 @@ class DatabaseConnection {
 
   fun sendGroupMessage(groupUID: String, message: Message) {
     // TODO replace hardcoded strings with constants
-    val ref = rt_db.getReference("groups/${groupUID}/messages/${message.uid}")
-    ref.child("text").setValue(message.text)
-    ref.child("senderId").setValue(getCurrentUserUID())
-    //    ref.child("senderId").setValue(message.sender.uid)
-
-    ref.child("timestamp").setValue(message.timestamp)
+    val messagePath = "groups/$groupUID/messages/${message.uid}"
+    val messageData =
+        mapOf(
+            "timestamp" to message.timestamp,
+            "text" to message.text,
+            "senderId" to message.sender.uid)
+    rt_db
+        .getReference(messagePath)
+        .updateChildren(messageData)
+        .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
+        .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
   }
 
   fun getUser(uid: String): User {
@@ -202,8 +207,6 @@ class DatabaseConnection {
   }
 
   fun getCurrentUser(): User {
-    //        return getUser(getCurrentUserUID())
-    Log.d("MyPrint", "getCurrentUser called ${getCurrentUserUID()}")
-    return User(getCurrentUserUID(), "email", "username", Uri.parse("photoUrl"))
+    return getUser(getCurrentUserUID())
   }
 }
