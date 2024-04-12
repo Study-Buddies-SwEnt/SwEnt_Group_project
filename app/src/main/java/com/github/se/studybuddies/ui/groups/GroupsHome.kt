@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.DropdownMenuItem
@@ -93,16 +92,16 @@ fun GroupsHome(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
         } else if (groupList.value.isEmpty()) {
-          Text(
-              text = "Join a group or create one.",
-              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-              modifier =
-                  Modifier.padding(innerPadding)
-                      .fillMaxSize()
-                      .padding(16.dp)
-                      .wrapContentHeight(Alignment.CenterVertically)
-                      .testTag("NoGroupsText"),
-              textAlign = TextAlign.Center)
+           Column(
+              modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
+              horizontalAlignment = Alignment.Start,
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+          ) {
+            Spacer(modifier = Modifier.height(80.dp))
+            Text("Join or create a new group", textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(80.dp))
+            AddGroupButton(navigationActions = navigationActions)
+          }
         } else {
           Column(
               modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
@@ -189,5 +188,14 @@ fun AddGroupButton(navigationActions: NavigationActions) {
                   contentDescription = "Create a task",
                   tint = White)
             }
+      }
+}
+
+@Composable
+fun AddGroup(navigationActions: NavigationActions) {
+  Button(
+      onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
+      modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+        Icon(imageVector = Icons.Default.Add, contentDescription = "Create a task", tint = White)
       }
 }
