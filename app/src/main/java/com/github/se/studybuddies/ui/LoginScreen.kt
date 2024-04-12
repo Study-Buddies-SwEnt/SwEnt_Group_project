@@ -33,22 +33,21 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.viewModels.DatabaseConnection
 import com.google.firebase.auth.FirebaseAuth
-
 
 @Composable
 fun LoginScreen(navigationActions: NavigationActions) {
-    val signInLauncher =
-        rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            onSignInResult(res, navigationActions)
-        }
-    Column(
-        modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
+  val signInLauncher =
+      rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
+        onSignInResult(res, navigationActions)
+      }
+  Column(
+      modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Center) {
         Image(
             painter = painterResource(R.drawable.logo),
             contentDescription = null,
@@ -58,64 +57,67 @@ fun LoginScreen(navigationActions: NavigationActions) {
         Text(
             text = "Welcome",
             style =
-            TextStyle(
-                fontSize = 48.sp,
-                fontWeight = FontWeight(700),
-                textAlign = TextAlign.Center,
-            ),
+                TextStyle(
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight(700),
+                    textAlign = TextAlign.Center,
+                ),
             modifier = Modifier.width(258.dp).height(70.dp).testTag("LoginTitle"))
         Spacer(Modifier.height(150.dp))
         Button(
             onClick = {
-                val signInIntent =
-                    AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
-                        .setIsSmartLockEnabled(false)
-                        .build()
-                signInLauncher.launch(signInIntent)
+              val signInIntent =
+                  AuthUI.getInstance()
+                      .createSignInIntentBuilder()
+                      .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
+                      .setIsSmartLockEnabled(false)
+                      .build()
+              signInLauncher.launch(signInIntent)
             },
             colors =
-            ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-            ),
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                ),
             modifier =
-            Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
-                .background(color = Color.Transparent, shape = RoundedCornerShape(50))
-                .width(250.dp)
-                .height(50.dp)
-                .testTag("LoginButton"),
+                Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
+                    .background(color = Color.Transparent, shape = RoundedCornerShape(50))
+                    .width(250.dp)
+                    .height(50.dp)
+                    .testTag("LoginButton"),
             shape = RoundedCornerShape(50)) {
-            Image(
-                painter = painterResource(R.drawable.google),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Sign in with Google", color = Color.Black)
-        }
-    }
+              Image(
+                  painter = painterResource(R.drawable.google),
+                  contentDescription = null,
+                  modifier = Modifier.size(40.dp))
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("Sign in with Google", color = Color.Black)
+            }
+      }
 }
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
     navigationActions: NavigationActions
 ) {
-    if (result.resultCode == Activity.RESULT_OK) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            val db = DatabaseConnection()
-            db.userExists(userId, onSuccess = { userExists ->
-                if (!userExists) {
-                    navigationActions.navigateTo(Route.CREATEACCOUNT)
-                } else {
-                    navigationActions.navigateTo(Route.ACCOUNT)
-                }
-            }, onFailure = { e ->
-                Log.d("MyPrint", "Failed to check user existence with error: $e")
-            })
-        }
-        Log.d("MyPrint", "Sign in successful")
+  if (result.resultCode == Activity.RESULT_OK) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    if (userId != null) {
+      val db = DatabaseConnection()
+      db.userExists(
+          userId,
+          onSuccess = { userExists ->
+            if (!userExists) {
+              navigationActions.navigateTo(Route.CREATEACCOUNT)
+            } else {
+              navigationActions.navigateTo(Route.GROUPSHOME)
+            }
+          },
+          onFailure = { e -> Log.d("MyPrint", "Failed to check user existence with error: $e") })
     } else {
-        Log.d("MyPrint", "Sign in failed")
+      Log.e("MyPrint", "Failed to get user ID")
     }
+    Log.d("MyPrint", "Sign in successful")
+  } else {
+    Log.d("MyPrint", "Sign in failed")
+  }
 }
