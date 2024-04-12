@@ -22,9 +22,6 @@ import org.junit.runner.RunWith
 class GroupsHomeTest : TestCase() {
   @get:Rule val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-  // The IntentsTestRule simply calls Intents.init() before the @Test block
-  // and Intents.release() after the @Test block is completed. IntentsTestRule
-  // is deprecated, but it was MUCH faster than using IntentsRule in our tests
   @get:Rule val intentsTestRule = IntentsTestRule(MainActivity::class.java)
 
   @Test
