@@ -16,11 +16,21 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme =
-    darkColorScheme(primary = Purple80, secondary = PurpleGrey80, tertiary = Pink80)
+    darkColorScheme(
+        primary = Blue,
+        secondary = Blue,
+        tertiary = Blue,
+        background = LightBlue,
+        surface = White,
+        onSurface = Blue,
+        onBackground = Blue,
+        onPrimary = Blue,
+        onSecondary = Blue,
+        onTertiary = Blue)
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = Purple40, secondary = PurpleGrey40, tertiary = Pink40
+        primary = Purple40, secondary = PurpleGrey40, tertiary = Pink40, background = Light_Pink
 
         /* Other default colors to override
         background = Color(0xFFFFFBFE),
@@ -36,8 +46,8 @@ private val LightColorScheme =
 @Composable
 fun StudyBuddiesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Set dynamicColor to false
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
   val colorScheme =
