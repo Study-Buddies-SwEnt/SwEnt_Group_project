@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.SecondaryTopBar
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.ui.theme.Blue
@@ -41,10 +40,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalPermissionsApi::class)
-
 @Composable
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
   val nameState = remember { mutableStateOf("") }
@@ -81,21 +78,21 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
-
           item {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
                   TopAppBar(
-              title = { Sub_title("Create a group") },
-              navigationIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Go back",
-                    modifier =
-                        Modifier.clickable { navigationActions.navigateTo(Route.GROUPSHOME) 
-                        })
-              })
+                      title = { Sub_title("Create a group") },
+                      navigationIcon = {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Go back",
+                            modifier =
+                                Modifier.clickable {
+                                  navigationActions.navigateTo(Route.GROUPSHOME)
+                                })
+                      })
                   Divider(color = Blue, thickness = 4.dp)
                   Spacer(modifier = Modifier.padding(20.dp))
                   GroupFields(nameState)
