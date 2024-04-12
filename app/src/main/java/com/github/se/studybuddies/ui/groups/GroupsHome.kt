@@ -66,7 +66,6 @@ fun GroupsHome(
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
 
-
   Column(modifier = Modifier.testTag("GroupsHomeScreen")) {
     DrawerMenu(
         navigationActions,
@@ -92,7 +91,7 @@ fun GroupsHome(
                   items(groupList.value) { group -> GroupItem(group, navigationActions) }
                 })
           }
-           BottomNavigationBar(navigationActions, BOTTOM_NAVIGATION_DESTINATIONS)
+          BottomNavigationBar(navigationActions, BOTTOM_NAVIGATION_DESTINATIONS)
         })
   }
 }
