@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -62,29 +64,35 @@ fun GroupsHome(
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
 
-  DrawerMenu(
-      navigationActions,
-      Route.GROUPSHOME,
-      topBarContent = { GroupsSettingsButton(navigationActions) },
-      content = { innerPadding ->
-        if (groupList.value.isEmpty()) {
-          Text(
-              text = "Join a group or create one.",
-              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-              modifier =
-                  Modifier.padding(innerPadding)
-                      .fillMaxSize()
-                      .padding(16.dp)
-                      .wrapContentHeight(Alignment.CenterVertically),
-              textAlign = TextAlign.Center)
-        } else {
-          LazyColumn(
-              modifier = Modifier.padding(innerPadding).fillMaxSize(),
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-              horizontalAlignment = Alignment.Start,
-              content = { items(groupList.value) { group -> GroupItem(group, navigationActions) } })
-        }
-      })
+  Column(
+      modifier = Modifier.testTag("GroupsHomeScreen")
+
+  ) {
+      DrawerMenu(
+          navigationActions,
+          Route.GROUPSHOME,
+          topBarContent = { GroupsSettingsButton(navigationActions) },
+          content = { innerPadding ->
+              if (groupList.value.isEmpty()) {
+                  Text(
+                      text = "Join a group or create one.",
+                      style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+                      modifier =
+                      Modifier.padding(innerPadding)
+                          .fillMaxSize()
+                          .padding(16.dp)
+                          .wrapContentHeight(Alignment.CenterVertically),
+                      textAlign = TextAlign.Center)
+              } else {
+                  LazyColumn(
+                      modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                      verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                      horizontalAlignment = Alignment.Start,
+                      content = { items(groupList.value) { group -> GroupItem(group, navigationActions) } })
+              }
+          })
+  }
+
 }
 
 @Composable
