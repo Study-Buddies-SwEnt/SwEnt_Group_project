@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -69,14 +70,23 @@ fun GroupsHome(
   groupsHomeViewModel.fetchGroups(uid)
   val groups by groupsHomeViewModel.groups.observeAsState()
   val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
+  var isLoading by remember { mutableStateOf(true) }
 
-  groups?.let { groupList.value = it.getAllTasks() }
+  groups?.let {
+      groupList.value = it.getAllTasks()
+      isLoading = false
+  }
 
   DrawerMenu(
       navigationActions,
       Route.GROUPSHOME,
       content = { innerPadding ->
-        if (groupList.value.isEmpty()) {
+          if (isLoading) {
+              Box(modifier = Modifier.fillMaxSize()) {
+                  CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+              }
+          }
+        else if (groupList.value.isEmpty()) {
           Text(
               text = "Join a group or create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
