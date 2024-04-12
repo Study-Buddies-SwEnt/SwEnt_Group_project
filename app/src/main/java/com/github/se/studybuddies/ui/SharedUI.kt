@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -16,6 +17,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
@@ -24,6 +27,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -32,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.SETTINGS_DESTINATIONS
 import kotlinx.coroutines.launch
@@ -120,4 +125,28 @@ private fun MenuButton(onClick: () -> Unit) {
             contentDescription = "Settings",
             modifier = Modifier.size(28.dp))
       }
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
+  var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
+  Scaffold(
+      bottomBar = {
+        NavigationBar {
+          destinations.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selectedItemIndex == index,
+                onClick = {
+                  selectedItemIndex = index
+                  navigationActions.navigateTo(item.route)
+                },
+                label = { Text(text = item.textId) },
+                alwaysShowLabel = true,
+                icon = {
+                  Icon(painter = painterResource(item.icon), contentDescription = item.textId)
+                })
+          }
+        }
+      }) {}
 }
