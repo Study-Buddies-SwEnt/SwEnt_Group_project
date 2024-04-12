@@ -5,6 +5,7 @@ import android.util.Log
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -187,13 +188,12 @@ class DatabaseConnection {
   }
 
   fun sendGroupMessage(groupUID: String, message: Message) {
-    // TODO replace hardcoded strings with constants
-    val messagePath = "groups/$groupUID/messages/${message.uid}"
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
     val messageData =
         mapOf(
-            "timestamp" to message.timestamp,
-            "text" to message.text,
-            "senderId" to message.sender.uid)
+            MessageVal.TEXT to message.text,
+            MessageVal.SENDER_UID to message.sender.uid,
+            MessageVal.TIMESTAMP to message.timestamp)
     rt_db
         .getReference(messagePath)
         .updateChildren(messageData)
@@ -208,5 +208,9 @@ class DatabaseConnection {
 
   fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
+  }
+
+  fun getGroupMessagesPath(groupUID: String): String {
+    return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
   }
 }
