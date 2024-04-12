@@ -13,6 +13,7 @@ val GROUPS_SETTINGS_DESTINATIONS =
     listOf(Destination(route = Route.GROUP, textId = "Modify a group"))
 
 val BOTTOM_NAVIGATION_DESTINATIONS =
+  //3rd and 4rth routes are placeholders
     listOf(
         Destination(route = Route.SOLOSTUDYHOME, icon = R.drawable.user_v2, textId = "Solo study"),
         Destination(route = Route.GROUPSHOME, icon = R.drawable.groups, textId = "Groups"),
