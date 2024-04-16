@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.groups
 
-import android.app.Activity
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,7 +36,6 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -58,18 +56,16 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
-  // val permissionGranted = checkPermission(context, "Manifest.permission.READ_EXTERNAL_STORAGE")
 
-  val permissionState = rememberPermissionState("Manifest.permission.READ_EXTERNAL_STORAGE")
+  // val permissionGranted = checkPermission(context, "Manifest.permission.READ_EXTERNAL_STORAGE")
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          Toast.makeText(context as Activity, "Permission already granted", Toast.LENGTH_SHORT)
-              .show()
+          getContent.launch("image/*")
+          Toast.makeText(context, "Permission GRANTED", Toast.LENGTH_SHORT).show()
         } else {
-          // Handle permission denial
-          Toast.makeText(context as Activity, "Permission refused", Toast.LENGTH_SHORT).show()
+          Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
         }
       }
 
@@ -101,10 +97,8 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                   SetProfilePicture(photoState) {
                     checkPermission(
                         context,
-                        "Manifest.permission.READ_EXTERNAL_STORAGE",
+                        "android.permission.READ_EXTERNAL_STORAGE",
                         requestPermissionLauncher)
-                    // permissionState.launchPermissionRequest()
-                    getContent.launch("image/*")
                   }
                   Spacer(modifier = Modifier.weight(1f))
                   SaveButton(nameState) {
@@ -117,32 +111,32 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
   }
 }
 
-        /*
-            LazyColumn(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(horizontal = 20.dp, vertical = 20.dp),
-              verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-              horizontalAlignment = Alignment.CenterHorizontally) {
-                item {
-                  Column(
-                      modifier = Modifier.fillMaxWidth(),
-                      verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                        SecondaryTopBar { navigationActions.navigateTo(Route.GROUPSHOME) }
-                        Text("Create a group")
-                        Spacer(modifier = Modifier.padding(20.dp))
-                        GroupFields(nameState)
-                        Spacer(modifier = Modifier.padding(20.dp))
-                        SetProfilePicture(photoState) { getContent.launch("image/*") }
-                        SaveButton(nameState) {
-                          groupViewModel.createGroup(nameState.value, photoState.value)
-                          navigationActions.navigateTo(Route.GROUPSHOME)
-                        }
-                      }
-                }
-              }
-        }
+    /*
+        LazyColumn(
+          modifier = Modifier
+              .fillMaxWidth()
+              .padding(horizontal = 20.dp, vertical = 20.dp),
+          verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+          horizontalAlignment = Alignment.CenterHorizontally) {
+            item {
+              Column(
+                  modifier = Modifier.fillMaxWidth(),
+                  verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    SecondaryTopBar { navigationActions.navigateTo(Route.GROUPSHOME) }
+                    Text("Create a group")
+                    Spacer(modifier = Modifier.padding(20.dp))
+                    GroupFields(nameState)
+                    Spacer(modifier = Modifier.padding(20.dp))
+                    SetProfilePicture(photoState) { getContent.launch("image/*") }
+                    SaveButton(nameState) {
+                      groupViewModel.createGroup(nameState.value, photoState.value)
+                      navigationActions.navigateTo(Route.GROUPSHOME)
+                    }
+                  }
+            }
+          }
+    }
 
-               */
+           */
 
-               */
+           */
