@@ -61,34 +61,75 @@ class DatabaseConnection {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+  suspend fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+    Log.d(
+        "MyPrint",
+        "Creating new user with uid $uid, email $email, username $username and picture link ${profilePictureUri.toString()}")
     val user =
         hashMapOf(
             "email" to email, "username" to username, "photoUrl" to profilePictureUri.toString())
-    userDataCollection
-        .document(uid)
-        .set(user)
-        .addOnSuccessListener {
-          val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
-          pictureRef
-              .putFile(profilePictureUri)
-              .addOnSuccessListener {
-                pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  userDataCollection.document(uid).update("photoUrl", uri.toString())
+    if (profilePictureUri != getDefaultProfilePicture()) {
+      userDataCollection
+          .document(uid)
+          .set(user)
+          .addOnSuccessListener {
+            val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
+            pictureRef
+                .putFile(profilePictureUri)
+                .addOnSuccessListener {
+                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    userDataCollection.document(uid).update("photoUrl", uri.toString())
+                  }
+                  Log.d("MyPrint", "User data successfully created")
                 }
-                Log.e("MyPrint", "User data successfully created")
-              }
-              .addOnFailureListener { e ->
-                Log.d(
-                    "MyPrint",
-                    "Failed to upload photo with error with link $profilePictureUri: ",
-                    e)
-              }
-          Log.d("MyPrint", "User data successfully created for uid $uid")
-        }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to create user data with error: ", e)
-        }
+                .addOnFailureListener { e ->
+                  Log.d(
+                      "MyPrint",
+                      "Failed to upload photo with error with link $profilePictureUri: ",
+                      e)
+                }
+            Log.d("MyPrint", "User data successfully created for uid $uid")
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to create user data with error: ", e)
+          }
+    } else {
+      // If the profile picture URI is the default one, copy it to the user's folder
+      val defaultPictureRef = storage.child("userData/default.jpg")
+      val profilePictureRef = storage.child("userData/$uid/profilePicture.jpg")
+
+      defaultPictureRef
+          .getBytes(Long.MAX_VALUE)
+          .addOnSuccessListener { defaultPictureData ->
+            profilePictureRef
+                .putBytes(defaultPictureData)
+                .addOnSuccessListener {
+                  // Once the default picture is uploaded, update the user data with the correct
+                  // photo URL
+                  profilePictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    val updatedUserData = user + mapOf("photoUrl" to uri.toString())
+                    userDataCollection
+                        .document(uid)
+                        .set(updatedUserData)
+                        .addOnSuccessListener {
+                          Log.d("MyPrint", "User data successfully created for uid $uid")
+                        }
+                        .addOnFailureListener { e ->
+                          Log.d("MyPrint", "Failed to update user data with error: ", e)
+                        }
+                  }
+                }
+                .addOnFailureListener { e ->
+                  Log.d(
+                      "MyPrint",
+                      "Failed to upload default profile picture for user $uid with error: ",
+                      e)
+                }
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to retrieve default profile picture with error: ", e)
+          }
+    }
 
     val membership = hashMapOf("groups" to emptyList<String>())
     userMembershipsCollection

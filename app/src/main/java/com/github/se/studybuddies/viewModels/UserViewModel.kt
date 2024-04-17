@@ -42,7 +42,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    db.createUser(uid, email, username, profilePictureUri)
+    viewModelScope.launch { db.createUser(uid, email, username, profilePictureUri) }
   }
 
   fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
