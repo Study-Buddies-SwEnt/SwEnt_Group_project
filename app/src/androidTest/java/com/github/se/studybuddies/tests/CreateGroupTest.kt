@@ -1,9 +1,6 @@
 package com.github.se.studybuddies.tests
 
-import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.MainActivity
@@ -26,8 +23,8 @@ class CreateGroupTest : TestCase() {
   fun titleIsCorrectlyDisplayed() {
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateGroupScreen>(
         composeTestRule) {
-          composeTestRule.onNodeWithTag("SelectProfilePic").assertHasClickAction()
-          composeTestRule.onNodeWithTag("SelectProfilePic").performClick()
+          // Test the UI elements
+          settingInput { assertIsDisplayed() }
         }
   }
 }
