@@ -7,10 +7,8 @@ import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -31,6 +29,23 @@ class DatabaseConnection {
   private val groupDataCollection = db.collection("groupData")
 
   // using the userData collection
+  suspend fun getUser(uid: String): User {
+    val document = userDataCollection.document(uid).get().await()
+    return if (document.exists()) {
+      val email = document.getString("email") ?: ""
+      val username = document.getString("username") ?: ""
+      val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
+      User(uid, email, username, photoUrl)
+    } else {
+      Log.d("MyPrint", "user document not found for id $uid")
+      User.empty()
+    }
+  }
+
+  suspend fun getCurrentUser(): User {
+    return getUser(getCurrentUserUID())
+  }
+
   fun getCurrentUserUID(): String {
     val uid = FirebaseAuth.getInstance().currentUser?.uid
     return if (uid != null) {
@@ -40,10 +55,6 @@ class DatabaseConnection {
       Log.d("MyPrint", "Failed to get current user UID")
       ""
     }
-  }
-
-  fun getUserData(uid: String): Task<DocumentSnapshot> {
-    return userDataCollection.document(uid).get()
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -149,8 +160,17 @@ class DatabaseConnection {
     return GroupList(emptyList())
   }
 
-  fun getGroupData(groupUID: String): Task<DocumentSnapshot> {
-    return groupDataCollection.document(groupUID).get()
+  suspend fun getGroup(groupUID: String): Group {
+    val document = groupDataCollection.document(groupUID).get().await()
+    return if (document.exists()) {
+      val name = document.getString("name") ?: ""
+      val picture = Uri.parse(document.getString("picture") ?: "")
+      val members = document.get("members") as List<String>
+      Group(groupUID, name, picture, members)
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
+      Group.empty()
+    }
   }
 
   suspend fun getDefaultPicture(): Uri {
@@ -187,6 +207,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
   }
 
+  // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
     val messageData =
@@ -199,15 +220,6 @@ class DatabaseConnection {
         .updateChildren(messageData)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
-  }
-
-  fun getUser(uid: String): User {
-    // TODO implement this method (or modify getUserData to return User object)
-    return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
-  }
-
-  fun getCurrentUser(): User {
-    return getUser(getCurrentUserUID())
   }
 
   fun getGroupMessagesPath(groupUID: String): String {

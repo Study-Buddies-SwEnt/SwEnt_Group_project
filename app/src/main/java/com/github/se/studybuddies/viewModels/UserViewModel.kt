@@ -10,7 +10,6 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class UserViewModel(val uid: String? = null) : ViewModel() {
@@ -32,24 +31,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   fun fetchUserData(uid: String) {
-    viewModelScope.launch {
-      try {
-        val document = db.getUserData(uid).await()
-        if (document.exists()) {
-          val email = document.getString("email") ?: ""
-          val username = document.getString("username") ?: ""
-          val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-          val user = User(uid, email, username, photoUrl)
-          _userData.value = user
-        } else {
-          Log.d("MyPrint", "In ViewModel, document not found")
-          _userData.value = User.empty()
-        }
-      } catch (e: Exception) {
-        Log.d("MyPrint", "In ViewModel, failed to fetch user data with error: ", e)
-        _userData.value = User.empty()
-      }
-    }
+    viewModelScope.launch { _userData.value = db.getUser(uid) }
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
