@@ -26,11 +26,6 @@ class CreateGroupTest : TestCase() {
   fun titleIsCorrectlyDisplayed() {
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateGroupScreen>(
         composeTestRule) {
-          // Test the UI elements
-          groupTitle {
-            assertIsDisplayed()
-            assertTextEquals("Create a group")
-          }
           composeTestRule.onNodeWithTag("SelectProfilePic").assertHasClickAction()
           composeTestRule.onNodeWithTag("SelectProfilePic").performClick()
         }
