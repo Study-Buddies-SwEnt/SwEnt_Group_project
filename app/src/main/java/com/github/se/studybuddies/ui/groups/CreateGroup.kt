@@ -1,7 +1,5 @@
 package com.github.se.studybuddies.ui.groups
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -68,12 +66,12 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
           getContent.launch("image/*")
         }
       }
-    var permission = "android.permission.READ_MEDIA_IMAGES"
-        // Check if the Android version is lower than TIRAMISU API 33
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            // For older Android versions, use READ_EXTERNAL_STORAGE permission
-            permission = "android.permission.READ_EXTERNAL_STORAGE"
-        }
+  var permission = "android.permission.READ_MEDIA_IMAGES"
+  // Check if the Android version is lower than TIRAMISU API 33
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    // For older Android versions, use READ_EXTERNAL_STORAGE permission
+    permission = "android.permission.READ_EXTERNAL_STORAGE"
+  }
 
   Surface(color = White, modifier = Modifier.fillMaxSize()) {
     LazyColumn(
@@ -102,10 +100,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                   GroupFields(nameState)
                   Spacer(modifier = Modifier.padding(20.dp))
                   SetProfilePicture(photoState) {
-                    checkPermission(
-                        context,
-                        permission,
-                        requestPermissionLauncher)
+                    checkPermission(context, permission, requestPermissionLauncher)
                   }
                   Spacer(modifier = Modifier.weight(1f))
                   SaveButton(nameState) {
