@@ -1,6 +1,9 @@
 package com.github.se.studybuddies.ui.groups
 
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -65,15 +68,21 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
           getContent.launch("image/*")
         }
       }
+    var permission = "android.permission.READ_MEDIA_IMAGES"
+        // Check if the Android version is lower than TIRAMISU API 33
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            // For older Android versions, use READ_EXTERNAL_STORAGE permission
+            permission = "android.permission.READ_EXTERNAL_STORAGE"
+        }
 
-  Surface(color = White, modifier = Modifier.fillMaxSize().testTag("CreateGroup")) {
+  Surface(color = White, modifier = Modifier.fillMaxSize()) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("CreateGroup"),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   CenterAlignedTopAppBar(
@@ -95,7 +104,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                   SetProfilePicture(photoState) {
                     checkPermission(
                         context,
-                        "android.permission.READ_EXTERNAL_STORAGE",
+                        permission,
                         requestPermissionLauncher)
                   }
                   Spacer(modifier = Modifier.weight(1f))
