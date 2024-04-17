@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -19,7 +20,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
 
   init {
     if (uid != null) {
-      fetchUserData(getCurrentUserUID())
+      fetchUserData(uid)
       Log.d("MyPrint", "UserViewModel initialized with uid $uid")
     } else {
       Log.d("MyPrint", "UserViewModel initialized without uid")
@@ -27,7 +28,9 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   fun getCurrentUserUID(): String {
-    return db.getCurrentUserUID()
+    val currentUserUID = db.getCurrentUserUID()
+    Log.d("MyPrint", "Current UID fetched from UserViewModel is $currentUserUID")
+    return currentUserUID
   }
 
   fun fetchUserData(uid: String) {
@@ -44,5 +47,9 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
 
   fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
     db.updateUserData(uid, email, username, profilePictureUri)
+  }
+
+  fun signOut() {
+    viewModelScope.cancel()
   }
 }

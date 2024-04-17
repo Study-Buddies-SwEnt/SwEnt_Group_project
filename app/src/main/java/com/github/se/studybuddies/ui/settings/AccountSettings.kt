@@ -44,6 +44,7 @@ fun AccountSettings(
     backRoute: String,
     navigationActions: NavigationActions
 ) {
+  if (uid.isEmpty()) return
   userViewModel.fetchUserData(uid)
   val userData by userViewModel.userData.observeAsState()
 
@@ -61,11 +62,7 @@ fun AccountSettings(
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri ->
           photoState.value = profilePictureUri
-          userViewModel.updateUserData(
-              userViewModel.getCurrentUserUID(),
-              emailState.value,
-              usernameState.value,
-              photoState.value)
+          userViewModel.updateUserData(uid, emailState.value, usernameState.value, photoState.value)
         }
       }
 
@@ -81,17 +78,18 @@ fun AccountSettings(
         Spacer(Modifier.height(150.dp))
         SetProfilePicture(photoState) { getContent.launch("image/*") }
         Spacer(Modifier.height(60.dp))
-        SignOutButton(navigationActions)
+        SignOutButton(navigationActions, userViewModel)
       }
 }
 
 @Composable
-private fun SignOutButton(navigationActions: NavigationActions) {
+private fun SignOutButton(navigationActions: NavigationActions, userViewModel: UserViewModel) {
   val context = LocalContext.current // Get the context here
   Button(
       onClick = {
         AuthUI.getInstance().signOut(context).addOnCompleteListener {
           if (it.isSuccessful) {
+            userViewModel.signOut()
             navigationActions.navigateTo(Route.LOGIN)
           }
         }
