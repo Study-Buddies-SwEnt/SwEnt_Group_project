@@ -27,9 +27,9 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   private val _currentUser = MutableLiveData<User>()
 
   init {
-    listenToMessages()
     getCurrentUserUID()
     if (_currentUserUID.value != null) {
+      listenToMessages()
       getCurrentUser()
     }
   }
@@ -92,6 +92,10 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   }
 
   fun isUserMessageSender(message: Message): Boolean {
-    return message.sender.uid == _currentUser.value!!.uid
+    return if (_currentUser.value != null) {
+      message.sender.uid == _currentUser.value!!.uid
+    } else {
+      false
+    }
   }
 }
