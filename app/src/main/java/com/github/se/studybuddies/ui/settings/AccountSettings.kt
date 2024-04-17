@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.settings
 
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -33,6 +34,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
+import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.viewModels.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -50,6 +52,8 @@ fun AccountSettings(
   val emailState = remember { mutableStateOf(userData?.email ?: "") }
   val usernameState = remember { mutableStateOf(userData?.username ?: "") }
   val photoState = remember { mutableStateOf(userData?.photoUrl ?: Uri.EMPTY) }
+
+    val context = LocalContext.current
 
   userData?.let {
     emailState.value = it.email
@@ -69,6 +73,19 @@ fun AccountSettings(
         }
       }
 
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                getContent.launch("image/*")
+            }
+        }
+    var permission = "android.permission.READ_MEDIA_IMAGES"
+    // Check if the Android version is lower than TIRAMISU API 33
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        // For older Android versions, use READ_EXTERNAL_STORAGE permission
+        permission = "android.permission.READ_EXTERNAL_STORAGE"
+    }
+
   Column(
       modifier = Modifier.fillMaxSize(),
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,7 +96,7 @@ fun AccountSettings(
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             })
         Spacer(Modifier.height(150.dp))
-        SetProfilePicture(photoState) { getContent.launch("image/*") }
+        SetProfilePicture(photoState) { checkPermission(context, permission, requestPermissionLauncher) }
         Spacer(Modifier.height(60.dp))
         SignOutButton(navigationActions)
       }
