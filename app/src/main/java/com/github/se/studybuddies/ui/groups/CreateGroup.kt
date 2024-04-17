@@ -84,7 +84,6 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   CenterAlignedTopAppBar(
-                      modifier = Modifier.testTag("SettingInput"),
                       title = { Sub_title(stringResource(R.string.create_group)) },
                       navigationIcon = {
                         Icon(
