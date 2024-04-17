@@ -23,11 +23,15 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   private val dbRef = db.rt_db.getReference(db.getGroupMessagesPath(groupUID))
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
+  private val _currentUserUID = MutableLiveData<String>()
   private val _currentUser = MutableLiveData<User>()
 
   init {
     listenToMessages()
-    getCurrentUser()
+    getCurrentUserUID()
+    if (_currentUserUID.value != null) {
+      getCurrentUser()
+    }
   }
 
   private fun listenToMessages() {
@@ -60,6 +64,13 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
             Log.w("MessageViewModel", "Failed to read value.", error.toException())
           }
         })
+  }
+
+  private fun getCurrentUserUID() {
+    viewModelScope.launch {
+      val currentUserUID = db.getCurrentUserUID()
+      _currentUserUID.value = currentUserUID
+    }
   }
 
   private fun getCurrentUser() {
