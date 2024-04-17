@@ -46,7 +46,9 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
       modifier = Modifier.size(200.dp),
       contentScale = ContentScale.Crop)
   Spacer(Modifier.height(20.dp))
-  Text(text = "Select a profile picture", modifier = Modifier.clickable { onClick() })
+  Text(
+      text = "Select a profile picture",
+      modifier = Modifier.testTag("SelectProfilePic").clickable { onClick() })
 }
 
 @Composable
