@@ -9,7 +9,6 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
@@ -38,7 +37,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
 
   @Test
   fun textAndButtonAreCorrectlyDisplayed() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.ChatScreen>(composeTestRule) {
+    onComposeScreen<ChatScreen>(composeTestRule) {
       sendButton {
         assertIsDisplayed()
         assertHasClickAction()
@@ -51,7 +50,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
 
   @Test
   fun testSendMessage() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.ChatScreen>(composeTestRule) {
+    onComposeScreen<ChatScreen>(composeTestRule) {
       // Test the UI elements
       text_field { performTextInput(message_to_send) }
       sendButton { performClick() }
