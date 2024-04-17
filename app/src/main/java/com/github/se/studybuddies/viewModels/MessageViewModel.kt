@@ -28,10 +28,14 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
 
   init {
     getCurrentUserUID()
+    Log.d("MyPrint", "current user id is ${_currentUserUID.value}")
     if (_currentUserUID.value != null) {
-      listenToMessages()
-      getCurrentUser()
-    }
+      if (_currentUserUID.value!!.isNotBlank()) {
+        Log.d("MyPrint", "User exists with uid ${_currentUserUID.value}")
+        listenToMessages()
+        getCurrentUser()
+      } else Log.d("MyPrint", "User not defined yet")
+    } else Log.d("MyPrint", "User ID is null")
   }
 
   private fun listenToMessages() {
