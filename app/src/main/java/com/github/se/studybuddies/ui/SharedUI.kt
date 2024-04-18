@@ -138,6 +138,24 @@ fun DrawerMenu(
       }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopNavigationBar(
+    title :  @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit,
+    actions: @Composable () -> Unit,
+    ){
+    CenterAlignedTopAppBar(
+        title = { title() },
+        navigationIcon = {navigationIcon() },
+        actions = { actions() })
+    Divider(
+        color = Blue,
+        thickness = 4.dp,
+    )
+}
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
@@ -182,7 +200,6 @@ fun Main_title(title: String) {
 fun Sub_title(title: String) {
   Text(
       text = title,
-      fontFamily = FontFamily(Font(R.font.playball_regular)),
       fontSize = 45.sp,
   )
 }

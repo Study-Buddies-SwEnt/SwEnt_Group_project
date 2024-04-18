@@ -33,6 +33,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
+import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -73,11 +74,10 @@ fun AccountSettings(
       modifier = Modifier.fillMaxSize(),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Top) {
-        CenterAlignedTopAppBar(
-            title = { Sub_title(title = "Profile setting") },
-            navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, backRoute)
-            })
+      TopNavigationBar(title = { Sub_title(title = "Profile setting") },
+          navigationIcon = {GoBackRouteButton(navigationActions = navigationActions, backRoute) }) {
+
+      }
         Spacer(Modifier.height(150.dp))
         SetProfilePicture(photoState) { getContent.launch("image/*") }
         Spacer(Modifier.height(60.dp))
@@ -101,11 +101,12 @@ private fun SignOutButton(navigationActions: NavigationActions) {
               containerColor = Color.White,
           ),
       modifier =
-          Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
-              .background(color = Color.Transparent, shape = RoundedCornerShape(50))
-              .width(250.dp)
-              .height(50.dp)
-              .testTag("LoginButton"),
+      Modifier
+          .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
+          .background(color = Color.Transparent, shape = RoundedCornerShape(50))
+          .width(250.dp)
+          .height(50.dp)
+          .testTag("LoginButton"),
       shape = RoundedCornerShape(50)) {
         Text("Sign out", color = Color.Black)
       }
