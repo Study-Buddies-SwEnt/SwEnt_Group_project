@@ -43,23 +43,24 @@ class MainActivity : ComponentActivity() {
 
     // For the group invitation link
     FirebaseDynamicLinks.getInstance()
-      .getDynamicLink(intent)
-      .addOnSuccessListener(this) { pendingDynamicLinkData ->
-        var deepLink: Uri? = null
-        if (pendingDynamicLinkData != null) {
-          deepLink = pendingDynamicLinkData.link
-        }
+        .getDynamicLink(intent)
+        .addOnSuccessListener(this) { pendingDynamicLinkData ->
+          var deepLink: Uri? = null
+          if (pendingDynamicLinkData != null) {
+            deepLink = pendingDynamicLinkData.link
+          }
 
-        // Handle the deep link. For example, open the linked group:
-        val groupUID = deepLink?.getQueryParameter("groupUID")
-        if (groupUID != null) {
-          val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
-          if (currentUserUid != null) {
-                // Add the current user to the group in your Firebase database
+          // Handle the deep link. For example, open the linked group:
+          val groupUID = deepLink?.getQueryParameter("groupUID")
+          if (groupUID != null) {
+            val currentUserUid =
+                FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
+            if (currentUserUid != null) {
+              // Add the current user to the group in your Firebase database
             }
+          }
         }
-      }
-      .addOnFailureListener(this) { e -> Log.w(TAG, "getDynamicLink:onFailure", e) }
+        .addOnFailureListener(this) { e -> Log.w(TAG, "getDynamicLink:onFailure", e) }
 
     setContent {
       StudyBuddiesTheme {

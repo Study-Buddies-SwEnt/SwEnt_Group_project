@@ -7,17 +7,16 @@ import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 
 object FirebaseUtils {
-    fun createGroupInviteLink(groupUID: String): Uri {
-        val dynamicLink = Firebase.dynamicLinks.dynamicLink {
-            link = Uri.parse("https://www.example.com/group?groupUID=$groupUID")
-            domainUriPrefix = "https://example.page.link"
-            androidParameters("com.github.se.studybuddies") {
-                minimumVersion = 123
-            }
+  fun createGroupInviteLink(groupUID: String): Uri {
+    val dynamicLink =
+        Firebase.dynamicLinks.dynamicLink {
+          link = Uri.parse("https://www.example.com/group?groupUID=$groupUID")
+          domainUriPrefix = "https://example.page.link"
+          androidParameters("com.github.se.studybuddies") { minimumVersion = 123 }
         }
-        val dynamicLinkUri = dynamicLink.uri
-        return dynamicLinkUri
-    }
+    val dynamicLinkUri = dynamicLink.uri
+    return dynamicLinkUri
+  }
 }
 
 // To call this function : val inviteLink = FirebaseUtils.createGroupInviteLink(groupUID)
