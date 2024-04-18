@@ -5,6 +5,15 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.ncorti.ktfmt.gradle") version "0.16.0"
     id("com.google.gms.google-services")
+    id("org.sonarqube") version "4.4.1.3373"
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "Study-Buddies-SwEnt_SwEnt_Group_project")
+        property("sonar.organization", "study-buddies-swent")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 android {
@@ -31,6 +40,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
     }
     compileOptions {
@@ -131,6 +144,8 @@ dependencies {
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
+
+    testImplementation("org.robolectric:robolectric:4.11.1")
 }
 
 tasks.register("jacocoTestReport", JacocoReport::class) {

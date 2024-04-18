@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Study Buddies"
 include(":app")
-System.setProperty("sonar.gradle.skipCompile", "true")
