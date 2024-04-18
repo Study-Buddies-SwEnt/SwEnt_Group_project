@@ -144,6 +144,8 @@ dependencies {
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
+
+    testImplementation("org.robolectric:robolectric:4.11.1")
 }
 
 tasks.register("jacocoTestReport", JacocoReport::class) {
