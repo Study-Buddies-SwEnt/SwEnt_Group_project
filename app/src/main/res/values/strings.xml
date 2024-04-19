@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Study Buddies</string>
     <string name="type_a_message">Type a message</string>
+    <string name="account_creation_email">You signed in with the email address %1$s</string>
+    <string name="group_creation_title">Create a group</string>
+    <string name="go_back_button">Go back</string>
 </resources>

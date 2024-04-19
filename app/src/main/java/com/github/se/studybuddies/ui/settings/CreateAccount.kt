@@ -19,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.viewModels.UserViewModel
@@ -58,7 +60,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                  Text("You signed in with the email address $email")
+                  Text(stringResource(R.string.account_creation_email, email))
                   Spacer(modifier = Modifier.padding(20.dp))
                   AccountFields(usernameState)
                   Spacer(modifier = Modifier.padding(20.dp))

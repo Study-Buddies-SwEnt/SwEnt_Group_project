@@ -27,7 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.Sub_title
@@ -84,11 +86,11 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   CenterAlignedTopAppBar(
-                      title = { Sub_title("Create a group") },
+                      title = { Sub_title(stringResource(R.string.group_creation_title)) },
                       navigationIcon = {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Go back",
+                            contentDescription = stringResource(R.string.go_back_button),
                             modifier =
                                 Modifier.clickable {
                                   navigationActions.navigateTo(Route.GROUPSHOME)
