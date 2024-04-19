@@ -5,7 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.core.content.ContextCompat
 
-// Function to check and request permission.
+// Function to check and request a single permission.
 fun checkPermission(
     context: Context,
     permission: String,
