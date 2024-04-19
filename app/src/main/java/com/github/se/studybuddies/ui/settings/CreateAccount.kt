@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -25,28 +24,25 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationActions) {
-    val coroutineScope = rememberCoroutineScope()
+  val coroutineScope = rememberCoroutineScope()
 
-    val uid = userViewModel.getCurrentUserUID()
-    userViewModel.fetchUserData(uid)
-    val user by userViewModel.userData.observeAsState()
+  val uid = userViewModel.getCurrentUserUID()
+  userViewModel.fetchUserData(uid)
+  val user by userViewModel.userData.observeAsState()
   val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
   val usernameState = remember { mutableStateOf("") }
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
 
-    user?.let {
-        coroutineScope.launch {
-            val defaultProfilePictureUri = userViewModel.getDefaultProfilePicture()
-            photoState.value = defaultProfilePictureUri
-        }
+  user?.let {
+    coroutineScope.launch {
+      val defaultProfilePictureUri = userViewModel.getDefaultProfilePicture()
+      photoState.value = defaultProfilePictureUri
     }
+  }
 
   val getContent =
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -55,9 +51,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
 
   Column(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
