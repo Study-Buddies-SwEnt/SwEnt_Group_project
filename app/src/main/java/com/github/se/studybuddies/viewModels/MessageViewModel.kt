@@ -60,6 +60,11 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
     db.sendGroupMessage(groupUID, message)
   }
 
+  fun deleteMessage(message: Message) {
+    db.deleteMessage(groupUID, message)
+    _messages.value = _messages.value.filter { it.uid != message.uid }
+  }
+
   fun isUserMessageSender(message: Message): Boolean {
     return message.sender.uid == db.getCurrentUser().uid
   }

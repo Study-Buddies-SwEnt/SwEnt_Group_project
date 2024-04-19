@@ -1,9 +1,10 @@
 package com.github.se.studybuddies.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -32,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -46,10 +50,34 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions) {
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
   var textToSend by remember { mutableStateOf("") }
+  var showOptionsDialog by remember { mutableStateOf(false) }
+  var selectedMessage by remember { mutableStateOf<Message?>(null) }
+
+  if (showOptionsDialog) {
+    AlertDialog(
+        onDismissRequest = { showOptionsDialog = false },
+        title = { Text(text = "Options") },
+        text = {
+          Column {
+            selectedMessage?.let { Text(text = it.getDate()) }
+            Button(
+                onClick = {
+                  viewModel.deleteMessage(selectedMessage!!)
+                  showOptionsDialog = false
+                }) {
+                  Text(text = "Delete")
+                }
+          }
+        },
+        confirmButton = {
+          IconButton(onClick = { showOptionsDialog = false }) { Text(text = "Cancel") }
+        })
+  }
 
   // TODO issue when open keyboard, the list of messages goes up
   Column(
@@ -62,7 +90,15 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
         LazyColumn(Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             Row(
-                modifier = Modifier.fillMaxWidth().padding(2.dp),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(2.dp)
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = {
+                              selectedMessage = message
+                              showOptionsDialog = true
+                            }),
                 horizontalArrangement =
                     if (viewModel.isUserMessageSender(message)) {
                       Arrangement.End
@@ -122,15 +158,21 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 
 @Composable
 fun OwnTextBubble(message: Message) {
-  BoxWithConstraints(
+  Box(
       modifier =
           Modifier.background(Color.White, RoundedCornerShape(20.dp))
               .padding(1.dp)
               .testTag("chat_own_text_bubble")) {
-        Text(
-            text = message.text,
-            modifier = Modifier.padding(8.dp).testTag("chat_message_text"),
-            style = TextStyle(color = Black))
+        Column(modifier = Modifier.padding(8.dp)) {
+          Text(
+              text = message.text,
+              modifier = Modifier.testTag("chat_message_text"),
+              style = TextStyle(color = Black))
+          Text(
+              text = message.getTime(),
+              style = TextStyle(color = Gray),
+              modifier = Modifier.testTag("chat_message_time"))
+        }
       }
 }
 
@@ -151,6 +193,10 @@ fun OtherTextBubble(message: Message) {
               text = message.text,
               style = TextStyle(color = Black),
               modifier = Modifier.testTag("chat_message_text"))
+          Text(
+              text = message.getTime(),
+              style = TextStyle(color = Gray),
+              modifier = Modifier.testTag("chat_message_time"))
         }
       }
 }

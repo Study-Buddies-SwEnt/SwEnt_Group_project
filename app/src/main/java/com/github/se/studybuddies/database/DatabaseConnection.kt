@@ -201,6 +201,11 @@ class DatabaseConnection {
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
   }
 
+  fun deleteMessage(groupUID: String, message: Message) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    rt_db.getReference(messagePath).removeValue()
+  }
+
   fun getUser(uid: String): User {
     // TODO implement this method (or modify getUserData to return User object)
     return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
