@@ -67,7 +67,7 @@ fun AccountSettings(
       }
 
   Column(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("account_settings"),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Top) {
         CenterAlignedTopAppBar(
@@ -103,7 +103,7 @@ private fun SignOutButton(navigationActions: NavigationActions, userViewModel: U
               .background(color = Color.Transparent, shape = RoundedCornerShape(50))
               .width(250.dp)
               .height(50.dp)
-              .testTag("LoginButton"),
+              .testTag("sign_out_button"),
       shape = RoundedCornerShape(50)) {
         Text("Sign out", color = Color.Black)
       }
