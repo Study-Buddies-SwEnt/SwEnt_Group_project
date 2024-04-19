@@ -67,7 +67,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         }
       }
   var permission = "android.permission.READ_MEDIA_IMAGES"
-  // Check if the Android version is lower than TIRAMISU API 33
+  // Check if Android version is lower than TIRAMISU API 33
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
     // For older Android versions, use READ_EXTERNAL_STORAGE permission
     permission = "android.permission.READ_EXTERNAL_STORAGE"
