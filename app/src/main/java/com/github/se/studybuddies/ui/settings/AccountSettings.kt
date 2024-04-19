@@ -53,7 +53,7 @@ fun AccountSettings(
   val usernameState = remember { mutableStateOf(userData?.username ?: "") }
   val photoState = remember { mutableStateOf(userData?.photoUrl ?: Uri.EMPTY) }
 
-    val context = LocalContext.current
+  val context = LocalContext.current
 
   userData?.let {
     emailState.value = it.email
@@ -73,18 +73,18 @@ fun AccountSettings(
         }
       }
 
-    val requestPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                getContent.launch("image/*")
-            }
+  val requestPermissionLauncher =
+      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+          getContent.launch("image/*")
         }
-    var permission = "android.permission.READ_MEDIA_IMAGES"
-    // Check if the Android version is lower than TIRAMISU API 33
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        // For older Android versions, use READ_EXTERNAL_STORAGE permission
-        permission = "android.permission.READ_EXTERNAL_STORAGE"
-    }
+      }
+  var permission = "android.permission.READ_MEDIA_IMAGES"
+  // Check if the Android version is lower than TIRAMISU API 33
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    // For older Android versions, use READ_EXTERNAL_STORAGE permission
+    permission = "android.permission.READ_EXTERNAL_STORAGE"
+  }
 
   Column(
       modifier = Modifier.fillMaxSize(),
@@ -96,7 +96,9 @@ fun AccountSettings(
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             })
         Spacer(Modifier.height(150.dp))
-        SetProfilePicture(photoState) { checkPermission(context, permission, requestPermissionLauncher) }
+        SetProfilePicture(photoState) {
+          checkPermission(context, permission, requestPermissionLauncher)
+        }
         Spacer(Modifier.height(60.dp))
         SignOutButton(navigationActions)
       }

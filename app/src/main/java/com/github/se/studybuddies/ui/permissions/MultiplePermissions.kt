@@ -21,9 +21,12 @@ fun checkMultiplePermissions(
     permissions: List<String>,
     launcher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
 ) {
-  val permissionsToRequest = permissions.filter {
-    ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
-  }.toTypedArray()
+  val permissionsToRequest =
+      permissions
+          .filter {
+            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
+          }
+          .toTypedArray()
   if (permissionsToRequest.isNotEmpty()) {
     launcher.launch(permissionsToRequest)
   }
