@@ -187,7 +187,7 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
 fun Main_title(title: String) {
   Text(
       text = title,
-      fontFamily = FontFamily(Font(R.font.playball_regular)),
+      fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
       fontSize = 45.sp,
   )
 }
@@ -196,7 +196,8 @@ fun Main_title(title: String) {
 fun Sub_title(title: String) {
   Text(
       text = title,
-      fontSize = 35.sp,
+      fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
+      fontSize = 40.sp,
   )
 }
 
