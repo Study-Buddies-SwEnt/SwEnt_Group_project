@@ -219,7 +219,7 @@ class DatabaseConnection {
   }
 
   suspend fun createGroup(name: String, photoUri: Uri) {
-    val uid = getCurrentUserUID()
+    val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
     val group =
         hashMapOf("name" to name, "picture" to photoUri.toString(), "members" to listOf(uid))
