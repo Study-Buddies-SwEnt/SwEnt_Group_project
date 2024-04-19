@@ -8,17 +8,6 @@ plugins {
     id("org.sonarqube") version "4.4.1.3373"
 }
 
-sonar {
-    properties {
-        property("sonar.projectKey", "Study-Buddies-SwEnt_SwEnt_Group_project")
-        property("sonar.organization", "study-buddies-swent")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.junit.reportPaths", "${project.layout.buildDirectory.get()}/test-results/testDebugUnitTest/")
-        property("sonar.androidLint.reportPaths", "${project.layout.buildDirectory.get()}/reports/lint-results-debug.xml")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${project.layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-    }
-}
-
 android {
     namespace = "com.github.se.studybuddies"
     compileSdk = 34
