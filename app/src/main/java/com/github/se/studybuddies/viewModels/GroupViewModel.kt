@@ -27,7 +27,7 @@ class GroupViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun createGroup(name: String, photoUri: Uri) {
-    db.createGroup(name, photoUri)
+    viewModelScope.launch { db.createGroup(name, photoUri) }
   }
 
   suspend fun getDefaultPicture(): Uri {

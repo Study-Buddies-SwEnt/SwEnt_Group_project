@@ -218,34 +218,80 @@ class DatabaseConnection {
     return storage.child("groupData/default_group.jpg").downloadUrl.await()
   }
 
-  fun createGroup(name: String, photoUri: Uri) {
+  suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = getCurrentUserUID()
+    Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
     val group =
         hashMapOf("name" to name, "picture" to photoUri.toString(), "members" to listOf(uid))
-    groupDataCollection
-        .add(group)
-        .addOnSuccessListener { documentReference ->
-          val groupUID = documentReference.id
-          userMembershipsCollection
-              .document(uid)
-              .update("groups", FieldValue.arrayUnion(groupUID))
-              .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to update user memberships with error: ", e)
-              }
-          val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
-          pictureRef
-              .putFile(photoUri)
-              .addOnSuccessListener {
-                pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  groupDataCollection.document(groupUID).update("picture", uri.toString())
+    if (photoUri != getDefaultPicture()) {
+      groupDataCollection
+          .add(group)
+          .addOnSuccessListener { documentReference ->
+            val groupUID = documentReference.id
+            userMembershipsCollection
+                .document(uid)
+                .update("groups", FieldValue.arrayUnion(groupUID))
+                .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to update user memberships with error: ", e)
                 }
-              }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to upload photo with error: ", e)
-              }
-        }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+            val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+            pictureRef
+                .putFile(photoUri)
+                .addOnSuccessListener {
+                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    groupDataCollection.document(groupUID).update("picture", uri.toString())
+                  }
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                }
+          }
+          .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+    } else {
+      val defaultPictureRef = storage.child("groupData/default_group.jpg")
+      val pictureRef = storage.child("groupData/$uid/picture.jpg")
+
+      groupDataCollection.add(group).addOnSuccessListener { documentReference ->
+        val groupUID = documentReference.id
+        userMembershipsCollection
+            .document(uid)
+            .update("groups", FieldValue.arrayUnion(groupUID))
+            .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
+            .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to update user memberships with error: ", e)
+            }
+        defaultPictureRef
+            .getBytes(Long.MAX_VALUE)
+            .addOnSuccessListener { defaultPictureData ->
+              pictureRef
+                  .putBytes(defaultPictureData)
+                  .addOnSuccessListener {
+                    pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                      val updatedGroupData = group + mapOf("picture" to uri.toString())
+                      groupDataCollection
+                          .document(groupUID)
+                          .set(updatedGroupData)
+                          .addOnSuccessListener {
+                            Log.d("MyPrint", "Group data successfully created for uid $uid")
+                          }
+                          .addOnFailureListener { e ->
+                            Log.d("MyPrint", "Failed to update group data with error: ", e)
+                          }
+                    }
+                  }
+                  .addOnFailureListener { e ->
+                    Log.d(
+                        "MyPrint",
+                        "Failed to upload default picture for group $uid with error: ",
+                        e)
+                  }
+            }
+            .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to retrieve default picture with error: ", e)
+            }
+      }
+    }
   }
 
   // using the Realtime Database for messages
