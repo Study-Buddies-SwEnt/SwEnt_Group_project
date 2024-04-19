@@ -138,22 +138,18 @@ fun DrawerMenu(
       }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopNavigationBar(
-    title :  @Composable () -> Unit,
+    title: @Composable () -> Unit,
     navigationIcon: @Composable () -> Unit,
     actions: @Composable () -> Unit,
-    ){
+) {
+  Box {
     CenterAlignedTopAppBar(
-        title = { title() },
-        navigationIcon = {navigationIcon() },
-        actions = { actions() })
-    Divider(
-        color = Blue,
-        thickness = 4.dp,
-    )
+        title = { title() }, navigationIcon = { navigationIcon() }, actions = { actions() })
+    Divider(color = Blue, thickness = 4.dp, modifier = Modifier.align(Alignment.BottomStart))
+  }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -200,7 +196,7 @@ fun Main_title(title: String) {
 fun Sub_title(title: String) {
   Text(
       text = title,
-      fontSize = 45.sp,
+      fontSize = 35.sp,
   )
 }
 
@@ -219,16 +215,6 @@ fun SearchIcon() {
   IconButton(onClick = { /*TODO*/}) {
     Icon(imageVector = Icons.Default.Search, tint = Blue, contentDescription = "Search groups")
   }
-}
-
-@Composable
-fun GoBackButton(
-    navigationActions: NavigationActions,
-) {
-  Icon(
-      imageVector = Icons.Default.ArrowBack,
-      contentDescription = "Go back",
-      modifier = Modifier.clickable { navigationActions.goBack() })
 }
 
 @Composable

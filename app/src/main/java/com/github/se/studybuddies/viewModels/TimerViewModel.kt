@@ -14,27 +14,26 @@ class TimerViewModel : ViewModel() {
   val timer = _timer.asStateFlow()
 
   private val _timerEnd = MutableStateFlow(false)
-    val timerEnd = _timerEnd.asStateFlow()
-
+  val timerEnd = _timerEnd.asStateFlow()
 
   private var timerJob: Job? = null
 
   fun addHours(hours: Long) {
-    if(_timer.value + hours > 0){
+    if (_timer.value + hours > 0) {
       _timer.value += hours * 3600
     }
   }
 
   fun addMinutes(minutes: Long) {
-    if(_timer.value + minutes > 0) {
+    if (_timer.value + minutes > 0) {
       _timer.value += minutes * 60
     }
   }
 
   fun addSeconds(seconds: Long) {
-    if(_timer.value + seconds > 0){
-        _timer.value += seconds
-      }
+    if (_timer.value + seconds > 0) {
+      _timer.value += seconds
+    }
   }
 
   fun startTimer() {
@@ -43,17 +42,13 @@ class TimerViewModel : ViewModel() {
           viewModelScope1.launch {
             while (isActive) {
               delay(1000)
-              if(_timer.value > 0)
-                _timer.value--
-              else
-                _timerEnd.value = true
+              if (_timer.value > 0) _timer.value-- else _timerEnd.value = true
               delay(1000)
               _timerEnd.value = false
             }
-
           }
     }
-  } 
+  }
 
   fun pauseTimer() {
     timerJob?.cancel()

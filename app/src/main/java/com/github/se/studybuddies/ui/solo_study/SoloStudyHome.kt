@@ -30,15 +30,15 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
               Row(
                   modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
-                    Solo_study_buttons(navigationActions,option = FLASH_CARD)
-                    Solo_study_buttons(navigationActions,option = TODO_LIST)
+                    Solo_study_buttons(navigationActions, option = FLASH_CARD)
+                    Solo_study_buttons(navigationActions, option = TODO_LIST)
                   }
               Spacer(modifier = Modifier.height(200.dp))
               Row(
                   modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
-                    Solo_study_buttons(navigationActions,option = CALENDAR)
-                    Solo_study_buttons(navigationActions,option = TIMER)
+                    Solo_study_buttons(navigationActions, option = CALENDAR)
+                    Solo_study_buttons(navigationActions, option = TIMER)
                   }
             }
       },

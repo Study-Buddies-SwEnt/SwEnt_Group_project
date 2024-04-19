@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,10 +13,11 @@ import com.github.se.studybuddies.ui.TopNavigationBar
 @Composable
 fun Settings(backRoute: String, navigationActions: NavigationActions) {
   Column {
-    TopNavigationBar(title = { Main_title(title = "Settings") },
-        navigationIcon = { GoBackRouteButton(navigationActions = navigationActions, backRoute = backRoute) }) {
-
-    }
+    TopNavigationBar(
+        title = { Main_title(title = "Settings") },
+        navigationIcon = {
+          GoBackRouteButton(navigationActions = navigationActions, backRoute = backRoute)
+        }) {}
     Text("Settings")
   }
 }

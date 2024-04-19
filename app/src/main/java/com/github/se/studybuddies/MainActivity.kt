@@ -119,11 +119,11 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
               }
             }
-            composable(Route.TIMER){
-                if (currentUser != null) {
-                  TimerScreenContent(TimerViewModel(), navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to TimerScreen")
-                }
+            composable(Route.TIMER) {
+              if (currentUser != null) {
+                TimerScreenContent(TimerViewModel(), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to TimerScreen")
+              }
             }
           }
         }

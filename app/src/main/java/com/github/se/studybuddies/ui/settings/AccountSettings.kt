@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.settings
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,8 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.UserViewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSettings(
@@ -70,18 +72,25 @@ fun AccountSettings(
         }
       }
 
-  Column(
+  Scaffold(
       modifier = Modifier.fillMaxSize(),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Top) {
-      TopNavigationBar(title = { Sub_title(title = "Profile setting") },
-          navigationIcon = {GoBackRouteButton(navigationActions = navigationActions, backRoute) }) {
-
-      }
-        Spacer(Modifier.height(150.dp))
-        SetProfilePicture(photoState) { getContent.launch("image/*") }
-        Spacer(Modifier.height(60.dp))
-        SignOutButton(navigationActions)
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title = "Profile setting") },
+            navigationIcon = {
+              GoBackRouteButton(navigationActions = navigationActions, backRoute)
+            },
+            actions = {})
+      }) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top) {
+              Spacer(Modifier.height(150.dp))
+              SetProfilePicture(photoState) { getContent.launch("image/*") }
+              Spacer(Modifier.height(60.dp))
+              SignOutButton(navigationActions)
+            }
       }
 }
 
@@ -101,12 +110,11 @@ private fun SignOutButton(navigationActions: NavigationActions) {
               containerColor = Color.White,
           ),
       modifier =
-      Modifier
-          .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
-          .background(color = Color.Transparent, shape = RoundedCornerShape(50))
-          .width(250.dp)
-          .height(50.dp)
-          .testTag("LoginButton"),
+          Modifier.border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(50))
+              .background(color = Color.Transparent, shape = RoundedCornerShape(50))
+              .width(250.dp)
+              .height(50.dp)
+              .testTag("LoginButton"),
       shape = RoundedCornerShape(50)) {
         Text("Sign out", color = Color.Black)
       }
