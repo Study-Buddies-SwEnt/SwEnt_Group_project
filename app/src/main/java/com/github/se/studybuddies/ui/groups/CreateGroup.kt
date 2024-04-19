@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
@@ -75,9 +76,12 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         }
       }
 
-  Surface(color = White, modifier = Modifier.fillMaxSize()) {
+  Surface(color = White, modifier = Modifier.fillMaxSize().testTag("create_group")) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 20.dp)
+                .testTag("content"),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
