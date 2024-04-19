@@ -9,5 +9,5 @@ class AccountSettingsScreen(semanticsProvider: SemanticsNodeInteractionsProvider
         semanticsProvider = semanticsProvider,
         viewBuilderAction = { hasTestTag("account_settings") }) {
   val content: KNode = onNode { hasTestTag("content") }
-  val signOutButton: KNode = onNode { hasTestTag("sign_out_button") }
+  val signOutButton: KNode = content.child { hasTestTag("sign_out_button") }
 }

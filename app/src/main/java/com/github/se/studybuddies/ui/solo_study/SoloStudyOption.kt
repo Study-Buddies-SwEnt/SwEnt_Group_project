@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,7 +39,7 @@ val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.TIMER)
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(
       onClick = { navigationActions.navigateTo(option.route) },
-      modifier = Modifier.height(240.dp).width(280.dp),
+      modifier = Modifier.height(240.dp).width(280.dp).testTag("SoloStudyButton"),
       colors = ButtonDefaults.buttonColors(White),
       shape = RoundedCornerShape(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

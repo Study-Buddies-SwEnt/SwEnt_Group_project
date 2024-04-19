@@ -93,7 +93,7 @@ fun DrawerMenu(
       drawerContent = {
         var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
         ModalDrawerSheet(
-            modifier = Modifier.requiredWidth(200.dp),
+            modifier = Modifier.requiredWidth(200.dp).testTag("Drawer"),
         ) {
           Spacer(modifier = Modifier.size(16.dp))
           SETTINGS_DESTINATIONS.forEachIndexed { index, item ->
@@ -111,12 +111,14 @@ fun DrawerMenu(
                       contentDescription = item.textId,
                       tint = Blue)
                 },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
+                modifier =
+                    Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        .testTag("DrawerItem"))
           }
         }
       }) {
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("Drawer Scaffold"),
             topBar = {
               Box {
                 CenterAlignedTopAppBar(
