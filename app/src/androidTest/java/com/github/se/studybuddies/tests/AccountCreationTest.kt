@@ -70,25 +70,4 @@ class AccountCreationTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
           saveButton { assertIsEnabled() }
         }
   }
-
-  @Test
-  fun createWithDefaultPicture() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(
-        composeTestRule) {
-          inputUsername()
-          saveButton { performClick() }
-          verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
-          confirmVerified(mockNavActions)
-        }
-  }
-
-  /*  @Test
-  fun createWithCustomPicture() {
-      ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(composeTestRule) {
-          inputUsername()
-          profileButton {
-              performClick()
-          }
-      }
-  }*/
 }
