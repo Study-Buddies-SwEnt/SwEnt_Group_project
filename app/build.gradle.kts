@@ -69,6 +69,7 @@ android {
                 useLegacyPackaging = true
             }
         }
+        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -132,6 +133,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 
     // Dependencies for using MockK in instrumented tests
+    testImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
