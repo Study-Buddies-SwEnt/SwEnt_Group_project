@@ -26,18 +26,21 @@ class PermissionsUnitTest {
     val permission = "android.permission.READ_MEDIA_IMAGES"
     mockLauncher =
         mockk<ManagedActivityResultLauncher<String, Boolean>>(relaxed = true) { launch(permission) }
-    /*var requestGranted = false
-    val requestPermissionLauncher =
-      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-          requestGranted = true
-        }
-      }
-     */
-
     mockContext = mockk<Context>(relaxed = true) {}
 
     checkPermission(mockContext, permission, mockLauncher)
     verify { mockLauncher.launch(permission) }
+  }
+
+  @Test
+  fun permissionsRequestNotLaunched() {
+    val permission = "android.permission.READ_MEDIA_IMAGES"
+    mockLauncher =
+        mockk<ManagedActivityResultLauncher<String, Boolean>>(relaxed = true) { launch(permission) }
+    mockContext = mockk<Context>(relaxed = true) {}
+
+    checkPermission(mockContext, permission, mockLauncher)
+    checkPermission(mockContext, permission, mockLauncher)
+    verify(exactly = 1) { mockLauncher.launch(permission) }
   }
 }
