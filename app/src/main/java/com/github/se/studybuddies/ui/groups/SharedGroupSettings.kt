@@ -34,7 +34,7 @@ fun GroupFields(nameState: MutableState<String>) {
       placeholder = { Text("Enter a group name", color = Blue) },
       singleLine = true,
       modifier =
-          Modifier.padding(0.dp).width(300.dp).height(65.dp).clip(MaterialTheme.shapes.small),
+          Modifier.padding(0.dp).width(300.dp).height(65.dp).clip(MaterialTheme.shapes.small).testTag("group_field"),
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
               focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))
@@ -50,12 +50,12 @@ fun SaveButton(nameState: MutableState<String>, save: () -> Unit) {
               .width(300.dp)
               .height(50.dp)
               .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
-              .testTag("todoSave"),
+              .testTag("save_button"),
       colors =
           ButtonDefaults.buttonColors(
               containerColor = Blue,
           )) {
-        Text("Save", color = White)
+        Text("Save", color = White, modifier = Modifier.testTag("save_button_text"))
       }
 }
 
