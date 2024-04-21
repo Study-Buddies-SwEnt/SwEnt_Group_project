@@ -11,7 +11,6 @@ class TimerScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val timerRedCard: KNode = child { hasTestTag("timer_red_card") }
   val timerCard: KNode = child { hasTestTag("timer_card") }
   val timerAdjustment: KNode = child { hasTestTag("timer_adjustment") }
-  val timerAdjustmentButton: KNode =
-      timerAdjustment.child { hasTestTag("timer_adjustment_buttons") }
+  val timerAdjustmentButton: KNode = timerAdjustment.child { hasTestTag("timer_adjustment_buttons") }
   val timerButton: KNode = child { hasTestTag("timer_button") }
 }
