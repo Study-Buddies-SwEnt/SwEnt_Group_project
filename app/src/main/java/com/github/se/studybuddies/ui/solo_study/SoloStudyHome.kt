@@ -33,7 +33,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
                     Solo_study_buttons(navigationActions, option = FLASH_CARD)
                     Solo_study_buttons(navigationActions, option = TODO_LIST)
                   }
-              Spacer(modifier = Modifier.height(200.dp))
+              Spacer(modifier = Modifier.height(100.dp))
               Row(
                   modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceEvenly) {

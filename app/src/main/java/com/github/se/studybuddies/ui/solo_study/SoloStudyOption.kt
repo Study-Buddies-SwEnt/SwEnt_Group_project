@@ -39,14 +39,14 @@ val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.TIMER)
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(
       onClick = { navigationActions.navigateTo(option.route) },
-      modifier = Modifier.height(240.dp).width(280.dp).testTag("solo_study_button"),
+      modifier = Modifier.height(120.dp).width(240.dp).testTag("solo_study_button"),
       colors = ButtonDefaults.buttonColors(White),
       shape = RoundedCornerShape(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
           Icon(
               painter = painterResource(id = option.icon_id),
               contentDescription = option.name,
-              modifier = Modifier.height(160.dp).width(200.dp).testTag("solo_study_icon"))
+              modifier = Modifier.height(80.dp).width(100.dp).testTag("solo_study_icon"))
           Text(
               option.name,
               color = Blue,

@@ -89,6 +89,7 @@ fun DrawerMenu(
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
   ModalNavigationDrawer(
+      modifier = Modifier.testTag("drawer_menu"),
       drawerState = drawerState,
       drawerContent = {
         var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -116,7 +117,7 @@ fun DrawerMenu(
         }
       }) {
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("drawer_scaffold"),
             topBar = {
               Box {
                 CenterAlignedTopAppBar(
