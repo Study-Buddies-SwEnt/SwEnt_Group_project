@@ -34,7 +34,11 @@ fun GroupFields(nameState: MutableState<String>) {
       placeholder = { Text("Enter a group name", color = Blue) },
       singleLine = true,
       modifier =
-          Modifier.padding(0.dp).width(300.dp).height(65.dp).clip(MaterialTheme.shapes.small).testTag("group_field"),
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(65.dp)
+              .clip(MaterialTheme.shapes.small)
+              .testTag("group_field"),
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
               focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))

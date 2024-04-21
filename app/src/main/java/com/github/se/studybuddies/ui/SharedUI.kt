@@ -149,7 +149,10 @@ fun TopNavigationBar(
       modifier = Modifier.testTag("top_app_box"),
   ) {
     CenterAlignedTopAppBar(
-        title = { title() }, navigationIcon = { navigationIcon() }, actions = { actions() }, modifier = Modifier.testTag("top_app_bar"))
+        title = { title() },
+        navigationIcon = { navigationIcon() },
+        actions = { actions() },
+        modifier = Modifier.testTag("top_app_bar"))
     Divider(color = Blue, thickness = 4.dp, modifier = Modifier.align(Alignment.BottomStart))
   }
 }
