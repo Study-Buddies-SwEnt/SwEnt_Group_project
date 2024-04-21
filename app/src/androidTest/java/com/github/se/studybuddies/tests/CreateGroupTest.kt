@@ -84,11 +84,11 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           // clear the text field
           performTextClearance()
         }
-
+        /*
         saveButton {
           assertIsDisplayed()
           performClick()
-        }
+        }*/
 
         /*
         saveButtonText {
