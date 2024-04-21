@@ -24,7 +24,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
       Route.SOLOSTUDYHOME,
       content = {
         Column(
-            modifier = Modifier.fillMaxSize().testTag("SoloStudyHome"),
+            modifier = Modifier.fillMaxSize().testTag("solo_study_home"),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(

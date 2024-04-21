@@ -17,5 +17,5 @@ class CreateGroupScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val groupField: KNode = createGroupCol.child { hasTestTag("group_field") }
   val groupFieldProposal: KNode = createGroupCol.child { hasClickAction() }
   val saveButton: KNode = createGroupCol.child { hasTestTag("save_button") }
-    val saveButtonText: KNode = saveButton.child{hasTestTag("save_button_text")}
+  val saveButtonText: KNode = onNode { hasTestTag("save_button_text") }
 }

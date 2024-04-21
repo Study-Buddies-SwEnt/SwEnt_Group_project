@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_EXPRESSION")
+
 package com.github.se.studybuddies.ui.timer
 
 import android.annotation.SuppressLint
@@ -18,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -61,7 +64,7 @@ fun TimerScreen(
     onReset: () -> Unit
 ) {
   Scaffold(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("timer_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Timer") },
@@ -79,7 +82,8 @@ fun TimerScreen(
           if (timerEnd) {
             Card(
                 shape = RoundedCornerShape(30.dp),
-                modifier = Modifier.padding(20.dp).width(400.dp).height(160.dp),
+                modifier =
+                    Modifier.padding(20.dp).width(400.dp).height(160.dp).testTag("timer_red_card"),
                 colors = CardDefaults.cardColors(containerColor = Color.Red)) {
                   Text(
                       text = timerValue.formatTime(),
@@ -90,7 +94,8 @@ fun TimerScreen(
           } else {
             Card(
                 shape = RoundedCornerShape(30.dp),
-                modifier = Modifier.padding(20.dp).width(400.dp).height(160.dp),
+                modifier =
+                    Modifier.padding(20.dp).width(400.dp).height(160.dp).testTag("timer_card"),
                 colors = CardDefaults.cardColors(containerColor = White)) {
                   Text(
                       text = timerValue.formatTime(),
@@ -127,34 +132,35 @@ fun TimerScreen(
 
 @Composable
 fun TimeAdjustSection(label: String, amount: Long, onAdjust: (Long) -> Unit) {
-  Column(horizontalAlignment = Alignment.CenterHorizontally) {
-    Text(text = label, fontSize = 25.sp)
-    Row {
-      OutlinedButton(
-          onClick = { onAdjust(amount) },
-          colors = ButtonDefaults.buttonColors(Blue),
-          shape = RoundedCornerShape(0.dp),
-          border = BorderStroke(1.dp, White),
-          modifier = Modifier.padding(0.dp).width(120.dp).height(80.dp)) {
-            Text("+", fontSize = 30.sp, color = White)
-          }
-      OutlinedButton(
-          onClick = { onAdjust(-amount) },
-          colors = ButtonDefaults.buttonColors(Blue),
-          shape = RoundedCornerShape(0.dp),
-          border = BorderStroke(1.dp, White),
-          modifier = Modifier.padding(0.dp).width(120.dp).height(80.dp)) {
-            Text("-", fontSize = 30.sp, color = White)
-          }
-    }
-  }
+  Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier.testTag("timer_adjustment")) {
+        Text(text = label, fontSize = 25.sp)
+        Row {
+          TimerAdjustButton(label = "+", amount, onAdjust)
+          TimerAdjustButton(label = "-", -amount, onAdjust)
+        }
+      }
+}
+
+@Composable
+fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
+  OutlinedButton(
+      onClick = { onAdjust(amount) },
+      colors = ButtonDefaults.buttonColors(Blue),
+      shape = RoundedCornerShape(0.dp),
+      border = BorderStroke(1.dp, White),
+      modifier =
+          Modifier.padding(0.dp).width(120.dp).height(80.dp).testTag("timer_adjustment_button")) {
+        Text(label, fontSize = 30.sp, color = White)
+      }
 }
 
 @Composable
 fun TimerButton(onClick: () -> Unit, text: String) {
   Button(
       onClick = onClick,
-      modifier = Modifier.padding(0.dp).width(150.dp).height(60.dp),
+      modifier = Modifier.padding(0.dp).width(150.dp).height(60.dp).testTag("timer_button"),
       colors = ButtonDefaults.buttonColors(Blue),
   ) {
     Text(text, color = White, fontSize = 20.sp)
