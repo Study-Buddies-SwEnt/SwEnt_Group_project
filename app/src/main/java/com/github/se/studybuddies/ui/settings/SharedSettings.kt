@@ -35,7 +35,7 @@ fun AccountFields(usernameState: MutableState<String>) {
       label = { Text("Username") },
       placeholder = { Text("Enter a username") },
       singleLine = true,
-      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("username_field"))
+      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp))
 }
 
 @Composable
@@ -46,9 +46,7 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
       modifier = Modifier.size(200.dp),
       contentScale = ContentScale.Crop)
   Spacer(Modifier.height(20.dp))
-  Text(
-      text = "Select a profile picture",
-      modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
+  Text(text = "Select a profile picture", modifier = Modifier.clickable { onClick() })
 }
 
 @Composable
@@ -62,7 +60,7 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
               .width(300.dp)
               .height(50.dp)
               .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-              .testTag("save_button"),
+              .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
               containerColor = Blue,

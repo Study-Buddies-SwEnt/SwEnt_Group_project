@@ -3,19 +3,15 @@ package com.github.se.studybuddies.viewModels
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
-import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class MessageViewModel(val groupUID: String) : ViewModel() {
 
@@ -23,19 +19,9 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   private val dbRef = db.rt_db.getReference(db.getGroupMessagesPath(groupUID))
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
-  private val _currentUserUID = MutableLiveData<String>()
-  private val _currentUser = MutableLiveData<User>()
 
   init {
-    getCurrentUserUID()
-    Log.d("MyPrint", "current user id is ${_currentUserUID.value}")
-    if (_currentUserUID.value != null) {
-      if (_currentUserUID.value!!.isNotBlank()) {
-        Log.d("MyPrint", "User exists with uid ${_currentUserUID.value}")
-        listenToMessages()
-        getCurrentUser()
-      } else Log.d("MyPrint", "User not defined yet")
-    } else Log.d("MyPrint", "User ID is null")
+    listenToMessages()
   }
 
   private fun listenToMessages() {
@@ -48,16 +34,14 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
             runnable?.let { handler.removeCallbacks(it) }
             runnable = Runnable {
               snapshot.children.forEach { postSnapshot ->
-                viewModelScope.launch {
-                  val message =
-                      Message(
-                          postSnapshot.key.toString(),
-                          postSnapshot.child(MessageVal.TEXT).value.toString(),
-                          db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
-                          postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong())
-                  if (!_messages.value.contains(message)) {
-                    _messages.value += message
-                  }
+                val message =
+                    Message(
+                        postSnapshot.key.toString(),
+                        postSnapshot.child(MessageVal.TEXT).value.toString(),
+                        db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
+                        postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong())
+                if (!_messages.value.contains(message)) {
+                  _messages.value += message
                 }
               }
             }
@@ -70,36 +54,13 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
         })
   }
 
-  private fun getCurrentUserUID() {
-    viewModelScope.launch {
-      val currentUserUID = db.getCurrentUserUID()
-      _currentUserUID.value = currentUserUID
-    }
-  }
-
-  private fun getCurrentUser() {
-    viewModelScope.launch {
-      val currentUser = db.getCurrentUser()
-      _currentUser.value = currentUser
-    }
-  }
-
   fun sendMessage(text: String) {
     val message =
-        _currentUser.value?.let {
-          Message(text = text, sender = it, timestamp = System.currentTimeMillis())
-        }
-
-    if (message != null) {
-      db.sendGroupMessage(groupUID, message)
-    } else Log.d("MyPrint", "message is null, could not retrieve")
+        Message(text = text, sender = db.getCurrentUser(), timestamp = System.currentTimeMillis())
+    db.sendGroupMessage(groupUID, message)
   }
 
   fun isUserMessageSender(message: Message): Boolean {
-    return if (_currentUser.value != null) {
-      message.sender.uid == _currentUser.value!!.uid
-    } else {
-      false
-    }
+    return message.sender.uid == db.getCurrentUser().uid
   }
 }

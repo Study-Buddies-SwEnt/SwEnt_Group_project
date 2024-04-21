@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -71,7 +70,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         }
       }
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("create_group"),
+      modifier = Modifier.fillMaxSize().background(White),
       topBar = {
         TopNavigationBar(
             title = { Sub_title("Create a group") },
@@ -81,7 +80,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxWidth().background(White).testTag("content"),
+            modifier = Modifier.fillMaxWidth().background(White),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.padding(20.dp))

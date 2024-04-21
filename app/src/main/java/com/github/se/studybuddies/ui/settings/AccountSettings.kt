@@ -47,7 +47,6 @@ fun AccountSettings(
     backRoute: String,
     navigationActions: NavigationActions
 ) {
-  if (uid.isEmpty()) return
   userViewModel.fetchUserData(uid)
   val userData by userViewModel.userData.observeAsState()
 
@@ -74,7 +73,7 @@ fun AccountSettings(
       }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().testTag("account_settings"),
+      modifier = Modifier.fillMaxSize(),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Profile setting") },
@@ -84,25 +83,24 @@ fun AccountSettings(
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxSize().testTag("content"),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
               Spacer(Modifier.height(150.dp))
               SetProfilePicture(photoState) { getContent.launch("image/*") }
               Spacer(Modifier.height(60.dp))
-              SignOutButton(navigationActions, userViewModel)
+              SignOutButton(navigationActions)
             }
       }
 }
 
 @Composable
-private fun SignOutButton(navigationActions: NavigationActions, userViewModel: UserViewModel) {
+private fun SignOutButton(navigationActions: NavigationActions) {
   val context = LocalContext.current // Get the context here
   Button(
       onClick = {
         AuthUI.getInstance().signOut(context).addOnCompleteListener {
           if (it.isSuccessful) {
-            userViewModel.signOut()
             navigationActions.navigateTo(Route.LOGIN)
           }
         }
@@ -116,7 +114,7 @@ private fun SignOutButton(navigationActions: NavigationActions, userViewModel: U
               .background(color = Color.Transparent, shape = RoundedCornerShape(50))
               .width(250.dp)
               .height(50.dp)
-              .testTag("sign_out_button"),
+              .testTag("LoginButton"),
       shape = RoundedCornerShape(50)) {
         Text("Sign out", color = Color.Black)
       }

@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -46,14 +45,14 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
 
-  Column(modifier = Modifier.fillMaxSize().testTag("create_account")) {
+  Column(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
             Column(
-                modifier = Modifier.fillMaxWidth().testTag("content"),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
                   Text("You signed in with the email address $email")
                   Spacer(modifier = Modifier.padding(20.dp))
