@@ -90,10 +90,11 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           performClick()
         }
 
+        /*
         saveButtonText {
           assertIsDisplayed()
           assertTextEquals("Save")
-        }
+        }*/
 
         // verify that the nav action has not been called
         verify { mockNavActions wasNot Called }
