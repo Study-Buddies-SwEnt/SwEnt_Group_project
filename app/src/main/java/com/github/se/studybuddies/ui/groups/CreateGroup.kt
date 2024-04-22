@@ -93,7 +93,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                 // permissionState.launchPermissionRequest()
                 getContent.launch("image/*")
               }
-              Spacer(modifier = Modifier.weight(1f))
+              // Spacer(modifier = Modifier.weight(1f))
               SaveButton(nameState) {
                 groupViewModel.createGroup(nameState.value, photoState.value)
                 navigationActions.navigateTo(Route.GROUPSHOME)

@@ -68,6 +68,11 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
         // assert: check the suggestion box proposition
         groupField { assertTextContains(value = "Test name", substring = true) }
+
+        saveButton {
+          assertIsDisplayed()
+          assertIsEnabled()
+        }
       }
     }
   }
@@ -86,10 +91,6 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           performTextClearance()
         }
 
-        saveButton {
-          assertIsDisplayed()
-          performClick()
-        }
         /*
         saveButtonText {
           assertIsDisplayed()
@@ -125,7 +126,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
+    verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
     confirmVerified(mockNavActions)
   }
 }

@@ -14,7 +14,7 @@ class CreateGroupScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val topAppBox: KNode = child { hasTestTag("top_app_box") }
   val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
   val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
-  val divider: KNode = topAppBar.child { hasTestTag("divider") }
+  val divider: KNode = onNode { hasTestTag("divider") }
 
   val createGroupCol: KNode = child { hasTestTag("create_group_column") }
   val groupField: KNode = createGroupCol.child { hasTestTag("group_field") }

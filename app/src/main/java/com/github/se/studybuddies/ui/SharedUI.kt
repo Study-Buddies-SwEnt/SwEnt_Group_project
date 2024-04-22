@@ -167,13 +167,14 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
   NavigationBar(
       modifier =
-          Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp).testTag("Bottom Navigation Bar"),
+          Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp).testTag("bottom_navigation_bar"),
       containerColor = Color.White,
       contentColor = Color.White,
       tonalElevation = 0.dp,
   ) {
     destinations.forEachIndexed { index, item ->
       NavigationBarItem(
+          modifier = Modifier.testTag(item.textId + "_item"),
           selected = selectedItemIndex == index,
           onClick = {
             selectedItemIndex = index
