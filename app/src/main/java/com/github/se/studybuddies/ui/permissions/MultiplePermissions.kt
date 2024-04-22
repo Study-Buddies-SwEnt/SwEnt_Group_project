@@ -12,6 +12,8 @@ import com.github.se.studybuddies.ui.permissions.PermissionsCode.LOCATION_PERMIS
 import com.github.se.studybuddies.ui.permissions.PermissionsCode.MICROPHONE_PERMISSION_CODE
 import com.github.se.studybuddies.ui.permissions.PermissionsCode.STORAGE_PERMISSION_CODE
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import android.Manifest
+import androidx.core.content.ContextCompat
 
 /*
 fun MultiplePermissions(){
@@ -75,4 +77,16 @@ fun OnRequestPermissionsResult(
       }
     }
   }
+}
+
+
+fun Context.hasLocationPermission(): Boolean {
+    return ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
 }

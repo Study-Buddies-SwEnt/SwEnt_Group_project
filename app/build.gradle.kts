@@ -146,6 +146,12 @@ dependencies {
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
 
     testImplementation("org.robolectric:robolectric:4.11.1")
+
+    //Location service
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+
+
+
 }
 
 tasks.register("jacocoTestReport", JacocoReport::class) {

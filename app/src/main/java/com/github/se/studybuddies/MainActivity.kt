@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,6 +21,7 @@ import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
+import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.ui.settings.AccountSettings
 import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
@@ -30,13 +32,28 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
+import android.Manifest
+import com.github.se.studybuddies.mapService.DefaultLocationClient
+import com.github.se.studybuddies.mapService.LocationClient
+import com.google.android.gms.location.LocationServices
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
+  private lateinit var locationClient: DefaultLocationClient
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
+    ActivityCompat.requestPermissions(
+      this,
+      arrayOf(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+      ),
+      0
+    )
+    val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+    locationClient = DefaultLocationClient(this, fusedLocationProviderClient)
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -115,6 +132,11 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 SoloStudyHome(navigationActions)
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+              }
+            }
+            composable(Route.MAP) {
+              if(currentUser != null) {
+                MapScreen(currentUser.uid, UserViewModel(currentUser.uid), navigationActions, applicationContext,locationClient)
               }
             }
           }
