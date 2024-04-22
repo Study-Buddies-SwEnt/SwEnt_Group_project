@@ -18,9 +18,6 @@ class TimerScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val minusMinuteButton: KNode = timerAdjustment.child { hasTestTag("-Minutes_button") }
   val plusHourButton: KNode = timerAdjustment.child { hasTestTag("+Hours_button") }
   val minusHourButton: KNode = timerAdjustment.child { hasTestTag("-Hours_button") }
-  val timerAdjustmentButton: KNode =
-      timerAdjustment.child { hasTestTag("timer_adjustment_buttons") }
-
   val startTimerButton: KNode = child { hasTestTag("Start_timer_button") }
   val resetTimerButton: KNode = child { hasTestTag("Reset_timer_button") }
   val pauseTimerButton: KNode = child { hasTestTag("Pause_timer_button") }

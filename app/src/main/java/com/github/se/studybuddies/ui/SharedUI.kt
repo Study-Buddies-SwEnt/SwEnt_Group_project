@@ -198,7 +198,7 @@ fun Main_title(title: String) {
       text = title,
       fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
       fontSize = 45.sp,
-  )
+      modifier = Modifier.testTag("main_title"))
 }
 
 @Composable
@@ -206,8 +206,8 @@ fun Sub_title(title: String) {
   Text(
       text = title,
       fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
-      fontSize = 40.sp,
-  )
+      fontSize = 30.sp,
+      modifier = Modifier.testTag("sub_title"))
 }
 
 @Composable

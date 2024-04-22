@@ -13,9 +13,12 @@ class CreateGroupScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   // Structural elements of the UI
   val topAppBox: KNode = child { hasTestTag("top_app_box") }
   val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
+  val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
+  val divider: KNode = topAppBar.child { hasTestTag("divider") }
+
   val createGroupCol: KNode = child { hasTestTag("create_group_column") }
   val groupField: KNode = createGroupCol.child { hasTestTag("group_field") }
   val groupFieldProposal: KNode = createGroupCol.child { hasClickAction() }
-  val saveButton: KNode = createGroupCol.child { hasTestTag("save_button") }
+  val saveButton: KNode = onNode { hasTestTag("save_button") }
   val saveButtonText: KNode = onNode { hasTestTag("save_button_text") }
 }

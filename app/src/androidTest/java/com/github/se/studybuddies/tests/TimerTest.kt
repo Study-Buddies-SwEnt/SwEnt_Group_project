@@ -55,6 +55,11 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
         assertIsDisplayed()
         performClick()
       }
+      minusMinuteButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
       plusHourButton {
         // arrange: verify pre-conditions
         assertIsDisplayed()

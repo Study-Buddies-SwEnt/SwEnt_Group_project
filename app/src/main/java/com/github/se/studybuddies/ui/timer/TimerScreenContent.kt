@@ -95,11 +95,11 @@ fun TimerScreen(
             Card(
                 shape = RoundedCornerShape(30.dp),
                 modifier =
-                    Modifier.padding(20.dp).width(400.dp).height(160.dp).testTag("timer_card"),
+                    Modifier.padding(20.dp).width(200.dp).height(100.dp).testTag("timer_card"),
                 colors = CardDefaults.cardColors(containerColor = White)) {
                   Text(
                       text = timerValue.formatTime(),
-                      fontSize = 80.sp,
+                      fontSize = 40.sp,
                       color = Blue,
                       modifier = Modifier.padding(20.dp))
                 }
@@ -135,7 +135,7 @@ fun TimeAdjustSection(label: String, amount: Long, onAdjust: (Long) -> Unit) {
   Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.testTag("timer_adjustment")) {
-        Text(text = label, fontSize = 25.sp)
+        Text(text = label, fontSize = 20.sp)
         Row {
           TimerAdjustButton(label = "+$label", amount, onAdjust)
           TimerAdjustButton(label = "-$label", -amount, onAdjust)
@@ -150,8 +150,8 @@ fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
       colors = ButtonDefaults.buttonColors(Blue),
       shape = RoundedCornerShape(0.dp),
       border = BorderStroke(1.dp, White),
-      modifier = Modifier.padding(0.dp).width(120.dp).height(80.dp).testTag(label + "_button")) {
-        Text(label[0].toString(), fontSize = 30.sp, color = White)
+      modifier = Modifier.padding(0.dp).width(60.dp).height(40.dp).testTag(label + "_button")) {
+        Text(label[0].toString(), fontSize = 15.sp, color = White)
       }
 }
 
@@ -159,10 +159,10 @@ fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
 fun TimerButton(onClick: () -> Unit, text: String) {
   Button(
       onClick = onClick,
-      modifier = Modifier.padding(0.dp).width(150.dp).height(60.dp).testTag(text + "_timer_button"),
+      modifier = Modifier.padding(0.dp).width(80.dp).height(30.dp).testTag(text + "_timer_button"),
       colors = ButtonDefaults.buttonColors(Blue),
   ) {
-    Text(text, color = White, fontSize = 20.sp)
+    Text(text, color = White, fontSize = 10.sp)
   }
 }
 
