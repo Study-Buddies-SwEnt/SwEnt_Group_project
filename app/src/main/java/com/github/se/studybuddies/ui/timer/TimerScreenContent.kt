@@ -137,8 +137,8 @@ fun TimeAdjustSection(label: String, amount: Long, onAdjust: (Long) -> Unit) {
       modifier = Modifier.testTag("timer_adjustment")) {
         Text(text = label, fontSize = 25.sp)
         Row {
-          TimerAdjustButton(label = "+", amount, onAdjust)
-          TimerAdjustButton(label = "-", -amount, onAdjust)
+          TimerAdjustButton(label = "+$label", amount, onAdjust)
+          TimerAdjustButton(label = "-$label", -amount, onAdjust)
         }
       }
 }
@@ -151,8 +151,8 @@ fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
       shape = RoundedCornerShape(0.dp),
       border = BorderStroke(1.dp, White),
       modifier =
-          Modifier.padding(0.dp).width(120.dp).height(80.dp).testTag("timer_adjustment_button")) {
-        Text(label, fontSize = 30.sp, color = White)
+          Modifier.padding(0.dp).width(120.dp).height(80.dp).testTag(label+ "_button")) {
+        Text(label[0].toString(), fontSize = 30.sp, color = White)
       }
 }
 
@@ -160,7 +160,7 @@ fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
 fun TimerButton(onClick: () -> Unit, text: String) {
   Button(
       onClick = onClick,
-      modifier = Modifier.padding(0.dp).width(150.dp).height(60.dp).testTag("timer_button"),
+      modifier = Modifier.padding(0.dp).width(150.dp).height(60.dp).testTag(text + "_timer_button"),
       colors = ButtonDefaults.buttonColors(Blue),
   ) {
     Text(text, color = White, fontSize = 20.sp)

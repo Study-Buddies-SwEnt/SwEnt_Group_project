@@ -21,12 +21,13 @@ class SoloStudyTest : TestCase() {
   @Test
   fun soloStudyButton() {
     onComposeScreen<SoloStudyScreen>(composeTestRule) {
-      /*
-      soloStudyButton {
+
+      soloStudyButton{
         // arrange: verify pre-conditions
         assertIsDisplayed()
         performClick()
-      }*/
+      }
+
       /*
       soloStudyButtonText{
           assertIsDisplayed()

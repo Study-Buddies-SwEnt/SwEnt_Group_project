@@ -64,8 +64,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       text_field { performTextInput(message_to_send) }
       sendButton { performClick() }
       ownMsg {
-        // assertExists(message_to_send)
-        // assertTextEquals(message_to_send)
+        assertExists(message_to_send)
+        assertTextEquals(message_to_send)
       }
     }
   }

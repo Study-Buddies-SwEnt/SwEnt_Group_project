@@ -232,7 +232,7 @@ fun GoBackRouteButton(
   Icon(
       imageVector = Icons.Default.ArrowBack,
       contentDescription = "Go back",
-      modifier = Modifier.clickable { navigationActions.navigateTo(backRoute) })
+      modifier = Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
 }
 
 @Composable
