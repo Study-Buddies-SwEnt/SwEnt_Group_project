@@ -37,36 +37,35 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
     composeTestRule.setContent { TimerScreenContent(vm, mockNavActions) }
   }
 
-
   @Test
   fun timerAdjustmentButton() = run {
-      onComposeScreen<TimerScreen>(composeTestRule) {
-          plusSecondButton{
-              // arrange: verify pre-conditions
-              assertIsDisplayed()
-              performClick()
-          }
-          minusSecondButton{
-              // arrange: verify pre-conditions
-              assertIsDisplayed()
-              performClick()
-          }
-        plusMinuteButton{
-            // arrange: verify pre-conditions
-            assertIsDisplayed()
-            performClick()
-        }
-        plusHourButton{
-            // arrange: verify pre-conditions
-            assertIsDisplayed()
-            performClick()
-        }
-        minusHourButton{
-            // arrange: verify pre-conditions
-            assertIsDisplayed()
-            performClick()
-        }
+    onComposeScreen<TimerScreen>(composeTestRule) {
+      plusSecondButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
       }
+      minusSecondButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+      plusMinuteButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+      plusHourButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+      minusHourButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+    }
   }
 
   @Test
@@ -77,19 +76,20 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
         assertIsDisplayed()
         performClick()
       }
-        resetTimerButton {
-            // arrange: verify pre-conditions
-            assertIsDisplayed()
-            performClick()
-        }
-        pauseTimerButton {
-            // arrange: verify pre-conditions
-            assertIsDisplayed()
-            performClick()
-        }
+      resetTimerButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+      pauseTimerButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
     }
   }
-    @Test
+
+  @Test
   fun timerCard() = run {
     onComposeScreen<TimerScreen>(composeTestRule) {
       timerCard {
@@ -98,21 +98,30 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
       }
     }
   }
-    @Test
-    fun topAppBar() = run {
-        onComposeScreen<TimerScreen>(composeTestRule) {
-            topAppBar {
-                // arrange: verify pre-conditions
-                assertIsDisplayed()
-            }
-            goBackButton{
-                // arrange: verify pre-conditions
-                assertIsDisplayed()
-                performClick()
-            }
-        }
-        // assert: the nav action has been called
-        verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
-        confirmVerified(mockNavActions)
+
+  @Test
+  fun topAppBar() = run {
+    onComposeScreen<TimerScreen>(composeTestRule) {
+      topAppBox {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+      }
+      topAppBar {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+      }
+      divider {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+      }
+      goBackButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
     }
+    // assert: the nav action has been called
+    verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
+    confirmVerified(mockNavActions)
+  }
 }

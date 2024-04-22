@@ -150,8 +150,7 @@ fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
       colors = ButtonDefaults.buttonColors(Blue),
       shape = RoundedCornerShape(0.dp),
       border = BorderStroke(1.dp, White),
-      modifier =
-          Modifier.padding(0.dp).width(120.dp).height(80.dp).testTag(label+ "_button")) {
+      modifier = Modifier.padding(0.dp).width(120.dp).height(80.dp).testTag(label + "_button")) {
         Text(label[0].toString(), fontSize = 30.sp, color = White)
       }
 }

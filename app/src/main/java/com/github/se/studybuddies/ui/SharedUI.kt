@@ -154,7 +154,10 @@ fun TopNavigationBar(
         navigationIcon = { navigationIcon() },
         actions = { actions() },
         modifier = Modifier.testTag("top_app_bar"))
-    Divider(color = Blue, thickness = 4.dp, modifier = Modifier.align(Alignment.BottomStart))
+    Divider(
+        color = Blue,
+        thickness = 4.dp,
+        modifier = Modifier.align(Alignment.BottomStart).testTag("divider"))
   }
 }
 
@@ -232,7 +235,8 @@ fun GoBackRouteButton(
   Icon(
       imageVector = Icons.Default.ArrowBack,
       contentDescription = "Go back",
-      modifier = Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
+      modifier =
+          Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
 }
 
 @Composable
