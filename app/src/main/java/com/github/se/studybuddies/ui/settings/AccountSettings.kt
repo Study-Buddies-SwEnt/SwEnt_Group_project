@@ -73,7 +73,7 @@ fun AccountSettings(
       }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("account_settings"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Profile setting") },

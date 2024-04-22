@@ -11,7 +11,7 @@ class SoloStudyScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
 
   // val drawerScaffold: KNode = onNode { hasTestTag("drawer_scaffold") }
   // val soloStudyHome: KNode = onNode { hasTestTag("solo_study_home") }
-  // val TimerButton : KNode = onNode { hasTestTag("Timer button") }
-  val soloStudyButton: KNode = onNode { hasTestTag("Timer_button") }
+  // val TimerButton : KNode = onNode { hasTestTag("Timer_button") }
+  val soloStudyButton: KNode = onNode { hasTestTag("solo_study_button") }
   val soloStudyButtonText: KNode = onNode { hasTestTag("solo_study_button_text") }
 }

@@ -32,10 +32,9 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
   // Relaxed mocks methods have a default implementation returning values
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  private lateinit var vm: TimerViewModel
-
   @Before
   fun testSetup() {
+    val vm = TimerViewModel()
     composeTestRule.setContent { TimerScreenContent(vm, mockNavActions) }
   }
 
