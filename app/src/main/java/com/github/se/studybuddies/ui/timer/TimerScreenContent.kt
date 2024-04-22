@@ -75,10 +75,10 @@ fun TimerScreen(
       },
   ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("timer_column"),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
-          Spacer(modifier = Modifier.height(120.dp))
+          Spacer(modifier = Modifier.height(60.dp))
           if (timerEnd) {
             Card(
                 shape = RoundedCornerShape(30.dp),
@@ -104,7 +104,7 @@ fun TimerScreen(
                       modifier = Modifier.padding(20.dp))
                 }
           }
-          Spacer(modifier = Modifier.height(16.dp))
+          Spacer(modifier = Modifier.height(16.dp).testTag("timer_spacer"))
           Row(
               modifier = Modifier.fillMaxWidth().padding(16.dp),
               horizontalArrangement = Arrangement.SpaceEvenly) {

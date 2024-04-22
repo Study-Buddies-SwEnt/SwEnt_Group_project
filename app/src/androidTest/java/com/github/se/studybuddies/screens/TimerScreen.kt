@@ -8,6 +8,7 @@ class TimerScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<TimerScreen>(
         semanticsProvider = semanticsProvider,
         viewBuilderAction = { hasTestTag("timer_scaffold") }) {
+  val timerColumn: KNode = onNode { hasTestTag("timer_column") }
   val timerRedCard: KNode = child { hasTestTag("timer_red_card") }
   val timerCard: KNode = child { hasTestTag("timer_card") }
   val timerAdjustment: KNode = child { hasTestTag("timer_adjustment") }

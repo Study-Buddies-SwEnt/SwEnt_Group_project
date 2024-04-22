@@ -52,6 +52,10 @@ class SettingsTest : TestCase() {
         // arrange: verify pre-conditions
         assertIsDisplayed()
       }
+      mainTitle {
+        assertIsDisplayed()
+        assertTextEquals("Settings")
+      }
       goBackButton {
         // arrange: verify pre-conditions
         assertIsDisplayed()
