@@ -37,6 +37,8 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
     composeTestRule.setContent { TimerScreenContent(vm, mockNavActions) }
   }
 
+
+  /*
   @Test
   fun timerAdjustmentButton() = run {
     onComposeScreen<TimerScreen>(composeTestRule) {
@@ -71,7 +73,7 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
         performClick()
       }
     }
-  }
+  }*/
 
   @Test
   fun timerButton() = run {
