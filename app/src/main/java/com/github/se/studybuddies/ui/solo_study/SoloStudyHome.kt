@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DrawerMenu
-import com.github.se.studybuddies.ui.Main_title
 
 @Composable
 fun SoloStudyHome(navigationActions: NavigationActions) {
@@ -42,6 +41,6 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
                   }
             }
       },
-      title = { Main_title("Solo Study") },
+      title = "Solo Study",
       iconOptions = {})
 }

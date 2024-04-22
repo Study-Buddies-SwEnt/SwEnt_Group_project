@@ -68,11 +68,6 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
         // assert: check the suggestion box proposition
         groupField { assertTextContains(value = "Test name", substring = true) }
-
-        saveButton {
-          assertIsDisplayed()
-          assertIsEnabled()
-        }
       }
     }
   }

@@ -82,14 +82,14 @@ fun DrawerMenu(
     navigationActions: NavigationActions,
     backRoute: String,
     content: @Composable (PaddingValues) -> Unit,
-    title: @Composable () -> Unit,
+    title: String,
     iconOptions: @Composable () -> Unit,
 ) {
 
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
   ModalNavigationDrawer(
-      modifier = Modifier.testTag("drawer_menu"),
+      modifier = Modifier.testTag(title + "_menu"),
       drawerState = drawerState,
       drawerContent = {
         var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -121,7 +121,7 @@ fun DrawerMenu(
             topBar = {
               Box {
                 CenterAlignedTopAppBar(
-                    title = { title() },
+                    title = { Main_title(title = title) },
                     navigationIcon = { DrawerMenuIcon(scope, drawerState) },
                     actions = { iconOptions() })
                 Divider(

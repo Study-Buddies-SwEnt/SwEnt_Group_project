@@ -121,7 +121,7 @@ fun TimerScreen(
               }
           Row(
               modifier = Modifier.fillMaxWidth().padding(16.dp),
-              horizontalArrangement = Arrangement.SpaceEvenly) {
+              horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, onAddHours)
                 TimeAdjustSection("Minutes", 1, onAddMinutes)
                 TimeAdjustSection("Seconds", 10, onAddSeconds)

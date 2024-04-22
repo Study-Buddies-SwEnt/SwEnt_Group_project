@@ -7,7 +7,7 @@ import io.github.kakaocup.compose.node.element.KNode
 class SoloStudyScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<SoloStudyScreen>(
         semanticsProvider = semanticsProvider,
-        viewBuilderAction = { hasTestTag("solo_study_home") }) {
+        viewBuilderAction = { hasTestTag("Solo Study_menu") }) {
 
   // val drawerScaffold: KNode = onNode { hasTestTag("drawer_scaffold") }
   // val soloStudyHome: KNode = onNode { hasTestTag("solo_study_home") }
