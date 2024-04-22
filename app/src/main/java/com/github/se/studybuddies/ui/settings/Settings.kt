@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Main_title
@@ -17,7 +18,7 @@ import com.github.se.studybuddies.ui.TopNavigationBar
 @Composable
 fun Settings(backRoute: String, navigationActions: NavigationActions) {
   Scaffold(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("settings_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Main_title(title = "Settings") },
@@ -26,6 +27,6 @@ fun Settings(backRoute: String, navigationActions: NavigationActions) {
             },
             actions = {})
       }) {
-        Text("Settings")
+        Text("Settings", modifier = Modifier.testTag("settings_text"))
       }
 }
