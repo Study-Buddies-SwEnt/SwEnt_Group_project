@@ -22,6 +22,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
     }
 
     buildTypes {
@@ -70,6 +71,8 @@ android {
             }
         }
         unitTests.isReturnDefaultValues = true
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -107,6 +110,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.3")
     implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
     implementation("com.google.firebase:firebase-database:20.3.1")
+    implementation("androidx.test:monitor:1.6.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -137,6 +141,13 @@ dependencies {
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
+
+    androidTestImplementation ("com.android.support.test.uiautomator:uiautomator-v18:2.1.3")
+    testImplementation ("com.android.support.test.uiautomator:uiautomator-v18:2.1.3")
+
+    androidTestUtil ("androidx.test:orchestrator:1.2.0")
+
+
 }
 
 tasks.register("jacocoTestReport", JacocoReport::class) {
@@ -153,8 +164,7 @@ tasks.register("jacocoTestReport", JacocoReport::class) {
         "**/BuildConfig.*",
         "**/Manifest*.*",
         "**/*Test*.*",
-        "android/**/*.*",
-        "**SignatureChecks.*"
+        "android/**/*.*"
     )
     val debugTree = fileTree("${project.buildDir}/tmp/kotlin-classes/debug") {
         exclude(fileFilter)
