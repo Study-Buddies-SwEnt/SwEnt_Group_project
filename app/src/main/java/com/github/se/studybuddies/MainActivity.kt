@@ -139,6 +139,7 @@ class MainActivity : ComponentActivity() {
                         if (currentUserUid != null) {
                             // Add the current user to the group in your Firebase database
 
+
                         }
                         //Go to the newly joined group
                         navigationActions.navigateTo("${Route.GROUP}/$groupUID")
