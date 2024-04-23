@@ -6,8 +6,8 @@ import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 
 object FirebaseUtils {
-    fun createGroupInviteLink(groupUID: Int): Uri {
-        if (groupUID >= 0) {
+    fun createGroupInviteLink(groupUID: String): Uri {
+        if (groupUID != "") {
         val dynamicLink =
             Firebase.dynamicLinks.dynamicLink {
                 link = Uri.parse("https://studybuddies.page.link/JoinGroup/$groupUID")
@@ -15,7 +15,7 @@ object FirebaseUtils {
             }
         return dynamicLink.uri
         }
-        else return Uri.parse("https://studybuddies.page.link/JoinGroup/")
+        else return Uri.parse("https://studybuddies.page.link/JoinGroup")
     }
 }
 

@@ -9,18 +9,18 @@ class GroupInvitationTest {
 
   @Test
   fun generateLink() {
-    var groupUID = 213
+    var groupUID = "213"
     var inviteLink = createGroupInviteLink(groupUID)
     assertEquals(("https://studybuddies.page.link/JoinGroup/213"), inviteLink)
 
-    groupUID = 356
+    groupUID = "356"
     inviteLink = createGroupInviteLink(groupUID)
     assertEquals(("https://studybuddies.page.link/JoinGroup/356"), inviteLink)
   }
 
   @Test
   fun generateLinkWrongArgument() {
-    val groupUID = -10
+    val groupUID = ""
     val inviteLink = createGroupInviteLink(groupUID)
     assertEquals(("https://studybuddies.page.link/JoinGroup/"), inviteLink)
   }

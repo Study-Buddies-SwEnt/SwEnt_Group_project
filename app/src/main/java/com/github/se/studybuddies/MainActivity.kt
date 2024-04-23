@@ -33,6 +33,9 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
@@ -132,14 +135,24 @@ class MainActivity : ComponentActivity() {
                     }
 
                     // Handle the deep link.
-                    val groupUID = deepLink?.lastPathSegment?.toIntOrNull()
+                    val groupUID = deepLink?.lastPathSegment?.toString()
                     if (groupUID != null) {
                         val currentUserUid =
                             FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
                         if (currentUserUid != null) {
                             // Add the current user to the group in your Firebase database
+                            val db = Firebase.firestore
+                            val userUID = FirebaseAuth.getInstance().currentUser?.uid
 
+                            val userMembershipRef = db.collection("userMembership").document(userUID!!)
+                            userMembershipRef.update("groups", FieldValue.arrayUnion(groupUID))
+                                //.addOnSuccessListener { Log.d(TAG, "User updated") }
+                                //.addOnFailureListener { e -> Log.w(TAG, "Error updating user", e) }
 
+                            val groupDataRef = db.collection("groupData").document(groupUID)
+                            groupDataRef.update("members", FieldValue.arrayUnion(userUID))
+                                //.addOnSuccessListener { Log.d(TAG, "Group updated") }
+                                //.addOnFailureListener { e -> Log.w(TAG, "Error updating group", e) }
                         }
                         //Go to the newly joined group
                         navigationActions.navigateTo("${Route.GROUP}/$groupUID")
