@@ -48,6 +48,5 @@ class PermissionsTest {
             PackageManager.PERMISSION_GRANTED)
     checkPermission(mockContext, permission, mockLauncher)
     verify(exactly = 1) { mockLauncher.launch(permission) }
-
   }
 }
