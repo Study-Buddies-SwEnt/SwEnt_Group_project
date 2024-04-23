@@ -135,7 +135,6 @@ dependencies {
     //For groups invitation links
     implementation("com.google.firebase:firebase-dynamic-links:20.1.1")
     implementation("com.google.firebase:firebase-dynamic-links-ktx")
-
 }
 
 tasks.register("jacocoTestReport", JacocoReport::class) {
