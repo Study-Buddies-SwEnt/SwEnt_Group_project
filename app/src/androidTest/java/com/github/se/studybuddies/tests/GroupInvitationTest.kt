@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.tests
 
-import com.github.se.studybuddies.utility.FirebaseUtils
 import com.github.se.studybuddies.utility.FirebaseUtils.createGroupInviteLink
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -24,4 +23,6 @@ class GroupInvitationTest {
     val inviteLink = createGroupInviteLink(groupUID)
     assertEquals(("https://studybuddies.page.link/JoinGroup/"), inviteLink)
   }
+
+  // add test for the main activity, checking if user is indeed in the good group
 }

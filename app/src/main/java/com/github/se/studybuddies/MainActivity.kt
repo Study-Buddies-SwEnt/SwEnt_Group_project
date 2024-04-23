@@ -1,6 +1,5 @@
 package com.github.se.studybuddies
 
-import android.content.ContentValues.TAG
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -125,40 +124,39 @@ class MainActivity : ComponentActivity() {
               }
             }
           }
-            // For the group invitation link
-            FirebaseDynamicLinks.getInstance()
-                .getDynamicLink(intent)
-                .addOnSuccessListener(this) { pendingDynamicLinkData ->
-                    var deepLink: Uri? = null
-                    if (pendingDynamicLinkData != null) {
-                        deepLink = pendingDynamicLinkData.link
-                    }
+          // For the group invitation link
+          FirebaseDynamicLinks.getInstance().getDynamicLink(intent).addOnSuccessListener(this) {
+              pendingDynamicLinkData ->
+            var deepLink: Uri? = null
+            if (pendingDynamicLinkData != null) {
+              deepLink = pendingDynamicLinkData.link
+            }
 
-                    // Handle the deep link.
-                    val groupUID = deepLink?.lastPathSegment?.toString()
-                    if (groupUID != null) {
-                        val currentUserUid =
-                            FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
-                        if (currentUserUid != null) {
-                            // Add the current user to the group in your Firebase database
-                            val db = Firebase.firestore
-                            val userUID = FirebaseAuth.getInstance().currentUser?.uid
+            // Handle the deep link.
+            val groupUID = deepLink?.lastPathSegment?.toString()
+            if (groupUID != null) {
+              val currentUserUid =
+                  FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
+              if (currentUserUid != null) {
+                // Add the current user to the group in your Firebase database
+                val db = Firebase.firestore
+                val userUID = FirebaseAuth.getInstance().currentUser?.uid
 
-                            val userMembershipRef = db.collection("userMembership").document(userUID!!)
-                            userMembershipRef.update("groups", FieldValue.arrayUnion(groupUID))
-                                //.addOnSuccessListener { Log.d(TAG, "User updated") }
-                                //.addOnFailureListener { e -> Log.w(TAG, "Error updating user", e) }
+                val userMembershipRef = db.collection("userMembership").document(userUID!!)
+                userMembershipRef.update("groups", FieldValue.arrayUnion(groupUID))
+                // .addOnSuccessListener { Log.d(TAG, "User updated") }
+                // .addOnFailureListener { e -> Log.w(TAG, "Error updating user", e) }
 
-                            val groupDataRef = db.collection("groupData").document(groupUID)
-                            groupDataRef.update("members", FieldValue.arrayUnion(userUID))
-                                //.addOnSuccessListener { Log.d(TAG, "Group updated") }
-                                //.addOnFailureListener { e -> Log.w(TAG, "Error updating group", e) }
-                        }
-                        //Go to the newly joined group
-                        navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                    }
-                }
-                .addOnFailureListener(this) { e -> Log.w(TAG, "getDynamicLink:onFailure", e) }
+                val groupDataRef = db.collection("groupData").document(groupUID)
+                groupDataRef.update("members", FieldValue.arrayUnion(userUID))
+                // .addOnSuccessListener { Log.d(TAG, "Group updated") }
+                // .addOnFailureListener { e -> Log.w(TAG, "Error updating group", e) }
+              }
+              // Go to the newly joined group
+              navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+            }
+          }
+          // .addOnFailureListener(this) { e -> Log.w(TAG, "getDynamicLink:onFailure", e) }
         }
       }
     }
