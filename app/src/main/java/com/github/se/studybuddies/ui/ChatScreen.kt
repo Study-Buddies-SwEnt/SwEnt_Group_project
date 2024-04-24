@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -67,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -103,7 +105,9 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
-        SecondaryTopBar { navigationActions.goBack() }
+        SecondaryTopBar(onClick = { navigationActions.goBack() }) {
+          ChatGroupTitle(viewModel.getGroup())
+        }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             Row(
@@ -336,6 +340,30 @@ fun rememberKeyboardPadding(): Dp {
   }
 
   return keyboardHeight.value
+}
+
+@Composable
+fun ChatGroupTitle(group: Group) {
+  Image(
+      painter = rememberImagePainter(group.picture.toString()),
+      contentDescription = "Group profile picture",
+      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_profile_picture"),
+      contentScale = ContentScale.Crop)
+
+  Spacer(modifier = Modifier.width(8.dp))
+  Column {
+    Text(text = group.name, maxLines = 1)
+    Spacer(modifier = Modifier.width(8.dp))
+    LazyRow {
+      items(group.members) { member ->
+        Text(
+            text = member,
+            modifier = Modifier.padding(end = 8.dp),
+            style = TextStyle(color = Gray),
+            maxLines = 1)
+      }
+    }
+  }
 }
 
 // Preview

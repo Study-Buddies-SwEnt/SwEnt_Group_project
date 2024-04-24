@@ -1,9 +1,11 @@
 package com.github.se.studybuddies.viewModels
 
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.database.DatabaseConnection
@@ -53,6 +55,30 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
             Log.w("MessageViewModel", "Failed to read value.", error.toException())
           }
         })
+  }
+
+  fun getGroup(): Group {
+    // TODO: Implement this function to get the group from the database
+    val members =
+        listOf(
+            "user1",
+            "user2",
+            "user3",
+            "user4",
+            "user5",
+            "user6",
+            "user7",
+            "user8",
+            "user9",
+            "user10")
+    val group =
+        Group(
+            uid = groupUID,
+            name = "Test Group",
+            picture =
+                Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+            members)
+    return group
   }
 
   fun sendMessage(text: String) {
