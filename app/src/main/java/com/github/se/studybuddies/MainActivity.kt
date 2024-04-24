@@ -25,9 +25,12 @@ import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
+import com.github.se.studybuddies.ui.todo.CreateToDo
+import com.github.se.studybuddies.ui.todo.EditToDo
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import com.github.se.studybuddies.viewModels.ToDoViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -117,6 +120,18 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
               }
             }
+
+            composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
+            composable(
+              route = "${Route.EDITTODO}/{todoUID}",
+              arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
+                backStackEntry ->
+              val todoUID = backStackEntry.arguments?.getString("todoUID")
+              if (todoUID != null) {
+                EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
+              }
+            }
+
           }
         }
       }
