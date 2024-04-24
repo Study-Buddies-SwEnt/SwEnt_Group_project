@@ -1,5 +1,6 @@
 package com.github.se.studybuddies
 
+import android.Manifest
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -29,14 +30,10 @@ import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
+import com.github.se.studybuddies.viewModels.MapViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
-import android.Manifest
-import com.github.se.studybuddies.mapService.DefaultLocationClient
-import com.github.se.studybuddies.mapService.LocationClient
-import com.github.se.studybuddies.viewModels.MapViewModel
-import com.google.android.gms.location.LocationServices
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
@@ -45,13 +42,12 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
     ActivityCompat.requestPermissions(
-      this,
-      arrayOf(
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-      ),
-      0
-    )
+        this,
+        arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
+        0)
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -133,8 +129,12 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.MAP) {
-              if(currentUser != null) {
-                MapScreen(currentUser.uid, MapViewModel(applicationContext), navigationActions, applicationContext)
+              if (currentUser != null) {
+                MapScreen(
+                    currentUser.uid,
+                    MapViewModel(applicationContext),
+                    navigationActions,
+                    applicationContext)
               }
             }
           }

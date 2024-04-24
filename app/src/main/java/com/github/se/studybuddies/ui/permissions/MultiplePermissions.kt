@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.permissions
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -7,13 +8,12 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.github.se.studybuddies.ui.permissions.PermissionsCode.CAMERA_PERMISSION_CODE
 import com.github.se.studybuddies.ui.permissions.PermissionsCode.LOCATION_PERMISSION_CODE
 import com.github.se.studybuddies.ui.permissions.PermissionsCode.MICROPHONE_PERMISSION_CODE
 import com.github.se.studybuddies.ui.permissions.PermissionsCode.STORAGE_PERMISSION_CODE
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import android.Manifest
-import androidx.core.content.ContextCompat
 
 /*
 fun MultiplePermissions(){
@@ -79,14 +79,9 @@ fun OnRequestPermissionsResult(
   }
 }
 
-
 fun Context.hasLocationPermission(): Boolean {
-    return ContextCompat.checkSelfPermission(
-        this,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+  return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+      PackageManager.PERMISSION_GRANTED &&
+      ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+          PackageManager.PERMISSION_GRANTED
 }

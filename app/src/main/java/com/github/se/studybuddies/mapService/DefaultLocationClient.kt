@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.mapService
 
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
@@ -19,45 +18,36 @@ import kotlinx.coroutines.launch
 class DefaultLocationClient(
     private val context: Context,
     private val client: FusedLocationProviderClient
-): LocationClient {
+) : LocationClient {
 
-    @SuppressLint("MissingPermission")
-    override fun getLocationUpdates(interval: Long): Flow<Location> {
-        return callbackFlow {
-            if(!context.hasLocationPermission()) {
-                throw LocationClient.LocationException("Missing location permission")
+  @SuppressLint("MissingPermission")
+  override fun getLocationUpdates(interval: Long): Flow<Location> {
+    return callbackFlow {
+      if (!context.hasLocationPermission()) {
+        throw LocationClient.LocationException("Missing location permission")
+      }
+
+      val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+      val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+      val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+      if (!isGpsEnabled && !isNetworkEnabled) {
+        throw LocationClient.LocationException("GPS is disabled")
+      }
+
+      val request = LocationRequest.create().setInterval(interval).setFastestInterval(interval)
+
+      val locationCallback =
+          object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+              super.onLocationResult(result)
+              // The element of the list is the current location
+              result.locations.lastOrNull()?.let { location -> launch { send(location) } }
             }
+          }
 
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-            if(!isGpsEnabled && !isNetworkEnabled) {
-                throw LocationClient.LocationException("GPS is disabled")
-            }
+      client.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
 
-            val request = LocationRequest.create()
-                .setInterval(interval)
-                .setFastestInterval(interval)
-
-            val locationCallback = object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult) {
-                    super.onLocationResult(result)
-                    //The element of the list is the current location
-                    result.locations.lastOrNull()?.let { location ->
-                        launch { send(location) }
-                    }
-                }
-            }
-
-            client.requestLocationUpdates(
-                request,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-
-            awaitClose {
-                client.removeLocationUpdates(locationCallback)
-            }
-        }
+      awaitClose { client.removeLocationUpdates(locationCallback) }
     }
+  }
 }
