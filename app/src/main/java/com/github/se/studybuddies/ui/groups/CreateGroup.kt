@@ -1,8 +1,7 @@
 package com.github.se.studybuddies.ui.groups
 
-import android.app.Activity
 import android.net.Uri
-import android.widget.Toast
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -40,7 +39,6 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -61,20 +59,19 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
-  // val permissionGranted = checkPermission(context, "Manifest.permission.READ_EXTERNAL_STORAGE")
-
-  val permissionState = rememberPermissionState("Manifest.permission.READ_EXTERNAL_STORAGE")
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          Toast.makeText(context as Activity, "Permission already granted", Toast.LENGTH_SHORT)
-              .show()
-        } else {
-          // Handle permission denial
-          Toast.makeText(context as Activity, "Permission refused", Toast.LENGTH_SHORT).show()
+          getContent.launch("image/*")
         }
       }
+  var permission = "android.permission.READ_MEDIA_IMAGES"
+  // Check if the Android version is lower than TIRAMISU API 33
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    // For older Android versions, use READ_EXTERNAL_STORAGE permission
+    permission = "android.permission.READ_EXTERNAL_STORAGE"
+  }
 
   Surface(color = White, modifier = Modifier.fillMaxSize().testTag("create_group")) {
     LazyColumn(
@@ -86,15 +83,15 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("CreateGroup"),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   CenterAlignedTopAppBar(
-                      title = { Sub_title(stringResource(R.string.group_creation_title)) },
+                      title = { Sub_title(stringResource(R.string.create_group)) },
                       navigationIcon = {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.go_back_button),
+                            contentDescription = stringResource(R.string.go_back),
                             modifier =
                                 Modifier.clickable {
                                   navigationActions.navigateTo(Route.GROUPSHOME)
@@ -105,12 +102,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                   GroupFields(nameState)
                   Spacer(modifier = Modifier.padding(20.dp))
                   SetProfilePicture(photoState) {
-                    checkPermission(
-                        context,
-                        "Manifest.permission.READ_EXTERNAL_STORAGE",
-                        requestPermissionLauncher)
-                    // permissionState.launchPermissionRequest()
-                    getContent.launch("image/*")
+                    checkPermission(context, permission, requestPermissionLauncher)
                   }
                   Spacer(modifier = Modifier.weight(1f))
                   SaveButton(nameState) {
