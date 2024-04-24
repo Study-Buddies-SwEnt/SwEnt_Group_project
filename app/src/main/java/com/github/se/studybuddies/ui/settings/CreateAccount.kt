@@ -64,7 +64,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             Column(
                 modifier = Modifier.fillMaxWidth().testTag("content"),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                  Text(stringResource(R.string.account_creation_email, email))
+                  Text(stringResource(R.string.you_have_signed_in_with_email, email))
                   Spacer(modifier = Modifier.padding(20.dp))
                   AccountFields(usernameState)
                   Spacer(modifier = Modifier.padding(20.dp))
