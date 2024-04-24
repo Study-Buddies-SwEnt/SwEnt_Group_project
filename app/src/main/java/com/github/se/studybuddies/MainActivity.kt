@@ -35,11 +35,11 @@ import com.google.firebase.auth.FirebaseAuth
 import android.Manifest
 import com.github.se.studybuddies.mapService.DefaultLocationClient
 import com.github.se.studybuddies.mapService.LocationClient
+import com.github.se.studybuddies.viewModels.MapViewModel
 import com.google.android.gms.location.LocationServices
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
-  private lateinit var locationClient: DefaultLocationClient
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -52,8 +52,6 @@ class MainActivity : ComponentActivity() {
       ),
       0
     )
-    val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-    locationClient = DefaultLocationClient(this, fusedLocationProviderClient)
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -136,7 +134,7 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.MAP) {
               if(currentUser != null) {
-                MapScreen(currentUser.uid, UserViewModel(currentUser.uid), navigationActions, applicationContext,locationClient)
+                MapScreen(currentUser.uid, MapViewModel(applicationContext), navigationActions, applicationContext)
               }
             }
           }

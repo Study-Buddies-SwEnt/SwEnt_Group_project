@@ -77,6 +77,8 @@ class LocationService: Service() {
         serviceScope.cancel()
     }
 
+
+
     companion object {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
