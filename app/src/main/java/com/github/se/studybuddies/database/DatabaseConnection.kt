@@ -26,7 +26,7 @@ import java.util.Date
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
-  private val todoCollection = db.collection("tasks")
+  private val todoCollection = db.collection("toDoList")
 
 
     val rt_db =
