@@ -5,4 +5,7 @@
     <string name="options">Options</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="permission_granted">Permission GRANTED</string>
+    <string name="create_group">Create a group</string>
+    <string name="go_back">Go back</string>
 </resources>
