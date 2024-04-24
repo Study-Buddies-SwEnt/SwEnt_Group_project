@@ -61,8 +61,26 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   }
 
   fun deleteMessage(message: Message) {
-    db.deleteMessage(groupUID, message)
-    _messages.value = _messages.value.filter { it.uid != message.uid }
+    if (!isUserMessageSender(message)) return
+    else {
+      db.deleteMessage(groupUID, message)
+      _messages.value = _messages.value.filter { it.uid != message.uid }
+    }
+  }
+
+  fun editMessage(message: Message, newText: String) {
+    if (!isUserMessageSender(message)) return
+    else {
+      db.editMessage(groupUID, message, newText)
+      _messages.value =
+          _messages.value.map {
+            if (it.uid == message.uid) {
+              it.copy(text = newText)
+            } else {
+              it
+            }
+          }
+    }
   }
 
   fun isUserMessageSender(message: Message): Boolean {

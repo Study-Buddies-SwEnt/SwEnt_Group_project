@@ -206,6 +206,11 @@ class DatabaseConnection {
     rt_db.getReference(messagePath).removeValue()
   }
 
+  fun editMessage(groupUID: String, message: Message, newText: String) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+  }
+
   fun getUser(uid: String): User {
     // TODO implement this method (or modify getUserData to return User object)
     return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
