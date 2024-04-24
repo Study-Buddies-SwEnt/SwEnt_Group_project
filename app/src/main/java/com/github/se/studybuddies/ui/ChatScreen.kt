@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,6 +74,14 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   val showEditDialog = remember { mutableStateOf(false) }
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
 
+  val listState = rememberLazyListState()
+
+  LaunchedEffect(messages) {
+    if (messages.isNotEmpty()) {
+      listState.scrollToItem(messages.lastIndex)
+    }
+  }
+
   OptionsDialog(viewModel, selectedMessage, showOptionsDialog, showEditDialog)
   EditDialog(viewModel, selectedMessage, showEditDialog)
 
@@ -83,7 +93,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
               .navigationBarsPadding()
               .testTag("chat_screen")) {
         SecondaryTopBar { navigationActions.goBack() }
-        LazyColumn(Modifier.weight(1f).padding(8.dp)) {
+        LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             Row(
                 modifier =

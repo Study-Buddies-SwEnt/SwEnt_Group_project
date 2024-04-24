@@ -36,12 +36,11 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
               val newMessages = mutableListOf<Message>()
               snapshot.children.forEach { postSnapshot ->
                 val message =
-                  Message(
-                    postSnapshot.key.toString(),
-                    postSnapshot.child(MessageVal.TEXT).value.toString(),
-                    db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
-                    postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
-                  )
+                    Message(
+                        postSnapshot.key.toString(),
+                        postSnapshot.child(MessageVal.TEXT).value.toString(),
+                        db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
+                        postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong())
                 newMessages.add(message)
               }
               // Now update _messages.value with the new list
