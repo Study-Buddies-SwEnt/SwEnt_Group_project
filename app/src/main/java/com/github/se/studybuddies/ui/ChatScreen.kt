@@ -86,8 +86,6 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 
   val listState = rememberLazyListState()
 
-  val keyboardPadding = rememberKeyboardPadding()
-
   LaunchedEffect(messages) {
     if (messages.isNotEmpty()) {
       listState.scrollToItem(messages.lastIndex)
@@ -101,7 +99,6 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   Column(
       modifier =
           Modifier.fillMaxSize()
-              .padding(bottom = keyboardPadding)
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
@@ -306,40 +303,6 @@ fun EditDialog(
               }
         })
   }
-}
-
-@Composable
-fun rememberKeyboardPadding(): Dp {
-  val context = LocalContext.current
-  val density = LocalDensity.current
-  val keyboardHeight = remember { mutableStateOf(0.dp) }
-
-  DisposableEffect(context) {
-    val rootView =
-        (context as? Activity)?.window?.decorView?.findViewById<View>(android.R.id.content)
-    val listener =
-        ViewTreeObserver.OnGlobalLayoutListener {
-          rootView?.let {
-            val rect = Rect()
-            rootView.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = rootView.height
-            val keypadHeight = screenHeight - rect.bottom
-
-            // Ensure the padding is non-negative
-            if (keypadHeight > 0) {
-              keyboardHeight.value = with(density) { keypadHeight.toDp() }
-            } else {
-              keyboardHeight.value = 0.dp
-            }
-          }
-        }
-
-    rootView?.viewTreeObserver?.addOnGlobalLayoutListener(listener)
-
-    onDispose { rootView?.viewTreeObserver?.removeOnGlobalLayoutListener(listener) }
-  }
-
-  return keyboardHeight.value
 }
 
 @Composable
