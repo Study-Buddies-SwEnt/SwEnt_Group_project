@@ -16,4 +16,10 @@ class NavigationActions(private val navController: NavHostController) {
   fun goBack() {
     navController.popBackStack()
   }
+
+  companion object {
+    fun navigateTo(route: String) {
+
+    }
+  }
 }

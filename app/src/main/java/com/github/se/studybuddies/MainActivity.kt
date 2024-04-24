@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.ChatScreen
@@ -27,9 +28,11 @@ import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.ui.todo.EditToDo
+import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.ToDoViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -109,6 +112,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
+
             composable(Route.CHAT) {
               if (currentUser != null) {
                 ChatScreen(MessageViewModel("general_group"), navigationActions)
@@ -121,7 +125,10 @@ class MainActivity : ComponentActivity() {
               }
             }
 
+            composable(Route.TODOLIST) { ToDoListScreen(ToDoListViewModel(), navigationActions) }
+
             composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
+
             composable(
               route = "${Route.EDITTODO}/{todoUID}",
               arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
@@ -131,7 +138,6 @@ class MainActivity : ComponentActivity() {
                 EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
               }
             }
-
           }
         }
       }

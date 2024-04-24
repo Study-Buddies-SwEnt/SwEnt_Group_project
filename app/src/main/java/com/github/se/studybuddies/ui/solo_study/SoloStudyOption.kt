@@ -17,9 +17,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
@@ -41,15 +43,18 @@ val CALENDAR = SoloStudyOption("Calendar", Icons.Filled.DateRange, Route.CALENDA
 @Composable
 fun solo_study_buttons(option: SoloStudyOption) {
   Button(
-      onClick = { /*TODO*/},
-      modifier = Modifier.height(240.dp).width(280.dp),
+      onClick = {
+          NavigationActions.navigateTo(option.route)
+      },
+      modifier = Modifier.height(140.dp).width(140.dp),
       colors = ButtonDefaults.buttonColors(White),
       shape = RoundedCornerShape(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
           Icon(
               imageVector = option.icon,
               contentDescription = option.name,
-              modifier = Modifier.height(160.dp).width(160.dp))
+              tint = Color.Blue,
+              modifier = Modifier.height(140.dp).width(140.dp))
           Text("Flash card", color = Blue, fontSize = 20.sp)
         }
       }
