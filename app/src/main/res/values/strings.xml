@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Study Buddies</string>
     <string name="type_a_message">Type a message</string>
+    <string name="cancel">Cancel</string>
+    <string name="options">Options</string>
+    <string name="delete">Delete</string>
 </resources>
