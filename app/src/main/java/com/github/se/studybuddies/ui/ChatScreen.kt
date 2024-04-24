@@ -1,10 +1,6 @@
 package com.github.se.studybuddies.ui
 
-import android.app.Activity
-import android.graphics.Rect
 import android.net.Uri
-import android.view.View
-import android.view.ViewTreeObserver
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,7 +36,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -51,19 +46,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
@@ -95,7 +86,6 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   OptionsDialog(viewModel, selectedMessage, showOptionsDialog, showEditDialog)
   EditDialog(viewModel, selectedMessage, showEditDialog)
 
-  // TODO issue when open keyboard, the list of messages goes up
   Column(
       modifier =
           Modifier.fillMaxSize()
@@ -153,7 +143,7 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
 
     Box(
         modifier =
-            Modifier.background(Color.White, RoundedCornerShape(20.dp))
+            Modifier.background(White, RoundedCornerShape(20.dp))
                 .padding(1.dp)
                 .testTag("chat_text_bubble")) {
           Column(modifier = Modifier.padding(8.dp)) {
@@ -186,7 +176,7 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
       modifier =
           Modifier.padding(8.dp)
               .fillMaxWidth()
-              .background(Color.White, RoundedCornerShape(20.dp))
+              .background(White, RoundedCornerShape(20.dp))
               .testTag("chat_text_field"),
       shape = RoundedCornerShape(20.dp),
       textStyle = TextStyle(color = Black),
