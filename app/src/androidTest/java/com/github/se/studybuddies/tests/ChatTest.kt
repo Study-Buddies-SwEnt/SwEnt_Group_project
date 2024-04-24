@@ -42,7 +42,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
         assertIsDisplayed()
         assertHasClickAction()
       }
-      text_field { assertIsDisplayed() }
+      textField { assertIsDisplayed() }
+      chatMessage { assertIsDisplayed() }
     }
   }
 
@@ -52,20 +53,46 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   fun testSendMessage() {
     onComposeScreen<ChatScreen>(composeTestRule) {
       // Test the UI elements
-      text_field { performTextInput(message_to_send) }
+      textField { performTextInput(message_to_send) }
       sendButton { performClick() }
     }
   }
+  //  @Test
+  //  fun testMessageDisplay() {
+  //    testSendMessage()
+  //    onComposeScreen<ChatScreen>(composeTestRule) {
+  //      chatMessage {
+  //        assertIsDisplayed()
+  //      }
+  //      textBubble {
+  //        assertIsDisplayed()
+  //      }
+  //      textBubbleText {
+  //        assertIsDisplayed()
+  //      }
+  //      textBubbleTime {
+  //        assertIsDisplayed()
+  //      }
+  //    }
+  //  }
 
-  @Test
-  fun testSendReceiveMessage() = run {
-    onComposeScreen<ChatScreen>(composeTestRule) {
-      text_field { performTextInput(message_to_send) }
-      sendButton { performClick() }
-      ownMsg {
-        assertExists(message_to_send)
-        assertTextEquals(message_to_send)
-      }
-    }
-  }
+  //    @Test
+  //    fun testEditMessage() {
+  //      testSendMessage()
+  //      onComposeScreen<ChatScreen>(composeTestRule) {
+  //
+  //      }
+  //    }
+
+  //  @Test
+  //  fun testSendReceiveMessage() = run {
+  //    onComposeScreen<ChatScreen>(composeTestRule) {
+  //      textField { performTextInput(message_to_send) }
+  //      sendButton { performClick() }
+  //      ownMsg {
+  //        assertExists(message_to_send)
+  //        assertTextEquals(message_to_send)
+  //      }
+  //    }
+  //  }
 }

@@ -124,7 +124,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 
 @Composable
 fun TextBubble(message: Message, displayName: Boolean = false) {
-  Row(modifier = Modifier.padding(1.dp)) {
+  Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
     if (displayName) {
       // add user profile picture
       Image(
@@ -145,7 +145,7 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
         modifier =
             Modifier.background(White, RoundedCornerShape(20.dp))
                 .padding(1.dp)
-                .testTag("chat_text_bubble")) {
+                .testTag("chat_text_bubble_box")) {
           Column(modifier = Modifier.padding(8.dp)) {
             if (displayName) {
               Text(
@@ -220,7 +220,7 @@ fun OptionsDialog(
 ) {
   if (showOptionsDialog.value) {
     AlertDialog(
-        modifier = Modifier.testTag("alert_dialog"),
+        modifier = Modifier.testTag("option_dialog"),
         onDismissRequest = { showOptionsDialog.value = false },
         title = { Text(text = stringResource(R.string.options)) },
         text = {
@@ -300,18 +300,18 @@ fun ChatGroupTitle(group: Group) {
   Image(
       painter = rememberImagePainter(group.picture.toString()),
       contentDescription = "Group profile picture",
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_profile_picture"),
+      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
   Column {
-    Text(text = group.name, maxLines = 1)
+    Text(text = group.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
     Spacer(modifier = Modifier.width(8.dp))
-    LazyRow {
+    LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
       items(group.members) { member ->
         Text(
             text = member,
-            modifier = Modifier.padding(end = 8.dp),
+            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
             style = TextStyle(color = Gray),
             maxLines = 1)
       }
