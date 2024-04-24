@@ -127,6 +127,8 @@ dependencies {
     // Dependency for using Intents in instrumented tests
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 
+    testImplementation("org.robolectric:robolectric:4.11.1")
+
     // Dependencies for using MockK in instrumented tests
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
