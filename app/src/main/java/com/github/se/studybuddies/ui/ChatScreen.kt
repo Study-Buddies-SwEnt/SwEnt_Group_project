@@ -1,6 +1,10 @@
 package com.github.se.studybuddies.ui
 
+import android.app.Activity
+import android.graphics.Rect
 import android.net.Uri
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -50,11 +55,14 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
@@ -76,6 +84,8 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 
   val listState = rememberLazyListState()
 
+  val keyboardPadding = rememberKeyboardPadding()
+
   LaunchedEffect(messages) {
     if (messages.isNotEmpty()) {
       listState.scrollToItem(messages.lastIndex)
@@ -89,6 +99,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   Column(
       modifier =
           Modifier.fillMaxSize()
+              .padding(bottom = keyboardPadding)
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
@@ -293,8 +304,41 @@ fun EditDialog(
   }
 }
 
-// Preview
+@Composable
+fun rememberKeyboardPadding(): Dp {
+  val context = LocalContext.current
+  val density = LocalDensity.current
+  val keyboardHeight = remember { mutableStateOf(0.dp) }
 
+  DisposableEffect(context) {
+    val rootView =
+        (context as? Activity)?.window?.decorView?.findViewById<View>(android.R.id.content)
+    val listener =
+        ViewTreeObserver.OnGlobalLayoutListener {
+          rootView?.let {
+            val rect = Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+
+            // Ensure the padding is non-negative
+            if (keypadHeight > 0) {
+              keyboardHeight.value = with(density) { keypadHeight.toDp() }
+            } else {
+              keyboardHeight.value = 0.dp
+            }
+          }
+        }
+
+    rootView?.viewTreeObserver?.addOnGlobalLayoutListener(listener)
+
+    onDispose { rootView?.viewTreeObserver?.removeOnGlobalLayoutListener(listener) }
+  }
+
+  return keyboardHeight.value
+}
+
+// Preview
 @Preview
 @Composable
 fun ChatScreenPreview() {
