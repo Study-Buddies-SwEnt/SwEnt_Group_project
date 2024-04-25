@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Study Buddies</string>
     <string name="type_a_message">Type a message</string>
+    <string name="permission_granted">Permission GRANTED</string>
+    <string name="create_group">Create a group</string>
+    <string name="go_back">Go back</string>
+    <string name="you_have_signed_in_with_email">You have signed in with email %1$s</string>
 </resources>

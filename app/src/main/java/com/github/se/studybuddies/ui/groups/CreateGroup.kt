@@ -3,7 +3,7 @@ package com.github.se.studybuddies.ui.groups
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
-import android.widget.Toast
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
@@ -34,7 +36,6 @@ import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -56,20 +57,18 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
-  // val permissionGranted = checkPermission(context, "Manifest.permission.READ_EXTERNAL_STORAGE")
-
-  val permissionState = rememberPermissionState("Manifest.permission.READ_EXTERNAL_STORAGE")
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          Toast.makeText(context as Activity, "Permission already granted", Toast.LENGTH_SHORT)
-              .show()
-        } else {
-          // Handle permission denial
-          Toast.makeText(context as Activity, "Permission refused", Toast.LENGTH_SHORT).show()
+          getContent.launch("image/*")
         }
       }
+  var permission = "android.permission.READ_MEDIA_IMAGES"
+  // Check if the Android version is lower than TIRAMISU API 33
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+  // For older Android versions, use READ_EXTERNAL_STORAGE permission
+  permission = "android.permission.READ_EXTERNAL_STORAGE"
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("create_group_scaffold"),
       topBar = {
@@ -88,10 +87,8 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
               GroupFields(nameState)
               Spacer(modifier = Modifier.padding(20.dp))
               SetProfilePicture(photoState) {
-                checkPermission(
-                    context, "Manifest.permission.READ_EXTERNAL_STORAGE", requestPermissionLauncher)
-                // permissionState.launchPermissionRequest()
-                getContent.launch("image/*")
+                    checkPermission(context, permission, requestPermissionLauncher)
+                  }
               }
               // Spacer(modifier = Modifier.weight(1f))
               SaveButton(nameState) {

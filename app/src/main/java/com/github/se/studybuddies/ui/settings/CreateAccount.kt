@@ -12,32 +12,42 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationActions) {
-  val uid = userViewModel.getCurrentUserUID()
+  val coroutineScope = rememberCoroutineScope()
 
+  var uid = userViewModel.uid
+  if (uid == null) {
+    uid = userViewModel.getCurrentUserUID()
+  }
+  userViewModel.fetchUserData(uid)
+  val user by userViewModel.userData.observeAsState()
   val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
   val usernameState = remember { mutableStateOf("") }
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
 
-  LaunchedEffect(key1 = true) {
-    val defaultProfilePictureUri =
-        withContext(Dispatchers.IO) { userViewModel.getDefaultProfilePicture() }
-    photoState.value = defaultProfilePictureUri
+  user?.let {
+    coroutineScope.launch {
+      val defaultProfilePictureUri = userViewModel.getDefaultProfilePicture()
+      photoState.value = defaultProfilePictureUri
+    }
   }
 
   val getContent =
@@ -45,16 +55,16 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
 
-  Column(modifier = Modifier.fillMaxSize()) {
+  Column(modifier = Modifier.fillMaxSize().testTag("create_account")) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("content"),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                  Text("You signed in with the email address $email")
+                  Text(stringResource(R.string.you_have_signed_in_with_email, email))
                   Spacer(modifier = Modifier.padding(20.dp))
                   AccountFields(usernameState)
                   Spacer(modifier = Modifier.padding(20.dp))

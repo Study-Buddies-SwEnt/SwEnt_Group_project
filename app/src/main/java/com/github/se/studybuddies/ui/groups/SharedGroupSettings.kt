@@ -38,7 +38,7 @@ fun GroupFields(nameState: MutableState<String>) {
               .width(300.dp)
               .height(65.dp)
               .clip(MaterialTheme.shapes.small)
-              .testTag("group_field"),
+              .testTag("group_name_field"),
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
               focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))

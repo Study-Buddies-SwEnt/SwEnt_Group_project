@@ -14,4 +14,5 @@ class AccountSettingsScreen(semanticsProvider: SemanticsNodeInteractionsProvider
   val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
   val divider: KNode = onNode { hasTestTag("divider") }
   val subTitle: KNode = onNode { hasTestTag("sub_title") }
+  val signOutButton: KNode = onNode { hasTestTag("sign_out_button") }
 }
