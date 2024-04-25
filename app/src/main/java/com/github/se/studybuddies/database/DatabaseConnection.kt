@@ -187,26 +187,26 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
   }
 
-    fun updateGroup(groupUID : String, userToAdd: String) {
+  fun updateGroup(groupUID: String, userToAdd: String) {
 
-        //add user to group
-        groupDataCollection
-            .document(groupUID)
-            .update("members", FieldValue.arrayUnion(userToAdd))
-            .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
-            .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to add user to group with error: ", e)
-            }
+    // add user to group
+    groupDataCollection
+        .document(groupUID)
+        .update("members", FieldValue.arrayUnion(userToAdd))
+        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to add user to group with error: ", e)
+        }
 
-        //add group to the user's list of groups
-        userMembershipsCollection
-            .document(userToAdd)
-            .update("groups", FieldValue.arrayUnion(groupUID))
-            .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
-            .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to add group to user with error: ", e)
-            }
-    }
+    // add group to the user's list of groups
+    userMembershipsCollection
+        .document(userToAdd)
+        .update("groups", FieldValue.arrayUnion(groupUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to add group to user with error: ", e)
+        }
+  }
 
   fun sendGroupMessage(groupUID: String, message: Message) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"

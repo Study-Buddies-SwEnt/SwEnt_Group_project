@@ -1,6 +1,5 @@
 package com.github.se.studybuddies
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -32,10 +31,6 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth

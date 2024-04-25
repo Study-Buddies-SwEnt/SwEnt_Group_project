@@ -8,13 +8,13 @@ class GroupInvitationTest {
 
   @Test
   fun generateLink() {
-    var groupUID = "213"
+    var groupUID = "xtheb45"
     var inviteLink = createGroupInviteLink(groupUID)
-    assertEquals(("https://studybuddies.page.link/JoinGroup/213"), inviteLink)
+    assertEquals(("https://studybuddies.page.link/JoinGroup/xtheb45"), inviteLink)
 
-    groupUID = "356"
+    groupUID = "sjsueh3ks8"
     inviteLink = createGroupInviteLink(groupUID)
-    assertEquals(("https://studybuddies.page.link/JoinGroup/356"), inviteLink)
+    assertEquals(("https://studybuddies.page.link/JoinGroup/sjsueh3ks8"), inviteLink)
   }
 
   @Test
@@ -25,4 +25,6 @@ class GroupInvitationTest {
   }
 
   // add test for the main activity, checking if user is indeed in the good group
+  // call this function
+  // checkIncomingDynamicLink(intent, this, navigationActions)
 }

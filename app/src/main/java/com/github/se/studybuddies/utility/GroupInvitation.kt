@@ -14,42 +14,50 @@ import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 
 object FirebaseUtils {
-    fun createGroupInviteLink(groupUID: String): Uri {
-        if (groupUID != "") {
-            val dynamicLink =
-                Firebase.dynamicLinks.dynamicLink {
-                    link = Uri.parse("https://studybuddies.page.link/JoinGroup/$groupUID")
-                    domainUriPrefix = "https://studybuddies.page.link"
-                }
-            return dynamicLink.uri
-        } else return Uri.parse("https://studybuddies.page.link/JoinGroup")
-    }
 
-    fun checkIncomingDynamicLink(intent: Intent, activity: Activity, navigationActions: NavigationActions) {
-        FirebaseDynamicLinks.getInstance().getDynamicLink(intent)
-            .addOnSuccessListener(activity) {
-                    pendingDynamicLinkData ->
-                var deepLink: Uri? = null
-                if (pendingDynamicLinkData != null) {
-                    deepLink = pendingDynamicLinkData.link
-                }
-                // Handle the deep link.
-                val groupUID = deepLink?.lastPathSegment
-                if (groupUID != null) {
-                    val currentUserUid =
-                        FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
+  private val db = DatabaseConnection()
 
-                    if (currentUserUid != null) {
-                        // Add the current user to the group in your Firebase database
-                        updateGroup(groupUID, currentUserUid)
-                        // Go to the newly joined group
-                        navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                    }
-                    else {
-                        // If the user is not logged go to login page (link will have to be clicked again)
-                        navigationActions.navigateTo(Route.LOGIN)
-                    }
-                }
-            }.addOnFailureListener(activity) { e -> Log.w("MyPrint", "getDynamicLink:onFailure", e) }
-    }
+  fun createGroupInviteLink(groupUID: String): Uri {
+    if (groupUID != "") {
+      val dynamicLink =
+          Firebase.dynamicLinks.dynamicLink {
+            link = Uri.parse("https://studybuddies.page.link/JoinGroup/$groupUID")
+            domainUriPrefix = "https://studybuddies.page.link"
+          }
+      return dynamicLink.uri
+    } else return Uri.parse("https://studybuddies.page.link/JoinGroup")
+  }
+
+  fun checkIncomingDynamicLink(
+      intent: Intent,
+      activity: Activity,
+      navigationActions: NavigationActions
+  ) {
+    FirebaseDynamicLinks.getInstance()
+        .getDynamicLink(intent)
+        .addOnSuccessListener(activity) { pendingDynamicLinkData ->
+          var deepLink: Uri? = null
+          if (pendingDynamicLinkData != null) {
+            deepLink = pendingDynamicLinkData.link
+          }
+          // Handle the deep link.
+          val groupUID = deepLink?.lastPathSegment
+          if (groupUID != null) {
+            val currentUserUid =
+                FirebaseAuth.getInstance().currentUser?.uid // Get the current user's UID
+
+            if (currentUserUid != null) {
+              // Add the current user to the group in your Firebase database
+              db.updateGroup(groupUID, currentUserUid)
+
+              // Go to the newly joined group
+              navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+            } else {
+              // If the user is not logged go to login page (link will have to be clicked again)
+              navigationActions.navigateTo(Route.LOGIN)
+            }
+          }
+        }
+        .addOnFailureListener(activity) { e -> Log.w("MyPrint", "getDynamicLink:onFailure", e) }
+  }
 }
