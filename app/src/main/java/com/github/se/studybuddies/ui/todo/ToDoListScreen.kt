@@ -85,6 +85,7 @@ fun ToDoListScreen(overviewViewModel: ToDoListViewModel, navigationActions: Navi
             modifier = Modifier.testTag("createTodoButton")) {
               Icon(
                   painterResource(R.drawable.edit),
+                  tint = Color.White,
                   contentDescription = null,
                   modifier = Modifier.size(32.dp))
             }

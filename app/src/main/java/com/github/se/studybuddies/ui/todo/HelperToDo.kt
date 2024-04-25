@@ -141,7 +141,7 @@ fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
               .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
-              containerColor = Color(0xFF8A8AF0),
+              containerColor = Color.Blue,
           )) {
         Text("Save")
       }
