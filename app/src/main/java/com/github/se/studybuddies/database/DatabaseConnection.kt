@@ -325,18 +325,14 @@ class DatabaseConnection {
   fun updateTodo(
       todoId: String,
       name: String,
-      assigneeName: String,
       dueDate: Date,
-      location: String,
       description: String,
       status: String
   ) {
     val task =
         hashMapOf(
             "title" to name,
-            "assigneeName" to assigneeName,
             "dueDate" to dueDate,
-            "location" to location,
             "description" to description,
             "status" to status)
     todoCollection
@@ -356,12 +352,10 @@ class DatabaseConnection {
       val assigneeName = document.getString("assigneeName") ?: ""
       val dueDate = document.getDate("dueDate")
       val convertedDate = dueDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-      val locationString = document.getString("location") ?: ""
-      val location = Location.fromString(locationString)
       val description = document.getString("description") ?: ""
       val status = ToDoStatus.valueOf(document.getString("status") ?: "")
 
-      val item = ToDo(uid, name, assigneeName, convertedDate, location, description, status)
+      val item = ToDo(uid, name, convertedDate, description, status)
       items.add(item)
     }
 
@@ -370,18 +364,14 @@ class DatabaseConnection {
 
   fun addNewTodo(
       name: String,
-      assigneeName: String,
       dueDate: Date,
-      location: String,
       description: String,
       status: String
   ) {
     val task =
         hashMapOf(
             "title" to name,
-            "assigneeName" to assigneeName,
             "dueDate" to dueDate,
-            "location" to location,
             "description" to description,
             "status" to status)
 

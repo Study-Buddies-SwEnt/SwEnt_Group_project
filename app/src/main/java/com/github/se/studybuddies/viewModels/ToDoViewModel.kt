@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.github.se.studybuddies.data.Location
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.database.DatabaseConnection
@@ -28,9 +27,7 @@ class ToDoViewModel(private val uid: String? = null) : ViewModel() {
     val convertedDate = Date.from(todo.dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
     firebaseConnection.addNewTodo(
         todo.name,
-        todo.assigneeName,
         convertedDate,
-        todo.location.toString(),
         todo.description,
         todo.status.name)
   }
@@ -40,9 +37,7 @@ class ToDoViewModel(private val uid: String? = null) : ViewModel() {
     firebaseConnection.updateTodo(
         uid,
         todo.name,
-        todo.assigneeName,
         convertedDate,
-        todo.location.toString(),
         todo.description,
         todo.status.name)
   }
@@ -60,13 +55,11 @@ class ToDoViewModel(private val uid: String? = null) : ViewModel() {
                   val dueDate = document.getDate("dueDate")
                   val convertedDate =
                       dueDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                  val locationString = document.getString("location") ?: ""
-                  val location = Location.fromString(locationString)
                   val description = document.getString("description") ?: ""
                   val status = ToDoStatus.valueOf(document.getString("status") ?: "")
 
                   val todoItem =
-                      ToDo(uid, name, assigneeName, convertedDate, location, description, status)
+                      ToDo(uid, name, convertedDate, description, status)
                   _todo.value = todoItem
                 } else {
                   _todo.value = emptyToDo()
@@ -82,6 +75,6 @@ class ToDoViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   private fun emptyToDo(): ToDo {
-    return ToDo("", "", "", LocalDate.now(), Location(0.0, 0.0, ""), "", ToDoStatus.CREATED)
+    return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
 }
