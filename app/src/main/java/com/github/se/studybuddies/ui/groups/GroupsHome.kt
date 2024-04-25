@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -67,6 +68,7 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private val db = DatabaseConnection()
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -231,9 +233,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                   // add user to groups
                   val groupUID = text.substringAfterLast("\\")
                   // Todo wait for the function updateGroup to be implemented
-                  // val currentUser = getCurrentUser()
-                  // val error = updateGroup(groupUID, currentUser)
-                  val error = -1
+                  val error = db.updateGroup(groupUID)
                   if (error == -1) {
                     showError = true
                     scope.launch {
