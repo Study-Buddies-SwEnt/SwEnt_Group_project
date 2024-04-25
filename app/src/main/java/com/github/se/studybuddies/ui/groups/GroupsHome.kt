@@ -1,8 +1,6 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
-import android.util.Log
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -110,7 +108,7 @@ fun GroupsHome(
             Text("Join or create a new group", textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(80.dp))
             AddGroupButton(navigationActions = navigationActions)
-              AddLinkButton(navigationActions = navigationActions)
+            AddLinkButton(navigationActions = navigationActions)
           }
         } else {
           Column(
@@ -125,7 +123,7 @@ fun GroupsHome(
                 content = {
                   items(groupList.value) { group -> GroupItem(group, navigationActions) }
                   item { AddGroupButton(navigationActions) }
-                    item { AddLinkButton(navigationActions) }
+                  item { AddLinkButton(navigationActions) }
                 })
           }
         }
@@ -204,60 +202,58 @@ fun AddGroupButton(navigationActions: NavigationActions) {
 
 @Composable
 fun AddLinkButton(navigationActions: NavigationActions) {
-    var text by remember { mutableStateOf("") }
-    var isTextFieldVisible by remember { mutableStateOf(false) }
-    var showError by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+  var text by remember { mutableStateOf("") }
+  var isTextFieldVisible by remember { mutableStateOf(false) }
+  var showError by remember { mutableStateOf(false) }
+  val scope = rememberCoroutineScope()
 
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.End) {
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      verticalAlignment = Alignment.Bottom,
+      horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = true },
             modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
-            Icon(
-                imageVector = Icons.Default.Share,
-                contentDescription = "Create a task",
-                tint = White)
-        }
-    }
-    if (isTextFieldVisible) {
-        TextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Enter Link") },
-                    keyboardActions = KeyboardActions(onDone = {
-                isTextFieldVisible = false
-                // add user to groups
-                        val groupUID = text.substringAfterLast("\\")
-                        //Todo wait for the function updateGroup to be implemented
-                        //val currentUser = getCurrentUser()
-                        //val error = updateGroup(groupUID, currentUser)
-                        val error = -1
-                        if (error == -1) {
-                            showError = true
-                            scope.launch {
-                                delay(3000L) // delay for 3 seconds
-                                showError = false
-                            }
-                        }
-                        else {
-                            //todo add goto group joined
-                        }
-                    }),            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-        )
-    }
-    if (showError) {
-        Snackbar(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            action = {
-                TextButton(onClick = { showError = false }) {}
+              Icon(
+                  imageVector = Icons.Default.Share,
+                  contentDescription = "Create a task",
+                  tint = White)
             }
-        ) {
-            Text("The link entered is invalid")
+      }
+  if (isTextFieldVisible) {
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Enter Link") },
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                  isTextFieldVisible = false
+                  // add user to groups
+                  val groupUID = text.substringAfterLast("\\")
+                  // Todo wait for the function updateGroup to be implemented
+                  // val currentUser = getCurrentUser()
+                  // val error = updateGroup(groupUID, currentUser)
+                  val error = -1
+                  if (error == -1) {
+                    showError = true
+                    scope.launch {
+                      delay(3000L) // delay for 3 seconds
+                      showError = false
+                    }
+                  } else {
+                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                  }
+                }),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
+  }
+  if (showError) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showError = false }) {} }) {
+          Text("The link entered is invalid")
         }
-    }
+  }
 }
 
 @Composable
