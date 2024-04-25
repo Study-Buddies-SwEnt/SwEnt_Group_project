@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
-import com.github.se.studybuddies.data.Location
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User

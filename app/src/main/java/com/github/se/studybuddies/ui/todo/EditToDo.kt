@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.Location
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -45,7 +44,7 @@ import java.time.Instant
 import java.time.ZoneId
 
 @Composable
-fun EditToDo(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: NavigationActions) {
+fun EditToDoScreen(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: NavigationActions) {
   val todo by todoViewModel.todo.collectAsState()
 
   todoViewModel.fetchTodoByUID(todoUID)
@@ -146,10 +145,10 @@ fun EditToDo(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: N
                           Icon(
                               painter = painterResource(R.drawable.delete),
                               contentDescription = null,
-                              tint = Color(0xFFD35959),
+                              tint = Color.Red,
                               modifier = Modifier.size(36.dp))
                           Spacer(modifier = Modifier.width(8.dp))
-                          Text("Delete", color = Color(0xFFD35959))
+                          Text("Delete", color = Color.Red)
                         }
                   }
             }

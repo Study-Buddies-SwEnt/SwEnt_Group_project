@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.github.se.studybuddies.data.Location
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -26,11 +25,6 @@ import java.time.ZoneId
 fun CreateToDo(todoViewModel: ToDoViewModel, navigationActions: NavigationActions) {
   val titleState = remember { mutableStateOf("") }
   val descriptionState = remember { mutableStateOf("") }
-  val assigneeState = remember { mutableStateOf("") }
-  val locationState = remember { mutableStateOf(Location(0.0, 0.0, "")) }
-  val onLocationChanged: (Location) -> Unit = { newLocation -> locationState.value = newLocation }
-  val locationQuery = remember { mutableStateOf("") }
-
   val selectedDate = remember { mutableStateOf(LocalDate.now()) }
   val isOpen = remember { mutableStateOf(false) }
 
@@ -47,9 +41,6 @@ fun CreateToDo(todoViewModel: ToDoViewModel, navigationActions: NavigationAction
                   TodoFields(
                       titleState,
                       descriptionState,
-                      assigneeState,
-                      onLocationChanged,
-                      locationQuery,
                       selectedDate,
                       isOpen)
                   TodoSaveButton(titleState) {
@@ -58,9 +49,7 @@ fun CreateToDo(todoViewModel: ToDoViewModel, navigationActions: NavigationAction
                             uid = "",
                             name = titleState.value,
                             description = descriptionState.value,
-                            assigneeName = assigneeState.value,
                             dueDate = selectedDate.value,
-                            location = locationState.value,
                             status = ToDoStatus.CREATED)
                     todoViewModel.addNewTodo(newTodo)
                     navigationActions.goBack()

@@ -153,11 +153,6 @@ fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
               style = TextStyle(fontSize = 16.sp),
               lineHeight = 28.sp,
               modifier = Modifier.align(Alignment.Start))
-          Text(
-              text = todo.assigneeName,
-              style = TextStyle(fontSize = 14.sp),
-              lineHeight = 20.sp,
-              modifier = Modifier.align(Alignment.Start))
         }
         Row(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
           Text(

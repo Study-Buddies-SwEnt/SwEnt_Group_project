@@ -26,7 +26,7 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.todo.CreateToDo
-import com.github.se.studybuddies.ui.todo.EditToDo
+import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
@@ -142,7 +142,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
                   if (todoUID != null) {
-                    EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
+                    EditToDoScreen(todoUID, ToDoViewModel(todoUID), navigationActions)
                   }
                 }
           }
