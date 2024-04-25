@@ -46,6 +46,7 @@ fun AccountSettings(
     backRoute: String,
     navigationActions: NavigationActions
 ) {
+  if (uid.isEmpty()) return
   userViewModel.fetchUserData(uid)
   val userData by userViewModel.userData.observeAsState()
 
@@ -65,11 +66,7 @@ fun AccountSettings(
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri ->
           photoState.value = profilePictureUri
-          userViewModel.updateUserData(
-              userViewModel.getCurrentUserUID(),
-              emailState.value,
-              usernameState.value,
-              photoState.value)
+          userViewModel.updateUserData(uid, emailState.value, usernameState.value, photoState.value)
         }
       }
 
@@ -87,7 +84,7 @@ fun AccountSettings(
   }
 
   Column(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("account_settings"),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Top) {
         CenterAlignedTopAppBar(
@@ -100,17 +97,18 @@ fun AccountSettings(
           checkPermission(context, permission, requestPermissionLauncher)
         }
         Spacer(Modifier.height(60.dp))
-        SignOutButton(navigationActions)
+        SignOutButton(navigationActions, userViewModel)
       }
 }
 
 @Composable
-private fun SignOutButton(navigationActions: NavigationActions) {
+private fun SignOutButton(navigationActions: NavigationActions, userViewModel: UserViewModel) {
   val context = LocalContext.current // Get the context here
   Button(
       onClick = {
         AuthUI.getInstance().signOut(context).addOnCompleteListener {
           if (it.isSuccessful) {
+            userViewModel.signOut()
             navigationActions.navigateTo(Route.LOGIN)
           }
         }
@@ -124,7 +122,7 @@ private fun SignOutButton(navigationActions: NavigationActions) {
               .background(color = Color.Transparent, shape = RoundedCornerShape(50))
               .width(250.dp)
               .height(50.dp)
-              .testTag("LoginButton"),
+              .testTag("sign_out_button"),
       shape = RoundedCornerShape(50)) {
         Text("Sign out", color = Color.Black)
       }
