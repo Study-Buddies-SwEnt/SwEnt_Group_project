@@ -98,12 +98,12 @@ fun AccountSettings(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
               Spacer(Modifier.height(150.dp))
-            SetProfilePicture(photoState) {
-                      checkPermission(context, permission, requestPermissionLauncher) {
-                        getContent.launch(imageInput)
-                      }
-                    }              
-          Spacer(Modifier.height(60.dp))
+              SetProfilePicture(photoState) {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
+                }
+              }
+              Spacer(Modifier.height(60.dp))
               SignOutButton(navigationActions, userViewModel)
             }
       }

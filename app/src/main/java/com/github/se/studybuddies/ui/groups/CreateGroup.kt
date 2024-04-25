@@ -86,10 +86,10 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
               GroupFields(nameState)
               Spacer(modifier = Modifier.padding(20.dp))
               SetProfilePicture(photoState) {
-                    checkPermission(context, permission, requestPermissionLauncher) {
-                      getContent.launch(imageInput)
-                    }
-                  }
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
+                }
+              }
 
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
