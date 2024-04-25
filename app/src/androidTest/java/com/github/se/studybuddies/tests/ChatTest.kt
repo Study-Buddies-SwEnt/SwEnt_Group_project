@@ -1,10 +1,19 @@
 package com.github.se.studybuddies.tests
 
+import android.net.Uri
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.ChatScreen
 import com.github.se.studybuddies.ui.ChatScreen
+import com.github.se.studybuddies.ui.EditDialog
+import com.github.se.studybuddies.ui.OptionsDialog
+import com.github.se.studybuddies.ui.TextBubble
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -47,6 +56,16 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
   }
 
+  @Test
+  fun testTitle() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      chatGroupTitleImage { assertIsDisplayed() }
+      chatGroupTitleText { assertIsDisplayed() }
+      chatGroupTitleMembers { assertIsDisplayed() }
+      chatGroupTitleMember { assertIsDisplayed() }
+    }
+  }
+
   val message_to_send = "Hello, World!"
 
   @Test
@@ -57,42 +76,162 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       sendButton { performClick() }
     }
   }
-  //  @Test
-  //  fun testMessageDisplay() {
-  //    testSendMessage()
-  //    onComposeScreen<ChatScreen>(composeTestRule) {
-  //      chatMessage {
-  //        assertIsDisplayed()
-  //      }
-  //      textBubble {
-  //        assertIsDisplayed()
-  //      }
-  //      textBubbleText {
-  //        assertIsDisplayed()
-  //      }
-  //      textBubbleTime {
-  //        assertIsDisplayed()
-  //      }
-  //    }
-  //  }
+}
 
-  //    @Test
-  //    fun testEditMessage() {
-  //      testSendMessage()
-  //      onComposeScreen<ChatScreen>(composeTestRule) {
-  //
-  //      }
-  //    }
+@RunWith(AndroidJUnit4::class)
+class ChatTestBubble : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
 
-  //  @Test
-  //  fun testSendReceiveMessage() = run {
-  //    onComposeScreen<ChatScreen>(composeTestRule) {
-  //      textField { performTextInput(message_to_send) }
-  //      sendButton { performClick() }
-  //      ownMsg {
-  //        assertExists(message_to_send)
-  //        assertTextEquals(message_to_send)
-  //      }
-  //    }
-  //  }
+  // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
+  @get:Rule val mockkRule = MockKRule(this)
+
+  @Before
+  fun testSetup() {
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            timestamp = System.currentTimeMillis())
+    composeTestRule.setContent { TextBubble(message, true) }
+  }
+
+  @Test
+  fun testTextBubble() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      textBubble { assertIsDisplayed() }
+      textBubbleImage { assertIsDisplayed() }
+      textBubbleBox { assertIsDisplayed() }
+      textBubbleName { assertIsDisplayed() }
+      textBubbleText { assertIsDisplayed() }
+      textBubbleTime { assertIsDisplayed() }
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
+class ChatTestBubbleNotUser : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
+  @get:Rule val mockkRule = MockKRule(this)
+
+  @Before
+  fun testSetup() {
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            timestamp = System.currentTimeMillis())
+    composeTestRule.setContent { TextBubble(message, false) }
+  }
+
+  @Test
+  fun testTextBubble() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      textBubble { assertIsDisplayed() }
+
+      textBubbleBox { assertIsDisplayed() }
+      textBubbleText { assertIsDisplayed() }
+      textBubbleTime { assertIsDisplayed() }
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
+class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
+  @get:Rule val mockkRule = MockKRule(this)
+
+  val groupUID = "automaticTestGroupUID"
+
+  @Composable
+  fun testTrySetup() {
+    val vm = MessageViewModel(groupUID)
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
+            timestamp = System.currentTimeMillis())
+    val showOptionsDialog = remember { mutableStateOf(true) }
+    val showEditDialog = remember { mutableStateOf(false) }
+    OptionsDialog(vm, message, showOptionsDialog, showEditDialog)
+  }
+
+  @Before
+  fun testSetup() {
+    val vm = MessageViewModel(groupUID)
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            timestamp = System.currentTimeMillis())
+    composeTestRule.setContent { testTrySetup() }
+  }
+
+  @Test
+  fun testOptionDialog() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      optionDialog { assertIsDisplayed() }
+      optionDialogEdit {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      optionDialogDeleteButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      optionDialogCancelButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
+class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
+  @get:Rule val mockkRule = MockKRule(this)
+
+  val groupUID = "automaticTestGroupUID"
+
+  @Composable
+  fun testTrySetup() {
+    val vm = MessageViewModel(groupUID)
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
+            timestamp = System.currentTimeMillis())
+    val showOptionsDialog = remember { mutableStateOf(false) }
+    val showEditDialog = remember { mutableStateOf(true) }
+    EditDialog(vm, message, showEditDialog)
+  }
+
+  @Before
+  fun testSetup() {
+    val vm = MessageViewModel(groupUID)
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            timestamp = System.currentTimeMillis())
+    composeTestRule.setContent { testTrySetup() }
+  }
+
+  @Test
+  fun testEditDialog() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      editDialog { assertIsDisplayed() }
+      editDialogTextField { assertIsDisplayed() }
+      editDialogCancelButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+    }
+  }
 }

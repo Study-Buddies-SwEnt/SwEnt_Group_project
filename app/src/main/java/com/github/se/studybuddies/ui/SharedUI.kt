@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui
 
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -61,10 +60,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
@@ -330,101 +327,4 @@ private fun MenuButton(onClick: () -> Unit) {
             modifier = Modifier.size(28.dp),
             tint = Blue)
       }
-}
-
-// Preview functions
-@Preview
-@Composable
-fun DrawerMenuPreview() {
-  val navController = rememberNavController()
-  DrawerMenu(
-      navigationActions = NavigationActions(navController),
-      backRoute = "",
-      content = {},
-      title = { Text("Title") },
-      iconOptions = { MenuButton {} })
-}
-
-@Preview
-@Composable
-fun BottomNavigationBarPreview() {
-  val navController = rememberNavController()
-  BottomNavigationBar(
-      navigationActions = NavigationActions(navController),
-      destinations = BOTTOM_NAVIGATION_DESTINATIONS)
-}
-
-@Preview
-@Composable
-fun Main_titlePreview() {
-  Main_title("Title")
-}
-
-@Preview
-@Composable
-fun Sub_titlePreview() {
-  Sub_title("Subtitle")
-}
-
-@Preview
-@Composable
-fun DrawerMenuIconPreview() {
-  val scope = rememberCoroutineScope()
-  val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-  DrawerMenuIcon(scope, drawerState)
-}
-
-@Preview
-@Composable
-fun SearchIconPreview() {
-  SearchIcon()
-}
-
-@Preview
-@Composable
-fun GoBackButtonPreview() {
-  val navController = rememberNavController()
-  GoBackButton(NavigationActions(navController))
-}
-
-@Preview
-@Composable
-fun GoBackRouteButtonPreview() {
-  val navController = rememberNavController()
-  GoBackRouteButton(NavigationActions(navController), "")
-}
-
-@Preview
-@Composable
-fun GroupsSettingsButtonPreview() {
-  val navController = rememberNavController()
-  GroupsSettingsButton(NavigationActions(navController))
-}
-
-@Preview
-@Composable
-fun GroupItemPreview() {
-  val navController = rememberNavController()
-  val pictureURI = Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
-  val group = Group("name", "uid", pictureURI, emptyList())
-
-  GroupItem(group, NavigationActions(navController))
-}
-
-@Preview
-@Composable
-fun MainTopBarPreview() {
-  MainTopBar { MenuButton {} }
-}
-
-@Preview
-@Composable
-fun SecondaryTopBarPreview() {
-  SecondaryTopBar {}
-}
-
-@Preview
-@Composable
-fun MenuButtonPreview() {
-  MenuButton {}
 }

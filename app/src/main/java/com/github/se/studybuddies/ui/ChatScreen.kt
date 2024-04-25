@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -54,14 +53,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
@@ -220,11 +216,10 @@ fun OptionsDialog(
 ) {
   if (showOptionsDialog.value) {
     AlertDialog(
-        modifier = Modifier.testTag("option_dialog"),
         onDismissRequest = { showOptionsDialog.value = false },
         title = { Text(text = stringResource(R.string.options)) },
         text = {
-          Column {
+          Column(modifier = Modifier.testTag("option_dialog")) {
             selectedMessage?.let { Text(text = it.getDate()) }
             if (viewModel.isUserMessageSender(selectedMessage!!)) {
               Spacer(modifier = Modifier.height(8.dp))
@@ -272,11 +267,10 @@ fun EditDialog(
 ) {
   if (showEditDialog.value) {
     AlertDialog(
-        modifier = Modifier.testTag("edit_dialog"),
         onDismissRequest = { showEditDialog.value = false },
         title = { Text(text = stringResource(R.string.edit)) },
         text = {
-          Column {
+          Column(modifier = Modifier.testTag("edit_dialog")) {
             MessageTextFields(
                 onSend = {
                   viewModel.editMessage(selectedMessage!!, it)
@@ -317,64 +311,4 @@ fun ChatGroupTitle(group: Group) {
       }
     }
   }
-}
-
-// Preview
-@Preview
-@Composable
-fun ChatScreenPreview() {
-  val groupUID = "groupUID_test_1"
-  ChatScreen(MessageViewModel(groupUID), NavigationActions(rememberNavController()))
-}
-
-@Preview
-@Composable
-fun TextBubblePreview() {
-  val user =
-      User(
-          "userUID",
-          "userEmail",
-          "userName",
-          Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
-  val message =
-      Message("messageUID_test_1", "Hello, how are you?", user, System.currentTimeMillis())
-  TextBubble(message, true)
-}
-
-@Preview
-@Composable
-fun MessageTextFieldsPreview() {
-  MessageTextFields(onSend = {})
-}
-
-@Preview
-@Composable
-fun MessageOptionsDialogPreview() {
-  val user =
-      User(
-          "userUID",
-          "userEmail",
-          "userName",
-          Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
-  val message =
-      Message("messageUID_test_1", "Hello, how are you?", user, System.currentTimeMillis())
-  OptionsDialog(
-      MessageViewModel("groupUID_test_1"),
-      message,
-      remember { mutableStateOf(true) },
-      remember { mutableStateOf(false) })
-}
-
-@Preview
-@Composable
-fun EditDialogPreview() {
-  val user =
-      User(
-          "userUID",
-          "userEmail",
-          "userName",
-          Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
-  val message =
-      Message("messageUID_test_1", "Hello, how are you?", user, System.currentTimeMillis())
-  EditDialog(MessageViewModel("groupUID_test_1"), message, remember { mutableStateOf(true) })
 }
