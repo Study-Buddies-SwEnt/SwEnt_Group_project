@@ -78,7 +78,7 @@ fun TimerScreen(
         modifier = Modifier.fillMaxSize().testTag("timer_column"),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
-          Spacer(modifier = Modifier.height(60.dp))
+          Spacer(modifier = Modifier.height(120.dp))
           if (timerEnd) {
             Card(
                 shape = RoundedCornerShape(30.dp),
@@ -95,12 +95,13 @@ fun TimerScreen(
             Card(
                 shape = RoundedCornerShape(30.dp),
                 modifier =
-                    Modifier.padding(20.dp).width(300.dp).height(160.dp).testTag("timer_card"),
+                    Modifier.padding(30.dp).width(220.dp).height(80.dp).testTag("timer_card"),
                 colors = CardDefaults.cardColors(containerColor = White)) {
                   Text(
                       text = timerValue.formatTime(),
                       fontSize = 40.sp,
                       color = Blue,
+                      textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                       modifier = Modifier.padding(10.dp))
                 }
           }
@@ -159,10 +160,10 @@ fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
 fun TimerButton(onClick: () -> Unit, text: String) {
   Button(
       onClick = onClick,
-      modifier = Modifier.padding(0.dp).width(80.dp).height(30.dp).testTag(text + "_timer_button"),
+      modifier = Modifier.padding(0.dp).width(100.dp).height(50.dp).testTag(text + "_timer_button"),
       colors = ButtonDefaults.buttonColors(Blue),
   ) {
-    Text(text, color = White, fontSize = 10.sp)
+    Text(text, color = White, fontSize = 15.sp)
   }
 }
 

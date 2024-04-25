@@ -14,11 +14,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DrawerMenu
+import com.github.se.studybuddies.ui.MainScreenScaffold
 
 @Composable
 fun SoloStudyHome(navigationActions: NavigationActions) {
-  DrawerMenu(
+  MainScreenScaffold(
       navigationActions,
       Route.SOLOSTUDYHOME,
       content = {

@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawerMenu(
+fun MainScreenScaffold(
     navigationActions: NavigationActions,
     backRoute: String,
     content: @Composable (PaddingValues) -> Unit,
