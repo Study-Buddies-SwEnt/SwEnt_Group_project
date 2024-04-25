@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -62,7 +63,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
           getContent.launch(imageInput)
         }
       }
-  val permission = imagePermissionVersion()
+  var permission = imagePermissionVersion()
   // Check if the Android version is lower than TIRAMISU API 33
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
     // For older Android versions, use READ_EXTERNAL_STORAGE permission
