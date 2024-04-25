@@ -5,4 +5,6 @@
     <string name="create_group">Create a group</string>
     <string name="go_back">Go back</string>
     <string name="you_have_signed_in_with_email">You have signed in with email %1$s</string>
+    <string name="profile_setting">Profile setting</string>
+    <string name="sign_out">Sign out</string>
 </resources>
