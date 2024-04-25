@@ -384,6 +384,7 @@ class DatabaseConnection {
             "location" to location,
             "description" to description,
             "status" to status)
+
     todoCollection
         .add(task)
         .addOnSuccessListener { Log.d("MyPrint", "Task succesfully added") }

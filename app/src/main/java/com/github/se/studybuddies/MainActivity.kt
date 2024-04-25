@@ -124,9 +124,17 @@ class MainActivity : ComponentActivity() {
               }
             }
 
-            composable(Route.TODOLIST) { ToDoListScreen(ToDoListViewModel(), navigationActions) }
+            composable(Route.TODOLIST) {
+              if (currentUser != null) {
+                ToDoListScreen(ToDoListViewModel(), navigationActions)
+              }
+            }
 
-            composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
+            composable(Route.CREATETODO)  {
+              if (currentUser != null) {
+            CreateToDo(ToDoViewModel(), navigationActions)
+            }
+          }
 
             composable(
                 route = "${Route.EDITTODO}/{todoUID}",
