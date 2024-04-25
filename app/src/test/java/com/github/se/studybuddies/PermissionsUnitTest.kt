@@ -21,7 +21,11 @@ import org.mockito.junit.MockitoJUnitRunner
 class PermissionsTest {
 
   @RelaxedMockK private lateinit var mockContext: Context
-  private lateinit var mockLauncher: ManagedActivityResultLauncher<String, Boolean>
+  @RelaxedMockK private lateinit var mockLauncher: ManagedActivityResultLauncher<String, Boolean>
+
+  private fun granted() {
+    assert(true)
+  }
 
   @Test
   fun permissionsRequestLaunched() {
@@ -30,9 +34,8 @@ class PermissionsTest {
         mockk<ManagedActivityResultLauncher<String, Boolean>>(relaxed = true) { launch(permission) }
     mockContext = mockk<Context>(relaxed = true) {}
 
-    checkPermission(mockContext, permission, mockLauncher)
+    checkPermission(mockContext, permission, mockLauncher) { granted() }
     verify { mockLauncher.launch(permission) }
-    // tearDown()
   }
 
   @Test
@@ -42,11 +45,11 @@ class PermissionsTest {
         mockk<ManagedActivityResultLauncher<String, Boolean>>(relaxed = true) { launch(permission) }
     mockContext = mockk<Context>(relaxed = true) {}
 
-    checkPermission(mockContext, permission, mockLauncher)
+    checkPermission(mockContext, permission, mockLauncher) { granted() }
     assert(
         ContextCompat.checkSelfPermission(mockContext, permission) ==
             PackageManager.PERMISSION_GRANTED)
-    checkPermission(mockContext, permission, mockLauncher)
+    checkPermission(mockContext, permission, mockLauncher) { granted() }
     verify(exactly = 1) { mockLauncher.launch(permission) }
   }
 }

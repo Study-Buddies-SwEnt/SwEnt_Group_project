@@ -2,7 +2,6 @@ package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -29,6 +28,7 @@ import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.permissions.checkPermission
+import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -54,14 +54,15 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
+  val imageInput = "image/*"
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          getContent.launch("image/*")
+          getContent.launch(imageInput)
         }
       }
-  var permission = "android.permission.READ_MEDIA_IMAGES"
+  val permission = imagePermissionVersion()
   // Check if the Android version is lower than TIRAMISU API 33
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
     // For older Android versions, use READ_EXTERNAL_STORAGE permission
@@ -85,8 +86,10 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
               GroupFields(nameState)
               Spacer(modifier = Modifier.padding(20.dp))
               SetProfilePicture(photoState) {
-                checkPermission(context, permission, requestPermissionLauncher)
-              }
+                    checkPermission(context, permission, requestPermissionLauncher) {
+                      getContent.launch(imageInput)
+                    }
+                  }
 
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
