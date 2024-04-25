@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.MessageType
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
@@ -20,42 +21,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class MessageViewModel(val groupUID: String) : ViewModel() {
+class MessageViewModel(val chatUID: String, val chatType: MessageType) : ViewModel() {
 
   val db = DatabaseConnection()
-  private val dbRef = db.rt_db.getReference(db.getGroupMessagesPath(groupUID))
+  private val dbMessage = db.rt_db.getReference(db.getMessagePath(chatUID, chatType))
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
-  private val _currentGroup = MutableLiveData<Group>()
-  val group =
-      if (_currentGroup.value != null) _currentGroup.value!!
-      else
-          Group(
-              uid = groupUID,
-              name = "Default group name",
-              picture =
-                  Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-              listOf(
-                  "user1",
-                  "user2",
-                  "user3",
-                  "user4",
-                  "user5",
-                  "user6",
-                  "user7",
-                  "user8",
-                  "user9",
-                  "user10"))
+  val currentUser = _currentUser
 
   init {
     listenToMessages()
     getCurrentUser()
-    getCurrentGroup()
   }
 
   private fun listenToMessages() {
-    dbRef.addValueEventListener(
+      dbMessage.addValueEventListener(
         object : ValueEventListener {
           private var handler = Handler(Looper.getMainLooper())
           private var runnable: Runnable? = null
@@ -95,13 +76,6 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
         })
   }
 
-  private fun getCurrentGroup() {
-    viewModelScope.launch {
-      val group = db.getGroup(groupUID)
-      _currentGroup.value = group
-    }
-  }
-
   private fun getCurrentUser() {
     viewModelScope.launch {
       val currentUser = db.getCurrentUser()
@@ -116,14 +90,14 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
         }
 
     if (message != null) {
-      db.sendGroupMessage(groupUID, message)
+      db.sendMessage(chatUID, message)
     } else Log.d("MyPrint", "message is null, could not retrieve")
   }
 
   fun deleteMessage(message: Message) {
     if (!isUserMessageSender(message)) return
     else {
-      db.deleteMessage(groupUID, message)
+      db.deleteMessage(chatUID, message)
       _messages.value = _messages.value.filter { it.uid != message.uid }
     }
   }
@@ -131,7 +105,7 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   fun editMessage(message: Message, newText: String) {
     if (!isUserMessageSender(message)) return
     else {
-      db.editMessage(groupUID, message, newText)
+      db.editMessage(chatUID, message, newText)
       _messages.value =
           _messages.value.map {
             if (it.uid == message.uid) {
@@ -141,6 +115,15 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
             }
           }
     }
+  }
+
+  fun getOtherUserUID(): String {
+    if(chatType == MessageType.GROUP) return ""
+    var otherUser = ""
+    db.getPrivateChatMembers(chatUID) { members ->
+      otherUser = members.firstOrNull { it != _currentUser.value?.uid }.toString()
+    }
+    return otherUser
   }
 
   fun isUserMessageSender(message: Message): Boolean {

@@ -34,5 +34,12 @@ object MessageVal {
   const val SENDER_UID = "senderId"
   // name of the path in the database
   const val GROUPS = "groups"
+  const val DIRECT_MESSAGES = "direct_messages"
+  const val MEMBERS = "members"
   const val MESSAGES = "messages"
+}
+
+enum class MessageType {
+  PRIVATE,
+  GROUP
 }

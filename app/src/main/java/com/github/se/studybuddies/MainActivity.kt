@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.se.studybuddies.data.MessageType
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.ChatScreen
@@ -108,7 +109,7 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.CHAT) {
               if (currentUser != null) {
-                ChatScreen(MessageViewModel("general_group"), navigationActions)
+                ChatScreen(MessageViewModel("general_group", MessageType.GROUP), navigationActions)
               }
             }
             composable(Route.SOLOSTUDYHOME) {

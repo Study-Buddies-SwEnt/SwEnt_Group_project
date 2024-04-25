@@ -5,9 +5,13 @@ import android.util.Log
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.MessageType
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -298,7 +302,7 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendGroupMessage(groupUID: String, message: Message) {
+  fun sendMessage(groupUID: String, message: Message) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
     val messageData =
         mapOf(
@@ -322,7 +326,58 @@ class DatabaseConnection {
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
+    fun getMessagePath(UID: String, chatType: MessageType): String {
+       return when (chatType) {
+            MessageType.PRIVATE -> getPrivateMessagesPath(UID)
+            MessageType.GROUP -> getGroupMessagesPath(UID)
+        }
+    }
+
   fun getGroupMessagesPath(groupUID: String): String {
     return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
   }
+
+    fun getPrivateMessagesPath(chatUID: String): String {
+        return MessageVal.DIRECT_MESSAGES + "/$chatUID/" + MessageVal.MESSAGES
+    }
+
+    fun getPrivateChatMembersPath(chatUID: String): String {
+        return MessageVal.DIRECT_MESSAGES + "/$chatUID/" + MessageVal.MEMBERS
+    }
+
+    fun getPrivateChatMembers(chatUID: String, callback: (List<String?>) -> Unit) {
+        val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
+
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val members = dataSnapshot.children.map { it.key }.toList()
+                callback(members)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                println("Database error: ${databaseError.message}")
+            }
+        })
+    }
+
+    fun getPrivateChatsList(userUID : String, callback: (List<String>) -> Unit){
+        val ref = rt_db.getReference(MessageVal.DIRECT_MESSAGES)
+
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val chatList = mutableListOf<String>()
+                dataSnapshot.children.forEach { chat ->
+                    val members = chat.child(MessageVal.MEMBERS).children.map { it.key }.toList()
+                    if (userUID in members) {
+                        chatList.add(chat.key ?: "")
+                    }
+                }
+                callback(chatList)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                println("Database error: ${databaseError.message}")
+            }
+        })
+    }
 }
