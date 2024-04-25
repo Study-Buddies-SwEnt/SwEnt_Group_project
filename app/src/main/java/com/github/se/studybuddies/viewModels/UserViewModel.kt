@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class UserViewModel(val uid: String? = null) : ViewModel() {
@@ -20,7 +20,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
 
   init {
     if (uid != null) {
-      fetchUserData(getCurrentUserUID())
+      fetchUserData(uid)
       Log.d("MyPrint", "UserViewModel initialized with uid $uid")
     } else {
       Log.d("MyPrint", "UserViewModel initialized without uid")
@@ -28,28 +28,13 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   fun getCurrentUserUID(): String {
-    return db.getCurrentUserUID()
+    val currentUserUID = db.getCurrentUserUID()
+    Log.d("MyPrint", "Current UID fetched from UserViewModel is $currentUserUID")
+    return currentUserUID
   }
 
   fun fetchUserData(uid: String) {
-    viewModelScope.launch {
-      try {
-        val document = db.getUserData(uid).await()
-        if (document.exists()) {
-          val email = document.getString("email") ?: ""
-          val username = document.getString("username") ?: ""
-          val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-          val user = User(uid, email, username, photoUrl)
-          _userData.value = user
-        } else {
-          Log.d("MyPrint", "In ViewModel, document not found")
-          _userData.value = User.empty()
-        }
-      } catch (e: Exception) {
-        Log.d("MyPrint", "In ViewModel, failed to fetch user data with error: ", e)
-        _userData.value = User.empty()
-      }
-    }
+    viewModelScope.launch { _userData.value = db.getUser(uid) }
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -57,10 +42,14 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    db.createUser(uid, email, username, profilePictureUri)
+    viewModelScope.launch { db.createUser(uid, email, username, profilePictureUri) }
   }
 
   fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
     db.updateUserData(uid, email, username, profilePictureUri)
+  }
+
+  fun signOut() {
+    viewModelScope.cancel()
   }
 }

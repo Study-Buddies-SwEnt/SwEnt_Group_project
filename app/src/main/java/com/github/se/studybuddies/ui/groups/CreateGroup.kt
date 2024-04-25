@@ -73,9 +73,12 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
     permission = "android.permission.READ_EXTERNAL_STORAGE"
   }
 
-  Surface(color = White, modifier = Modifier.fillMaxSize()) {
+  Surface(color = White, modifier = Modifier.fillMaxSize().testTag("create_group")) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 20.dp)
+                .testTag("content"),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
@@ -111,3 +114,33 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         }
   }
 }
+
+        /*
+            LazyColumn(
+              modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(horizontal = 20.dp, vertical = 20.dp),
+              verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+              horizontalAlignment = Alignment.CenterHorizontally) {
+                item {
+                  Column(
+                      modifier = Modifier.fillMaxWidth(),
+                      verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        SecondaryTopBar { navigationActions.navigateTo(Route.GROUPSHOME) }
+                        Text("Create a group")
+                        Spacer(modifier = Modifier.padding(20.dp))
+                        GroupFields(nameState)
+                        Spacer(modifier = Modifier.padding(20.dp))
+                        SetProfilePicture(photoState) { getContent.launch("image/*") }
+                        SaveButton(nameState) {
+                          groupViewModel.createGroup(nameState.value, photoState.value)
+                          navigationActions.navigateTo(Route.GROUPSHOME)
+                        }
+                      }
+                }
+              }
+        }
+
+               */
+
+               */
