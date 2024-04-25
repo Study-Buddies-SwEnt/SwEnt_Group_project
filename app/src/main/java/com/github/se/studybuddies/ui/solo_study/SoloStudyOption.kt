@@ -43,9 +43,7 @@ val CALENDAR = SoloStudyOption("Calendar", Icons.Filled.DateRange, Route.CALENDA
 @Composable
 fun solo_study_buttons(option: SoloStudyOption) {
   Button(
-      onClick = {
-          NavigationActions.navigateTo(option.route)
-      },
+      onClick = { NavigationActions.navigateTo(option.route) },
       modifier = Modifier.height(140.dp).width(140.dp),
       colors = ButtonDefaults.buttonColors(White),
       shape = RoundedCornerShape(12.dp)) {

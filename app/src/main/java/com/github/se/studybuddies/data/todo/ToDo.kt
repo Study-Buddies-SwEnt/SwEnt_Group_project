@@ -12,15 +12,15 @@ data class ToDo(
     val description: String,
     val status: ToDoStatus
 ) {
-    /* fun toMap(): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        map["uid"] = uid
-        map["name"] = name
-        map["description"] = description
-        map["assigneeName"] = assigneeName
-        map["location"] = location
-        map["dueDate"] = dueDate
-        return map
-    }
-    */
+  /* fun toMap(): Map<String, Any> {
+      val map = mutableMapOf<String, Any>()
+      map["uid"] = uid
+      map["name"] = name
+      map["description"] = description
+      map["assigneeName"] = assigneeName
+      map["location"] = location
+      map["dueDate"] = dueDate
+      return map
+  }
+  */
 }

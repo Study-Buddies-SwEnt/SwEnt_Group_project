@@ -59,120 +59,118 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ToDoListScreen(overviewViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
-    val todos by overviewViewModel.todos.collectAsState()
-    val (searchQuery, setSearchQuery) = remember { mutableStateOf("") }
+  val todos by overviewViewModel.todos.collectAsState()
+  val (searchQuery, setSearchQuery) = remember { mutableStateOf("") }
 
-    overviewViewModel.fetchAllTodos()
+  overviewViewModel.fetchAllTodos()
 
-    val todoList = remember { mutableStateOf(todos.getAllTasks()) }
+  val todoList = remember { mutableStateOf(todos.getAllTasks()) }
 
-    LaunchedEffect(todos) {
-        todoList.value =
-            if (searchQuery.isNotEmpty()) {
-                todos.getFilteredTasks(searchQuery)
-            } else {
-                todos.getAllTasks()
+  LaunchedEffect(todos) {
+    todoList.value =
+        if (searchQuery.isNotEmpty()) {
+          todos.getFilteredTasks(searchQuery)
+        } else {
+          todos.getAllTasks()
+        }
+  }
+
+  Scaffold(
+      modifier = Modifier.fillMaxSize().testTag("overviewScreen"),
+      floatingActionButton = {
+        FloatingActionButton(
+            onClick = { navigationActions.navigateTo(Route.CREATETODO) },
+            backgroundColor = Color(0xFF8A8AF0),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.testTag("createTodoButton")) {
+              Icon(
+                  painterResource(R.drawable.edit),
+                  contentDescription = null,
+                  modifier = Modifier.size(32.dp))
             }
-    }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize().testTag("overviewScreen"),
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigationActions.navigateTo(Route.CREATETODO) },
-                backgroundColor = Color(0xFF8A8AF0),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.testTag("createTodoButton")) {
-                Icon(
-                    painterResource(R.drawable.edit),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp))
-            }
-        },
-        topBar = {
-            CustomSearchBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = setSearchQuery,
-                onSearchAction = {
-                    if (searchQuery.isNotEmpty()) {
-                        todoList.value = todos.getFilteredTasks(searchQuery)
-                    } else {
-                        todoList.value = todos.getAllTasks()
-                    }
-                },
-                onClearAction = { setSearchQuery("") },
-                noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())
-        },
-
-        content = { innerPadding ->
-            if (todoList.value.isEmpty()) {
-                Text(
-                    text = "You have no tasks yet. Create one.",
-                    style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-                    modifier =
-                    Modifier.padding(innerPadding)
-                        .fillMaxSize()
-                        .padding(4.dp)
-                        .wrapContentHeight(Alignment.CenterVertically),
-                    textAlign = TextAlign.Center)
-            } else {
-                LazyColumn(
-                    modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("todoList"),
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                    horizontalAlignment = Alignment.Start,
-                    content = {
-                        items(todoList.value) { todo -> ToDoItem(todo = todo, navigationActions) }
-                    })
-            }
-        })
+      },
+      topBar = {
+        CustomSearchBar(
+            searchQuery = searchQuery,
+            onSearchQueryChange = setSearchQuery,
+            onSearchAction = {
+              if (searchQuery.isNotEmpty()) {
+                todoList.value = todos.getFilteredTasks(searchQuery)
+              } else {
+                todoList.value = todos.getAllTasks()
+              }
+            },
+            onClearAction = { setSearchQuery("") },
+            noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())
+      },
+      content = { innerPadding ->
+        if (todoList.value.isEmpty()) {
+          Text(
+              text = "You have no tasks yet. Create one.",
+              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+              modifier =
+                  Modifier.padding(innerPadding)
+                      .fillMaxSize()
+                      .padding(4.dp)
+                      .wrapContentHeight(Alignment.CenterVertically),
+              textAlign = TextAlign.Center)
+        } else {
+          LazyColumn(
+              modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("todoList"),
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+              horizontalAlignment = Alignment.Start,
+              content = {
+                items(todoList.value) { todo -> ToDoItem(todo = todo, navigationActions) }
+              })
+        }
+      })
 }
 
 @Composable
 fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
-    Box(
-        modifier =
-        Modifier.fillMaxWidth()
-            .clickable {
+  Box(
+      modifier =
+          Modifier.fillMaxWidth()
+              .clickable {
                 val todoUID = todo.uid
                 Log.d("MyPrint", "Tapped on UID $todoUID")
                 navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
-            }
-            .drawBehind {
+              }
+              .drawBehind {
                 val strokeWidth = 1f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-            }
-            .testTag("todoListItem")) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp))
-        {
-            Text(
-                text = formatDate(todo.dueDate),
-                style = TextStyle(fontSize = 12.sp),
-                lineHeight = 16.sp,
-                modifier = Modifier.align(Alignment.Start))
-            Text(
-                text = todo.name,
-                style = TextStyle(fontSize = 16.sp),
-                lineHeight = 28.sp,
-                modifier = Modifier.align(Alignment.Start))
-            Text(
-                text = todo.assigneeName,
-                style = TextStyle(fontSize = 14.sp),
-                lineHeight = 20.sp,
-                modifier = Modifier.align(Alignment.Start))
+              }
+              .testTag("todoListItem")) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Text(
+              text = formatDate(todo.dueDate),
+              style = TextStyle(fontSize = 12.sp),
+              lineHeight = 16.sp,
+              modifier = Modifier.align(Alignment.Start))
+          Text(
+              text = todo.name,
+              style = TextStyle(fontSize = 16.sp),
+              lineHeight = 28.sp,
+              modifier = Modifier.align(Alignment.Start))
+          Text(
+              text = todo.assigneeName,
+              style = TextStyle(fontSize = 14.sp),
+              lineHeight = 20.sp,
+              modifier = Modifier.align(Alignment.Start))
         }
         Row(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
-            Text(
-                text = todo.status.name,
-                style = TextStyle(fontSize = 11.sp, color = statusColor(todo.status)),
-            )
-            Spacer(Modifier.width(10.dp))
-            Icon(
-                painter = painterResource(R.drawable.arrow_right_24px),
-                contentDescription = null,
-                modifier = Modifier.size(28.dp))
+          Text(
+              text = todo.status.name,
+              style = TextStyle(fontSize = 11.sp, color = statusColor(todo.status)),
+          )
+          Spacer(Modifier.width(10.dp))
+          Icon(
+              painter = painterResource(R.drawable.arrow_right_24px),
+              contentDescription = null,
+              modifier = Modifier.size(28.dp))
         }
-    }
+      }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -184,65 +182,65 @@ fun CustomSearchBar(
     onClearAction: () -> Unit,
     noResultFound: Boolean
 ) {
-    val keyboard = LocalSoftwareKeyboardController.current
+  val keyboard = LocalSoftwareKeyboardController.current
 
-    TextField(
-        value = searchQuery,
-        onValueChange = { onSearchQueryChange(it) },
-        placeholder = { Text("Search a Task") },
-        singleLine = true,
-        modifier =
-        Modifier.padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
-            .width(360.dp)
-            .height(80.dp)
-            .testTag("searchTodo"),
-        shape = RoundedCornerShape(28.dp),
-        colors =
-        TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent),
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions =
-        KeyboardActions(
-            onDone = {
+  TextField(
+      value = searchQuery,
+      onValueChange = { onSearchQueryChange(it) },
+      placeholder = { Text("Search a Task") },
+      singleLine = true,
+      modifier =
+          Modifier.padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
+              .width(360.dp)
+              .height(80.dp)
+              .testTag("searchTodo"),
+      shape = RoundedCornerShape(28.dp),
+      colors =
+          TextFieldDefaults.colors(
+              focusedIndicatorColor = Color.Transparent,
+              unfocusedIndicatorColor = Color.Transparent),
+      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+      keyboardActions =
+          KeyboardActions(
+              onDone = {
                 onSearchAction()
                 keyboard?.hide()
-            }),
-        leadingIcon = {
-            IconButton(onClick = onSearchAction) {
-                Icon(
-                    painterResource(R.drawable.search),
-                    contentDescription = null,
-                    modifier = Modifier.padding(8.dp).size(48.dp))
-            }
-        },
-        trailingIcon = {
-            if (searchQuery.isNotEmpty()) {
-                IconButton(onClick = { onClearAction() }) {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = null,
-                        modifier = Modifier.padding(8.dp).size(30.dp))
-                }
-            }
-        },
-        supportingText = {
-            if (noResultFound) {
-                Text(
-                    text = "No result found",
-                    style =
-                    TextStyle(
-                        fontSize = 16.sp,
-                    ),
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
-                )
-            }
-        })
+              }),
+      leadingIcon = {
+        IconButton(onClick = onSearchAction) {
+          Icon(
+              painterResource(R.drawable.search),
+              contentDescription = null,
+              modifier = Modifier.padding(8.dp).size(48.dp))
+        }
+      },
+      trailingIcon = {
+        if (searchQuery.isNotEmpty()) {
+          IconButton(onClick = { onClearAction() }) {
+            Icon(
+                Icons.Default.Clear,
+                contentDescription = null,
+                modifier = Modifier.padding(8.dp).size(30.dp))
+          }
+        }
+      },
+      supportingText = {
+        if (noResultFound) {
+          Text(
+              text = "No result found",
+              style =
+                  TextStyle(
+                      fontSize = 16.sp,
+                  ),
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
+          )
+        }
+      })
 }
 
 private fun formatDate(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-    return date.format(formatter)
+  val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+  return date.format(formatter)
 }
 /*
 @Preview(showBackground = true)

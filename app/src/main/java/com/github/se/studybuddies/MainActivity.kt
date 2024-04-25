@@ -13,7 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.ChatScreen
@@ -130,14 +129,14 @@ class MainActivity : ComponentActivity() {
             composable(Route.CREATETODO) { CreateToDo(ToDoViewModel(), navigationActions) }
 
             composable(
-              route = "${Route.EDITTODO}/{todoUID}",
-              arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
-                backStackEntry ->
-              val todoUID = backStackEntry.arguments?.getString("todoUID")
-              if (todoUID != null) {
-                EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
-              }
-            }
+                route = "${Route.EDITTODO}/{todoUID}",
+                arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val todoUID = backStackEntry.arguments?.getString("todoUID")
+                  if (todoUID != null) {
+                    EditToDo(todoUID, ToDoViewModel(todoUID), navigationActions)
+                  }
+                }
           }
         }
       }
