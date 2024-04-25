@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.settings
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,8 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,10 +36,12 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
+import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.viewModels.UserViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSettings(
@@ -80,23 +83,29 @@ fun AccountSettings(
       }
   val permission = imagePermissionVersion()
 
-  Column(
+  Scaffold(
       modifier = Modifier.fillMaxSize().testTag("account_settings"),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Top) {
-        CenterAlignedTopAppBar(
-            title = { Sub_title(title = stringResource(R.string.profile_setting)) },
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title = "Profile setting") },
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
-            })
-        Spacer(Modifier.height(150.dp))
-        SetProfilePicture(photoState) {
-          checkPermission(context, permission, requestPermissionLauncher) {
-            getContent.launch(imageInput)
-          }
-        }
-        Spacer(Modifier.height(60.dp))
-        SignOutButton(navigationActions, userViewModel)
+            },
+            actions = {})
+      }) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top) {
+              Spacer(Modifier.height(150.dp))
+              SetProfilePicture(photoState) {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
+                }
+              }
+              Spacer(Modifier.height(60.dp))
+              SignOutButton(navigationActions, userViewModel)
+            }
       }
 }
 

@@ -4,15 +4,16 @@ import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.github.kakaocup.compose.node.element.KNode
 
-class AccountSettingsScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
-    ComposeScreen<AccountSettingsScreen>(
+class SettingsScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
+    ComposeScreen<SettingsScreen>(
         semanticsProvider = semanticsProvider,
-        viewBuilderAction = { hasTestTag("account_settings") }) {
+        viewBuilderAction = { hasTestTag("settings_scaffold") }) {
 
   val topAppBox: KNode = onNode { hasTestTag("top_app_box") }
   val topAppBar: KNode = onNode { hasTestTag("top_app_bar") }
   val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
   val divider: KNode = onNode { hasTestTag("divider") }
-  val subTitle: KNode = onNode { hasTestTag("sub_title") }
-  val signOutButton: KNode = onNode { hasTestTag("sign_out_button") }
+  val mainTitle: KNode = onNode { hasTestTag("main_title") }
+
+  val settingsText: KNode = child { hasTestTag("settings_text") }
 }
