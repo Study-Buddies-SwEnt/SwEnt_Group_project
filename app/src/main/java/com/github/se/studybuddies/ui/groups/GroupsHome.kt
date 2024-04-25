@@ -101,6 +101,7 @@ fun GroupsHome(
             Text("Join or create a new group", textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(80.dp))
             AddGroupButton(navigationActions = navigationActions)
+              AddLinkButton(navigationActions = navigationActions)
           }
         } else {
           Column(
@@ -115,6 +116,7 @@ fun GroupsHome(
                 content = {
                   items(groupList.value) { group -> GroupItem(group, navigationActions) }
                   item { AddGroupButton(navigationActions) }
+                    item { AddLinkButton(navigationActions) }
                 })
           }
         }
@@ -189,6 +191,23 @@ fun AddGroupButton(navigationActions: NavigationActions) {
                   tint = White)
             }
       }
+}
+
+@Composable
+fun AddLinkButton(navigationActions: NavigationActions) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.End) {
+        Button(
+            onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Create a task",
+                tint = White)
+        }
+    }
 }
 
 @Composable
