@@ -64,10 +64,6 @@ fun EditToDo(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: N
 
     val titleState = remember { mutableStateOf(todo.name) }
     val descriptionState = remember { mutableStateOf(todo.description) }
-    val assigneeState = remember { mutableStateOf(todo.assigneeName) }
-    val locationState = remember { mutableStateOf(todo.location) }
-    val onLocationChanged: (Location) -> Unit = { newLocation -> locationState.value = newLocation }
-    val locationQuery = remember { mutableStateOf(todo.location.locationName) }
     val selectedDate = remember { mutableStateOf(todo.dueDate) }
     val statusState = remember { mutableStateOf(todo.status) }
 
@@ -88,9 +84,6 @@ fun EditToDo(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: N
                     TodoFields(
                         titleState,
                         descriptionState,
-                        assigneeState,
-                        onLocationChanged,
-                        locationQuery,
                         selectedDate,
                         isOpen)
                     Button(
@@ -133,9 +126,7 @@ fun EditToDo(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: N
                               uid = todoUID,
                               name = titleState.value,
                               description = descriptionState.value,
-                              assigneeName = assigneeState.value,
                               dueDate = selectedDate.value,
-                              location = locationState.value,
                               status = statusState.value)
                       todoViewModel.updateTodo(todoUID, updatedTodo)
                       navigationActions.goBack()

@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.todo
 
-// ????
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,7 +43,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.Location
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import java.net.URLEncoder
@@ -95,9 +93,6 @@ fun TodoTopBar(navigationActions: NavigationActions, title: String) {
 fun TodoFields(
     titleState: MutableState<String>,
     descriptionState: MutableState<String>,
-    assigneeState: MutableState<String>,
-    onLocationChanged: (Location) -> Unit,
-    locationQuery: MutableState<String>,
     selectedDate: MutableState<LocalDate>,
     isOpen: MutableState<Boolean>
 ) {
@@ -115,28 +110,6 @@ fun TodoFields(
       placeholder = { Text("Describe the task") },
       modifier =
           Modifier.padding(0.dp).width(300.dp).height(150.dp).testTag("inputTodoDescription"))
-  OutlinedTextField(
-      value = assigneeState.value,
-      onValueChange = { assigneeState.value = it },
-      label = { Text("Assignee") },
-      placeholder = { Text("Assign a person") },
-      singleLine = true,
-      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("inputTodoAssignee"))
-  LocationTextField(onLocationChanged, locationQuery)
-  /*
-  OutlinedTextField(
-      value = locationState.value,
-      onValueChange = { locationState.value = it },
-      label = { Text("Location") },
-      placeholder = { Text("Enter an address") },
-      singleLine = true,
-      modifier = Modifier
-          .padding(0.dp)
-          .width(300.dp)
-          .height(65.dp)
-          .testTag("inputTodoLocation"))
-
-     */
   Box() {
     OutlinedTextField(
         readOnly = true,
@@ -188,66 +161,6 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
       }
 }
 
-@Composable
-fun LocationTextField(onLocationChanged: (Location) -> Unit, locationQuery: MutableState<String>) {
-  val locationSuggestions = remember { mutableStateOf<List<String>>(emptyList()) }
-  val expanded = remember { mutableStateOf(false) }
-
-  Box(modifier = Modifier.testTag("locationDropDownMenuBox")) {
-    OutlinedTextField(
-        value = locationQuery.value,
-        onValueChange = {
-          locationQuery.value = it
-          fetchLocationSuggestions(locationQuery.value) { suggestions ->
-            locationSuggestions.value = suggestions.take(4)
-            expanded.value = true
-          }
-        },
-        label = { Text("Location") },
-        placeholder = { Text("Enter an address") },
-        singleLine = true,
-        modifier =
-            Modifier.padding(0.dp)
-                .width(300.dp)
-                .height(65.dp)
-                .onFocusChanged {
-                  if (!it.isFocused) {
-                    expanded.value = false
-                  }
-                }
-                .testTag("inputLocation"),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        /*keyboardActions =
-           KeyboardActions(
-               onDone = {
-                 fetchLocationSuggestions(locationQuery.value) { suggestions ->
-                   locationSuggestions.value = suggestions.take(4)
-                   expanded.value = true
-                 }
-               })
-        */
-    )
-    DropdownMenu(
-        expanded = expanded.value && locationSuggestions.value.isNotEmpty(),
-        onDismissRequest = { expanded.value = false },
-        modifier = Modifier.width(300.dp).testTag("locationDropDownMenu")) {
-          locationSuggestions.value.forEach { suggestion ->
-            DropdownMenuItem(
-                modifier = Modifier.testTag("inputLocationProposal"),
-                onClick = {
-                  geocodeLocation(suggestion) { location ->
-                    locationQuery.value = location.locationName
-                    onLocationChanged(location)
-                  }
-                  expanded.value = false
-                }) {
-                  Text(suggestion)
-                }
-            Divider(color = Color.Gray, thickness = 1.dp)
-          }
-        }
-  }
-}
 
 @Composable
 fun statusColor(status: ToDoStatus): Color {
@@ -257,71 +170,4 @@ fun statusColor(status: ToDoStatus): Color {
     ToDoStatus.ENDED -> Color(0xFF1FC959)
     ToDoStatus.ARCHIVED -> Color(0xFF808080)
   }
-}
-
-private fun fetchLocationSuggestions(query: String, onComplete: (List<String>) -> Unit) {
-  val client = OkHttpClient()
-  val encodedQuery = URLEncoder.encode(query, "UTF-8")
-  val request =
-      Request.Builder()
-          .url("https://nominatim.openstreetmap.org/search?format=json&q=$encodedQuery")
-          .build()
-
-  CoroutineScope(Dispatchers.IO).launch {
-    val response = client.newCall(request).execute()
-    val body = response.body()?.string()
-    val suggestions = parseLocationSuggestions(body)
-    withContext(Dispatchers.Main) { onComplete(suggestions) }
-  }
-}
-
-private fun parseLocationSuggestions(response: String?): List<String> {
-  val suggestions = mutableListOf<String>()
-  response?.let {
-    val jsonArray = JSONArray(it)
-    for (i in 0 until jsonArray.length()) {
-      val jsonObject = jsonArray.getJSONObject(i)
-      val displayName = jsonObject.getString("display_name")
-      suggestions.add(displayName)
-    }
-  }
-  return suggestions
-}
-
-private fun geocodeLocation(query: String, onComplete: (Location) -> Unit) {
-  val client = OkHttpClient()
-  val encodedQuery = URLEncoder.encode(query, "UTF-8")
-  val request =
-      Request.Builder()
-          .url("https://nominatim.openstreetmap.org/search?format=json&q=$encodedQuery")
-          .build()
-
-  client
-      .newCall(request)
-      .enqueue(
-          object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-              Log.e("MyPrint", "Failed to fetch location: $e")
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-              val body = response.body()?.string()
-              if (body != null) {
-                val jsonArray = JSONArray(body)
-                if (jsonArray.length() > 0) {
-                  val jsonObject = jsonArray.getJSONObject(0)
-                  val latitude = jsonObject.getDouble("lat")
-                  val longitude = jsonObject.getDouble("lon")
-                  val name = jsonObject.getString("display_name")
-                  val location = Location(latitude, longitude, name)
-                  Log.d("MyPrint", "Location: $location")
-                  onComplete(location)
-                } else {
-                  Log.d("MyPrint", "No location found")
-                }
-              } else {
-                Log.d("MyPrint", "No response body")
-              }
-            }
-          })
 }
