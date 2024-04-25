@@ -19,12 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.permissions.checkPermission
+import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -42,6 +45,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
   val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
   val usernameState = remember { mutableStateOf("") }
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
+  val context = LocalContext.current
 
   user?.let {
     coroutineScope.launch {
@@ -54,6 +58,14 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
+
+  val requestPermissionLauncher =
+      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+          getContent.launch("image/*")
+        }
+      }
+  val permission = imagePermissionVersion()
 
   Column(modifier = Modifier.fillMaxSize().testTag("create_account")) {
     LazyColumn(
@@ -68,7 +80,11 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                   Spacer(modifier = Modifier.padding(20.dp))
                   AccountFields(usernameState)
                   Spacer(modifier = Modifier.padding(20.dp))
-                  SetProfilePicture(photoState) { getContent.launch("image/*") }
+                  SetProfilePicture(photoState) {
+                    checkPermission(context, permission, requestPermissionLauncher) {
+                      getContent.launch("image/*")
+                    }
+                  }
                   SaveButton(usernameState) {
                     userViewModel.createUser(uid, email, usernameState.value, photoState.value)
                     navigationActions.navigateTo(Route.GROUPSHOME)

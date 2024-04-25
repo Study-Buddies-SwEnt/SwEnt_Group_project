@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.settings
 
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -28,13 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.firebase.ui.auth.AuthUI
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.permissions.checkPermission
+import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.viewModels.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -76,25 +78,22 @@ fun AccountSettings(
           getContent.launch("image/*")
         }
       }
-  var permission = "android.permission.READ_MEDIA_IMAGES"
-  // Check if the Android version is lower than TIRAMISU API 33
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    // For older Android versions, use READ_EXTERNAL_STORAGE permission
-    permission = "android.permission.READ_EXTERNAL_STORAGE"
-  }
+  val permission = imagePermissionVersion()
 
   Column(
       modifier = Modifier.fillMaxSize().testTag("account_settings"),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Top) {
         CenterAlignedTopAppBar(
-            title = { Sub_title(title = "Profile setting") },
+            title = { Sub_title(title = stringResource(R.string.profile_setting)) },
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             })
         Spacer(Modifier.height(150.dp))
         SetProfilePicture(photoState) {
-          checkPermission(context, permission, requestPermissionLauncher)
+          checkPermission(context, permission, requestPermissionLauncher) {
+            getContent.launch("image/*")
+          }
         }
         Spacer(Modifier.height(60.dp))
         SignOutButton(navigationActions, userViewModel)
@@ -124,6 +123,6 @@ private fun SignOutButton(navigationActions: NavigationActions, userViewModel: U
               .height(50.dp)
               .testTag("sign_out_button"),
       shape = RoundedCornerShape(50)) {
-        Text("Sign out", color = Color.Black)
+        Text(text = stringResource(R.string.sign_out), color = Color.Black)
       }
 }
