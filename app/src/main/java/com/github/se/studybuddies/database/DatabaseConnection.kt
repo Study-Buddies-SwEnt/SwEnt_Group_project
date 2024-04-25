@@ -14,7 +14,6 @@ import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -38,6 +37,23 @@ class DatabaseConnection {
   private val groupDataCollection = db.collection("groupData")
 
   // using the userData collection
+  suspend fun getUser(uid: String): User {
+    val document = userDataCollection.document(uid).get().await()
+    return if (document.exists()) {
+      val email = document.getString("email") ?: ""
+      val username = document.getString("username") ?: ""
+      val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
+      User(uid, email, username, photoUrl)
+    } else {
+      Log.d("MyPrint", "user document not found for id $uid")
+      User.empty()
+    }
+  }
+
+  suspend fun getCurrentUser(): User {
+    return getUser(getCurrentUserUID())
+  }
+
   fun getCurrentUserUID(): String {
     val uid = FirebaseAuth.getInstance().currentUser?.uid
     return if (uid != null) {
@@ -49,42 +65,79 @@ class DatabaseConnection {
     }
   }
 
-  fun getUserData(uid: String): Task<DocumentSnapshot> {
-    return userDataCollection.document(uid).get()
-  }
-
   suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+  suspend fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+    Log.d(
+        "MyPrint",
+        "Creating new user with uid $uid, email $email, username $username and picture link ${profilePictureUri.toString()}")
     val user =
         hashMapOf(
             "email" to email, "username" to username, "photoUrl" to profilePictureUri.toString())
-    userDataCollection
-        .document(uid)
-        .set(user)
-        .addOnSuccessListener {
-          val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
-          pictureRef
-              .putFile(profilePictureUri)
-              .addOnSuccessListener {
-                pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  userDataCollection.document(uid).update("photoUrl", uri.toString())
+    if (profilePictureUri != getDefaultProfilePicture()) {
+      userDataCollection
+          .document(uid)
+          .set(user)
+          .addOnSuccessListener {
+            val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
+            pictureRef
+                .putFile(profilePictureUri)
+                .addOnSuccessListener {
+                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    userDataCollection.document(uid).update("photoUrl", uri.toString())
+                  }
+                  Log.d("MyPrint", "User data successfully created")
                 }
-                Log.e("MyPrint", "User data successfully created")
-              }
-              .addOnFailureListener { e ->
-                Log.d(
-                    "MyPrint",
-                    "Failed to upload photo with error with link $profilePictureUri: ",
-                    e)
-              }
-          Log.d("MyPrint", "User data successfully created for uid $uid")
-        }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to create user data with error: ", e)
-        }
+                .addOnFailureListener { e ->
+                  Log.d(
+                      "MyPrint",
+                      "Failed to upload photo with error with link $profilePictureUri: ",
+                      e)
+                }
+            Log.d("MyPrint", "User data successfully created for uid $uid")
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to create user data with error: ", e)
+          }
+    } else {
+      // If the profile picture URI is the default one, copy it to the user's folder
+      val defaultPictureRef = storage.child("userData/default.jpg")
+      val profilePictureRef = storage.child("userData/$uid/profilePicture.jpg")
+
+      defaultPictureRef
+          .getBytes(Long.MAX_VALUE)
+          .addOnSuccessListener { defaultPictureData ->
+            profilePictureRef
+                .putBytes(defaultPictureData)
+                .addOnSuccessListener {
+                  // Once the default picture is uploaded, update the user data with the correct
+                  // photo URL
+                  profilePictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    val updatedUserData = user + mapOf("photoUrl" to uri.toString())
+                    userDataCollection
+                        .document(uid)
+                        .set(updatedUserData)
+                        .addOnSuccessListener {
+                          Log.d("MyPrint", "User data successfully created for uid $uid")
+                        }
+                        .addOnFailureListener { e ->
+                          Log.d("MyPrint", "Failed to update user data with error: ", e)
+                        }
+                  }
+                }
+                .addOnFailureListener { e ->
+                  Log.d(
+                      "MyPrint",
+                      "Failed to upload default profile picture for user $uid with error: ",
+                      e)
+                }
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to retrieve default profile picture with error: ", e)
+          }
+    }
 
     val membership = hashMapOf("groups" to emptyList<String>())
     userMembershipsCollection
@@ -156,44 +209,100 @@ class DatabaseConnection {
     return GroupList(emptyList())
   }
 
-  fun getGroupData(groupUID: String): Task<DocumentSnapshot> {
-    return groupDataCollection.document(groupUID).get()
+  suspend fun getGroup(groupUID: String): Group {
+    val document = groupDataCollection.document(groupUID).get().await()
+    return if (document.exists()) {
+      val name = document.getString("name") ?: ""
+      val picture = Uri.parse(document.getString("picture") ?: "")
+      val members = document.get("members") as List<String>
+      Group(groupUID, name, picture, members)
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
+      Group.empty()
+    }
   }
 
   suspend fun getDefaultPicture(): Uri {
     return storage.child("groupData/default_group.jpg").downloadUrl.await()
   }
 
-  fun createGroup(name: String, photoUri: Uri) {
-    val uid = getCurrentUserUID()
+  suspend fun createGroup(name: String, photoUri: Uri) {
+    val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
+    Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
     val group =
         hashMapOf("name" to name, "picture" to photoUri.toString(), "members" to listOf(uid))
-    groupDataCollection
-        .add(group)
-        .addOnSuccessListener { documentReference ->
-          val groupUID = documentReference.id
-          userMembershipsCollection
-              .document(uid)
-              .update("groups", FieldValue.arrayUnion(groupUID))
-              .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to update user memberships with error: ", e)
-              }
-          val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
-          pictureRef
-              .putFile(photoUri)
-              .addOnSuccessListener {
-                pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  groupDataCollection.document(groupUID).update("picture", uri.toString())
+    if (photoUri != getDefaultPicture()) {
+      groupDataCollection
+          .add(group)
+          .addOnSuccessListener { documentReference ->
+            val groupUID = documentReference.id
+            userMembershipsCollection
+                .document(uid)
+                .update("groups", FieldValue.arrayUnion(groupUID))
+                .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to update user memberships with error: ", e)
                 }
-              }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to upload photo with error: ", e)
-              }
-        }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+            val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+            pictureRef
+                .putFile(photoUri)
+                .addOnSuccessListener {
+                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    groupDataCollection.document(groupUID).update("picture", uri.toString())
+                  }
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                }
+          }
+          .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+    } else {
+      val defaultPictureRef = storage.child("groupData/default_group.jpg")
+      val pictureRef = storage.child("groupData/$uid/picture.jpg")
+
+      groupDataCollection.add(group).addOnSuccessListener { documentReference ->
+        val groupUID = documentReference.id
+        userMembershipsCollection
+            .document(uid)
+            .update("groups", FieldValue.arrayUnion(groupUID))
+            .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
+            .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to update user memberships with error: ", e)
+            }
+        defaultPictureRef
+            .getBytes(Long.MAX_VALUE)
+            .addOnSuccessListener { defaultPictureData ->
+              pictureRef
+                  .putBytes(defaultPictureData)
+                  .addOnSuccessListener {
+                    pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                      val updatedGroupData = group + mapOf("picture" to uri.toString())
+                      groupDataCollection
+                          .document(groupUID)
+                          .set(updatedGroupData)
+                          .addOnSuccessListener {
+                            Log.d("MyPrint", "Group data successfully created for uid $uid")
+                          }
+                          .addOnFailureListener { e ->
+                            Log.d("MyPrint", "Failed to update group data with error: ", e)
+                          }
+                    }
+                  }
+                  .addOnFailureListener { e ->
+                    Log.d(
+                        "MyPrint",
+                        "Failed to upload default picture for group $uid with error: ",
+                        e)
+                  }
+            }
+            .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to retrieve default picture with error: ", e)
+            }
+      }
+    }
   }
 
+  // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
     val messageData =
@@ -206,15 +315,6 @@ class DatabaseConnection {
         .updateChildren(messageData)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
-  }
-
-  fun getUser(uid: String): User {
-    // TODO implement this method (or modify getUserData to return User object)
-    return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
-  }
-
-  fun getCurrentUser(): User {
-    return getUser(getCurrentUserUID())
   }
 
   fun getGroupMessagesPath(groupUID: String): String {
