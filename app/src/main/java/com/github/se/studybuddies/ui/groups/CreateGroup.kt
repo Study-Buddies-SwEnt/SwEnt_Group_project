@@ -59,11 +59,12 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
+  val imageInput = "image/*"
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          getContent.launch("image/*")
+          getContent.launch(imageInput)
         }
       }
   val permission = imagePermissionVersion()
@@ -98,7 +99,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                   Spacer(modifier = Modifier.padding(20.dp))
                   SetProfilePicture(photoState) {
                     checkPermission(context, permission, requestPermissionLauncher) {
-                      getContent.launch("image/*")
+                      getContent.launch(imageInput)
                     }
                   }
                   Spacer(modifier = Modifier.weight(1f))

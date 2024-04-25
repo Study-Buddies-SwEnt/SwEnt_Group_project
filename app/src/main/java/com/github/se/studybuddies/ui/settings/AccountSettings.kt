@@ -38,7 +38,6 @@ import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.viewModels.UserViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,11 +70,12 @@ fun AccountSettings(
           userViewModel.updateUserData(uid, emailState.value, usernameState.value, photoState.value)
         }
       }
+  val imageInput = "image/*"
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          getContent.launch("image/*")
+          getContent.launch(imageInput)
         }
       }
   val permission = imagePermissionVersion()
@@ -92,7 +92,7 @@ fun AccountSettings(
         Spacer(Modifier.height(150.dp))
         SetProfilePicture(photoState) {
           checkPermission(context, permission, requestPermissionLauncher) {
-            getContent.launch("image/*")
+            getContent.launch(imageInput)
           }
         }
         Spacer(Modifier.height(60.dp))

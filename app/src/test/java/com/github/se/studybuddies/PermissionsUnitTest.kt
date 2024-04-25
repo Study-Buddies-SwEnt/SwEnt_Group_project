@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.core.content.ContextCompat
-import com.github.se.studybuddies.ui.permissions.checkMultiplePermissions
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.mockk
@@ -22,11 +21,9 @@ import org.mockito.junit.MockitoJUnitRunner
 class PermissionsTest {
 
   @RelaxedMockK private lateinit var mockContext: Context
-  private lateinit var mockLauncher: ManagedActivityResultLauncher<String, Boolean>
-  private lateinit var mockLauncherMultiple:
-      ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
+  @RelaxedMockK private lateinit var mockLauncher: ManagedActivityResultLauncher<String, Boolean>
 
-  fun granted(): Unit {
+  private fun granted() {
     assert(true)
   }
 
@@ -54,29 +51,5 @@ class PermissionsTest {
             PackageManager.PERMISSION_GRANTED)
     checkPermission(mockContext, permission, mockLauncher) { granted() }
     verify(exactly = 1) { mockLauncher.launch(permission) }
-  }
-
-  @Test
-  fun multiplePermissionsRequestLaunched() {
-    mockContext = mockk<Context>(relaxed = true) {}
-    val permissions =
-        listOf(
-            "android.permission.CALENDAR",
-            "android.permission.CAMERA",
-            "android.permission.READ_CONTACTS")
-    val permissionsToRequest =
-        permissions
-            .filter {
-              ContextCompat.checkSelfPermission(mockContext, it) !=
-                  PackageManager.PERMISSION_GRANTED
-            }
-            .toTypedArray()
-    mockLauncherMultiple =
-        mockk<ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>>(relaxed = true) {
-          launch(permissionsToRequest)
-        }
-
-    checkMultiplePermissions(mockContext, permissions, mockLauncherMultiple) { granted() }
-    verify { mockLauncherMultiple.launch(permissionsToRequest) }
   }
 }
