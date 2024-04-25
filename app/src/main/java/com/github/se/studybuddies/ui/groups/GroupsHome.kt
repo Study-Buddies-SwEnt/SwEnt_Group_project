@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,11 +18,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -29,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -45,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -195,18 +201,33 @@ fun AddGroupButton(navigationActions: NavigationActions) {
 
 @Composable
 fun AddLinkButton(navigationActions: NavigationActions) {
+    var text by remember { mutableStateOf("") }
+    var isTextFieldVisible by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.End) {
         Button(
-            onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
+            onClick = { isTextFieldVisible = true },
             modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
             Icon(
-                imageVector = Icons.Default.Add,
+                imageVector = Icons.Default.Share,
                 contentDescription = "Create a task",
                 tint = White)
         }
+    }
+    if (isTextFieldVisible) {
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text("Enter Link") },
+                    keyboardActions = KeyboardActions(onDone = {
+                isTextFieldVisible = false
+                // Perform any other actions you want here
+
+                    }),            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+
+        )
     }
 }
 
