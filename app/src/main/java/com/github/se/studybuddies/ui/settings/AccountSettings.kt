@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.settings
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,8 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,15 +28,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.firebase.ui.auth.AuthUI
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
+import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.permissions.checkPermission
+import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.viewModels.UserViewModel
-import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSettings(
@@ -44,12 +50,15 @@ fun AccountSettings(
     backRoute: String,
     navigationActions: NavigationActions
 ) {
+  if (uid.isEmpty()) return
   userViewModel.fetchUserData(uid)
   val userData by userViewModel.userData.observeAsState()
 
   val emailState = remember { mutableStateOf(userData?.email ?: "") }
   val usernameState = remember { mutableStateOf(userData?.username ?: "") }
   val photoState = remember { mutableStateOf(userData?.photoUrl ?: Uri.EMPTY) }
+
+  val context = LocalContext.current
 
   userData?.let {
     emailState.value = it.email
@@ -61,37 +70,53 @@ fun AccountSettings(
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri ->
           photoState.value = profilePictureUri
-          userViewModel.updateUserData(
-              userViewModel.getCurrentUserUID(),
-              emailState.value,
-              usernameState.value,
-              photoState.value)
+          userViewModel.updateUserData(uid, emailState.value, usernameState.value, photoState.value)
         }
       }
+  val imageInput = "image/*"
 
-  Column(
-      modifier = Modifier.fillMaxSize(),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Top) {
-        CenterAlignedTopAppBar(
+  val requestPermissionLauncher =
+      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+          getContent.launch(imageInput)
+        }
+      }
+  val permission = imagePermissionVersion()
+
+  Scaffold(
+      modifier = Modifier.fillMaxSize().testTag("account_settings"),
+      topBar = {
+        TopNavigationBar(
             title = { Sub_title(title = "Profile setting") },
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
-            })
-        Spacer(Modifier.height(150.dp))
-        SetProfilePicture(photoState) { getContent.launch("image/*") }
-        Spacer(Modifier.height(60.dp))
-        SignOutButton(navigationActions)
+            },
+            actions = {})
+      }) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top) {
+              Spacer(Modifier.height(150.dp))
+              SetProfilePicture(photoState) {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
+                }
+              }
+              Spacer(Modifier.height(60.dp))
+              SignOutButton(navigationActions, userViewModel)
+            }
       }
 }
 
 @Composable
-private fun SignOutButton(navigationActions: NavigationActions) {
+private fun SignOutButton(navigationActions: NavigationActions, userViewModel: UserViewModel) {
   val context = LocalContext.current // Get the context here
   Button(
       onClick = {
         AuthUI.getInstance().signOut(context).addOnCompleteListener {
           if (it.isSuccessful) {
+            userViewModel.signOut()
             navigationActions.navigateTo(Route.LOGIN)
           }
         }
@@ -105,8 +130,8 @@ private fun SignOutButton(navigationActions: NavigationActions) {
               .background(color = Color.Transparent, shape = RoundedCornerShape(50))
               .width(250.dp)
               .height(50.dp)
-              .testTag("LoginButton"),
+              .testTag("sign_out_button"),
       shape = RoundedCornerShape(50)) {
-        Text("Sign out", color = Color.Black)
+        Text(text = stringResource(R.string.sign_out), color = Color.Black)
       }
 }
