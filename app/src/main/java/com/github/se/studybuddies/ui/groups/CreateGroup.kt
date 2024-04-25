@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -34,6 +33,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.permissions.checkPermission
+import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
@@ -59,19 +59,15 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
       }
+  val imageInput = "image/*"
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-          getContent.launch("image/*")
+          getContent.launch(imageInput)
         }
       }
-  var permission = "android.permission.READ_MEDIA_IMAGES"
-  // Check if the Android version is lower than TIRAMISU API 33
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    // For older Android versions, use READ_EXTERNAL_STORAGE permission
-    permission = "android.permission.READ_EXTERNAL_STORAGE"
-  }
+  val permission = imagePermissionVersion()
 
   Surface(color = White, modifier = Modifier.fillMaxSize().testTag("create_group")) {
     LazyColumn(
@@ -102,7 +98,9 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
                   GroupFields(nameState)
                   Spacer(modifier = Modifier.padding(20.dp))
                   SetProfilePicture(photoState) {
-                    checkPermission(context, permission, requestPermissionLauncher)
+                    checkPermission(context, permission, requestPermissionLauncher) {
+                      getContent.launch(imageInput)
+                    }
                   }
                   Spacer(modifier = Modifier.weight(1f))
                   SaveButton(nameState) {
@@ -114,33 +112,3 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         }
   }
 }
-
-        /*
-            LazyColumn(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(horizontal = 20.dp, vertical = 20.dp),
-              verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-              horizontalAlignment = Alignment.CenterHorizontally) {
-                item {
-                  Column(
-                      modifier = Modifier.fillMaxWidth(),
-                      verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                        SecondaryTopBar { navigationActions.navigateTo(Route.GROUPSHOME) }
-                        Text("Create a group")
-                        Spacer(modifier = Modifier.padding(20.dp))
-                        GroupFields(nameState)
-                        Spacer(modifier = Modifier.padding(20.dp))
-                        SetProfilePicture(photoState) { getContent.launch("image/*") }
-                        SaveButton(nameState) {
-                          groupViewModel.createGroup(nameState.value, photoState.value)
-                          navigationActions.navigateTo(Route.GROUPSHOME)
-                        }
-                      }
-                }
-              }
-        }
-
-               */
-
-               */
