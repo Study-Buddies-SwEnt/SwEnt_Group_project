@@ -294,26 +294,34 @@ class DatabaseConnection {
     }
   }
 
-  fun updateGroup(groupUID: String, userToAdd: String) {
+    fun updateGroup(groupUID: String): Int {
 
-    // add user to group
-    groupDataCollection
-        .document(groupUID)
-        .update("members", FieldValue.arrayUnion(userToAdd))
-        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to add user to group with error: ", e)
+        val userToAdd = getCurrentUserUID()
+        val document = groupDataCollection.document(groupUID).get()
+        if (!document.isSuccessful) {
+            Log.d("MyPrint", "Group with uid $groupUID does not exist")
+            return -1
         }
 
-    // add group to the user's list of groups
-    userMembershipsCollection
-        .document(userToAdd)
-        .update("groups", FieldValue.arrayUnion(groupUID))
-        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to add group to user with error: ", e)
-        }
-  }
+        // add user to group
+        groupDataCollection
+            .document(groupUID)
+            .update("members", FieldValue.arrayUnion(userToAdd))
+            .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to add user to group with error: ", e)
+            }
+
+        // add group to the user's list of groups
+        userMembershipsCollection
+            .document(userToAdd)
+            .update("groups", FieldValue.arrayUnion(groupUID))
+            .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to add group to user with error: ", e)
+            }
+        return 0
+    }
 
   // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {

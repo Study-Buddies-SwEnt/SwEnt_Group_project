@@ -47,7 +47,7 @@ object FirebaseUtils {
 
             if (currentUserUid != null) {
               // Add the current user to the group in your Firebase database
-              db.updateGroup(groupUID, currentUserUid)
+              db.updateGroup(groupUID)
 
               // Go to the newly joined group
               navigationActions.navigateTo("${Route.GROUP}/$groupUID")
