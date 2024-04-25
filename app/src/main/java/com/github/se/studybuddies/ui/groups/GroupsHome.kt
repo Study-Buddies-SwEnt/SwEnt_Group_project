@@ -60,8 +60,7 @@ import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DrawerMenu
-import com.github.se.studybuddies.ui.Main_title
+import com.github.se.studybuddies.ui.MainScreenScaffold
 import com.github.se.studybuddies.ui.SearchIcon
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
@@ -90,7 +89,7 @@ fun GroupsHome(
     }
   }
 
-  DrawerMenu(
+  MainScreenScaffold(
       navigationActions,
       Route.GROUPSHOME,
       content = { innerPadding ->
@@ -128,7 +127,7 @@ fun GroupsHome(
           }
         }
       },
-      title = { Main_title("Groups") },
+      title = "Groups",
       iconOptions = { SearchIcon() })
 }
 

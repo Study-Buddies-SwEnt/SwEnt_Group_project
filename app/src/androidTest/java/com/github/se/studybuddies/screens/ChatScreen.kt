@@ -9,8 +9,8 @@ class ChatScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
         semanticsProvider = semanticsProvider, viewBuilderAction = { hasTestTag("chat_screen") }) {
 
   val text_field: KNode = onNode { hasTestTag("chat_text_field") }
-  val sendButton: KNode = text_field.child { hasTestTag("chat_send_button") }
+  val sendButton: KNode = onNode { hasTestTag("chat_send_button") }
 
   val ownTextBubble: KNode = onNode { hasTestTag("chat_own_text_bubble") }
-  val ownMsg: KNode = ownTextBubble.child { hasTestTag("chat_message_text") }
+  val ownMsg: KNode = onNode { hasTestTag("chat_message_text") }
 }
