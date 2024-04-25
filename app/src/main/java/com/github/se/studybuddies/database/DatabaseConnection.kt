@@ -294,7 +294,7 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun updateGroup(groupUID: String, userToAdd: String) {
+  fun updateGroup(groupUID: String, userToAdd: String) {
 
     // add user to group
     groupDataCollection
