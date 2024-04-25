@@ -83,25 +83,25 @@ fun TimerScreen(
             Card(
                 shape = RoundedCornerShape(30.dp),
                 modifier =
-                    Modifier.padding(20.dp).width(400.dp).height(160.dp).testTag("timer_red_card"),
+                    Modifier.padding(20.dp).width(300.dp).height(160.dp).testTag("timer_red_card"),
                 colors = CardDefaults.cardColors(containerColor = Color.Red)) {
                   Text(
                       text = timerValue.formatTime(),
                       fontSize = 80.sp,
                       color = Blue,
-                      modifier = Modifier.padding(20.dp))
+                      modifier = Modifier.padding(10.dp))
                 }
           } else {
             Card(
                 shape = RoundedCornerShape(30.dp),
                 modifier =
-                    Modifier.padding(20.dp).width(200.dp).height(100.dp).testTag("timer_card"),
+                    Modifier.padding(20.dp).width(300.dp).height(160.dp).testTag("timer_card"),
                 colors = CardDefaults.cardColors(containerColor = White)) {
                   Text(
                       text = timerValue.formatTime(),
                       fontSize = 40.sp,
                       color = Blue,
-                      modifier = Modifier.padding(20.dp))
+                      modifier = Modifier.padding(10.dp))
                 }
           }
           Spacer(modifier = Modifier.height(16.dp).testTag("timer_spacer"))

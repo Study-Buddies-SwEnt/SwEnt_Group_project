@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,9 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
@@ -67,8 +64,9 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
   var permission = "android.permission.READ_MEDIA_IMAGES"
   // Check if the Android version is lower than TIRAMISU API 33
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-  // For older Android versions, use READ_EXTERNAL_STORAGE permission
-  permission = "android.permission.READ_EXTERNAL_STORAGE"
+    // For older Android versions, use READ_EXTERNAL_STORAGE permission
+    permission = "android.permission.READ_EXTERNAL_STORAGE"
+  }
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("create_group_scaffold"),
       topBar = {
@@ -87,10 +85,10 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
               GroupFields(nameState)
               Spacer(modifier = Modifier.padding(20.dp))
               SetProfilePicture(photoState) {
-                    checkPermission(context, permission, requestPermissionLauncher)
-                  }
+                checkPermission(context, permission, requestPermissionLauncher)
               }
-              // Spacer(modifier = Modifier.weight(1f))
+
+              Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
                 groupViewModel.createGroup(nameState.value, photoState.value)
                 navigationActions.navigateTo(Route.GROUPSHOME)

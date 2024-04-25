@@ -86,9 +86,8 @@ fun AccountSettings(
               Spacer(Modifier.height(150.dp))
               SetProfilePicture(photoState) { getContent.launch("image/*") }
               Spacer(Modifier.height(60.dp))
-              SignOutButton(navigationActions)
+              SignOutButton(navigationActions, userViewModel)
             }
-
       }
 }
 
