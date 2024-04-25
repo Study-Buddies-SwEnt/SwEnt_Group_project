@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
 import android.util.Log
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,7 +33,9 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -203,6 +206,9 @@ fun AddGroupButton(navigationActions: NavigationActions) {
 fun AddLinkButton(navigationActions: NavigationActions) {
     var text by remember { mutableStateOf("") }
     var isTextFieldVisible by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         verticalAlignment = Alignment.Bottom,
@@ -223,11 +229,34 @@ fun AddLinkButton(navigationActions: NavigationActions) {
             label = { Text("Enter Link") },
                     keyboardActions = KeyboardActions(onDone = {
                 isTextFieldVisible = false
-                // Perform any other actions you want here
-
+                // add user to groups
+                        val groupUID = text.substringAfterLast("\\")
+                        //Todo wait for the function updateGroup to be implemented
+                        //val currentUser = getCurrentUser()
+                        //val error = updateGroup(groupUID, currentUser)
+                        val error = -1
+                        if (error == -1) {
+                            showError = true
+                            scope.launch {
+                                delay(3000L) // delay for 3 seconds
+                                showError = false
+                            }
+                        }
+                        else {
+                            //todo add goto group joined
+                        }
                     }),            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-
         )
+    }
+    if (showError) {
+        Snackbar(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            action = {
+                TextButton(onClick = { showError = false }) {}
+            }
+        ) {
+            Text("The link entered is invalid")
+        }
     }
 }
 
