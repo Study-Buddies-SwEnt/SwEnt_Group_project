@@ -18,14 +18,13 @@ object FirebaseUtils {
   private val db = DatabaseConnection()
 
   fun createGroupInviteLink(groupUID: String): Uri {
-    if (groupUID != "") {
       val dynamicLink =
           Firebase.dynamicLinks.dynamicLink {
             link = Uri.parse("https://studybuddies.page.link/JoinGroup/$groupUID")
             domainUriPrefix = "https://studybuddies.page.link"
           }
+      Log.d("Link", dynamicLink.uri.toString())
       return dynamicLink.uri
-    } else return Uri.parse("https://studybuddies.page.link/JoinGroup")
   }
 
   fun checkIncomingDynamicLink(
