@@ -6,8 +6,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.github.se.studybuddies.data.Group
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
@@ -15,6 +15,7 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -25,19 +26,32 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
   private val dbRef = db.rt_db.getReference(db.getGroupMessagesPath(groupUID))
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
-  private val _currentUserUID = MutableLiveData<String>()
   private val _currentUser = MutableLiveData<User>()
+  private val _currentGroup = MutableLiveData<Group>()
+  val group =
+      if (_currentGroup.value != null) _currentGroup.value!!
+      else
+          Group(
+              uid = groupUID,
+              name = "Default group name",
+              picture =
+                  Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+              listOf(
+                  "user1",
+                  "user2",
+                  "user3",
+                  "user4",
+                  "user5",
+                  "user6",
+                  "user7",
+                  "user8",
+                  "user9",
+                  "user10"))
 
   init {
-    getCurrentUserUID()
-    Log.d("MyPrint", "current user id is ${_currentUserUID.value}")
-    if (_currentUserUID.value != null) {
-      if (_currentUserUID.value!!.isNotBlank()) {
-        Log.d("MyPrint", "User exists with uid ${_currentUserUID.value}")
-        listenToMessages()
-        getCurrentUser()
-      } else Log.d("MyPrint", "User not defined yet")
-    } else Log.d("MyPrint", "User ID is null")
+    listenToMessages()
+    getCurrentUser()
+    getCurrentGroup()
   }
 
   private fun listenToMessages() {
@@ -49,22 +63,30 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
           override fun onDataChange(snapshot: DataSnapshot) {
             runnable?.let { handler.removeCallbacks(it) }
             runnable = Runnable {
-              val newMessages = mutableListOf<Message>()
-              snapshot.children.forEach { postSnapshot ->
-                viewModelScope.launch {
-                  val message =
-                      Message(
-                          postSnapshot.key.toString(),
-                          postSnapshot.child(MessageVal.TEXT).value.toString(),
-                          db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
-                          postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong())
+              viewModelScope.launch {
+                val newMessages = mutableListOf<Message>()
+                // Collect deferred results for all messages
+                val deferredMessages =
+                    snapshot.children.map { postSnapshot ->
+                      async {
+                        Message(
+                            postSnapshot.key.toString(),
+                            postSnapshot.child(MessageVal.TEXT).value.toString(),
+                            db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
+                            postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong())
+                      }
+                    }
+                // Await all deferred results and add them to the list
+                deferredMessages.forEach {
+                  val message = it.await() // This ensures all messages are fetched before adding
                   newMessages.add(message)
                 }
+                // Update LiveData post all messages being fetched and processed
+                _messages.value = newMessages
               }
-              // Now update _messages.value with the new list
-              _messages.value = newMessages
             }
-            handler.postDelayed(runnable!!, 500) // Delay the execution
+            handler.postDelayed(
+                runnable!!, 500) // Delay the execution to allow for batch processing, if needed
           }
 
           override fun onCancelled(error: DatabaseError) {
@@ -73,16 +95,10 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
         })
   }
 
-  fun getGroup(): Group {
+  private fun getCurrentGroup() {
     viewModelScope.launch {
-      return db.getGroup(groupUID)
-    }
-  }
-
-  private fun getCurrentUserUID() {
-    viewModelScope.launch {
-      val currentUserUID = db.getCurrentUserUID()
-      _currentUserUID.value = currentUserUID
+      val group = db.getGroup(groupUID)
+      _currentGroup.value = group
     }
   }
 
@@ -91,7 +107,6 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
       val currentUser = db.getCurrentUser()
       _currentUser.value = currentUser
     }
-
   }
 
   fun sendMessage(text: String) {

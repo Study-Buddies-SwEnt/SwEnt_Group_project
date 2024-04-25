@@ -93,7 +93,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
               .navigationBarsPadding()
               .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-          ChatGroupTitle(viewModel.getGroup())
+          ChatGroupTitle(viewModel.group)
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->

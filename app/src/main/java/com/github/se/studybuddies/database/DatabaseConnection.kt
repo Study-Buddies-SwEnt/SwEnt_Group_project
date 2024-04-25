@@ -30,6 +30,9 @@ class DatabaseConnection {
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
+    if (uid.isEmpty()) {
+      return User.empty()
+    }
     val document = userDataCollection.document(uid).get().await()
     return if (document.exists()) {
       val email = document.getString("email") ?: ""
@@ -183,7 +186,7 @@ class DatabaseConnection {
         val groupUIDs = snapshot.data?.get("groups") as? List<String>
         groupUIDs?.let { groupsIDs ->
           groupsIDs.forEach { groupUID ->
-            val document = groupDataCollection.document(groupUID.toString()).get().await()
+            val document = groupDataCollection.document(groupUID).get().await()
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
@@ -317,15 +320,6 @@ class DatabaseConnection {
   fun editMessage(groupUID: String, message: Message, newText: String) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
-  }
-
-  fun getUser(uid: String): User {
-    // TODO implement this method (or modify getUserData to return User object)
-    return User(uid, "email", "username - ${uid.take(5)}", Uri.parse("photoUrl"))
-  }
-
-  fun getCurrentUser(): User {
-    return getUser(getCurrentUserUID())
   }
 
   fun getGroupMessagesPath(groupUID: String): String {
