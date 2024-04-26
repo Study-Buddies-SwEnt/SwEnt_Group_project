@@ -23,7 +23,7 @@ class JoinGroupFromLink {
         .onNodeWithText("Enter Link")
         .performTextInput(
             "https://studybuddies.page.link/JoinGroup/4nlAlJSZwjjdXrXTZ") // Is not an existing
-                                                                          // group
+    // group
   }
 
   fun testAddLinkButtonGoodLink() {
@@ -34,8 +34,7 @@ class JoinGroupFromLink {
     // Perform text input in the TextField
     composeTestRule
         .onNodeWithText("Enter Link")
-        .performTextInput(
-            "https://studybuddies.page.link/JoinGroup/4nlAlCyONOiQIBKXrXTZ")
-  // The link should work if it's not modified in the Firebase
+        .performTextInput("https://studybuddies.page.link/JoinGroup/4nlAlCyONOiQIBKXrXTZ")
+    // The link should work if it's not modified in the Firebase
   }
 }
