@@ -121,7 +121,7 @@ fun ToDoListScreen(ToDoListViewModel: ToDoListViewModel, navigationActions: Navi
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
               horizontalAlignment = Alignment.Start,
               content = {
-                items(todoList.value.size, todoList.value) { todoList.value[] -> ToDoItem(todo = , navigationActions) }
+                items(todoList.value) { todo -> ToDoItem(todo, navigationActions) }
               })
         }
       })

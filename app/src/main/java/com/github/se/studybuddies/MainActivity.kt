@@ -1,5 +1,6 @@
 package com.github.se.studybuddies
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -26,13 +27,13 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.todo.CreateToDo
-import com.github.se.studybuddies.ui.todo.EditToDoScreen
+//import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
-import com.github.se.studybuddies.viewModels.ToDoViewModel
+//import com.github.se.studybuddies.viewModels.ToDoViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -127,25 +128,28 @@ class MainActivity : ComponentActivity() {
 
             composable(Route.TODOLIST) {
               if (currentUser != null) {
-                ToDoListScreen(ToDoListViewModel(StudyBuddies), navigationActions)
+                ToDoListScreen(ToDoListViewModel(Application()), navigationActions)
               }
             }
 
             composable(Route.CREATETODO)  {
               if (currentUser != null) {
-            CreateToDo(ToDoViewModel(), navigationActions)
+            CreateToDo(ToDoListViewModel(Application()), navigationActions)
             }
           }
 
+            /*
             composable(
                 route = "${Route.EDITTODO}/{todoUID}",
                 arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
                   if (todoUID != null) {
-                    EditToDoScreen(todoUID, ToDoViewModel(todoUID), navigationActions)
+                    EditToDoScreen(todoUID, ToDoListViewModel(Application()), navigationActions)
                   }
                 }
+
+             */
           }
         }
       }
