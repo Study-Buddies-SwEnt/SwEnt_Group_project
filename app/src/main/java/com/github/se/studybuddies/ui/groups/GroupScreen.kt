@@ -51,7 +51,8 @@ fun GroupScreen(
     navigationActions: NavigationActions
 ) {
   val group by groupViewModel.group.observeAsState()
-    val timerValue = sharedTimerViewModel.timerValues.collectAsState().value[groupUID] ?: "No timer set"
+  val timerValue =
+      sharedTimerViewModel.timerValues.collectAsState().value[groupUID] ?: "No timer set"
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
