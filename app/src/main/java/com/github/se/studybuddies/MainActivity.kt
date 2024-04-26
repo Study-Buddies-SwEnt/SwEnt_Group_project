@@ -34,6 +34,9 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
+//import com.github.se.studybuddies.viewModels.ToDoViewModel
+import com.github.se.studybuddies.ui.timer.TimerScreenContent
+import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -152,6 +155,14 @@ class MainActivity : ComponentActivity() {
                 }
 
              */
+             
+            composable(Route.TIMER) {
+              if (currentUser != null) {
+                TimerScreenContent(TimerViewModel(), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to TimerScreen")
+              }
+            }
+
           }
         }
       }
