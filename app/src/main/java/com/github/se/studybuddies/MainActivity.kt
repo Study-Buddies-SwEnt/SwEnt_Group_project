@@ -53,6 +53,8 @@ class MainActivity : ComponentActivity() {
               } else {
                 Route.LOGIN
               }
+          // For the group invitation link, maybe put at the end
+          checkIncomingDynamicLink(intent, this, navigationActions)
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.LOGIN) {
               LoginScreen(navigationActions)
@@ -128,8 +130,6 @@ class MainActivity : ComponentActivity() {
               }
             }
           }
-          // For the group invitation link
-          checkIncomingDynamicLink(intent, this, navigationActions)
         }
       }
     }
