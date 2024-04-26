@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.utility
 
 import android.util.Log
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.database.DatabaseConnection
 
 private val db = DatabaseConnection()
@@ -9,13 +10,13 @@ private val db = DatabaseConnection()
 suspend fun createGroupInviteLink(groupUID: String, groupName: String = ""): String {
   return if (groupUID == "") {
     Log.d("Link", "The Group id is empty")
-    "Group_not_founded"
+      "Group not found"
   } else {
     var newGroupName = groupName
     if (groupName == "") {
       newGroupName = db.getGroupName(groupUID)
       if (newGroupName == "") {
-        newGroupName = "NotNamedGroup"
+        Log.d("Link", "The Group has no name")
       }
     }
     val link = "studybuddiesJoinGroup=$newGroupName/$groupUID"

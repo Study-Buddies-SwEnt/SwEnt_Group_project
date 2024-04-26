@@ -16,7 +16,7 @@ class GroupInvitationTest {
 
     groupUID = "sjsueh3ks8"
     inviteLink = createGroupInviteLink(groupUID)
-    assertEquals(("studybuddiesJoinGroup=NotNamedGroup/sjsueh3ks8"), inviteLink)
+    assertEquals(("studybuddiesJoinGroup=/sjsueh3ks8"), inviteLink)
   }
 
   @Test
@@ -24,7 +24,7 @@ class GroupInvitationTest {
     val groupUID = "wUHd562G62H"
     val groupName = ""
     val inviteLink = createGroupInviteLink(groupUID, groupName)
-    assertEquals(("studybuddiesJoinGroup=NotNamedGroup/wUHd562G62H"), inviteLink)
+    assertEquals(("studybuddiesJoinGroup=/wUHd562G62H"), inviteLink)
   }
 
   @Test
@@ -32,6 +32,6 @@ class GroupInvitationTest {
     val groupUID = ""
     val groupName = "Test28"
     val inviteLink = createGroupInviteLink(groupUID, groupName)
-    assertEquals(("Group_not_founded"), inviteLink)
+    assertEquals(("Group not found"), inviteLink)
   }
 }
