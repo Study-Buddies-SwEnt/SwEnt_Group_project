@@ -193,7 +193,7 @@ fun AddGroupButton(navigationActions: NavigationActions) {
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier.width(64.dp).height(50.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Add,
                   contentDescription = "Create a task",
@@ -215,7 +215,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = true },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier.width(64.dp).height(50.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Share,
                   contentDescription = "Link button",
@@ -227,6 +227,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
         value = text,
         onValueChange = { text = it },
         label = { Text("Enter Link") },
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         keyboardActions =
             KeyboardActions(
                 onDone = {
@@ -237,10 +238,8 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                     val error = db.updateGroup(groupUID)
                     if (error == -1) {
                       showError = true
-                      scope.launch {
-                        delay(3000L) // delay for 3 seconds
-                        showError = false
-                      }
+                      delay(3000L) // delay for 3 seconds
+                      showError = false
                     } else {
                       navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                     }
