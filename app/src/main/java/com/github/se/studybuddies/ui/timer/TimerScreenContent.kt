@@ -86,7 +86,7 @@ fun TimerScreen(
                     Modifier.padding(20.dp).width(300.dp).height(160.dp).testTag("timer_red_card"),
                 colors = CardDefaults.cardColors(containerColor = Color.Red)) {
                   Text(
-                      text = timerValue.formatTime(),
+                      text = timerValue.formateTime(),
                       fontSize = 80.sp,
                       color = Blue,
                       modifier = Modifier.padding(10.dp))
@@ -98,7 +98,7 @@ fun TimerScreen(
                     Modifier.padding(30.dp).width(220.dp).height(80.dp).testTag("timer_card"),
                 colors = CardDefaults.cardColors(containerColor = White)) {
                   Text(
-                      text = timerValue.formatTime(),
+                      text = timerValue.formateTime(),
                       fontSize = 40.sp,
                       color = Blue,
                       textAlign = androidx.compose.ui.text.style.TextAlign.Center,

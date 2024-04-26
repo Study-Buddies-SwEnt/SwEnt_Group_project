@@ -39,6 +39,7 @@ import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.GroupViewModel
+import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,9 +47,11 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 fun GroupScreen(
     groupUID: String,
     groupViewModel: GroupViewModel,
+    sharedTimerViewModel: SharedTimerViewModel,
     navigationActions: NavigationActions
 ) {
   val group by groupViewModel.group.observeAsState()
+    val timerValue = sharedTimerViewModel.timerValues.collectAsState().value[groupUID] ?: "No timer set"
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
