@@ -16,4 +16,5 @@
     <string name="ContentDescription_go_back_button">Go back button</string>
     <string name="profile_setting">Profile setting</string>
     <string name="sign_out">Sign out</string>
+    <string name="group_not_found">Group not found</string>
 </resources>
