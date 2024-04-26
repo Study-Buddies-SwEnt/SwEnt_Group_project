@@ -50,4 +50,5 @@ class DefaultLocationClient(
       awaitClose { client.removeLocationUpdates(locationCallback) }
     }
   }
+
 }

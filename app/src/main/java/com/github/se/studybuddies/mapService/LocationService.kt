@@ -4,6 +4,8 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.location.Location
+import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.github.se.studybuddies.R
@@ -21,9 +23,12 @@ class LocationService : Service() {
   private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private lateinit var locationClient: LocationClient
 
+
+
   override fun onBind(p0: Intent?): IBinder? {
     return null
   }
+
 
   override fun onCreate() {
     super.onCreate()
@@ -59,6 +64,10 @@ class LocationService : Service() {
           val long = location.longitude.toString()
           val updatedNotification = notification.setContentText("Location: ($lat, $long)")
           notificationManager.notify(1, updatedNotification.build())
+
+        val intent = Intent("LocationUpdates")
+        intent.putExtra("location", location)
+        sendBroadcast(intent)
         }
         .launchIn(serviceScope)
 

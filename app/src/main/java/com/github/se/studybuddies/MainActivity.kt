@@ -1,10 +1,12 @@
 package com.github.se.studybuddies
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,7 +32,6 @@ import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
-import com.github.se.studybuddies.viewModels.MapViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -132,7 +133,6 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 MapScreen(
                     currentUser.uid,
-                    MapViewModel(applicationContext),
                     navigationActions,
                     applicationContext)
               }
