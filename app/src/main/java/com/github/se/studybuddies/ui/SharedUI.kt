@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -307,7 +308,7 @@ fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Uni
         IconButton(onClick = { onClick() }) {
           Icon(
               painterResource(R.drawable.arrow_back),
-              contentDescription = "Go back button",
+              contentDescription = stringResource(R.string.ContentDescription_go_back_button),
               modifier = Modifier.size(28.dp))
         }
         content()

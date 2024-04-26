@@ -9,4 +9,9 @@
     <string name="create_group">Create a group</string>
     <string name="go_back">Go back</string>
     <string name="you_have_signed_in_with_email">You have signed in with email %1$s</string>
+    <string name="contentDescription_user_profile_picture">User profile picture</string>
+    <string name="contentDescription_icon_add">Icon Add</string>
+    <string name="contentDescription_icon_send">Icon Send</string>
+    <string name="contentDescription_group_profile_picture">Group profile picture</string>
+    <string name="ContentDescription_go_back_button">Go back button</string>
 </resources>
