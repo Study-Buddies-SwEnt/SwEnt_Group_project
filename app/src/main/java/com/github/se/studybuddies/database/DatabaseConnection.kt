@@ -30,6 +30,9 @@ class DatabaseConnection {
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
+    if (uid.isEmpty()) {
+      return User.empty()
+    }
     val document = userDataCollection.document(uid).get().await()
     return if (document.exists()) {
       val email = document.getString("email") ?: ""
@@ -294,14 +297,14 @@ class DatabaseConnection {
     }
   }
 
-  fun updateGroup(groupUID: String): Int {
+  suspend fun updateGroup(groupUID: String): Int {
 
-    val userToAdd = getCurrentUserUID()
-    val document = groupDataCollection.document(groupUID).get()
-    if (!document.isSuccessful) {
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (!document.exists()) {
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return -1
     }
+    val userToAdd = getCurrentUserUID()
 
     // add user to group
     groupDataCollection
@@ -336,6 +339,16 @@ class DatabaseConnection {
         .updateChildren(messageData)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
+  }
+
+  fun deleteMessage(groupUID: String, message: Message) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    rt_db.getReference(messagePath).removeValue()
+  }
+
+  fun editMessage(groupUID: String, message: Message, newText: String) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
   fun getGroupMessagesPath(groupUID: String): String {
