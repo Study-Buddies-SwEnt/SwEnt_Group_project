@@ -1,6 +1,8 @@
 package com.github.se.studybuddies
 
-import android.app.Application
+// import com.github.se.studybuddies.ui.todo.EditToDoScreen
+// import com.github.se.studybuddies.viewModels.ToDoViewModel
+
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -27,19 +29,16 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.todo.CreateToDo
-//import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
-//import com.github.se.studybuddies.viewModels.ToDoViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
-
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -135,11 +134,11 @@ class MainActivity : ComponentActivity() {
               }
             }
 
-            composable(Route.CREATETODO)  {
+            composable(Route.CREATETODO) {
               if (currentUser != null) {
-            CreateToDo(ToDoListViewModel(studyBuddies), navigationActions)
+                CreateToDo(ToDoListViewModel(studyBuddies), navigationActions)
+              }
             }
-          }
 
             /*
             composable(

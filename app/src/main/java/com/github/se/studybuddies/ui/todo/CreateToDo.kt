@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.todo
 
+// import com.github.se.studybuddies.viewModels.ToDoViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +18,6 @@ import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
-//import com.github.se.studybuddies.viewModels.ToDoViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -39,11 +39,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                  TodoFields(
-                      titleState,
-                      descriptionState,
-                      selectedDate,
-                      isOpen)
+                  TodoFields(titleState, descriptionState, selectedDate, isOpen)
                   TodoSaveButton(titleState) {
                     val newTodo =
                         ToDo(

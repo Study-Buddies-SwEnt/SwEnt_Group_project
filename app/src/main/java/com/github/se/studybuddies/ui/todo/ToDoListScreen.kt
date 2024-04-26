@@ -120,9 +120,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
               modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("todoList"),
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
               horizontalAlignment = Alignment.Start,
-              content = {
-                items(todoList.value) { todo -> ToDoItem(todo, navigationActions) }
-              })
+              content = { items(todoList.value) { todo -> ToDoItem(todo, navigationActions) } })
         }
       })
 }

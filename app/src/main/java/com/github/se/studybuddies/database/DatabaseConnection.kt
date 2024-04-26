@@ -7,19 +7,12 @@ import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.data.todo.ToDo
-import com.github.se.studybuddies.data.todo.ToDoList
-import com.github.se.studybuddies.data.todo.ToDoStatus
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.time.ZoneId
-import java.util.Date
 import kotlinx.coroutines.tasks.await
 
 class DatabaseConnection {
@@ -319,5 +312,4 @@ class DatabaseConnection {
   fun getGroupMessagesPath(groupUID: String): String {
     return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
   }
-
 }

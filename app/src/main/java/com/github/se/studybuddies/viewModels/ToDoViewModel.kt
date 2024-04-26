@@ -1,18 +1,5 @@
 package com.github.se.studybuddies.viewModels
 
-import androidx.lifecycle.ViewModel
-import com.github.se.studybuddies.data.todo.ToDo
-import com.github.se.studybuddies.data.todo.ToDoStatus
-import com.github.se.studybuddies.database.DatabaseConnection
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.firestore.DocumentSnapshot
-import java.time.LocalDate
-import java.time.ZoneId
-import java.util.Date
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-
-
 /*
 class ToDoViewModel(private val uid: String? = null) : ViewModel() {
 

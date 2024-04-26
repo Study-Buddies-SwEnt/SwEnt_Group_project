@@ -18,9 +18,6 @@ class NavigationActions(private val navController: NavHostController) {
   }
 
   companion object {
-    fun navigateTo(route: String) {
-
-    }
+    fun navigateTo(route: String) {}
   }
-
 }

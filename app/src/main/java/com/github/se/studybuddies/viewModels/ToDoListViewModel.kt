@@ -1,28 +1,18 @@
 package com.github.se.studybuddies.viewModels
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoList
-import com.github.se.studybuddies.data.todo.ToDoStatus
-import com.github.se.studybuddies.database.DatabaseConnection
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.DocumentSnapshot
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.lang.reflect.Type
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.io.File
-import java.time.ZoneId
-import java.util.Date
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
-import java.time.LocalDate
-
-
 
 class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
 
@@ -33,10 +23,8 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     fetchAllTodos()
   }
 
-
   private val gson = Gson()
   private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
-
 
   fun addOrUpdateToDo(todo: ToDo) {
     // Read existing data from file
@@ -55,7 +43,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     writeToDoListToFile(existingData)
   }
 
-
   private fun readToDoListFromFile(): MutableMap<String, ToDo> {
     if (!toDoFile.exists()) {
       return mutableMapOf() // Return an empty map if file doesn't exist yet
@@ -72,20 +59,17 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     toDoFile.writeText(json)
   }
 
-
-
   fun fetchAllTodos() {
     viewModelScope.launch {
       try {
         val todos = getAllItems()
-        val sortedTodos = todos.getAllTasks().toList().sortedBy {it.dueDate }
+        val sortedTodos = todos.getAllTasks().toList().sortedBy { it.dueDate }
         _todos.value = ToDoList(sortedTodos.toMutableList())
       } catch (e: Exception) {
         Log.d("MyPrint", "Could not fetch items $e")
       }
     }
   }
-
 
   /*fun updateTodo(
     todoId: String,
@@ -119,7 +103,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
 
     return ToDoList(items)
   }
-
 
   /*fun addNewTodo(
 
