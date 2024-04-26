@@ -48,8 +48,8 @@ fun MapScreen(
 ) {
 
   val location by mapViewModel.locationFlow.collectAsState(initial = null)
-  // val isLocationOn by mapViewModel.isLocationOn.collectAsState()
-  var isLocationOn = false
+  val isTrackingOn by mapViewModel.isTrackingOn.collectAsState()
+
 
   var positionClient = LatLng(location?.latitude ?: -35.016, location?.longitude ?: 143.321)
   val cameraPositionState = rememberCameraPositionState {
@@ -83,28 +83,29 @@ fun MapScreen(
       title = { Main_title("Map") },
       iconOptions = {
         Icon(
-            painter = painterResource(id = R.drawable.globe),
+            painter = painterResource(id = R.drawable.get_location),
             modifier =
                 Modifier.padding(26.dp).size(30.dp).clickable {
-                  if (!isLocationOn) {
-                    Intent(context, LocationService::class.java).apply {
-                      action = LocationService.ACTION_START
-                      context.startService(this)
-                    }
-                    CoroutineScope(Dispatchers.Main).launch { mapViewModel.startLocationUpdates() }
-                    isLocationOn = true
-                    Toast.makeText(context, "Location service started", Toast.LENGTH_SHORT).show()
-                  } else if (isLocationOn) {
-                    Intent(context, LocationService::class.java).apply {
-                      action = LocationService.ACTION_STOP
-                      context.startService(this)
-                    }
-                    CoroutineScope(Dispatchers.Main).launch { mapViewModel.stopLocationUpdates() }
-                    isLocationOn = false
-                    Toast.makeText(context, "Location service stopped", Toast.LENGTH_SHORT).show()
+                  if (isTrackingOn) {
+                      Intent(context, LocationService::class.java).apply {
+                          action = LocationService.ACTION_STOP
+                          context.startService(this)
+                      }
+                      //mapViewModel.stopLocationUpdates()
+                      //CoroutineScope(Dispatchers.Main).launch { mapViewModel.startLocationUpdates() }
+                        Toast.makeText(context, "Location service stopped", Toast.LENGTH_SHORT).show()
+                  }else{
+                      Intent(context, LocationService::class.java).apply {
+                          action = LocationService.ACTION_START
+                          context.startService(this)
+                      }
+                      //mapViewModel.stopLocationUpdates()
+                    //CoroutineScope(Dispatchers.Main).launch { mapViewModel.stopLocationUpdates() }
+                      Toast.makeText(context, "Location service started", Toast.LENGTH_SHORT).show()
+
                   }
                 },
-            tint = Color.Red,
+            tint = if(isTrackingOn) Color.Red else Color.Gray,
             contentDescription = "Map")
       },
   )

@@ -20,8 +20,8 @@ class MapViewModel(private val context: Context) {
   var locationClient = MutableStateFlow<LocationClient?>(null)
   val locationFlow = MutableStateFlow<Location?>(null)
 
-  private var _isLocationOn = MutableStateFlow(false)
-  var isLocationOn = _isLocationOn.asStateFlow()
+  private var _isTrackingOn = MutableStateFlow(false)
+  var isTrackingOn = _isTrackingOn.asStateFlow()
 
   init {
     if (context.hasLocationPermission() && isLocationEnabled) {
@@ -31,20 +31,20 @@ class MapViewModel(private val context: Context) {
   }
 
   suspend fun startLocationUpdates() {
-    locationClient.value?.let {
+    /*locationClient.value?.let {
       it.getLocationUpdates(10000L).collect { location -> locationFlow.value = location }
-    }
+    }*/
     /*
     locationClient?.getLocationUpdates(10000L)?.collect { location ->
         locationFlow.value = location
     }*/
-    _isLocationOn.update { true }
+    _isTrackingOn.update { true }
   }
 
   suspend fun stopLocationUpdates() {
-    locationClient.update { null }
-    locationFlow.value = null
-    _isLocationOn.update { false }
+    //locationClient.update { null }
+    //locationFlow.value = null
+    _isTrackingOn.update { false }
   }
 
   private fun isLocationServiceRunning(context: Context): Boolean {
