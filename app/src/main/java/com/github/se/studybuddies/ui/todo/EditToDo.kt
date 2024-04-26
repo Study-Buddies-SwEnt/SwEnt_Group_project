@@ -43,6 +43,9 @@ import com.github.se.studybuddies.viewModels.ToDoViewModel
 import java.time.Instant
 import java.time.ZoneId
 
+
+/*
+
 @Composable
 fun EditToDoScreen(todoUID: String, todoViewModel: ToDoViewModel, navigationActions: NavigationActions) {
   val todo by todoViewModel.todo.collectAsState()
@@ -166,3 +169,5 @@ fun EditToDoScreen(todoUID: String, todoViewModel: ToDoViewModel, navigationActi
     }
   }
 }
+
+ */

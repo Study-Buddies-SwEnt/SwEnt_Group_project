@@ -23,6 +23,8 @@ class ToDoViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
+
+    /*
   fun addNewTodo(todo: ToDo) {
     val convertedDate = Date.from(todo.dueDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
     firebaseConnection.addNewTodo(
@@ -77,4 +79,6 @@ class ToDoViewModel(private val uid: String? = null) : ViewModel() {
   private fun emptyToDo(): ToDo {
     return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
+
+     */
 }

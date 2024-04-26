@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
 
             composable(Route.TODOLIST) {
               if (currentUser != null) {
-                ToDoListScreen(ToDoListViewModel(), navigationActions)
+                ToDoListScreen(ToDoListViewModel(StudyBuddies), navigationActions)
               }
             }
 

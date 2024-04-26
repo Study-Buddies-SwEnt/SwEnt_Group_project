@@ -16,13 +16,14 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.ToDoViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
 @Composable
-fun CreateToDo(todoViewModel: ToDoViewModel, navigationActions: NavigationActions) {
+fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
   val titleState = remember { mutableStateOf("") }
   val descriptionState = remember { mutableStateOf("") }
   val selectedDate = remember { mutableStateOf(LocalDate.now()) }
@@ -51,7 +52,7 @@ fun CreateToDo(todoViewModel: ToDoViewModel, navigationActions: NavigationAction
                             description = descriptionState.value,
                             dueDate = selectedDate.value,
                             status = ToDoStatus.CREATED)
-                    todoViewModel.addNewTodo(newTodo)
+                    todoListViewModel.addOrUpdateToDo(newTodo)
                     navigationActions.goBack()
                   }
                 }

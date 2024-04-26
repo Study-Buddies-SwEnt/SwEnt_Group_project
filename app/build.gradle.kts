@@ -70,7 +70,9 @@ android {
     }
 }
 
+
 dependencies {
+    implementation("com.google.code.gson:gson:2.8.8")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")

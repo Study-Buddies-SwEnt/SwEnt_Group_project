@@ -17,25 +17,67 @@ import java.time.ZoneId
 import java.util.Date
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+import java.time.LocalDate
+
+
 
 class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
 
-  //private val firebaseConnection = DatabaseConnection()
-
-
   private val _todos = MutableStateFlow(ToDoList(emptyList()))
   val todos: StateFlow<ToDoList> = _todos
-
   init {
-    val file = File(studyBuddies.filesDir, "myData.txt")
     fetchAllTodos()
   }
+
+
+  private val gson = Gson()
+  private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
+
+
+  fun addOrUpdateToDo(todo: ToDo) {
+    // Read existing data from file
+    val existingData = readToDoListFromFile()
+
+    // Add or update the ToDo item
+    existingData[todo.uid] = todo
+
+    // Write updated data back to file
+    writeToDoListToFile(existingData)
+  }
+
+  fun deleteToDo(todo: ToDo) {
+    val existingData = readToDoListFromFile()
+    existingData.remove(todo.uid)
+    writeToDoListToFile(existingData)
+  }
+
+
+  private fun readToDoListFromFile(): MutableMap<String, ToDo> {
+    if (!toDoFile.exists()) {
+      return mutableMapOf() // Return an empty map if file doesn't exist yet
+    }
+    val json = toDoFile.readText()
+    // Deserialize JSON string to map of ToDo objects
+    val type: Type = object : TypeToken<Map<String, ToDo>>() {}.type
+    return gson.fromJson(json, type) ?: mutableMapOf()
+  }
+
+  private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
+    // Serialize the map of ToDo objects to JSON
+    val json = gson.toJson(todoList)
+    toDoFile.writeText(json)
+  }
+
+
 
   fun fetchAllTodos() {
     viewModelScope.launch {
       try {
-        val todos = firebaseConnection.getAllItems()
-        val sortedTodos = todos.getAllTasks().sortedBy { it.dueDate }
+        val todos = getAllItems()
+        val sortedTodos = todos.getAllTasks().toList().sortedBy {it.dueDate }
         _todos.value = ToDoList(sortedTodos.toMutableList())
       } catch (e: Exception) {
         Log.d("MyPrint", "Could not fetch items $e")
@@ -44,7 +86,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   }
 
 
-  fun updateTodo(
+  /*fun updateTodo(
     todoId: String,
     name: String,
     dueDate: Date,
@@ -63,28 +105,23 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       .addOnSuccessListener { Log.d("MyPrint", "Task $todoId succesfully updated") }
       .addOnFailureListener { Log.d("MyPrint", "Task $todoId failed to update") }
   }
+   */
 
-  suspend fun getAllItems(): ToDoList {
-    val querySnapshot = todoCollection.get().await()
+  private fun getAllItems(): ToDoList {
+
     val items = mutableListOf<ToDo>()
+    val toDoList = readToDoListFromFile()
 
-    for (document in querySnapshot.documents) {
-      val uid = document.id
-      val name = document.getString("title") ?: ""
-      val assigneeName = document.getString("assigneeName") ?: ""
-      val dueDate = document.getDate("dueDate")
-      val convertedDate = dueDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-      val description = document.getString("description") ?: ""
-      val status = ToDoStatus.valueOf(document.getString("status") ?: "")
-
-      val item = ToDo(uid, name, convertedDate, description, status)
-      items.add(item)
+    for (item in toDoList) {
+      items.add(item.value)
     }
 
     return ToDoList(items)
   }
 
-  fun addNewTodo(
+
+  /*fun addNewTodo(
+
     name: String,
     dueDate: Date,
     description: String,
@@ -104,9 +141,11 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       .addOnFailureListener { Log.d("MyPrint", "Failed to add task") }
   }
 
+
   fun fetchTaskByUID(uid: String): Task<DocumentSnapshot> {
     return todoCollection.document(uid).get()
   }
+
 
   fun deleteTodo(todoId: String) {
     todoCollection
@@ -116,10 +155,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       .addOnFailureListener { Log.d("MyPrint", "Failed to delete task") }
   }
 
-
-
-
-
+  */
 
   /*
   fun updateToDoList(toDos: List<ToDo>) {
@@ -141,4 +177,5 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   }
 
    */
+
 }
