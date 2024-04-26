@@ -17,18 +17,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -45,11 +51,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -59,6 +67,8 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private val db = DatabaseConnection()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -100,6 +110,7 @@ fun GroupsHome(
             Text("Join or create a new group", textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(80.dp))
             AddGroupButton(navigationActions = navigationActions)
+            AddLinkButton(navigationActions = navigationActions)
           }
         } else {
           Column(
@@ -114,6 +125,7 @@ fun GroupsHome(
                 content = {
                   items(groupList.value) { group -> GroupItem(group, navigationActions) }
                   item { AddGroupButton(navigationActions) }
+                  item { AddLinkButton(navigationActions) }
                 })
           }
         }
@@ -188,6 +200,61 @@ fun AddGroupButton(navigationActions: NavigationActions) {
                   tint = White)
             }
       }
+}
+
+@Composable
+fun AddLinkButton(navigationActions: NavigationActions) {
+  var text by remember { mutableStateOf("") }
+  var isTextFieldVisible by remember { mutableStateOf(false) }
+  var showError by remember { mutableStateOf(false) }
+  val scope = rememberCoroutineScope()
+
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      verticalAlignment = Alignment.Bottom,
+      horizontalArrangement = Arrangement.End) {
+        Button(
+            onClick = { isTextFieldVisible = true },
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+              Icon(
+                  imageVector = Icons.Default.Share,
+                  contentDescription = "Link button",
+                  tint = White)
+            }
+      }
+  if (isTextFieldVisible) {
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Enter Link") },
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                  isTextFieldVisible = false
+                  // add user to groups
+                  val groupUID = text.substringAfterLast("/")
+                  scope.launch {
+                    val error = db.updateGroup(groupUID)
+                    if (error == -1) {
+                      showError = true
+                      scope.launch {
+                        delay(3000L) // delay for 3 seconds
+                        showError = false
+                      }
+                    } else {
+                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                    }
+                  }
+                }),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
+  }
+  if (showError) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showError = false }) {} }) {
+          Text("The link entered is invalid")
+        }
+  }
 }
 
 @Composable
