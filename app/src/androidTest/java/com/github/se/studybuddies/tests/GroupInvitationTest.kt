@@ -1,30 +1,37 @@
 package com.github.se.studybuddies.tests
 
-import com.github.se.studybuddies.utility.FirebaseUtils.createGroupInviteLink
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import com.github.se.studybuddies.utility.GroupInvitation.createGroupInviteLink
 
 class GroupInvitationTest {
 
   @Test
   fun generateLink() {
-    var groupUID = "xtheb45"
-    var inviteLink = createGroupInviteLink(groupUID)
-    assertEquals(("https://studybuddies.page.link/JoinGroup/xtheb45"), inviteLink)
+    var groupUID = "xtheb45SJUEHD"
+    var groupName = "StudyBuddiesIsTheBest"
+    var inviteLink = createGroupInviteLink(groupUID, groupName)
+    assertEquals(("studybuddiesJoinGroup=StudyBuddiesIsTheBest/xtheb45SJUEHD"), inviteLink)
 
     groupUID = "sjsueh3ks8"
-    inviteLink = createGroupInviteLink(groupUID)
-    assertEquals(("https://studybuddies.page.link/JoinGroup/sjsueh3ks8"), inviteLink)
+    groupName = "BestNameEver"
+    inviteLink = createGroupInviteLink(groupUID, groupName)
+    assertEquals(("studybuddiesJoinGroup=BestNameEver/sjsueh3ks8"), inviteLink)
+  }
+
+  @Test
+  fun generateLinkEmptyName() {
+    val groupUID = "wUHd562G62H"
+    val groupName = ""
+    val inviteLink = createGroupInviteLink(groupUID, groupName)
+    assertEquals(("studybuddiesJoinGroup=NotNamedGroup/wUHd562G62H"), inviteLink)
   }
 
   @Test
   fun generateLinkWrongArgument() {
     val groupUID = ""
-    val inviteLink = createGroupInviteLink(groupUID)
-    assertEquals(("https://studybuddies.page.link/JoinGroup/"), inviteLink)
+    val groupName = "Test28"
+    val inviteLink = createGroupInviteLink(groupUID, groupName)
+    assertEquals(("Group_not_founded"), inviteLink)
   }
-
-  // add test for the main activity, checking if user is indeed in the good group
-  // call this function
-  // checkIncomingDynamicLink(intent, this, navigationActions)
 }

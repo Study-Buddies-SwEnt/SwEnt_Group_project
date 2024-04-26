@@ -1,35 +1,28 @@
 package com.github.se.studybuddies.utility
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
-import com.github.se.studybuddies.database.DatabaseConnection
-import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData
-import com.google.firebase.dynamiclinks.ktx.dynamicLink
-import com.google.firebase.dynamiclinks.ktx.dynamicLinks
-import com.google.firebase.ktx.Firebase
 
-object FirebaseUtils {
+object GroupInvitation {
 
-  private val db = DatabaseConnection()
+  // private val db = DatabaseConnection()
 
-  fun createGroupInviteLink(groupUID: String): String {
-      if (groupUID == "") {
-          return "Group not founded"
-      }
-      else {
-          val group_name = db.getGroupName(groupUID)
-          val link = "studybuddiesJoinGroup_$group_name/$groupUID"
-                  return link
-      }
+  fun createGroupInviteLink(groupUID: String, groupName: String): String {
+    if (groupUID == "") {
+      Log.d("Link", "The Group name is empty")
+      return "Group_not_founded"
+    } else {
+        var newGroupName = groupName
+        if (groupName == "") {
+            newGroupName = "NotNamedGroup"
+        }
+        val link = "studybuddiesJoinGroup=$newGroupName/$groupUID"
+        Log.d("Link", "Successfully created the link")
+        return link
+        }
   }
 
-    //function not used anymore, but can be useful for future development if wanting to add a Dynamic Link
+  // function not used anymore, but can be useful for future development if wanting to add a Dynamic
+  // Link
   /*fun checkIncomingDynamicLink(
       intent: Intent,
       activity: Activity,
