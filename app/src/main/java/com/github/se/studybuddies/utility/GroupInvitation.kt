@@ -10,7 +10,6 @@ import com.github.se.studybuddies.navigation.Route
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData
-import com.google.firebase.dynamiclinks.ktx.androidParameters
 import com.google.firebase.dynamiclinks.ktx.dynamicLink
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
@@ -19,17 +18,19 @@ object FirebaseUtils {
 
   private val db = DatabaseConnection()
 
-  fun createGroupInviteLink(groupUID: String): Uri {
-      val dynamicLink = Firebase.dynamicLinks.dynamicLink {
-          link = Uri.parse("https://studybuddies.page.link/?JoinGroup/$groupUID") // good link ?
-          domainUriPrefix = "https://studybuddies.page.link"
+  fun createGroupInviteLink(groupUID: String): String {
+      if (groupUID == "") {
+          return "Group not founded"
       }
-    Log.d("Link", dynamicLink.uri.toString())
-      Log.d("Link", dynamicLink.toString())
-    return dynamicLink.uri
+      else {
+          val group_name = db.getGroupName(groupUID)
+          val link = "studybuddiesJoinGroup_$group_name/$groupUID"
+                  return link
+      }
   }
 
-  fun checkIncomingDynamicLink(
+    //function not used anymore, but can be useful for future development if wanting to add a Dynamic Link
+  /*fun checkIncomingDynamicLink(
       intent: Intent,
       activity: Activity,
       navigationActions: NavigationActions
@@ -42,9 +43,6 @@ object FirebaseUtils {
                 val deepLink = pendingDynamicLinkData.link
 
             Log.d("Link", "Dynamic Link Detected")
-                //Todo remove
-                Log.d("Link", pendingDynamicLinkData.toString())
-                Log.d("Link", deepLink.toString())
           // Handle the deep link.
           val groupUID = deepLink.toString().substringAfterLast("/")
             Log.d("Link", "Group to join : $groupUID")
@@ -67,5 +65,5 @@ object FirebaseUtils {
             }
         }
         .addOnFailureListener(activity) { e -> Log.w("Link", "getDynamicLink:onFailure", e) }
-  }
+  }*/
 }
