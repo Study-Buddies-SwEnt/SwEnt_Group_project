@@ -16,15 +16,18 @@ import kotlinx.coroutines.flow.update
 class MapViewModel(private val context: Context) {
   private val locationManager =
       context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-  val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+  val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+  val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
   var locationClient = MutableStateFlow<LocationClient?>(null)
   val locationFlow = MutableStateFlow<Location?>(null)
 
-  private var _isTrackingOn = MutableStateFlow(false)
-  var isTrackingOn = _isTrackingOn.asStateFlow()
-
   init {
-    if (context.hasLocationPermission() && isLocationEnabled) {
+    if(!isGpsEnabled || !isNetworkEnabled) {
+      throw LocationClient.LocationException("GPS is disabled")
+    }else if(!context.hasLocationPermission()) {
+      throw LocationClient.LocationException("Missing location permission")
+    } else {
       val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
       locationClient.update { DefaultLocationClient(context, fusedLocationProviderClient) }
     }
@@ -38,13 +41,15 @@ class MapViewModel(private val context: Context) {
     locationClient?.getLocationUpdates(10000L)?.collect { location ->
         locationFlow.value = location
     }*/
-    _isTrackingOn.update { true }
   }
 
   suspend fun stopLocationUpdates() {
     //locationClient.update { null }
     //locationFlow.value = null
-    _isTrackingOn.update { false }
+  }
+
+  fun startLocationPossible(): Boolean {
+    return context.hasLocationPermission() && isGpsEnabled && isNetworkEnabled && !isLocationServiceRunning(context)
   }
 
   private fun isLocationServiceRunning(context: Context): Boolean {

@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.map
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DrawerMenu
 import com.github.se.studybuddies.ui.Main_title
+import com.github.se.studybuddies.ui.permissions.hasLocationPermission
 import com.github.se.studybuddies.viewModels.MapViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
@@ -48,8 +50,8 @@ fun MapScreen(
 ) {
 
   val location by mapViewModel.locationFlow.collectAsState(initial = null)
-  val isTrackingOn by mapViewModel.isTrackingOn.collectAsState()
-
+  //val isTrackingOn by mapViewModel.isTrackingOn.collectAsState()
+    var isTrackingOn by remember { mutableStateOf(false) }
 
   var positionClient = LatLng(location?.latitude ?: -35.016, location?.longitude ?: 143.321)
   val cameraPositionState = rememberCameraPositionState {
@@ -86,22 +88,31 @@ fun MapScreen(
             painter = painterResource(id = R.drawable.get_location),
             modifier =
                 Modifier.padding(26.dp).size(30.dp).clickable {
-                  if (isTrackingOn) {
-                      Intent(context, LocationService::class.java).apply {
-                          action = LocationService.ACTION_STOP
-                          context.startService(this)
-                      }
-                      //mapViewModel.stopLocationUpdates()
-                      //CoroutineScope(Dispatchers.Main).launch { mapViewModel.startLocationUpdates() }
-                        Toast.makeText(context, "Location service stopped", Toast.LENGTH_SHORT).show()
-                  }else{
+                  if(!mapViewModel.isGpsEnabled){
+                        Toast.makeText(context, "GPS not enable", Toast.LENGTH_SHORT).show()
+                  }else if(!context.hasLocationPermission()){
+                      Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show()
+                  }else if(!mapViewModel.isNetworkEnabled){
+                      Toast.makeText(context, "Network not enabled", Toast.LENGTH_SHORT).show()
+                  }else if (!isTrackingOn){
                       Intent(context, LocationService::class.java).apply {
                           action = LocationService.ACTION_START
                           context.startService(this)
                       }
+                      isTrackingOn = true
                       //mapViewModel.stopLocationUpdates()
                     //CoroutineScope(Dispatchers.Main).launch { mapViewModel.stopLocationUpdates() }
                       Toast.makeText(context, "Location service started", Toast.LENGTH_SHORT).show()
+
+                  }else{
+                      Intent(context, LocationService::class.java).apply {
+                          action = LocationService.ACTION_STOP
+                          context.startService(this)
+                      }
+                      isTrackingOn = false
+                      //mapViewModel.stopLocationUpdates()
+                      //CoroutineScope(Dispatchers.Main).launch { mapViewModel.startLocationUpdates() }
+                      Toast.makeText(context, "Location service stopped", Toast.LENGTH_SHORT).show()
 
                   }
                 },
