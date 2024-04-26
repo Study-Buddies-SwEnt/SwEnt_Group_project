@@ -231,17 +231,18 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                 onDone = {
                   isTextFieldVisible = false
                   // add user to groups
-                  val groupUID = text.substringAfterLast("\\")
-                  // Todo wait for the function updateGroup to be implemented
-                  val error = db.updateGroup(groupUID)
-                  if (error == -1) {
-                    showError = true
-                    scope.launch {
-                      delay(3000L) // delay for 3 seconds
-                      showError = false
-                    }
-                  } else {
-                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                  val groupUID = text.substringAfterLast("/")
+                  scope.launch {
+                      val error = db.updateGroup(groupUID)
+                      if (error == -1) {
+                          showError = true
+                          scope.launch {
+                              delay(3000L) // delay for 3 seconds
+                              showError = false
+                          }
+                      } else {
+                          navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                      }
                   }
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))

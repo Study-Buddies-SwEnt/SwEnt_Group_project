@@ -294,11 +294,11 @@ class DatabaseConnection {
     }
   }
 
-    fun updateGroup(groupUID: String): Int {
+    suspend fun updateGroup(groupUID: String): Int {
 
         val userToAdd = getCurrentUserUID()
-        val document = groupDataCollection.document(groupUID).get()
-        if (!document.isSuccessful) {
+        val document = groupDataCollection.document(groupUID).get().await()
+        if (!document.exists()) {
             Log.d("MyPrint", "Group with uid $groupUID does not exist")
             return -1
         }
