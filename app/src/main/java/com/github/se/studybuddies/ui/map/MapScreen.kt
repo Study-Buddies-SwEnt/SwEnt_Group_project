@@ -38,7 +38,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.mapService.LocationService
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DrawerMenu
+import com.github.se.studybuddies.ui.MainScreenScaffold
 import com.github.se.studybuddies.ui.Main_title
 import com.github.se.studybuddies.ui.permissions.hasLocationPermission
 import com.google.android.gms.location.LocationServices
@@ -127,7 +127,7 @@ fun MapScreen(
             Manifest.permission.ACCESS_FINE_LOCATION,
         ),
         0)*/
-  DrawerMenu(
+  MainScreenScaffold(
       navigationActions = navigationActions,
       backRoute = Route.MAP,
       content = {
@@ -148,7 +148,7 @@ fun MapScreen(
                 }
             }
       },
-      title = { Main_title("Map") },
+      title = "Map",
       iconOptions = {
         Icon(
             painter = painterResource(id = R.drawable.get_location),

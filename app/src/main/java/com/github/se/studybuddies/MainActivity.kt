@@ -30,9 +30,11 @@ import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
+import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -123,11 +125,18 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.MAP) {
+                if (currentUser != null) {
+                    MapScreen(
+                        currentUser.uid,
+                        navigationActions,
+                        applicationContext
+                    )
+                }
+            }
+            composable(Route.TIMER) {
               if (currentUser != null) {
-                MapScreen(
-                    currentUser.uid,
-                    navigationActions,
-                    applicationContext)
+                TimerScreenContent(TimerViewModel(), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
           }

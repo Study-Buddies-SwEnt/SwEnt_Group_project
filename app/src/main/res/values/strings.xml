@@ -1,4 +1,19 @@
 <resources>
     <string name="app_name">Study Buddies</string>
     <string name="type_a_message">Type a message</string>
+    <string name="cancel">Cancel</string>
+    <string name="options">Options</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="permission_granted">Permission GRANTED</string>
+    <string name="create_group">Create a group</string>
+    <string name="go_back">Go back</string>
+    <string name="you_have_signed_in_with_email">You have signed in with email %1$s</string>
+    <string name="contentDescription_user_profile_picture">User profile picture</string>
+    <string name="contentDescription_icon_add">Icon Add</string>
+    <string name="contentDescription_icon_send">Icon Send</string>
+    <string name="contentDescription_group_profile_picture">Group profile picture</string>
+    <string name="ContentDescription_go_back_button">Go back button</string>
+    <string name="profile_setting">Profile setting</string>
+    <string name="sign_out">Sign out</string>
 </resources>
