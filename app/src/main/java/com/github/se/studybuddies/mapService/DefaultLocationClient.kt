@@ -36,7 +36,6 @@ class DefaultLocationClient(
       if (!isGpsEnabled && !isNetworkEnabled) {
         throw LocationClient.LocationException("GPS is disabled")
         Toast.makeText(context, "GPS is disabled", Toast.LENGTH_SHORT).show()
-
       }
 
       val request = LocationRequest.create().setInterval(interval).setFastestInterval(interval)
@@ -55,5 +54,4 @@ class DefaultLocationClient(
       awaitClose { client.removeLocationUpdates(locationCallback) }
     }
   }
-
 }

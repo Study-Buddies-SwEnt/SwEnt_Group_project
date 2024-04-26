@@ -1,17 +1,13 @@
 package com.github.se.studybuddies
 
-import android.Manifest
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -125,13 +121,9 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.MAP) {
-                if (currentUser != null) {
-                    MapScreen(
-                        currentUser.uid,
-                        navigationActions,
-                        applicationContext
-                    )
-                }
+              if (currentUser != null) {
+                MapScreen(currentUser.uid, navigationActions, applicationContext)
+              }
             }
             composable(Route.TIMER) {
               if (currentUser != null) {

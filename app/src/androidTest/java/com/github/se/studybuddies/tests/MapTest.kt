@@ -1,27 +1,5 @@
 package com.github.se.studybuddies.tests
 
-import android.content.Context
-import android.content.pm.PackageManager
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.core.content.ContextCompat
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.screens.MapScreen
-import com.google.common.base.Verify.verify
-import com.kaspersky.components.composesupport.config.withComposeSupport
-import com.kaspersky.kaspresso.kaspresso.Kaspresso
-import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
-import io.mockk.impl.annotations.RelaxedMockK
-import io.mockk.junit4.MockKRule
-import io.mockk.mockk
-import io.mockk.verify
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-
 /*
 @RunWith(AndroidJUnit4::class)
 class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
@@ -79,4 +57,3 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
 
 
 }*/
-
