@@ -25,7 +25,6 @@ import kotlinx.coroutines.tasks.await
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
-  private val todoCollection = db.collection("toDoList")
 
   val rt_db =
       Firebase.database(
@@ -321,74 +320,4 @@ class DatabaseConnection {
     return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
   }
 
-  fun updateTodo(
-      todoId: String,
-      name: String,
-      dueDate: Date,
-      description: String,
-      status: String
-  ) {
-    val task =
-        hashMapOf(
-            "title" to name,
-            "dueDate" to dueDate,
-            "description" to description,
-            "status" to status)
-    todoCollection
-        .document(todoId)
-        .update(task as Map<String, Any>)
-        .addOnSuccessListener { Log.d("MyPrint", "Task $todoId succesfully updated") }
-        .addOnFailureListener { Log.d("MyPrint", "Task $todoId failed to update") }
-  }
-
-  suspend fun getAllItems(): ToDoList {
-    val querySnapshot = todoCollection.get().await()
-    val items = mutableListOf<ToDo>()
-
-    for (document in querySnapshot.documents) {
-      val uid = document.id
-      val name = document.getString("title") ?: ""
-      val assigneeName = document.getString("assigneeName") ?: ""
-      val dueDate = document.getDate("dueDate")
-      val convertedDate = dueDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-      val description = document.getString("description") ?: ""
-      val status = ToDoStatus.valueOf(document.getString("status") ?: "")
-
-      val item = ToDo(uid, name, convertedDate, description, status)
-      items.add(item)
-    }
-
-    return ToDoList(items)
-  }
-
-  fun addNewTodo(
-      name: String,
-      dueDate: Date,
-      description: String,
-      status: String
-  ) {
-    val task =
-        hashMapOf(
-            "title" to name,
-            "dueDate" to dueDate,
-            "description" to description,
-            "status" to status)
-
-    todoCollection
-        .add(task)
-        .addOnSuccessListener { Log.d("MyPrint", "Task succesfully added") }
-        .addOnFailureListener { Log.d("MyPrint", "Failed to add task") }
-  }
-
-  fun fetchTaskByUID(uid: String): Task<DocumentSnapshot> {
-    return todoCollection.document(uid).get()
-  }
-
-  fun deleteTodo(todoId: String) {
-    todoCollection
-        .document(todoId)
-        .delete()
-        .addOnSuccessListener { Log.d("MyPrint", "Successfully deleted task") }
-        .addOnFailureListener { Log.d("MyPrint", "Failed to delete task") }
-  }
 }

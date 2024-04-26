@@ -58,11 +58,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ToDoListScreen(overviewViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
-  val todos by overviewViewModel.todos.collectAsState()
+fun ToDoListScreen(ToDoListViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
+  val todos by ToDoListViewModel.todos.collectAsState()
   val (searchQuery, setSearchQuery) = remember { mutableStateOf("") }
 
-  overviewViewModel.fetchAllTodos()
+  ToDoListViewModel.fetchAllTodos()
 
   val todoList = remember { mutableStateOf(todos.getAllTasks()) }
 
@@ -80,7 +80,7 @@ fun ToDoListScreen(overviewViewModel: ToDoListViewModel, navigationActions: Navi
       floatingActionButton = {
         FloatingActionButton(
             onClick = { navigationActions.navigateTo(Route.CREATETODO) },
-            backgroundColor = Color(0xFF8A8AF0),
+            backgroundColor = Color.Blue,
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.testTag("createTodoButton")) {
               Icon(
