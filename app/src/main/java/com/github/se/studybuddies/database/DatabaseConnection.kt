@@ -196,7 +196,7 @@ class DatabaseConnection {
         val groupUIDs = snapshot.data?.get("groups") as? List<String>
         groupUIDs?.let { groupsIDs ->
           groupsIDs.forEach { groupUID ->
-            val document = groupDataCollection.document(groupUID.toString()).get().await()
+            val document = groupDataCollection.document(groupUID).get().await()
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
