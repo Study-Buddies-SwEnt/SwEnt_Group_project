@@ -214,7 +214,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
-            onClick = { isTextFieldVisible = true },
+            onClick = { isTextFieldVisible = !isTextFieldVisible },
             modifier = Modifier.width(64.dp).height(50.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Share,
