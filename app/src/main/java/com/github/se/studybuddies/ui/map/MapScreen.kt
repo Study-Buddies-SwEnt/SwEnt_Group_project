@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.map
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,6 +11,8 @@ import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import com.github.se.studybuddies.MainActivity
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.mapService.LocationService
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -52,7 +57,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("InlinedApi")
 @Composable
 fun MapScreen(
-    uid: String,
+    uid: String, //This will be useful for later versions when
     navigationActions: NavigationActions,
     context: Context,
 ) {
@@ -101,6 +106,27 @@ fun MapScreen(
         }
     }
 
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        ) {
+            Log.d("MapScreen", "Permission granted")
+        } else {
+            Log.d("MapScreen", "Permission denied")
+        }
+
+    }
+
+
+    /*ActivityCompat.requestPermissions(
+        (context as MainActivity),
+        arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
+        0)*/
   DrawerMenu(
       navigationActions = navigationActions,
       backRoute = Route.MAP,
@@ -128,9 +154,16 @@ fun MapScreen(
             painter = painterResource(id = R.drawable.get_location),
             modifier =
             Modifier
+                .testTag("mapIcon")
                 .padding(26.dp)
                 .size(30.dp)
                 .clickable {
+                    requestPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
                     if (!isGpsEnabled) {
                         Toast
                             .makeText(context, "GPS not enable", Toast.LENGTH_SHORT)
@@ -156,7 +189,7 @@ fun MapScreen(
                         Toast
                             .makeText(context, "Location service stopped", Toast.LENGTH_SHORT)
                             .show()
-
+                    //In the case where nothing is wrong, we start the LocationService
                     } else {
                         Intent(context, LocationService::class.java).apply {
                             action = LocationService.ACTION_START

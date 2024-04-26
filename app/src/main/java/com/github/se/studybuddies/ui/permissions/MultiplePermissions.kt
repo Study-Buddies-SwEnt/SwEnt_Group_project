@@ -85,3 +85,17 @@ fun Context.hasLocationPermission(): Boolean {
       ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
           PackageManager.PERMISSION_GRANTED
 }
+
+// Function to check and request a single permission.
+fun checkPermission(
+    context: Context,
+    permission: String,
+    launcher: ManagedActivityResultLauncher<String, Boolean>,
+    alreadyGranted: () -> Unit
+) {
+    if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+        launcher.launch(permission)
+    } else {
+        alreadyGranted()
+    }
+}

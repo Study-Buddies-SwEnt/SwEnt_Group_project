@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
+import android.widget.Toast
 import com.github.se.studybuddies.ui.permissions.hasLocationPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
+@Suppress("UNREACHABLE_CODE")
 class DefaultLocationClient(
     private val context: Context,
     private val client: FusedLocationProviderClient
@@ -25,6 +27,7 @@ class DefaultLocationClient(
     return callbackFlow {
       if (!context.hasLocationPermission()) {
         throw LocationClient.LocationException("Missing location permission")
+        Toast.makeText(context, "Missing location permission", Toast.LENGTH_SHORT).show()
       }
 
       val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -32,6 +35,8 @@ class DefaultLocationClient(
       val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
       if (!isGpsEnabled && !isNetworkEnabled) {
         throw LocationClient.LocationException("GPS is disabled")
+        Toast.makeText(context, "GPS is disabled", Toast.LENGTH_SHORT).show()
+
       }
 
       val request = LocationRequest.create().setInterval(interval).setFastestInterval(interval)
