@@ -193,7 +193,7 @@ fun AddGroupButton(navigationActions: NavigationActions) {
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-            modifier = Modifier.width(64.dp).height(50.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Add,
                   contentDescription = "Create a task",
@@ -215,7 +215,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = !isTextFieldVisible },
-            modifier = Modifier.width(64.dp).height(50.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Share,
                   contentDescription = "Link button",
