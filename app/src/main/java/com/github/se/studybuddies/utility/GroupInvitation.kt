@@ -1,25 +1,28 @@
 package com.github.se.studybuddies.utility
 
 import android.util.Log
+import com.github.se.studybuddies.database.DatabaseConnection
 
-object GroupInvitation {
+private val db = DatabaseConnection()
 
-  // private val db = DatabaseConnection()
-
-  fun createGroupInviteLink(groupUID: String, groupName: String): String {
-    if (groupUID == "") {
-      Log.d("Link", "The Group name is empty")
-      return "Group_not_founded"
-    } else {
-        var newGroupName = groupName
-        if (groupName == "") {
-            newGroupName = "NotNamedGroup"
-        }
-        val link = "studybuddiesJoinGroup=$newGroupName/$groupUID"
-        Log.d("Link", "Successfully created the link")
-        return link
-        }
+// Function to create a group invitation link
+suspend fun createGroupInviteLink(groupUID: String, groupName: String = ""): String {
+  if (groupUID == "") {
+    Log.d("Link", "The Group id is empty")
+    return "Group_not_founded"
+  } else {
+    var newGroupName = groupName
+    if (groupName == "") {
+      newGroupName = db.getGroupName(groupUID)
+      if (newGroupName == "") {
+        newGroupName = "NotNamedGroup"
+      }
+    }
+    val link = "studybuddiesJoinGroup=$newGroupName/$groupUID"
+    Log.d("Link", "Successfully created the link")
+    return link
   }
+}
 
   // function not used anymore, but can be useful for future development if wanting to add a Dynamic
   // Link
@@ -59,4 +62,3 @@ object GroupInvitation {
         }
         .addOnFailureListener(activity) { e -> Log.w("Link", "getDynamicLink:onFailure", e) }
   }*/
-}

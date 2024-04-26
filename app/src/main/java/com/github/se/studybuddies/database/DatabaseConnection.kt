@@ -60,6 +60,16 @@ class DatabaseConnection {
     }
   }
 
+  suspend fun getGroupName(groupUID: String): String {
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (document.exists()) {
+      return document.getString("name") ?: ""
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
+      return ""
+    }
+  }
+
   suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }

@@ -1,26 +1,26 @@
 package com.github.se.studybuddies.tests
 
+import com.github.se.studybuddies.utility.createGroupInviteLink
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import com.github.se.studybuddies.utility.GroupInvitation.createGroupInviteLink
 
 class GroupInvitationTest {
 
   @Test
-  fun generateLink() {
+  fun generateLinkTest() = runBlocking {
     var groupUID = "xtheb45SJUEHD"
-    var groupName = "StudyBuddiesIsTheBest"
+    val groupName = "StudyBuddiesIsTheBest"
     var inviteLink = createGroupInviteLink(groupUID, groupName)
     assertEquals(("studybuddiesJoinGroup=StudyBuddiesIsTheBest/xtheb45SJUEHD"), inviteLink)
 
     groupUID = "sjsueh3ks8"
-    groupName = "BestNameEver"
-    inviteLink = createGroupInviteLink(groupUID, groupName)
-    assertEquals(("studybuddiesJoinGroup=BestNameEver/sjsueh3ks8"), inviteLink)
+    inviteLink = createGroupInviteLink(groupUID)
+    assertEquals(("studybuddiesJoinGroup=NotNamedGroup/sjsueh3ks8"), inviteLink)
   }
 
   @Test
-  fun generateLinkEmptyName() {
+  fun generateLinkEmptyNameTest() = runBlocking {
     val groupUID = "wUHd562G62H"
     val groupName = ""
     val inviteLink = createGroupInviteLink(groupUID, groupName)
@@ -28,7 +28,7 @@ class GroupInvitationTest {
   }
 
   @Test
-  fun generateLinkWrongArgument() {
+  fun generateLinkWrongArgumentTest() = runBlocking {
     val groupUID = ""
     val groupName = "Test28"
     val inviteLink = createGroupInviteLink(groupUID, groupName)

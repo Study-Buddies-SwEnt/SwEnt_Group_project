@@ -129,10 +129,6 @@ dependencies {
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
-
-    //For groups invitation links
-    implementation("com.google.firebase:firebase-dynamic-links:20.1.1")
-    implementation("com.google.firebase:firebase-dynamic-links-ktx")
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {
     mustRunAfter("testDebugUnitTest", "connectedDebugAndroidTest")
