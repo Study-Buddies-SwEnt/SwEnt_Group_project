@@ -8,7 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class AddLinkButtonTest {
+class JoinGroupFromLink {
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -35,6 +35,7 @@ class AddLinkButtonTest {
     composeTestRule
         .onNodeWithText("Enter Link")
         .performTextInput(
-            "https://studybuddies.page.link/JoinGroup/4nlAlCyONOiQIBKXrXTZ") // the link should work
+            "https://studybuddies.page.link/JoinGroup/4nlAlCyONOiQIBKXrXTZ")
+  // The link should work if it's not modified in the Firebase
   }
 }
