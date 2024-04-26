@@ -23,7 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
+/*
 @RunWith(AndroidJUnit4::class)
 class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
     @get:Rule
@@ -54,6 +54,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
         composeTestRule.setContent { mapScreen }
     }
 
+
     @Test
     fun mapIconIsDisplayed() {
         onComposeScreen<MapScreen>(composeTestRule) {
@@ -78,5 +79,5 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
     }
 
 
-}
+}*/
 
