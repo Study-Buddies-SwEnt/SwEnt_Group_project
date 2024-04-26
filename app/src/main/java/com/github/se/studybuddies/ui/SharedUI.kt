@@ -79,17 +79,18 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawerMenu(
+fun MainScreenScaffold(
     navigationActions: NavigationActions,
     backRoute: String,
     content: @Composable (PaddingValues) -> Unit,
-    title: @Composable () -> Unit,
+    title: String,
     iconOptions: @Composable () -> Unit,
 ) {
 
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val scope = rememberCoroutineScope()
   ModalNavigationDrawer(
+      modifier = Modifier.testTag(title + "_menu"),
       drawerState = drawerState,
       drawerContent = {
         var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -117,11 +118,11 @@ fun DrawerMenu(
         }
       }) {
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("drawer_scaffold"),
             topBar = {
               Box {
                 CenterAlignedTopAppBar(
-                    title = { title() },
+                    title = { Main_title(title = title) },
                     navigationIcon = { DrawerMenuIcon(scope, drawerState) },
                     actions = { iconOptions() })
                 Divider(
@@ -139,19 +140,42 @@ fun DrawerMenu(
       }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopNavigationBar(
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit,
+    actions: @Composable () -> Unit,
+) {
+  Box(
+      modifier = Modifier.testTag("top_app_box"),
+  ) {
+    CenterAlignedTopAppBar(
+        title = { title() },
+        navigationIcon = { navigationIcon() },
+        actions = { actions() },
+        modifier = Modifier.testTag("top_app_bar"))
+    Divider(
+        color = Blue,
+        thickness = 4.dp,
+        modifier = Modifier.align(Alignment.BottomStart).testTag("divider"))
+  }
+}
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
   NavigationBar(
       modifier =
-          Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp).testTag("Bottom Navigation Bar"),
+          Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp).testTag("bottom_navigation_bar"),
       containerColor = Color.White,
       contentColor = Color.White,
       tonalElevation = 0.dp,
   ) {
     destinations.forEachIndexed { index, item ->
       NavigationBarItem(
+          modifier = Modifier.testTag(item.textId + "_item"),
           selected = selectedItemIndex == index,
           onClick = {
             selectedItemIndex = index
@@ -174,18 +198,18 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
 fun Main_title(title: String) {
   Text(
       text = title,
-      fontFamily = FontFamily(Font(R.font.playball_regular)),
+      fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
       fontSize = 45.sp,
-  )
+      modifier = Modifier.testTag("main_title"))
 }
 
 @Composable
 fun Sub_title(title: String) {
   Text(
       text = title,
-      fontFamily = FontFamily(Font(R.font.playball_regular)),
-      fontSize = 45.sp,
-  )
+      fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
+      fontSize = 30.sp,
+      modifier = Modifier.testTag("sub_title"))
 }
 
 @Composable
@@ -206,16 +230,6 @@ fun SearchIcon() {
 }
 
 @Composable
-fun GoBackButton(
-    navigationActions: NavigationActions,
-) {
-  Icon(
-      imageVector = Icons.Default.ArrowBack,
-      contentDescription = "Go back",
-      modifier = Modifier.clickable { navigationActions.goBack() })
-}
-
-@Composable
 fun GoBackRouteButton(
     navigationActions: NavigationActions,
     backRoute: String,
@@ -223,7 +237,8 @@ fun GoBackRouteButton(
   Icon(
       imageVector = Icons.Default.ArrowBack,
       contentDescription = "Go back",
-      modifier = Modifier.clickable { navigationActions.navigateTo(backRoute) })
+      modifier =
+          Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
 }
 
 @Composable

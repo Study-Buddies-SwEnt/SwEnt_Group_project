@@ -14,4 +14,6 @@
     <string name="contentDescription_icon_send">Icon Send</string>
     <string name="contentDescription_group_profile_picture">Group profile picture</string>
     <string name="ContentDescription_go_back_button">Go back button</string>
+    <string name="profile_setting">Profile setting</string>
+    <string name="sign_out">Sign out</string>
 </resources>
