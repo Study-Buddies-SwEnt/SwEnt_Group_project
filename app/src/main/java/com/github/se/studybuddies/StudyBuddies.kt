@@ -2,7 +2,7 @@ package com.github.se.studybuddies
 
 import android.app.Application
 
-class StudyBuddies : Application() {
+class tudyBuddies : Application() {
     override fun onCreate() {
         super.onCreate()
 

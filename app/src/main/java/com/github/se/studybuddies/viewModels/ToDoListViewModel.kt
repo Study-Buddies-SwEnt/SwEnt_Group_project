@@ -16,18 +16,18 @@ import java.io.File
 import java.time.ZoneId
 import java.util.Date
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-class ToDoListViewModel() : ViewModel() {
+class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
 
   //private val firebaseConnection = DatabaseConnection()
-
-  val file = File(this.filesDir, "myData.txt")
 
 
   private val _todos = MutableStateFlow(ToDoList(emptyList()))
   val todos: StateFlow<ToDoList> = _todos
 
   init {
+    val file = File(studyBuddies.filesDir, "myData.txt")
     fetchAllTodos()
   }
 
