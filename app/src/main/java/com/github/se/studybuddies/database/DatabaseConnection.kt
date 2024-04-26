@@ -37,6 +37,9 @@ class DatabaseConnection {
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
+    if (uid.isEmpty()) {
+      return User.empty()
+    }
     val document = userDataCollection.document(uid).get().await()
     return if (document.exists()) {
       val email = document.getString("email") ?: ""
@@ -60,6 +63,16 @@ class DatabaseConnection {
       uid
     } else {
       Log.d("MyPrint", "Failed to get current user UID")
+      ""
+    }
+  }
+
+  suspend fun getGroupName(groupUID: String): String {
+    val document = groupDataCollection.document(groupUID).get().await()
+    return if (document.exists()) {
+      document.getString("name") ?: ""
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
       ""
     }
   }
@@ -190,7 +203,7 @@ class DatabaseConnection {
         val groupUIDs = snapshot.data?.get("groups") as? List<String>
         groupUIDs?.let { groupsIDs ->
           groupsIDs.forEach { groupUID ->
-            val document = groupDataCollection.document(groupUID.toString()).get().await()
+            val document = groupDataCollection.document(groupUID).get().await()
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
@@ -301,6 +314,35 @@ class DatabaseConnection {
     }
   }
 
+  suspend fun updateGroup(groupUID: String): Int {
+
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (!document.exists()) {
+      Log.d("MyPrint", "Group with uid $groupUID does not exist")
+      return -1
+    }
+    val userToAdd = getCurrentUserUID()
+
+    // add user to group
+    groupDataCollection
+        .document(groupUID)
+        .update("members", FieldValue.arrayUnion(userToAdd))
+        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to add user to group with error: ", e)
+        }
+
+    // add group to the user's list of groups
+    userMembershipsCollection
+        .document(userToAdd)
+        .update("groups", FieldValue.arrayUnion(groupUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to add group to user with error: ", e)
+        }
+    return 0
+  }
+
   // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
@@ -314,6 +356,16 @@ class DatabaseConnection {
         .updateChildren(messageData)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
+  }
+
+  fun deleteMessage(groupUID: String, message: Message) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    rt_db.getReference(messagePath).removeValue()
+  }
+
+  fun editMessage(groupUID: String, message: Message, newText: String) {
+    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+    rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
   fun getGroupMessagesPath(groupUID: String): String {

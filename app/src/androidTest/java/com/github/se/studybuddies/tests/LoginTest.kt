@@ -12,6 +12,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.MainActivity
+import com.github.se.studybuddies.screens.LoginScreen
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import org.junit.Rule
@@ -29,7 +30,7 @@ class LoginTest : TestCase() {
 
   @Test
   fun titleAndButtonAreCorrectlyDisplayed() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.LoginScreen>(composeTestRule) {
+    ComposeScreen.onComposeScreen<LoginScreen>(composeTestRule) {
       // Test the UI elements
       loginTitle {
         assertIsDisplayed()

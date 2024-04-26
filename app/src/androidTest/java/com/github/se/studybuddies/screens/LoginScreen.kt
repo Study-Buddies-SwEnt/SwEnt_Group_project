@@ -9,6 +9,6 @@ class LoginScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
         semanticsProvider = semanticsProvider, viewBuilderAction = { hasTestTag("LoginScreen") }) {
 
   // Structural elements of the UI
-  val loginTitle: KNode = child { hasTestTag("LoginTitle") }
-  val loginButton: KNode = child { hasTestTag("LoginButton") }
+  val loginTitle: KNode = onNode { hasTestTag("LoginTitle") }
+  val loginButton: KNode = onNode { hasTestTag("LoginButton") }
 }

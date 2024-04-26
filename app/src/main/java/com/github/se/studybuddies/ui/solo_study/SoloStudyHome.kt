@@ -14,34 +14,34 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DrawerMenu
-import com.github.se.studybuddies.ui.Main_title
+import com.github.se.studybuddies.ui.MainScreenScaffold
 
 @Composable
 fun SoloStudyHome(navigationActions: NavigationActions) {
-  DrawerMenu(
+  MainScreenScaffold(
       navigationActions,
       Route.SOLOSTUDYHOME,
       content = {
         Column(
-            modifier = Modifier.fillMaxSize().testTag("SoloStudyHome"),
+            modifier = Modifier.fillMaxSize().testTag("solo_study_home"),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(
                   modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
-                    solo_study_buttons(option = FLASH_CARD)
-                    solo_study_buttons(option = TODO_LIST)
+                    Solo_study_buttons(navigationActions, option = FLASH_CARD)
+                    Solo_study_buttons(navigationActions, option = TODO_LIST)
                   }
-              Spacer(modifier = Modifier.height(90.dp))
+
+              Spacer(modifier = Modifier.height(100.dp))
               Row(
                   modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
-                    solo_study_buttons(option = FOCUS_MODE)
-                    solo_study_buttons(option = TIMER)
+                    Solo_study_buttons(navigationActions, option = CALENDAR)
+                    Solo_study_buttons(navigationActions, option = TIMER)
                   }
             }
       },
-      title = { Main_title("Solo Study") },
+      title = "Solo Study",
       iconOptions = {})
 }
