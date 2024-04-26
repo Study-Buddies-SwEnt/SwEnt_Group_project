@@ -69,6 +69,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private val db = DatabaseConnection()
+
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -233,16 +234,16 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
                   scope.launch {
-                      val error = db.updateGroup(groupUID)
-                      if (error == -1) {
-                          showError = true
-                          scope.launch {
-                              delay(3000L) // delay for 3 seconds
-                              showError = false
-                          }
-                      } else {
-                          navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                    val error = db.updateGroup(groupUID)
+                    if (error == -1) {
+                      showError = true
+                      scope.launch {
+                        delay(3000L) // delay for 3 seconds
+                        showError = false
                       }
+                    } else {
+                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                    }
                   }
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
