@@ -218,7 +218,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
             modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Share,
-                  contentDescription = "Create a task",
+                  contentDescription = "Link button",
                   tint = White)
             }
       }
