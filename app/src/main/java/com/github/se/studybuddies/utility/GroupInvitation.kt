@@ -7,9 +7,9 @@ private val db = DatabaseConnection()
 
 // Function to create a group invitation link
 suspend fun createGroupInviteLink(groupUID: String, groupName: String = ""): String {
-  if (groupUID == "") {
+  return if (groupUID == "") {
     Log.d("Link", "The Group id is empty")
-    return "Group_not_founded"
+    "Group_not_founded"
   } else {
     var newGroupName = groupName
     if (groupName == "") {
@@ -20,7 +20,7 @@ suspend fun createGroupInviteLink(groupUID: String, groupName: String = ""): Str
     }
     val link = "studybuddiesJoinGroup=$newGroupName/$groupUID"
     Log.d("Link", "Successfully created the link")
-    return link
+    link
   }
 }
 
