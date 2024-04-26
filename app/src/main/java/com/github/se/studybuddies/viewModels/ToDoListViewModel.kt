@@ -28,6 +28,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
 
   private val _todos = MutableStateFlow(ToDoList(emptyList()))
   val todos: StateFlow<ToDoList> = _todos
+
   init {
     fetchAllTodos()
   }

@@ -44,6 +44,9 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
+
+    val studyBuddies = application as StudyBuddies
+
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -128,13 +131,13 @@ class MainActivity : ComponentActivity() {
 
             composable(Route.TODOLIST) {
               if (currentUser != null) {
-                ToDoListScreen(ToDoListViewModel(Application()), navigationActions)
+                ToDoListScreen(ToDoListViewModel(studyBuddies = studyBuddies), navigationActions)
               }
             }
 
             composable(Route.CREATETODO)  {
               if (currentUser != null) {
-            CreateToDo(ToDoListViewModel(Application()), navigationActions)
+            CreateToDo(ToDoListViewModel(studyBuddies), navigationActions)
             }
           }
 
@@ -145,7 +148,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
                   if (todoUID != null) {
-                    EditToDoScreen(todoUID, ToDoListViewModel(Application()), navigationActions)
+                    EditToDoScreen(todoUID, ToDoListViewModel(studyBuddies), navigationActions)
                   }
                 }
 

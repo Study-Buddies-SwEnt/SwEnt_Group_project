@@ -17,7 +17,7 @@ import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
-import com.github.se.studybuddies.viewModels.ToDoViewModel
+//import com.github.se.studybuddies.viewModels.ToDoViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

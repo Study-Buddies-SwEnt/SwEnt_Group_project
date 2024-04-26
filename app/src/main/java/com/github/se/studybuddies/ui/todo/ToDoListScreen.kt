@@ -58,11 +58,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ToDoListScreen(ToDoListViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
-  val todos by ToDoListViewModel.todos.collectAsState()
+fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
+  val todos by toDoListViewModel.todos.collectAsState()
   val (searchQuery, setSearchQuery) = remember { mutableStateOf("") }
 
-  ToDoListViewModel.fetchAllTodos()
+  toDoListViewModel.fetchAllTodos()
 
   val todoList = remember { mutableStateOf(todos.getAllTasks()) }
 
