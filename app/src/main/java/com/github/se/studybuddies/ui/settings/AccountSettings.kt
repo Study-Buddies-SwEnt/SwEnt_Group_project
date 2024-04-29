@@ -87,7 +87,7 @@ fun AccountSettings(
       modifier = Modifier.fillMaxSize().testTag("account_settings"),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title(title = "Profile setting") },
+            title = { Sub_title(title = stringResource(R.string.profile_setting)) },
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             },
