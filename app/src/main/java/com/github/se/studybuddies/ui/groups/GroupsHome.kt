@@ -135,7 +135,7 @@ fun GroupsHome(
 }
 
 @Composable
-fun GroupsSettingsButton(navigationActions: NavigationActions) {
+fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions) {
   val expandedState = remember { mutableStateOf(false) }
   IconButton(
       onClick = { expandedState.value = true },
@@ -147,7 +147,8 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
       DropdownMenuItem(
           onClick = {
             expandedState.value = false
-            navigationActions.navigateTo(item.route)
+            // navigationActions.navigateTo(item.route)
+            navigationActions.navigateTo("${Route.GROUPSETTING}/$groupUID")
           }) {
             Spacer(modifier = Modifier.size(16.dp))
             Text(item.textId)
@@ -180,7 +181,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
           Spacer(modifier = Modifier.size(16.dp))
           Text(text = group.name, style = TextStyle(fontSize = 16.sp), lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          GroupsSettingsButton(navigationActions)
+          GroupsSettingsButton(group.uid, navigationActions)
         }
       }
 }

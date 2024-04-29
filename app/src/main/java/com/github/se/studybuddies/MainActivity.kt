@@ -19,6 +19,7 @@ import com.github.se.studybuddies.ui.ChatScreen
 import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
+import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.settings.AccountSettings
 import com.github.se.studybuddies.ui.settings.CreateAccount
@@ -109,6 +110,16 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
+            composable(
+                route = "${Route.GROUPSETTING}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (groupUID != null) {
+                    GroupSetting(groupUID, GroupViewModel(), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                  }
+                }
             composable(Route.CHAT) {
               if (currentUser != null) {
                 ChatScreen(MessageViewModel("general_group"), navigationActions)
