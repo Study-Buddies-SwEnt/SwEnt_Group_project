@@ -22,7 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
@@ -73,7 +75,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       modifier = Modifier.fillMaxSize().background(White).testTag("create_group_scaffold"),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title("Create a group") },
+            title = { Sub_title(stringResource(R.string.create_group)) },
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
