@@ -136,7 +136,7 @@ fun MapScreen(
         Icon(
             painter = painterResource(id = R.drawable.get_location),
             modifier =
-                Modifier.testTag("mapIcon").padding(26.dp).size(30.dp).clickable {
+                Modifier.testTag("mapIcon").padding(24.dp).size(30.dp).clickable {
                   requestPermissionLauncher.launch(
                       arrayOf(
                           Manifest.permission.ACCESS_FINE_LOCATION,
