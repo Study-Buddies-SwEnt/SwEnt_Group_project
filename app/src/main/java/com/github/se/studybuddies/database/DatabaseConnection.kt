@@ -308,6 +308,10 @@ class DatabaseConnection {
   }
 
   suspend fun updateGroup(groupUID: String): Int {
+    if (groupUID == "") {
+      Log.d("MyPrint", "Group UID is empty")
+      return -1
+    }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
