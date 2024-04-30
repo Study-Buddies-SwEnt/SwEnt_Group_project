@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.se.studybuddies.R
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
@@ -60,12 +61,15 @@ class LocationService : Service() {
           val updatedNotification = notification.setContentText("Location: ($lat, $long)")
           notificationManager.notify(1, updatedNotification.build())
 
-          // val intent = Intent("LocationUpdates")
-          val intent = Intent(LocationService.ACTION_LOCATION_UPDATES)
+          val intent = Intent("LocationUpdates")
+          // val intent = Intent(LocationService.ACTION_LOCATION_UPDATES)
           intent.putExtra("location", location)
+          // val intent = Intent("com.github.se.studybuddies.LOCATION_UPDATES")
+          // intent.setPackage("com.github.se.studybuddies.mapService")
+          // sendBroadcast(intent)
           // sendBroadcast(intent, "com.github.se.studybuddies.mapService.LocationService")
-          // LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
-          sendBroadcast(intent)
+          LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+          // sendBroadcast(intent)
         }
         .launchIn(serviceScope)
 
