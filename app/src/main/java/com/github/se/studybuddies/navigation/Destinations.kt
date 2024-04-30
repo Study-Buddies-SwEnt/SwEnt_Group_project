@@ -13,7 +13,6 @@ val SETTINGS_DESTINATIONS =
 val GROUPS_SETTINGS_DESTINATIONS =
     listOf(Destination(route = Route.GROUP, textId = "Modify a group"))
 
-
 val BOTTOM_NAVIGATION_DESTINATIONS =
     // 4rth route is a placeholder
     listOf(
