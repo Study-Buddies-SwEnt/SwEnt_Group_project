@@ -96,7 +96,9 @@ fun MapScreen(
 
     // context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     // Unregister the receiver when the composable is disposed
-    onDispose { context.unregisterReceiver(locationReceiver) }
+    onDispose { LocalBroadcastManager.getInstance(context).unregisterReceiver(locationReceiver) }
+
+    // onDispose { context.unregisterReceiver(locationReceiver) }
   }
 
   /*
