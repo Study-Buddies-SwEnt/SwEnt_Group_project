@@ -10,10 +10,10 @@ import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.ChatScreen
-import com.github.se.studybuddies.ui.ChatScreen
-import com.github.se.studybuddies.ui.EditDialog
-import com.github.se.studybuddies.ui.OptionsDialog
-import com.github.se.studybuddies.ui.TextBubble
+import com.github.se.studybuddies.ui.screens.ChatScreen
+import com.github.se.studybuddies.ui.screens.EditDialog
+import com.github.se.studybuddies.ui.screens.OptionsDialog
+import com.github.se.studybuddies.ui.screens.TextBubble
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso

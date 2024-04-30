@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Sub_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel

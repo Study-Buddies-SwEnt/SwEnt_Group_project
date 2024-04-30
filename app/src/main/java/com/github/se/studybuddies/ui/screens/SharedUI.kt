@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
