@@ -21,6 +21,13 @@ val GROUPS_SETTINGS_DESTINATIONS =
         Destination(
             route = Route.GROUP, textId = Resources.getSystem().getString(R.string.modify_a_group)))
 
+val GROUPS_VIDEO_CALL_DESTINATIONS =
+    listOf(
+        Destination(
+            route = Route.VIDEOCALL,
+            icon = R.drawable.video_call,
+            textId = "Video Call"))
+
 val BOTTOM_NAVIGATION_DESTINATIONS =
     // 4rth route is a placeholder
     listOf(
