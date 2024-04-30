@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationManager
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +71,7 @@ fun MapScreen(
   val locationReceiver: BroadcastReceiver =
       object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+
           location = intent.getParcelableExtra<Location>("location")
           // Use the location here
           location?.let {
@@ -85,13 +88,12 @@ fun MapScreen(
   // Contrary to LaunchedEffect, DisposableEffect is called when the intent come from another
   // screen/file
 
-  /*
   DisposableEffect(key1 = true) {
     val filter = IntentFilter("LocationUpdates")
     context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     // Unregister the receiver when the composable is disposed
     onDispose { context.unregisterReceiver(locationReceiver) }
-  }*/
+  }
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(
@@ -103,14 +105,6 @@ fun MapScreen(
               Log.d("MapScreen", "Permission denied")
             }
           }
-
-  /*ActivityCompat.requestPermissions(
-  (context as MainActivity),
-  arrayOf(
-      Manifest.permission.ACCESS_COARSE_LOCATION,
-      Manifest.permission.ACCESS_FINE_LOCATION,
-  ),
-  0)*/
   MainScreenScaffold(
       navigationActions = navigationActions,
       backRoute = Route.MAP,

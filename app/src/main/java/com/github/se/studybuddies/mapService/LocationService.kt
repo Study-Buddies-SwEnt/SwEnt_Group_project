@@ -62,6 +62,8 @@ class LocationService : Service() {
 
           val intent = Intent("LocationUpdates")
           intent.putExtra("location", location)
+          // sendBroadcast(intent, "com.github.se.studybuddies.mapService.LocationService")
+          // LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
           sendBroadcast(intent)
         }
         .launchIn(serviceScope)
