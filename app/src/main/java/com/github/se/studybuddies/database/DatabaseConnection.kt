@@ -60,6 +60,16 @@ class DatabaseConnection {
     }
   }
 
+  suspend fun getGroupName(groupUID: String): String {
+    val document = groupDataCollection.document(groupUID).get().await()
+    return if (document.exists()) {
+      document.getString("name") ?: ""
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
+      ""
+    }
+  }
+
   suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
@@ -298,6 +308,10 @@ class DatabaseConnection {
   }
 
   suspend fun updateGroup(groupUID: String): Int {
+    if (groupUID == "") {
+      Log.d("MyPrint", "Group UID is empty")
+      return -1
+    }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {

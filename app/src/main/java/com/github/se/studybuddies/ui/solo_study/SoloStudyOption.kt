@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.solo_study
 
+import android.content.res.Resources
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -29,17 +30,26 @@ class SoloStudyOptionList(private val SoloStudyOptions: List<SoloStudyOption>) {
   }
 }
 
-val FLASH_CARD = SoloStudyOption("Flash Card", R.drawable.flash_cards, Route.TIMER)
-val TODO_LIST = SoloStudyOption("Todo List", R.drawable.to_do_list, Route.TIMER)
-val FOCUS_MODE = SoloStudyOption("Focus Mode", R.drawable.flash_cards, Route.TIMER)
-val TIMER = SoloStudyOption("Timer", R.drawable.timer, Route.TIMER)
-val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.TIMER)
+val FLASH_CARD =
+    SoloStudyOption(
+        Resources.getSystem().getString(R.string.flash_card), R.drawable.flash_cards, Route.TIMER)
+val TODO_LIST =
+    SoloStudyOption(
+        Resources.getSystem().getString(R.string.todo_list), R.drawable.to_do_list, Route.TIMER)
+val FOCUS_MODE =
+    SoloStudyOption(
+        Resources.getSystem().getString(R.string.focus_mode), R.drawable.flash_cards, Route.TIMER)
+val TIMER =
+    SoloStudyOption(Resources.getSystem().getString(R.string.timer), R.drawable.timer, Route.TIMER)
+val CALENDAR =
+    SoloStudyOption(
+        Resources.getSystem().getString(R.string.calendar), R.drawable.calendar, Route.TIMER)
 
 @Composable
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(
       onClick = { navigationActions.navigateTo(option.route) },
-      modifier = Modifier.height(120.dp).width(240.dp).testTag("solo_study_button"),
+      modifier = Modifier.height(120.dp).width(160.dp).testTag("solo_study_button"),
       colors = ButtonDefaults.buttonColors(White),
       shape = RoundedCornerShape(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
