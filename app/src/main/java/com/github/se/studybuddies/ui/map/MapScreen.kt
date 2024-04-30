@@ -86,12 +86,16 @@ fun MapScreen(
   // is off or changing
   // Contrary to LaunchedEffect, DisposableEffect is called when the intent come from another
   // screen/file
+
+    /*
   DisposableEffect(key1 = true) {
     val filter = IntentFilter("LocationUpdates")
     context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     // Unregister the receiver when the composable is disposed
     onDispose { context.unregisterReceiver(locationReceiver) }
-  }
+  }*/
+
+
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(
