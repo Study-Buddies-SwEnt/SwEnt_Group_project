@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,6 +21,7 @@ import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.screens.ChatScreen
 import com.github.se.studybuddies.ui.screens.LoginScreen
+import com.github.se.studybuddies.ui.screens.VideoCallScreen
 import com.github.se.studybuddies.ui.settings.AccountSettings
 import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
@@ -31,6 +33,7 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
+import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
@@ -124,6 +127,12 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 TimerScreenContent(TimerViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
+              }
+            }
+            composable(Route.VIDEOCALL) {
+              if (currentUser != null) {
+                VideoCallScreen(VideoCallViewModel(currentUser.uid, LocalContext.current), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to VideoCallScreen")
               }
             }
           }
