@@ -1,59 +1,51 @@
 package com.github.se.studybuddies.tests
 
-/*
+import android.content.Context
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.screens.MapScreen
+import com.github.se.studybuddies.ui.map.MapScreen
+import com.kaspersky.components.composesupport.config.withComposeSupport
+import com.kaspersky.kaspresso.kaspresso.Kaspresso
+import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
+import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
+import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.junit4.MockKRule
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
 @RunWith(AndroidJUnit4::class)
 class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+  @get:Rule val composeTestRule = createComposeRule()
 
-    // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
-    @get:Rule
-    val mockkRule = MockKRule(this)
+  @get:Rule val mockkRule = MockKRule(this)
 
-    // Relaxed mocks methods have a default implementation returning values
-    @RelaxedMockK
-    lateinit var mockNavActions: NavigationActions
+  // Relaxed mocks methods have a default implementation returning values
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-    @RelaxedMockK private lateinit var mockContext: Context
+  @RelaxedMockK private lateinit var mockContext: Context
 
+  private fun granted() {
+    assert(true)
+  }
 
-    lateinit var mapScreen : MapScreen
+  val uid = "111testUser"
 
-    @RelaxedMockK private lateinit var mockLauncher: ManagedActivityResultLauncher<String, Boolean>
+  @Before
+  fun setup() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
 
-    private fun granted() {
-        assert(true)
+    composeTestRule.setContent {
+      MapScreen(uid = uid, navigationActions = mockNavActions, context = context)
     }
+  }
 
-    @Before
-    fun setup() {
-        mapScreen = MapScreen(composeTestRule)
-        composeTestRule.setContent { mapScreen }
-    }
-
-
-    @Test
-    fun mapIconIsDisplayed() {
-        onComposeScreen<MapScreen>(composeTestRule) {
-            mapIcon {
-                assertIsDisplayed()
-            }
-        }
-    }
-    @Test
-    fun permissionsRequestNotLaunched() {
-        val permission = "android.permission.CALENDAR"
-        mockLauncher =
-            mockk<ManagedActivityResultLauncher<String, Boolean>>(relaxed = true) { launch(permission) }
-        mockContext = mockk<Context>(relaxed = true) {}
-
-        checkPermission(mockContext, permission, mockLauncher)
-        assert(
-            ContextCompat.checkSelfPermission(mockContext, permission) ==
-                    PackageManager.PERMISSION_GRANTED)
-        checkPermission(mockContext, permission, mockLauncher) { granted() }
-        verify(exactly = 1) { mockLauncher.launch(permission) }
-    }
-
-
-}*/
+  @Test
+  fun mapIconIsDisplayed() {
+    onComposeScreen<MapScreen>(composeTestRule) { mapIcon { assertIsDisplayed() } }
+  }
+}
