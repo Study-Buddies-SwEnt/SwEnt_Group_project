@@ -97,11 +97,10 @@ fun MapScreen(
     onDispose { context.unregisterReceiver(locationReceiver) }
   }*/
 
-
   DisposableEffect(key1 = true) {
     val filter = IntentFilter(LocationService.ACTION_LOCATION_UPDATES)
     val serviceIntent = Intent(context, LocationService::class.java)
-      serviceIntent.action = LocationService.ACTION_LOCATION_UPDATES
+    serviceIntent.action = LocationService.ACTION_LOCATION_UPDATES
     context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     // Unregister the receiver when the composable is disposed
     onDispose { context.unregisterReceiver(locationReceiver) }
