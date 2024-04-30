@@ -1,6 +1,9 @@
 package com.github.se.studybuddies.viewModels
 
 import android.app.Application
+import android.content.SharedPreferences
+import android.content.QuickViewConstants
+import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +18,16 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.security.SecureRandom
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
 
@@ -26,10 +39,136 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
 
   private val gson = Gson()
   private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
+  private val encryptedToDoFile = encryptAndSaveFile(toDoFile)
+  private val sharedPref = SharedPreferences()
 
   init {
     fetchAllTodos()
   }
+
+
+  //encryption scheme
+
+  private val secretKeyPref = "SECRET_KEY_PREF"
+
+  @Throws(Exception::class)
+  fun generateSecretKey(): SecretKey? {
+    val secureRandom = SecureRandom()
+    val keyGenerator = KeyGenerator.getInstance("AES")
+    //generate a key with secure random
+    keyGenerator?.init(128, secureRandom)
+    return keyGenerator?.generateKey()
+  }
+
+  fun saveSecretKey(sharedPref: SharedPreferences, secretKey: SecretKey): String {
+    val encodedKey = Base64.encodeToString(secretKey.encoded, Base64.NO_WRAP)
+    sharedPref.edit().putString(secretKeyPref, encodedKey).apply()
+    return encodedKey
+  }
+
+  fun getSecretKey(sharedPref: SharedPreferences): SecretKey {
+
+    val key = sharedPref.getString(secretKeyPref, null)
+
+    if (key == null) {
+      //generate secure random
+      val secretKey = generateSecretKey()
+      saveSecretKey(sharedPref, secretKey!!)
+      return secretKey
+    }
+
+    val decodedKey = Base64.decode(key, Base64.NO_WRAP)
+    val originalKey = SecretKeySpec(decodedKey, 0, decodedKey.size, "AES")
+
+    return originalKey
+  }
+
+  @Throws(Exception::class)
+  fun readFile(filePath: String): ByteArray {
+    val file = File(filePath)
+    val fileContents = file.readBytes()
+    val inputBuffer = BufferedInputStream(
+      FileInputStream(file)
+    )
+
+    inputBuffer.read(fileContents)
+    inputBuffer.close()
+
+    return fileContents
+  }
+
+  @Throws(Exception::class)
+  fun saveFile(fileData: ByteArray, path: String) {
+    val file = File(path)
+    val bos = BufferedOutputStream(FileOutputStream(file, false))
+    bos.write(fileData)
+    bos.flush()
+    bos.close()
+  }
+
+  @Throws(Exception::class)
+  fun encrypt(yourKey: SecretKey, fileData: ByteArray): ByteArray {
+    val data = yourKey.getEncoded()
+    val skeySpec = SecretKeySpec(data, 0, data.size, "AES")
+    val cipher = Cipher.getInstance("AES", "BC")
+    cipher.init(Cipher.ENCRYPT_MODE, skeySpec, IvParameterSpec(ByteArray(cipher.getBlockSize())))
+    return cipher.doFinal(fileData)
+  }
+
+  fun encryptAndSaveFile(file: File) : File {
+    try {
+      val fileData = readFile(file.path)
+
+      //get secret key
+      val secretKey = getSecretKey(sharedPref)
+      //encrypt file
+      val encodedData = secretKey?.let { encrypt(it, fileData) }
+
+      if (encodedData != null) {
+        saveFile(encodedData, file.path)
+      }
+      return file
+
+    } catch (e: Exception) {
+      Log.e("Encryption", "Encryption error")
+    }
+  }
+
+  @Throws(Exception::class)
+  fun decrypt(yourKey: SecretKey, fileData: ByteArray): ByteArray {
+    val decrypted: ByteArray
+    val cipher = Cipher.getInstance("AES", "BC")
+    cipher.init(Cipher.DECRYPT_MODE, yourKey, IvParameterSpec(ByteArray(cipher.blockSize)))
+    decrypted = cipher.doFinal(fileData)
+    return decrypted
+  }
+
+  private fun decryptFile(file: File): ByteArray {
+    val fileData = readFile(file.path)
+    val secretKey = getSecretKey(sharedPref)
+    return decrypt(secretKey, fileData)
+  }
+
+
+
+
+
+  private fun readToDoListFromFile(): MutableMap<String, ToDo> {
+    if (!encryptedToDoFile.exists()) {
+      return mutableMapOf() // Return an empty map if file doesn't exist yet
+    }
+    val json = encryptedToDoFile.readText()
+    // Deserialize JSON string to map of ToDo objects
+    val type: Type = object : TypeToken<Map<String, ToDo>>() {}.type
+    return gson.fromJson(json, type) ?: mutableMapOf()
+  }
+
+  private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
+    // Serialize the map of ToDo objects to JSON
+    val json = gson.toJson(todoList)
+    encryptedToDoFile.writeText(json)
+  }
+
 
   fun addToDo(todo: ToDo) {
     // Read existing data from file
@@ -59,21 +198,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     writeToDoListToFile(existingData)
   }
 
-  private fun readToDoListFromFile(): MutableMap<String, ToDo> {
-    if (!toDoFile.exists()) {
-      return mutableMapOf() // Return an empty map if file doesn't exist yet
-    }
-    val json = toDoFile.readText()
-    // Deserialize JSON string to map of ToDo objects
-    val type: Type = object : TypeToken<Map<String, ToDo>>() {}.type
-    return gson.fromJson(json, type) ?: mutableMapOf()
-  }
-
-  private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
-    // Serialize the map of ToDo objects to JSON
-    val json = gson.toJson(todoList)
-    toDoFile.writeText(json)
-  }
 
   fun fetchAllTodos() {
     viewModelScope.launch {
