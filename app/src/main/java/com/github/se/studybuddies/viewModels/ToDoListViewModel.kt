@@ -3,15 +3,18 @@ package com.github.se.studybuddies.viewModels
 import android.app.Application
 import android.content.SharedPreferences
 import android.content.QuickViewConstants
+import android.provider.Settings.Global.getString
 import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.grpc.Context
 import java.io.File
 import java.lang.reflect.Type
 import java.time.LocalDate
@@ -40,7 +43,9 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   private val gson = Gson()
   private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
   private val encryptedToDoFile = encryptAndSaveFile(toDoFile)
-  private val sharedPref = SharedPreferences()
+
+  val sharedPref: SharedPreferences = studyBuddies.getSharedPreferences(
+    "my_prefs", Application.MODE_PRIVATE)
 
   init {
     fetchAllTodos()
@@ -127,11 +132,10 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       if (encodedData != null) {
         saveFile(encodedData, file.path)
       }
-      return file
-
     } catch (e: Exception) {
       Log.e("Encryption", "Encryption error")
     }
+    return file
   }
 
   @Throws(Exception::class)
@@ -148,9 +152,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     val secretKey = getSecretKey(sharedPref)
     return decrypt(secretKey, fileData)
   }
-
-
-
 
 
   private fun readToDoListFromFile(): MutableMap<String, ToDo> {
