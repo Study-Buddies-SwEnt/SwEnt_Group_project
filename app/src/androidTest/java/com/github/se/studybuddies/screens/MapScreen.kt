@@ -11,6 +11,6 @@ class MapScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val drawerScaffold: KNode = onNode { hasTestTag("Map_drawer_scaffold") }
   val mapScreen: KNode = drawerScaffold.child { hasTestTag("mapScreen") }
   // Structural elements of the UI
-    
+
   val mapIcon: KNode = onNode { hasTestTag("mapIcon") }
 }
