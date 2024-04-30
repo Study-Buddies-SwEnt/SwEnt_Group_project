@@ -6,10 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoList
+import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.reflect.Type
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,14 +21,17 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   private val _todos = MutableStateFlow(ToDoList(emptyList()))
   val todos: StateFlow<ToDoList> = _todos
 
-  init {
-    fetchAllTodos()
-  }
+  private val _todo = MutableStateFlow(emptyToDo())
+  val todo: StateFlow<ToDo> = _todo
 
   private val gson = Gson()
   private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
 
-  fun addOrUpdateToDo(todo: ToDo) {
+  init {
+    fetchAllTodos()
+  }
+
+  fun addToDo(todo: ToDo) {
     // Read existing data from file
     val existingData = readToDoListFromFile()
 
@@ -37,9 +42,20 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     writeToDoListToFile(existingData)
   }
 
-  fun deleteToDo(todo: ToDo) {
+  fun updateToDo(uid: String, todo: ToDo) {
+    // Read existing data from file
     val existingData = readToDoListFromFile()
-    existingData.remove(todo.uid)
+
+    // Add or update the ToDo item
+    existingData[uid] = todo
+
+    // Write updated data back to file
+    writeToDoListToFile(existingData)
+  }
+
+  fun deleteToDo(uid: String) {
+    val existingData = readToDoListFromFile()
+    existingData.remove(uid)
     writeToDoListToFile(existingData)
   }
 
@@ -68,6 +84,19 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       } catch (e: Exception) {
         Log.d("MyPrint", "Could not fetch items $e")
       }
+    }
+  }
+
+  fun fetchTodoByUID(uid: String) {
+
+    val existingData = readToDoListFromFile()
+    val fetchedToDo = existingData[uid]
+    val todoItem =
+        fetchedToDo?.let {
+          ToDo(uid, it.name, fetchedToDo.dueDate, fetchedToDo.description, fetchedToDo.status)
+        }
+    if (todoItem != null) {
+      _todo.value = todoItem
     }
   }
 
@@ -102,6 +131,10 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     }
 
     return ToDoList(items)
+  }
+
+  private fun emptyToDo(): ToDo {
+    return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
 
   /*fun addNewTodo(

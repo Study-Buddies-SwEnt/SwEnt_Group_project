@@ -48,7 +48,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                             description = descriptionState.value,
                             dueDate = selectedDate.value,
                             status = ToDoStatus.CREATED)
-                    todoListViewModel.addOrUpdateToDo(newTodo)
+                    todoListViewModel.addToDo(newTodo)
                     navigationActions.goBack()
                   }
                 }
