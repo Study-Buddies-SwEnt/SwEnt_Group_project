@@ -37,6 +37,6 @@ val BOTTOM_NAVIGATION_DESTINATIONS =
             icon = R.drawable.messages,
             textId = Resources.getSystem().getString(R.string.messages)),
         Destination(
-            route = Route.MAp,
+            route = Route.MAP,
             icon = R.drawable.map,
             textId = Resources.getSystem().getString(R.string.map)))
