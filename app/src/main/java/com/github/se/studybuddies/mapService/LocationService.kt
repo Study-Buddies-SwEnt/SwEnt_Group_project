@@ -60,7 +60,8 @@ class LocationService : Service() {
           val updatedNotification = notification.setContentText("Location: ($lat, $long)")
           notificationManager.notify(1, updatedNotification.build())
 
-          val intent = Intent("LocationUpdates")
+          // val intent = Intent("LocationUpdates")
+          val intent = Intent(LocationService.ACTION_LOCATION_UPDATES)
           intent.putExtra("location", location)
           // sendBroadcast(intent, "com.github.se.studybuddies.mapService.LocationService")
           // LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
@@ -82,6 +83,8 @@ class LocationService : Service() {
   }
 
   companion object {
+    const val ACTION_LOCATION_UPDATES = "com.github.se.studybuddies.LOCATION_UPDATES"
+
     const val ACTION_START = "ACTION_START"
     const val ACTION_STOP = "ACTION_STOP"
   }

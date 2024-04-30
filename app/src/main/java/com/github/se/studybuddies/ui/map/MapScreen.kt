@@ -71,7 +71,6 @@ fun MapScreen(
   val locationReceiver: BroadcastReceiver =
       object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-
           location = intent.getParcelableExtra<Location>("location")
           // Use the location here
           location?.let {
@@ -88,8 +87,18 @@ fun MapScreen(
   // Contrary to LaunchedEffect, DisposableEffect is called when the intent come from another
   // screen/file
 
+  /*
   DisposableEffect(key1 = true) {
     val filter = IntentFilter("LocationUpdates")
+      val serviceIntent = Intent(context, LocationService::class.java)
+      //val serviceIntent = Intent(context, LocationService::class.java)
+      context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+    // Unregister the receiver when the composable is disposed
+    onDispose { context.unregisterReceiver(locationReceiver) }
+  }*/
+  DisposableEffect(key1 = true) {
+    val filter = IntentFilter(LocationService.ACTION_LOCATION_UPDATES)
+    val serviceIntent = Intent(context, LocationService::class.java)
     context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     // Unregister the receiver when the composable is disposed
     onDispose { context.unregisterReceiver(locationReceiver) }
