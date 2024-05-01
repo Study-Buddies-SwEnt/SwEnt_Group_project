@@ -62,21 +62,24 @@ jobs:
       - name: Download APK from Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: $apk-${{ inputs.version_name }}.apk
+          name: apk-${{ inputs.version_name }}.apk
           path: release
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ inputs.version_name }}
-          release_name: Release ${{ inputs.version_name }}
+          name: Release ${{ inputs.version_name }}
           body: |
             Release ${{ inputs.version_name }}
           draft: false
           prerelease: false
+
+      - name: List output files
+        run: ls -lah release/
 
       - name : Upload APK to Release
         uses: actions/upload-release-asset@v1
@@ -84,6 +87,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release/$apk-${{ inputs.version_name }}.apk
-          asset_name: $apk-${{ inputs.version_name }}.apk
+          asset_path: release/apk-${{ inputs.version_name }}.apk
+          asset_name: apk-${{ inputs.version_name }}.apk
           asset_content_type: application/vnd.android.package-archive
