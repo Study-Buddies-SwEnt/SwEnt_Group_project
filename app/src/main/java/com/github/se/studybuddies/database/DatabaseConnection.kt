@@ -307,7 +307,13 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun updateGroup(groupUID: String, user: String = ""): Int {
+  /*
+   * Add the user given in the parameter to the group given in the parameter
+   * If no user is given add the user actually logged in
+   *
+   * return -1 in case of invalid entries
+   */
+  suspend fun addUserToGroup(groupUID: String, user: String = ""): Int {
 
     // only look if userUID exist, can't find user by username
     val userToAdd: String
@@ -346,6 +352,26 @@ class DatabaseConnection {
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
     return 0
+  }
+
+  suspend fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
+
+    // change name of group
+    groupDataCollection
+        .document(groupUID)
+        .update("name", FieldValue.arrayUnion(name))
+        .addOnSuccessListener { Log.d("MyPrint", "group name successfully updated") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed modify group name with error: ", e) }
+
+    // todo replace picture in database
+    // change picture of group
+    groupDataCollection
+        .document(groupUID)
+        .update("picture", FieldValue.arrayUnion(photoUri.toString()))
+        .addOnSuccessListener { Log.d("MyPrint", "picture successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed modify group picture with error: ", e)
+        }
   }
 
   // using the Realtime Database for messages

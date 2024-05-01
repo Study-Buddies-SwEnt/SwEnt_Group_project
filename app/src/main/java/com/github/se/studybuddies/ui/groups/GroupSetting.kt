@@ -17,13 +17,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -54,18 +57,14 @@ import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.utility.createGroupInviteLink
-import com.github.se.studybuddies.viewModels.GroupViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private val db = DatabaseConnection()
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GroupSetting(
-    groupUID: String,
-    groupViewModel: GroupViewModel,
-    navigationActions: NavigationActions
-) {
+fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
 
   val scope = rememberCoroutineScope()
   val nameState = remember { mutableStateOf("") }
@@ -74,7 +73,6 @@ fun GroupSetting(
 
   val picture = remember { mutableStateOf(Uri.EMPTY) }
   val name = remember { mutableStateOf("") }
-  // val member = remember { mutableStateOf(???) }
   val groupLink = remember { mutableStateOf("") }
 
   LaunchedEffect(key1 = true) {
@@ -83,7 +81,6 @@ fun GroupSetting(
 
       picture.value = group.picture
       name.value = group.name
-      // todo member.value = group.members
 
       groupLink.value = createGroupInviteLink(groupUID, name.value)
     }
@@ -131,15 +128,12 @@ fun GroupSetting(
                 }
               }
               Spacer(modifier = Modifier.padding(20.dp))
-              AddMemberButton(db)
+              AddMemberButton(navigationActions, db)
               Spacer(modifier = Modifier.padding(0.dp))
               ShareLinkButton(groupLink.value)
-              Spacer(modifier = Modifier.padding(0.dp))
-              // todo draw all member
               Spacer(modifier = Modifier.padding(10.dp))
               SaveButton(nameState) {
-                // todo replace by update group
-                // groupViewModel.createGroup(nameState.value, photoState.value)
+                scope.launch { db.updateGroup(groupUID, nameState.value, photoState.value) }
                 navigationActions.navigateTo(Route.GROUPSHOME)
               }
             }
@@ -181,9 +175,11 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(db: DatabaseConnection) {
+fun AddMemberButton(navigationActions: NavigationActions, db: DatabaseConnection) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
+  var showError by remember { mutableStateOf(false) }
+  var showSucces by remember { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
 
   Column {
@@ -196,18 +192,46 @@ fun AddMemberButton(db: DatabaseConnection) {
             )) {
           Text("Add Members", color = Color.White)
         }
+  }
 
-    if (isTextFieldVisible) {
-      OutlinedTextField(
-          value = text,
-          onValueChange = { text = it },
-          label = { Text("Enter UserID") },
-          singleLine = true
-          // todo add the user to the database
-          // copy from GroupHome for the error and call of updateGroup
-          // use function updateGroup, by adding an entry,
-          )
-    }
+  if (isTextFieldVisible) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Enter UserID") },
+        singleLine = true,
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                  // add the user to the database
+                  isTextFieldVisible = false
+                  scope.launch {
+                    val error = db.addUserToGroup(text)
+                    if (error == -1) {
+                      showError = true
+                      delay(3000L) // delay for 3 seconds
+                      showError = false
+                    } else {
+                      showSucces = true
+                      delay(3000L) // delay for 3 seconds
+                      showSucces = false
+                    }
+                  }
+                }))
+  }
+  if (showError) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showError = false }) {} }) {
+          Text("Can't find a member with this UID")
+        }
+  }
+  if (showSucces) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showError = false }) {} }) {
+          Text("User have been successfully added to the group")
+        }
   }
 }
 

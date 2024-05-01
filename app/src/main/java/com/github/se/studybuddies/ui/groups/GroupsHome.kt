@@ -203,6 +203,8 @@ fun AddGroupButton(navigationActions: NavigationActions) {
       }
 }
 
+// todo add show succes on GroupHome function
+
 @Composable
 fun AddLinkButton(navigationActions: NavigationActions) {
   var text by remember { mutableStateOf("") }
@@ -235,7 +237,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
                   scope.launch {
-                    val error = db.updateGroup(groupUID)
+                    val error = db.addUserToGroup(groupUID)
                     if (error == -1) {
                       showError = true
                       scope.launch {
