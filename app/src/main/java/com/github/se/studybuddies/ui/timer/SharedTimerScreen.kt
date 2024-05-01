@@ -1,6 +1,7 @@
 
 package com.github.se.studybuddies.ui.timer
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -8,7 +9,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -29,11 +29,12 @@ import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import androidx.compose.runtime.livedata.observeAsState
+import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SharedTimerScreen(
     navigationActions: NavigationActions,
@@ -41,23 +42,23 @@ fun SharedTimerScreen(
 ) {
     val timerInfo by sharedTimerViewModel.timerInfo.observeAsState(SharedTimerViewModel.TimerInfo())
 
+
     Scaffold(
-        modifier = Modifier.fillMaxSize().testTag("sharedtimer_scaffold"),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("sharedtimer_scaffold"),
         topBar = {
-            TopAppBar(
-                title = { Text("Group Shared Timer") },
+            TopNavigationBar(
+                title = { Sub_title(title = "Timer") },
                 navigationIcon = {
-                    IconButton(onClick = { navigationActions.navigateTo(Route.GROUPSHOME) }) { // Adjust as per your navigation implementation
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Go Back")
-                    }
-                }
-            )
-        }
-    ) { contentPadding ->
+                    GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
+                },
+                actions = {})
+        },
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -89,30 +90,25 @@ fun SharedTimerScreen(
 
             // Timer control buttons
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = { sharedTimerViewModel.startTimer() }) {
-                    Text("Start")
-                }
-                Button(onClick = { sharedTimerViewModel.pauseTimer() }) {
-                    Text("Pause")
-                }
-                Button(onClick = { sharedTimerViewModel.resetTimer() }) {
-                    Text("Reset")
-                }
+                TimerButton(onClick = { sharedTimerViewModel.startTimer() }, text = "Start" )
+                TimerButton(onClick = { sharedTimerViewModel.pauseTimer() }, text = "Pause" )
+                TimerButton(onClick = {  sharedTimerViewModel.resetTimer()  }, text = "Reset" )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // Time adjustment buttons
             Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                TimeAdjustButton("Add 1 Hour", 1, sharedTimerViewModel::addHours)
-                TimeAdjustButton("Add 1 Minute", 1, sharedTimerViewModel::addMinutes)
-                TimeAdjustButton("Add 10 Seconds", 10, sharedTimerViewModel::addSeconds)
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceAround) {
+                TimeAdjustSection("Hours", 1, sharedTimerViewModel::addHours)
+                TimeAdjustSection("Minutes", 1, sharedTimerViewModel::addMinutes)
+                TimeAdjustSection("Seconds", 10, sharedTimerViewModel::addSeconds)
             }
         }
     }
