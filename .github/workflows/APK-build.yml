@@ -1,10 +1,10 @@
 name: APK Build
-run-name: APK ${{ inputs.version_name }}
+run-name: APK $v-{{ inputs.tag_name }}
 
 on:
   workflow_dispatch:
     inputs:
-      version_name:
+      tag_name:
         description: 'Name of the version'
         required: true
         type: string
@@ -15,6 +15,15 @@ jobs:
     name: Build Release APK
     runs-on: ubuntu-latest
     steps:
+      - name: Validate and Echo Tag Name
+        run: |
+          VERSION_TAG="v${{ inputs.tag_name }}"
+          echo "Generated tag name: $VERSION_TAG"
+          if ! [[ $VERSION_TAG =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+            echo "Error: Invalid tag format"
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -51,7 +60,7 @@ jobs:
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: $apk-${{ inputs.version_name }}.apk
+          name: $apk-${{ inputs.tag_name }}.apk
           path: app/build/outputs/apk/release/app-release.apk
 
   release:
@@ -63,19 +72,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Validate and Echo Tag Name
-        run: |
-          VERSION_TAG="v${{ inputs.version_name }}"
-          echo "Generated tag name: $VERSION_TAG"
-          if ! [[ $VERSION_TAG =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
-            echo "Error: Invalid tag format"
-            exit 1
-          fi
-
       - name: Download APK from Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: $apk-${{ inputs.version_name }}.apk
+          name: $apk-${{ inputs.tag_name }}.apk
           path: release
 
       - name: Create Release
@@ -84,10 +84,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ inputs.version_name }}
-          name: Release ${{ inputs.version_name }}
+          tag_name: v${{ inputs.tag_name }}
+          name: Release ${{ inputs.tag_name }}
           body: |
-            Release ${{ inputs.version_name }}
+            Release ${{ inputs.tag_name }}
           draft: false
           prerelease: false
 
@@ -98,5 +98,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: release/app-release.apk
-          asset_name: $apk-${{ inputs.version_name }}.apk
+          asset_name: $apk-${{ inputs.tag_name }}.apk
           asset_content_type: application/vnd.android.package-archive
