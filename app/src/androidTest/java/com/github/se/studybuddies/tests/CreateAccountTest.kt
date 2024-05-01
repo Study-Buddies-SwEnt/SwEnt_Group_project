@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.tests
 
+import android.net.Uri
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,17 +24,18 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class AccountCreationTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   val uid = "111testUser"
+  var userVM = UserViewModel(uid)
 
   @Before
   fun testSetup() {
-    val userVM = UserViewModel(uid)
+    userVM = UserViewModel(uid)
     composeTestRule.setContent { CreateAccount(userVM, mockNavActions) }
   }
 
@@ -77,5 +79,21 @@ class AccountCreationTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         }
     verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
     confirmVerified(mockNavActions)
+  }
+
+  @Test
+  fun selectPicture() {
+    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(
+        composeTestRule) {
+          inputUsername()
+          profileButton { performClick() }
+          userVM.createUser(uid, "", "", Uri.EMPTY)
+          /*onView(ViewMatchers.withId(R.id.rvImages)).perform(
+            RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(
+              0, ViewActions.click()
+            )
+          )
+           */
+        }
   }
 }

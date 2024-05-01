@@ -18,7 +18,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.Red
 import com.github.se.studybuddies.ui.theme.White
@@ -30,8 +32,8 @@ fun GroupFields(nameState: MutableState<String>) {
   OutlinedTextField(
       value = nameState.value,
       onValueChange = { nameState.value = it },
-      label = { Text("Group Name", color = Blue) },
-      placeholder = { Text("Enter a group name", color = Blue) },
+      label = { Text(stringResource(R.string.group_name), color = Blue) },
+      placeholder = { Text(stringResource(R.string.enter_a_group_name), color = Blue) },
       singleLine = true,
       modifier =
           Modifier.padding(0.dp)
@@ -50,7 +52,7 @@ fun SaveButton(nameState: MutableState<String>, save: () -> Unit) {
       onClick = save,
       enabled = nameState.value.isNotBlank(),
       modifier =
-          Modifier.padding(50.dp)
+          Modifier.padding(20.dp)
               .width(300.dp)
               .height(50.dp)
               .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
@@ -59,7 +61,10 @@ fun SaveButton(nameState: MutableState<String>, save: () -> Unit) {
           ButtonDefaults.buttonColors(
               containerColor = Blue,
           )) {
-        Text("Save", color = White)
+        Text(
+            stringResource(R.string.save),
+            color = White,
+            modifier = Modifier.testTag("save_button_text"))
       }
 }
 

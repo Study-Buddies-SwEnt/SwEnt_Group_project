@@ -20,20 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
 @Composable
 fun AccountFields(usernameState: MutableState<String>) {
-  Text("This is the username that other users will see.")
+  Text(stringResource(R.string.msg_usename_user_will_see))
   Spacer(Modifier.height(20.dp))
   OutlinedTextField(
       value = usernameState.value,
       onValueChange = { usernameState.value = it },
-      label = { Text("Username") },
-      placeholder = { Text("Enter a username") },
+      label = { Text(stringResource(R.string.username)) },
+      placeholder = { Text(stringResource(R.string.enter_a_username)) },
       singleLine = true,
       modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("username_field"))
 }
@@ -42,12 +44,12 @@ fun AccountFields(usernameState: MutableState<String>) {
 fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberImagePainter(photoState.value),
-      contentDescription = "Profile Picture",
+      contentDescription = stringResource(R.string.profile_picture),
       modifier = Modifier.size(200.dp),
       contentScale = ContentScale.Crop)
   Spacer(Modifier.height(20.dp))
   Text(
-      text = "Select a profile picture",
+      text = stringResource(R.string.select_a_profile_picture),
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
@@ -67,6 +69,6 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
           ButtonDefaults.buttonColors(
               containerColor = Blue,
           )) {
-        Text("Save", color = White)
+        Text(stringResource(R.string.save), color = White)
       }
 }
