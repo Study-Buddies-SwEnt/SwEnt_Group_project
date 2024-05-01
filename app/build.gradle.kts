@@ -22,6 +22,9 @@ android {
             useSupportLibrary = true
         }
     }
+    buildFeatures{
+        viewBinding = true
+    }
 
     configurations.configureEach {
         exclude(group= "com.google.protobuf", module= "protobuf-lite")

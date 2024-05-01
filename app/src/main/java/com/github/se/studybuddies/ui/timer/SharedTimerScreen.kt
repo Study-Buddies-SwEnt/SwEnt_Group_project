@@ -40,7 +40,7 @@ fun SharedTimerScreen(
     navigationActions: NavigationActions,
     sharedTimerViewModel: SharedTimerViewModel
 ) {
-    val timerInfo by sharedTimerViewModel.timerInfo.observeAsState(SharedTimerViewModel.TimerInfo())
+    val timerInfo by sharedTimerViewModel.timerLiveData.observeAsState("00:00:00")
 
 
     Scaffold(
@@ -73,16 +73,12 @@ fun SharedTimerScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = timerInfo.elapsedTime.formatTime(),
+                        text = timerInfo,
                         fontSize = 40.sp,
                         color = Color.Blue,
                         textAlign = TextAlign.Center
                     )
-                    if (timerInfo.isActive) {
-                        Text("Timer is active", color = Color.Green, textAlign = TextAlign.Center)
-                    } else {
-                        Text("Timer is paused", color = Color.Red, textAlign = TextAlign.Center)
-                    }
+                    
                 }
             }
 
