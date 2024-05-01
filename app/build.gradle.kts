@@ -27,6 +27,7 @@ android {
 
     buildTypes {
         release {
+            resValue("string", "MAPS_API_KEY", project.properties["MAPS_API_KEY"].toString())
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -34,6 +35,7 @@ android {
             )
         }
         debug {
+            resValue("string", "MAPS_API_KEY", project.properties["MAPS_API_KEY"].toString())
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
         }
