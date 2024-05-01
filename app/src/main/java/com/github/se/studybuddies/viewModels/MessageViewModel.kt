@@ -46,7 +46,9 @@ class MessageViewModel(val groupUID: String) : ViewModel() {
                   "user7",
                   "user8",
                   "user9",
-                  "user10"))
+                  "user10"),
+              topics = emptyList()
+          )
 
   init {
     listenToMessages()
