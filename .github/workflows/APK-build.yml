@@ -44,16 +44,17 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
-      - name: List output files
-        run: ls -R app/build/outputs/apk/
-
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: $apk-${{ inputs.version_name }}.apk
           path: app/build/outputs/apk/release/app-release-unsigned.apk
+
   release:
     needs: build
+    permissions:
+      contents: write
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -75,7 +76,7 @@ jobs:
           body: |
             Release ${{ inputs.version_name }}
           draft: false
-          release: true
+          prerelease: false
 
       - name : Upload APK to Release
         uses: actions/upload-release-asset@v1
