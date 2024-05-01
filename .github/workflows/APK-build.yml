@@ -63,6 +63,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Validate and Echo Tag Name
+        run: |
+          VERSION_TAG="v${{ inputs.version_name }}"
+          echo "Generated tag name: $VERSION_TAG"
+          if ! [[ $VERSION_TAG =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+            echo "Error: Invalid tag format"
+            exit 1
+          fi
+
       - name: Download APK from Artifacts
         uses: actions/download-artifact@v2
         with:
