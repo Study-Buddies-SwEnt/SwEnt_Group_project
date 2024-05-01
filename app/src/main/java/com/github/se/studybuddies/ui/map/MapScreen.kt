@@ -48,9 +48,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("InlinedApi")
 @Composable
 fun MapScreen(
-    uid:
-        String, // This will be useful for later versions when we'll store the user location in the
-                // firebase
+    uid: String, // This will be useful for later versions when we'll store the user location in the
+    // firebase
     navigationActions: NavigationActions,
     context: Context,
 ) {
