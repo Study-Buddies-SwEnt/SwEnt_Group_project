@@ -220,6 +220,7 @@ class DatabaseConnection {
       val name = document.getString("name") ?: ""
       val picture = Uri.parse(document.getString("picture") ?: "")
       val members = document.get("members") as List<String>
+        val callId = document.get("callid") ?: ""
       Group(groupUID, name, picture, members)
     } else {
       Log.d("MyPrint", "group document not found for group id $groupUID")

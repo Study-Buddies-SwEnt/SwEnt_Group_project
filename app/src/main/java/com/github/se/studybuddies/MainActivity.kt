@@ -129,10 +129,18 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
-            composable(Route.VIDEOCALL) {
-              if (currentUser != null) {
-                VideoCallScreen(VideoCallViewModel(currentUser.uid, LocalContext.current), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to VideoCallScreen")
+            composable(
+              route = "${Route.GROUP}/{groupUID}",
+              arguments = listOf(navArgument("groupUID") { type = NavType.StringType })
+            ) { backStackEntry ->
+              val groupUID = backStackEntry.arguments?.getString("groupUID")
+              if (groupUID != null && currentUser != null) {
+                VideoCallScreen(
+                  groupUID,
+                  VideoCallViewModel(groupUID, currentUser.uid, LocalContext.current),
+                  navigationActions
+                )
+                Log.d("MyPrint", "Successfully navigated to GroupScreen")
               }
             }
           }

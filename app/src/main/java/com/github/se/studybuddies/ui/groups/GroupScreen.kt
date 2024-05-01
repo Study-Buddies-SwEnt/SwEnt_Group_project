@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -71,13 +72,17 @@ fun GroupScreen(
             },
             actions = {
               IconButton(
-                  onClick = {},
-              ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    tint = Blue,
-                    contentDescription = stringResource(R.string.group_option))
-              }
+                  content = {
+                    Icon(
+                        painter = painterResource(R.drawable.video_call),
+                        contentDescription = stringResource(R.string.group_option))
+                  },
+                  onClick = { navigationActions.navigateTo("${Route.VIDEOCALL}/$group.uid") },
+              )
+              Icon(
+                  imageVector = Icons.Default.MoreVert,
+                  tint = Blue,
+                  contentDescription = stringResource(R.string.group_option))
             })
       },
       bottomBar = {

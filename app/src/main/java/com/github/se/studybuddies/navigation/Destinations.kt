@@ -20,6 +20,10 @@ val GROUPS_VIDEO_CALL_DESTINATIONS =
             icon = R.drawable.video_call,
             textId = "Video Call"))
 
+val GROUPS_VIDEO_CALL_DESTINATIONS =
+    listOf(
+        Destination(route = Route.VIDEOCALL, icon = R.drawable.video_call, textId = "Video Call"))
+
 val BOTTOM_NAVIGATION_DESTINATIONS =
     // 4rth route is a placeholder
     listOf(
