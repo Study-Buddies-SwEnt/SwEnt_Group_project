@@ -3,8 +3,8 @@ package com.github.se.studybuddies.data
 data class Topic(
     val uid: String,
     val name: String,
-    val exercises: List<String>,
-    val theory: List<String>
+    val exercises: List<TopicItem>,
+    val theory: List<TopicItem>
 ) {
   companion object {
     fun empty(): Topic {
