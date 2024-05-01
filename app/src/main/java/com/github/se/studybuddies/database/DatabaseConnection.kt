@@ -6,6 +6,8 @@ import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
+import com.github.se.studybuddies.data.Topic
+import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
@@ -27,6 +29,7 @@ class DatabaseConnection {
   private val userDataCollection = db.collection("userData")
   private val userMembershipsCollection = db.collection("userMemberships")
   private val groupDataCollection = db.collection("groupData")
+  private val topicDataCollection = db.collection("topicData")
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
@@ -183,11 +186,12 @@ class DatabaseConnection {
         val groupUIDs = snapshot.data?.get("groups") as? List<String>
         groupUIDs?.let { groupsIDs ->
           groupsIDs.forEach { groupUID ->
-            val document = groupDataCollection.document(groupUID.toString()).get().await()
+            val document = groupDataCollection.document(groupUID).get().await()
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
-            items.add(Group(groupUID, name, photo, members))
+            val topics = document.get("topics") as? List<String> ?: emptyList()
+            items.add(Group(groupUID, name, photo, members, topics))
           }
         }
         return GroupList(items)
@@ -207,7 +211,8 @@ class DatabaseConnection {
       val name = document.getString("name") ?: ""
       val picture = Uri.parse(document.getString("picture") ?: "")
       val members = document.get("members") as List<String>
-      Group(groupUID, name, picture, members)
+      val topics = document.get("topics") as List<String>
+      Group(groupUID, name, picture, members, topics)
     } else {
       Log.d("MyPrint", "group document not found for group id $groupUID")
       Group.empty()
@@ -222,7 +227,11 @@ class DatabaseConnection {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
     val group =
-        hashMapOf("name" to name, "picture" to photoUri.toString(), "members" to listOf(uid))
+        hashMapOf(
+            "name" to name,
+            "picture" to photoUri.toString(),
+            "members" to listOf(uid),
+            "topics" to emptyList<String>())
     if (photoUri != getDefaultPicture()) {
       groupDataCollection
           .add(group)
@@ -311,5 +320,63 @@ class DatabaseConnection {
 
   fun getGroupMessagesPath(groupUID: String): String {
     return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
+  }
+
+  // using the topicData collection
+  suspend fun getTopic(uid: String): Topic {
+    val document = topicDataCollection.document(uid).get().await()
+    return if (document.exists()) {
+      val name = document.getString("name") ?: ""
+      val exercises = document.get("exercises") as List<String>
+      val theory = document.get("theory") as List<String>
+      Topic(uid, name, exercises, theory)
+    } else {
+      Log.d("MyPrint", "topic document not found for id $uid")
+      Topic.empty()
+    }
+  }
+
+  suspend fun createTopic(name: String, exercises: List<String>, theory: List<String>) {
+    val topic = hashMapOf("name" to name, "exercises" to exercises, "theory" to theory)
+    topicDataCollection
+        .add(topic)
+        .addOnSuccessListener { Log.d("MyPrint", "topic successfully created") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create topic with error ", e) }
+  }
+
+  fun updateTopicData(uid: String, name: String, exercises: List<String>, theory: List<String>) {
+    val task = hashMapOf("name" to name, "exercises" to exercises, "theory" to theory)
+    topicDataCollection
+        .document(uid)
+        .update(task as Map<String, Any>)
+        .addOnSuccessListener { Log.d("MyPrint", "topic data successfully updated") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
+  }
+
+  suspend fun getALlTopics(groupUID: String): TopicList {
+    try {
+      val snapshot = groupDataCollection.document(groupUID).get().await()
+      val items = mutableListOf<Topic>()
+
+      if (snapshot.exists()) {
+        val topicUIDs = snapshot.data?.get("topics") as? List<String>
+        topicUIDs?.let { topicUID ->
+          topicUID.forEach { topicUID ->
+            val document = topicDataCollection.document(topicUID).get().await()
+            val name = document.getString("name") ?: ""
+            val exercises = document.get("exercises") as List<String>
+            val theory = document.get("theory") as List<String>
+            items.add(Topic(topicUID, name, exercises, theory))
+          }
+        }
+        return TopicList(items)
+      } else {
+        Log.d("MyPrint", "Group with uid $groupUID does not exist")
+        return TopicList(emptyList())
+      }
+    } catch (e: Exception) {
+      Log.d("MyPrint", "Could not fetch topics with error ", e)
+    }
+    return TopicList(emptyList())
   }
 }
