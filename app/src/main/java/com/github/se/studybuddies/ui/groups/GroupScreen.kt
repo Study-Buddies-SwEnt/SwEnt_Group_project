@@ -112,9 +112,9 @@ fun GroupScreen(
             .wrapContentHeight(Alignment.CenterVertically),
         textAlign = TextAlign.Center)
   }
-    Button(onClick = { navigationActions.navigateTo(Route.SHAREDTIMER) },
+    Button(onClick = { navigationActions.navigateTo("${Route.SHAREDTIMER}/$groupUID") },
         modifier = Modifier
-            .size(56.dp)
+            .size(12.dp)
             .clip(CircleShape),
         contentPadding = PaddingValues()
     ) {

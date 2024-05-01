@@ -77,8 +77,10 @@ fun SharedTimerScreen(
                     onClick = {
                     if (timerInfo.elapsedTime > 0) sharedTimerViewModel.startTimer() else sharedTimerViewModel.resetTimer()
                 }) { Text(if (timerInfo.elapsedTime > 0) "Start" else "Reset") }
-                Button(modifier = Modifier.testTag("Reset"),
-                    onClick = { sharedTimerViewModel.resetTimer() }) { Text("Reset") }
+                Button(modifier = Modifier.height(20.dp).testTag("Reset"),
+                    onClick = { sharedTimerViewModel.resetTimer() }) { Text("Reset")
+                }
+
             }
             Row(
                 Modifier.fillMaxWidth().testTag("timer_adjustment"),
