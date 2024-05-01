@@ -3,6 +3,7 @@ package com.github.se.studybuddies.ui.groups
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -90,40 +91,44 @@ fun GroupScreen(
               }
             })
       },
-      bottomBar = {
-        BottomNavigationBar(
-            navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
+      floatingActionButton = {
+        Button(
+            onClick = { navigationActions.navigateTo("${Route.SHAREDTIMER}/$groupUID") },
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape),
+        ) {
+          Icon(
+              painter = painterResource(id = R.drawable.timer),
+              contentDescription = "Timer",
+              tint = Color.White
+          )
+        }
       },
   ) {
-    Image(
-        painter = rememberImagePainter(pictureState.value),
-        contentDescription = stringResource(R.string.group_picture),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        contentScale = ContentScale.Crop)
-    Text(
-        text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
-        style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-        modifier =
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .wrapContentHeight(Alignment.CenterVertically),
-        textAlign = TextAlign.Center)
-  }
-    Button(onClick = { navigationActions.navigateTo("${Route.SHAREDTIMER}/$groupUID") },
-        modifier = Modifier
-            .size(12.dp)
-            .clip(CircleShape),
-        contentPadding = PaddingValues()
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.timer),
-            contentDescription = "Go to Shared Timer",
-            tint = Color.White
-        )
+      Column(
+          modifier = Modifier.fillMaxSize(),
+          verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally
+      ) {
+          Image(
+              painter = rememberImagePainter(pictureState.value),
+              contentDescription = stringResource(R.string.group_picture),
+              modifier = Modifier
+                  .fillMaxWidth()
+                  .height(200.dp),
+              contentScale = ContentScale.Crop)
+          Text(
+              text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
+              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+              modifier =
+              Modifier
+                  .fillMaxSize()
+                  .padding(16.dp),
+                  //.wrapContentHeight(Alignment.CenterVertically),
+              textAlign = TextAlign.Center)
 
+      }
 
     }
 }
