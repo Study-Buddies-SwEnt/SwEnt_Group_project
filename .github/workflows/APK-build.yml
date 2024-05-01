@@ -8,7 +8,7 @@ on:
         description: 'Name of the version'
         required: true
         type: string
-        default: 'M1'
+        default: 'v1.0'
 
 jobs:
   build:
