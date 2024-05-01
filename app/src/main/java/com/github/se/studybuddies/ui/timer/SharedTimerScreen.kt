@@ -29,6 +29,8 @@ import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import androidx.compose.runtime.livedata.observeAsState
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,21 +45,20 @@ fun SharedTimerScreen(
         modifier = Modifier.fillMaxSize().testTag("sharedtimer_scaffold"),
         topBar = {
             TopAppBar(
-                title = { Text("Shared Timer") },
+                title = { Text("Group Shared Timer") },
                 navigationIcon = {
-                    IconButton(onClick = { navigationActions.navigateTo(Route.GROUPSHOME) }) {
+                    IconButton(onClick = { navigationActions.navigateTo(Route.GROUPSHOME) }) { // Adjust as per your navigation implementation
                         Icon(Icons.Default.ArrowBack, contentDescription = "Go Back")
                     }
-                },
-                actions = {}
+                }
             )
-        },
+        }
     ) { contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding) // Apply the padding provided by Scaffold here
-                .padding(horizontal = 16.dp),
+                .padding(contentPadding)
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -65,42 +66,53 @@ fun SharedTimerScreen(
                 shape = RoundedCornerShape(30.dp),
                 modifier = Modifier
                     .padding(20.dp)
-                    .width(if (timerInfo.isActive) 220.dp else 300.dp)
-                    .height(if (timerInfo.isActive) 80.dp else 160.dp)
-                    .testTag(if (timerInfo.isActive) "timer_card" else "timer_red_card"),
-                colors = CardDefaults.cardColors(containerColor = if (timerInfo.isActive) Color.White else Color.Red)
+                    .fillMaxWidth()
+                    .height(160.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                Text(
-                    text = timerInfo.elapsedTime.formatTime(),
-                    fontSize = if (timerInfo.isActive) 40.sp else 80.sp,
-                    color = Color.Blue,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(10.dp)
-                )
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = timerInfo.elapsedTime.formatTime(),
+                        fontSize = 40.sp,
+                        color = Color.Blue,
+                        textAlign = TextAlign.Center
+                    )
+                    if (timerInfo.isActive) {
+                        Text("Timer is active", color = Color.Green, textAlign = TextAlign.Center)
+                    } else {
+                        Text("Timer is paused", color = Color.Red, textAlign = TextAlign.Center)
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(16.dp).testTag("timer_spacer"))
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Timer control buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(
-                    onClick = { sharedTimerViewModel.pauseTimer() },
-                    modifier = Modifier.testTag("Pause")
-                ) { Text("Pause") }
-                Button(
-                    onClick = {
-                        if (timerInfo.elapsedTime > 0) sharedTimerViewModel.startTimer() else sharedTimerViewModel.resetTimer()
-                    },
-                    modifier = Modifier.testTag("Start/Reset")
-                ) { Text(if (timerInfo.elapsedTime > 0) "Start" else "Reset") }
+                Button(onClick = { sharedTimerViewModel.startTimer() }) {
+                    Text("Start")
+                }
+                Button(onClick = { sharedTimerViewModel.pauseTimer() }) {
+                    Text("Pause")
+                }
+                Button(onClick = { sharedTimerViewModel.resetTimer() }) {
+                    Text("Reset")
+                }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Time adjustment buttons
             Row(
-                Modifier.fillMaxWidth().padding(top = 16.dp),
+                Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TimeAdjustButton("Hours", 1, sharedTimerViewModel::addHours)
-                TimeAdjustButton("Minutes", 1, sharedTimerViewModel::addMinutes)
-                TimeAdjustButton("Seconds", 10, sharedTimerViewModel::addSeconds)
+                TimeAdjustButton("Add 1 Hour", 1, sharedTimerViewModel::addHours)
+                TimeAdjustButton("Add 1 Minute", 1, sharedTimerViewModel::addMinutes)
+                TimeAdjustButton("Add 10 Seconds", 10, sharedTimerViewModel::addSeconds)
             }
         }
     }
@@ -108,12 +120,7 @@ fun SharedTimerScreen(
 
 @Composable
 fun TimeAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
-    Row {
-        Button(onClick = { onAdjust(amount) }) {
-            Text("+ $label")
-        }
-        Button(onClick = { onAdjust(-amount) }) {
-            Text("- $label")
-        }
+    Button(onClick = { onAdjust(amount) }) {
+        Text(label)
     }
 }
