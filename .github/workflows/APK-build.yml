@@ -1,0 +1,56 @@
+name: APK Build
+run-name: APK ${{ inputs.version_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Name of the version'
+        required: true
+        type: string
+        default: 'M1'
+
+jobs:
+    build:
+      name: Build Release APK
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+            fetch-depth: 0
+
+        - name: Setup JDK 17
+          uses: actions/setup-java@v4
+          with:
+            distribution: "temurin"
+            java-version: "17"
+
+        - name: Gradle cache
+          uses: gradle/actions/setup-gradle@v3
+
+        - name: Grant execute permission to gradlew
+          run: chmod +x gradlew
+
+        - name: Cleanup previous artifacts
+          uses: geekyeggo/delete-artifact@v1
+          with:
+            name: app-debug.apk
+
+        - name: Load secrets
+          env:
+            MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+            GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          run: |
+            echo $MAPS_API_KEY > local.properties
+            echo $GOOGLE_SERVICES_JSON | base64 -di > app/google-services.json
+
+        - name: Build APK
+          run: ./gradlew assembleRelease
+
+        - name: Upload APK
+          uses: actions/upload-artifact@v2
+          with:
+            name: $apk-${{ inputs.version_name }}
+            path: app/build/outputs/apk/release/app-release.apk
