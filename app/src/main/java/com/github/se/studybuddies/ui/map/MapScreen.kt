@@ -48,7 +48,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("InlinedApi")
 @Composable
 fun MapScreen(
-    uid: String, // This will be useful for later versions when
+    uid:
+        String, // This will be useful for later versions when we'll store the user location in the
+                // firebase
     navigationActions: NavigationActions,
     context: Context,
 ) {
@@ -90,26 +92,9 @@ fun MapScreen(
 
   DisposableEffect(key1 = true) {
     val filter = IntentFilter("LocationUpdates")
-    val serviceIntent = Intent(context, LocationService::class.java)
-    // val serviceIntent = Intent(context, LocationService::class.java)
     LocalBroadcastManager.getInstance(context).registerReceiver(locationReceiver, filter)
-
-    // context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-    // Unregister the receiver when the composable is disposed
     onDispose { LocalBroadcastManager.getInstance(context).unregisterReceiver(locationReceiver) }
-
-    // onDispose { context.unregisterReceiver(locationReceiver) }
   }
-
-  /*
-  DisposableEffect(key1 = true) {
-    val filter = IntentFilter(LocationService.ACTION_LOCATION_UPDATES)
-    val serviceIntent = Intent(context, LocationService::class.java)
-    serviceIntent.action = LocationService.ACTION_LOCATION_UPDATES
-    context.registerReceiver(locationReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-    // Unregister the receiver when the composable is disposed
-    onDispose { context.unregisterReceiver(locationReceiver) }
-  }*/
 
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(

@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.ncorti.ktfmt.gradle") version "0.16.0"
     id("com.google.gms.google-services")
+    id("com.google.secrets_gradle_plugin") version "0.6"
 }
 android {
     namespace = "com.github.se.studybuddies"

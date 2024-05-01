@@ -35,7 +35,7 @@
         tools:targetApi="34">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCa3x16MPeqXAaf35RSN8dFd0rBRJwybNo" />
+            android:value="${MAPS_API_KEY}" />
         <service android:name=".mapService.LocationService" android:foregroundServiceType="location"
             tools:ignore="ForegroundServicePermission" />
         <activity
