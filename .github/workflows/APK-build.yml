@@ -37,9 +37,13 @@ jobs:
         env:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
         run: |
           echo $MAPS_API_KEY > local.properties
           echo $GOOGLE_SERVICES_JSON | base64 -di > app/google-services.json
+          echo $KEYSTORE | base64 -di > app/keystore.jks
+          echo $KEYSTORE_PROPERTIES | base64 -di > app/keystore.properties
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
@@ -48,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: $apk-${{ inputs.version_name }}.apk
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          path: app/build/outputs/apk/release/app-release.apk
 
   release:
     needs: build
@@ -84,6 +88,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release/app-release-unsigned.apk
+          asset_path: release/app-release.apk
           asset_name: $apk-${{ inputs.version_name }}.apk
           asset_content_type: application/vnd.android.package-archive
