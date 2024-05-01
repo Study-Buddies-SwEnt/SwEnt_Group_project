@@ -50,11 +50,11 @@ class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
           val currentUser = auth.currentUser
           val startDestination =
-              if (currentUser != null) {
-                Route.SOLOSTUDYHOME
-              } else {
-                Route.LOGIN
-              }
+            if (currentUser != null) {
+              Route.SOLOSTUDYHOME
+            } else {
+              Route.LOGIN
+            }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.LOGIN) {
               LoginScreen(navigationActions)
@@ -67,39 +67,40 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(
-                route = "${Route.GROUP}/{groupUID}",
-                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
-                    backStackEntry ->
-                  val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  if (groupUID != null) {
-                    GroupScreen(groupUID, GroupViewModel(groupUID), navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to GroupScreen")
-                  }
-                }
+              route = "${Route.GROUP}/{groupUID}",
+              arguments = listOf(navArgument("groupUID") { type = NavType.StringType })
+            ) { backStackEntry ->
+              val groupUID = backStackEntry.arguments?.getString("groupUID")
+              if (groupUID != null) {
+                GroupScreen(groupUID, GroupViewModel(groupUID), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to GroupScreen")
+              }
+            }
             composable(
-                route = "${Route.SETTINGS}/{backRoute}",
-                arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
-                    backStackEntry ->
-                  val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  if (backRoute != null) {
-                    Settings(backRoute, navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to Settings")
-                  }
-                }
+              route = "${Route.SETTINGS}/{backRoute}",
+              arguments = listOf(navArgument("backRoute") { type = NavType.StringType })
+            ) { backStackEntry ->
+              val backRoute = backStackEntry.arguments?.getString("backRoute")
+              if (backRoute != null) {
+                Settings(backRoute, navigationActions)
+                Log.d("MyPrint", "Successfully navigated to Settings")
+              }
+            }
             composable(
-                route = "${Route.ACCOUNT}/{backRoute}",
-                arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
-                    backStackEntry ->
-                  val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  if (backRoute != null && currentUser != null) {
-                    AccountSettings(
-                        currentUser.uid,
-                        UserViewModel(currentUser.uid),
-                        backRoute,
-                        navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to Settings")
-                  }
-                }
+              route = "${Route.ACCOUNT}/{backRoute}",
+              arguments = listOf(navArgument("backRoute") { type = NavType.StringType })
+            ) { backStackEntry ->
+              val backRoute = backStackEntry.arguments?.getString("backRoute")
+              if (backRoute != null && currentUser != null) {
+                AccountSettings(
+                  currentUser.uid,
+                  UserViewModel(currentUser.uid),
+                  backRoute,
+                  navigationActions
+                )
+                Log.d("MyPrint", "Successfully navigated to Settings")
+              }
+            }
             composable(Route.CREATEACCOUNT) {
               if (currentUser != null) {
                 CreateAccount(UserViewModel(), navigationActions)
@@ -129,10 +130,18 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
-            composable(Route.VIDEOCALL) {
-              if (currentUser != null) {
-                VideoCallScreen(VideoCallViewModel(currentUser.uid, LocalContext.current), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to VideoCallScreen")
+            composable(
+              route = "${Route.GROUP}/{groupUID}",
+              arguments = listOf(navArgument("groupUID") { type = NavType.StringType })
+            ) { backStackEntry ->
+              val groupUID = backStackEntry.arguments?.getString("groupUID")
+              if (groupUID != null && currentUser != null) {
+                VideoCallScreen(
+                  groupUID,
+                  VideoCallViewModel(groupUID, currentUser.uid, LocalContext.current),
+                  navigationActions
+                )
+                Log.d("MyPrint", "Successfully navigated to GroupScreen")
               }
             }
           }

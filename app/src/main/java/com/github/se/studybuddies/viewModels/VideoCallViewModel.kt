@@ -1,38 +1,66 @@
 package com.github.se.studybuddies.viewModels
 
 import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.database.DatabaseConnection
 import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.model.User
 import kotlinx.coroutines.launch
+import java.net.URI
 
-class VideoCallViewModel(private val uid: String? = null, context: Context) : ViewModel() {
+class VideoCallViewModel(val groupUID: String? = null, val uid: String, videoContext: Context) : ViewModel() {
 
-  val userToken = "REPLACE_WITH_TOKEN"
-  val userId = "REPLACE_WITH_bitter-shape-1"
-  val callId = "REPLACE_WITH_CALL_ID"
-  val apiKey = "6epehk42qjnq"
-  val email = "REPLACE_WITH_EMAIL"
-  val username = "REPLACE_WITH_NAME"
-  val photoUrl = "REPLACE_WITH_IMAGE_URL"
+    val apiKey = "x52wgjq8qyfc"
+  private val db = DatabaseConnection()
+  private val _group = MutableLiveData<Group>(Group.empty())
+  val group: LiveData<Group> = _group
+
+    private val _userData = MutableLiveData<com.github.se.studybuddies.data.User>()
+    val userData: LiveData<com.github.se.studybuddies.data.User> = _userData
+  init {
+      if (groupUID != null) {
+          viewModelScope.launch { _group.value = db.getGroup(groupUID) }
+          fetchUserData(db.getCurrentUserUID())
+      }
+  }
+
+    val userToken = userData.value!!.uid
+    val userId = userData.value!!.username
+    val callId = group.value.callId
+
 
   // Initialize StreamVideo. For a production app we recommend adding the client to your Application
   // class or di module.
   private val client =
       StreamVideoBuilder(
-              context = context,
+              context = videoContext,
               apiKey = apiKey, // demo API key
               geo = GEO.GlobalEdgeNetwork,
-              user = User(id = userId, role = email, name = username, image = photoUrl),
+              user = User(id = userId),
               token = userToken,
           )
           .build()
-  val call = client.call("default", callId)
+
 
   // Join a call, which type is `default` and id is `123`.
-  fun joinCall() {
-    viewModelScope.launch { call.join(create = true) }
+  fun joinCall(context: Context, callType: String) {
+      val call = client.call(callType, callId)
+      viewModelScope.launch {
+        val result = call.join(create = true)
+        result.onError {
+            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+        }
+    }
   }
+
+    fun fetchUserData(uid: String) {
+        viewModelScope.launch { _userData.value = db.getUser(uid) }
+    }
 }

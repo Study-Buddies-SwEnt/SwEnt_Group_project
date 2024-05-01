@@ -132,7 +132,6 @@ dependencies {
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
 
-    // Dependency for video calls and rendering
     // Stream Video Compose SDK
     implementation ("io.getstream:stream-video-android-ui-compose:0.5.1")
 
