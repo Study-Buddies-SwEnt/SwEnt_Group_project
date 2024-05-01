@@ -1,14 +1,14 @@
 name: APK Build
-run-name: APK $v-{{ inputs.tag_name }}
+run-name: APK v${{ inputs.tag_name }}
 
 on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Name of the version'
+        description: 'Version name'
         required: true
         type: string
-        default: 'v1.0'
+        default: '1.0'
 
 jobs:
   build:
