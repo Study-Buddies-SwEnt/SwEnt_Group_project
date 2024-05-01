@@ -78,15 +78,12 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: List output files
-        run: ls -lah release/
-
       - name : Upload APK to Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release/$apk-${{ inputs.version_name }}.apk
+          asset_path: release/app-release-unsigned.apk
           asset_name: $apk-${{ inputs.version_name }}.apk
           asset_content_type: application/vnd.android.package-archive
