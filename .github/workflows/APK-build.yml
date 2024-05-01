@@ -11,46 +11,78 @@ on:
         default: 'M1'
 
 jobs:
-    build:
-      name: Build Release APK
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-          with:
-            submodules: recursive
-            fetch-depth: 0
+  build:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-        - name: Setup JDK 17
-          uses: actions/setup-java@v4
-          with:
-            distribution: "temurin"
-            java-version: "17"
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
 
-        - name: Gradle cache
-          uses: gradle/actions/setup-gradle@v3
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
 
-        - name: Grant execute permission to gradlew
-          run: chmod +x gradlew
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
 
-        - name: Cleanup previous artifacts
-          uses: geekyeggo/delete-artifact@v1
-          with:
-            name: app-debug.apk
+      - name: Load secrets
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          echo $MAPS_API_KEY > local.properties
+          echo $GOOGLE_SERVICES_JSON | base64 -di > app/google-services.json
 
-        - name: Load secrets
-          env:
-            MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-            GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-          run: |
-            echo $MAPS_API_KEY > local.properties
-            echo $GOOGLE_SERVICES_JSON | base64 -di > app/google-services.json
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
 
-        - name: Build APK
-          run: ./gradlew assembleRelease
+      - name: List output files
+        run: ls -R app/build/outputs/apk/
 
-        - name: Upload APK
-          uses: actions/upload-artifact@v2
-          with:
-            name: $apk-${{ inputs.version_name }}
-            path: app/build/outputs/apk/release/app-release.apk
+      - name: Upload APK to Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: $apk-${{ inputs.version_name }}.apk
+          path: app/build/outputs/apk/release/app-release.apk
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download APK from Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: $apk-${{ inputs.version_name }}.apk
+          path: release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ inputs.version_name }}
+          release_name: Release ${{ inputs.version_name }}
+          body: |
+            Release ${{ inputs.version_name }}
+          draft: false
+          release: true
+
+      - name : Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release/$apk-${{ inputs.version_name }}.apk
+          asset_name: $apk-${{ inputs.version_name }}.apk
+          asset_content_type: application/vnd.android.package-archive
