@@ -123,16 +123,16 @@ class MainActivity : ComponentActivity() {
                     DirectMessageViewModel(currentUser.uid), chatViewModel, navigationActions)
               }
             }
-              composable(
-                  route = "${Route.GROUPSETTING}/{groupUID}",
-                  arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
-                      backStackEntry ->
+            composable(
+                route = "${Route.GROUPSETTING}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                      GroupSetting(groupUID, navigationActions)
-                      Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                    GroupSetting(groupUID, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
-              }
+                }
             composable(Route.CHAT) {
               ChatScreen(
                   MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
