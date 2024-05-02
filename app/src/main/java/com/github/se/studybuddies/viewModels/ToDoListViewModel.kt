@@ -2,35 +2,32 @@ package com.github.se.studybuddies.viewModels
 
 import android.app.Application
 import android.content.SharedPreferences
-import android.content.QuickViewConstants
 import android.provider.Settings.Global.getString
 import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import io.grpc.Context
-import java.io.File
-import java.lang.reflect.Type
-import java.time.LocalDate
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.lang.reflect.Type
 import java.security.SecureRandom
+import java.time.LocalDate
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
 
@@ -44,15 +41,14 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
   private val encryptedToDoFile = encryptAndSaveFile(toDoFile)
 
-  val sharedPref: SharedPreferences = studyBuddies.getSharedPreferences(
-    "my_prefs", Application.MODE_PRIVATE)
+  val sharedPref: SharedPreferences =
+      studyBuddies.getSharedPreferences("my_prefs", Application.MODE_PRIVATE)
 
   init {
     fetchAllTodos()
   }
 
-
-  //encryption scheme
+  // encryption scheme
 
   private val secretKeyPref = "SECRET_KEY_PREF"
 
@@ -60,7 +56,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   fun generateSecretKey(): SecretKey? {
     val secureRandom = SecureRandom()
     val keyGenerator = KeyGenerator.getInstance("AES")
-    //generate a key with secure random
+    // generate a key with secure random
     keyGenerator?.init(128, secureRandom)
     return keyGenerator?.generateKey()
   }
@@ -76,7 +72,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     val key = sharedPref.getString(secretKeyPref, null)
 
     if (key == null) {
-      //generate secure random
+      // generate secure random
       val secretKey = generateSecretKey()
       saveSecretKey(sharedPref, secretKey!!)
       return secretKey
@@ -92,9 +88,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   fun readFile(filePath: String): ByteArray {
     val file = File(filePath)
     val fileContents = file.readBytes()
-    val inputBuffer = BufferedInputStream(
-      FileInputStream(file)
-    )
+    val inputBuffer = BufferedInputStream(FileInputStream(file))
 
     inputBuffer.read(fileContents)
     inputBuffer.close()
@@ -120,13 +114,13 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     return cipher.doFinal(fileData)
   }
 
-  fun encryptAndSaveFile(file: File) : File {
+  fun encryptAndSaveFile(file: File): File {
     try {
       val fileData = readFile(file.path)
 
-      //get secret key
+      // get secret key
       val secretKey = getSecretKey(sharedPref)
-      //encrypt file
+      // encrypt file
       val encodedData = secretKey?.let { encrypt(it, fileData) }
 
       if (encodedData != null) {
@@ -153,7 +147,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     return decrypt(secretKey, fileData)
   }
 
-
   private fun readToDoListFromFile(): MutableMap<String, ToDo> {
     if (!encryptedToDoFile.exists()) {
       return mutableMapOf() // Return an empty map if file doesn't exist yet
@@ -169,7 +162,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     val json = gson.toJson(todoList)
     encryptedToDoFile.writeText(json)
   }
-
 
   fun addToDo(todo: ToDo) {
     // Read existing data from file
@@ -198,7 +190,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     existingData.remove(uid)
     writeToDoListToFile(existingData)
   }
-
 
   fun fetchAllTodos() {
     viewModelScope.launch {

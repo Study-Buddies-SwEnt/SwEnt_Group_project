@@ -157,7 +157,6 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-
             composable(Route.TIMER) {
               if (currentUser != null) {
                 TimerScreenContent(TimerViewModel(), navigationActions)

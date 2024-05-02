@@ -165,7 +165,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
               .background(Color.White)
               .clickable {
                 val groupUid = group.uid
-                  Log.d("GROUPEDITCLICK", "Tapped on group")
+                Log.d("GROUPEDITCLICK", "Tapped on group")
                 navigationActions.navigateTo("${Route.GROUP}/$groupUid")
               }
               .drawBehind {

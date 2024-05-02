@@ -43,7 +43,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                   TodoFields(titleState, descriptionState, selectedDate, isOpen)
                   TodoSaveButton(titleState) {
                     val randomUID = UUID.randomUUID().toString()
-                      val newTodo =
+                    val newTodo =
                         ToDo(
                             uid = randomUID,
                             name = titleState.value,
