@@ -15,7 +15,7 @@ object Route {
   const val TIMER = "Timer"
   const val CALENDAR = "Calendar"
   const val CHAT = "Chat"
-  const val TOPICCREATION= " TopicCreaction"
+  const val TOPICCREATION = " TopicCreaction"
   const val DIRECT_MESSAGE = "DirectMessage"
   const val MAP = "Map"
   /*
