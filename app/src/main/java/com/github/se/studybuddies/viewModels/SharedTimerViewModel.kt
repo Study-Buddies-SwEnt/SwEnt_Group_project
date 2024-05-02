@@ -13,12 +13,12 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.FirebaseDatabase
 
-open class SharedTimerViewModel(private val groupId: String) : ViewModel() {
+class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private val databaseConnection = DatabaseConnection()
     private val timerRef = databaseConnection.getTimerReference(groupId)
 
     val timerData = MutableLiveData<TimerData>()
-    var remainingTime = MutableLiveData<Long>()
+    var remainingTime = MutableLiveData<Long?>()
 
     init {
         listenToTimerUpdates()

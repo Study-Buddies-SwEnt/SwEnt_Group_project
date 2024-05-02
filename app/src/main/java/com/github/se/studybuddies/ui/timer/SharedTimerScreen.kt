@@ -10,10 +10,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +24,6 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.viewModels.TimerData
 
@@ -74,6 +70,7 @@ fun SharedTimerScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = formatDuration(remainingTime),
+
                         fontSize = 40.sp,
                         color = Color.Blue,
                         textAlign = TextAlign.Center
@@ -109,10 +106,10 @@ fun SharedTimerScreen(
         }
     }
 }
-fun formatDuration(millis: Long): String {
-    val hours = millis / 3600000
-    val minutes = (millis % 3600000) / 60000
-    val seconds = (millis % 60000) / 1000
+fun formatDuration(millis: Long?): String {
+    val hours = millis?.div(3600000)
+    val minutes = (millis?.rem(3600000))?.div(60000)
+    val seconds = (millis?.rem(60000))?.div(1000)
     return String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
 @Composable

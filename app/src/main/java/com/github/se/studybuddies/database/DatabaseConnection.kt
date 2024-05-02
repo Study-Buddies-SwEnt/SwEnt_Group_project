@@ -201,7 +201,8 @@ class DatabaseConnection {
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
-            items.add(Group(groupUID, name, photo, members))
+              val timer = document.getLong("timer") ?: 0L
+            items.add(Group(groupUID, name, photo, members,timer))
           }
         }
         return GroupList(items)
@@ -221,7 +222,8 @@ class DatabaseConnection {
       val name = document.getString("name") ?: ""
       val picture = Uri.parse(document.getString("picture") ?: "")
       val members = document.get("members") as List<String>
-      Group(groupUID, name, picture, members)
+        val timer = document.getLong("timer") ?: 0L
+      Group(groupUID, name, picture, members,timer)
     } else {
       Log.d("MyPrint", "group document not found for group id $groupUID")
       Group.empty()
@@ -235,8 +237,8 @@ class DatabaseConnection {
   suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
-    val group =
-        hashMapOf("name" to name, "picture" to photoUri.toString(), "members" to listOf(uid))
+      val group =
+        hashMapOf("name" to name, "picture" to photoUri.toString(), "members" to listOf(uid),"timer" to 0L)
     if (photoUri != getDefaultPicture()) {
       groupDataCollection
           .add(group)
