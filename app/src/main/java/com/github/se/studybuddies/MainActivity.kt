@@ -26,10 +26,13 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
+import com.github.se.studybuddies.ui.topics.TopicScreen
+import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
+import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -124,6 +127,30 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 TimerScreenContent(TimerViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
+              }
+            }
+            composable(
+              route = "${Route.TOPIC}/{topicUID}",
+              arguments = listOf(navArgument("topicUID") {type = NavType.StringType})) {
+                backStackEntry ->
+              val topicUID = backStackEntry.arguments?.getString("topicUID")
+              if (topicUID != null) {
+                TopicScreen(topicUID, TopicViewModel(topicUID), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to TopicScreen")
+              }
+            }
+            composable(
+              route = "${Route.TOPIC_SETTINGS}/{backRoute}/{topicUID}",
+              arguments = listOf(
+                navArgument("backRoute") {type = NavType.StringType},
+                navArgument("topicUID") {type = NavType.StringType}
+              )) {
+                backStackEntry ->
+              val backRoute = backStackEntry.arguments?.getString("backRoute")
+              val topicUID = backStackEntry.arguments?.getString("topicUID")
+              if (backRoute != null && topicUID != null) {
+                TopicSettings(topicUID, TopicViewModel(topicUID), backRoute, navigationActions)
+                Log.d("MyPrint", "Successfully navigated to TopicSettings")
               }
             }
           }

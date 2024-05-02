@@ -45,4 +45,6 @@
     <string name="focus_mode">Focus Mode</string>
     <string name="timer">Timer</string>
     <string name="calendar">Calendar</string>
+    <string name="group_chat">Group chat</string>
+    <string name="topic_settings">Topic Settings</string>
 </resources>

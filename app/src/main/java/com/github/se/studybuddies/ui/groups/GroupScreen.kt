@@ -3,14 +3,26 @@ package com.github.se.studybuddies.ui.groups
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -23,6 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -32,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -51,10 +68,13 @@ fun GroupScreen(
     navigationActions: NavigationActions
 ) {
   val group by groupViewModel.group.observeAsState()
+    val topics by groupViewModel.topics.observeAsState()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
   val membersState = remember { mutableStateOf(group?.members ?: emptyList()) }
+    val topicList = remember { mutableStateOf(topics?.getAllTopics() ?: emptyList()) }
+
 
   group?.let {
     nameState.value = it.name
@@ -63,7 +83,9 @@ fun GroupScreen(
   }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().testTag("GroupScreen"),
+      modifier = Modifier
+          .fillMaxSize()
+          .testTag("GroupScreen"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
@@ -86,16 +108,88 @@ fun GroupScreen(
             navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
       },
   ) {
-    Image(
-        painter = rememberImagePainter(pictureState.value),
-        contentDescription = stringResource(R.string.group_picture),
-        modifier = Modifier.fillMaxWidth().height(200.dp),
-        contentScale = ContentScale.Crop)
-    Text(
-        text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
-        style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-        modifier =
-            Modifier.fillMaxSize().padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
-        textAlign = TextAlign.Center)
+      Column(
+          modifier = Modifier
+              .fillMaxSize()
+              .padding(it)
+              .testTag("GroupsHome"),
+          horizontalAlignment = Alignment.Start,
+          verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+      ) {
+          Box(
+              modifier = Modifier
+                  .fillMaxWidth()
+                  .background(Color.White)
+                  .clickable {
+                      navigationActions.navigateTo(Route.CHAT)
+                  }
+                  .drawBehind {
+                      val strokeWidth = 1f
+                      val y = size.height - strokeWidth / 2
+                      drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                  }
+          ) {
+              Row(modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(16.dp)) {
+                  Box(
+                      modifier = Modifier
+                          .size(52.dp)
+                          .clip(CircleShape)
+                          .background(Color.Transparent)
+                  ) {
+                      Image(
+                          painter = rememberImagePainter(pictureState.value),
+                          contentDescription = stringResource(R.string.group_picture),
+                          modifier = Modifier.fillMaxSize(),
+                          contentScale = ContentScale.Crop)
+                  }
+                  Spacer(modifier = Modifier.size(16.dp))
+                  Text(text = stringResource(R.string.group_chat), modifier = Modifier.align(
+                      Alignment.CenterVertically), style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
+              }
+          }
+          Divider( color = Blue, thickness = 4.dp)
+          LazyColumn(
+              modifier = Modifier.fillMaxSize(),
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+              horizontalAlignment = Alignment.Start,
+              content = {
+                  items(topicList.value) { topic -> TopicItem(topic, navigationActions) }
+              })
+      }
+
   }
+}
+
+@Composable
+fun TopicItem(topic: Topic, navigationActions: NavigationActions) {
+    Box(
+        modifier =
+        Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .clickable {
+                val topicUid = topic.uid
+                navigationActions.navigateTo("${Route.TOPIC}/$topicUid")
+            }
+            .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+            }) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(text = topic.name, modifier = Modifier.align(Alignment.CenterVertically), style = TextStyle(fontSize = 20.sp), lineHeight = 28.sp)
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { navigationActions.navigateTo(Route.TOPIC_SETTINGS) }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = stringResource(id = R.string.dots_menu)
+                )
+            }
+        }
+    }
 }
