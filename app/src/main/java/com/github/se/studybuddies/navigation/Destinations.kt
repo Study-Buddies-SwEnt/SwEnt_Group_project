@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.navigation
 
-import android.content.Context
 import com.github.se.studybuddies.R
 
 data class Destination(val route: String, val icon: Int = 0, val textId: String)
