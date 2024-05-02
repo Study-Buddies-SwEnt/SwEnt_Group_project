@@ -53,16 +53,18 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private fun startLocalCountdown(duration: Long, startTime: Long) {
         viewModelScope.launch {
             var timeLeft = duration
+            val elapsed = System.currentTimeMillis() - startTime
+            timeLeft = duration - elapsed
+
             while (timeLeft > 0 && timerData.value?.isRunning == true) {
                 delay(1000)
-                val elapsed = System.currentTimeMillis() - startTime
-                timeLeft = duration - elapsed
+                timeLeft--;
                 remainingTime.postValue(timeLeft)
             }
             if (timeLeft <= 0) {
                 pauseTimer()
             }
-            // Ensure Firebase is updated when time left changes
+
             timerRef.setValue(timeLeft)
         }
     }
