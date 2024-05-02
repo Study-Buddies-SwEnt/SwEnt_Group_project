@@ -25,11 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -75,7 +77,7 @@ fun GroupScreen(
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     tint = Blue,
-                    contentDescription = "Group Option")
+                    contentDescription = stringResource(R.string.group_option))
               }
             })
       },
@@ -86,11 +88,11 @@ fun GroupScreen(
   ) {
     Image(
         painter = rememberImagePainter(pictureState.value),
-        contentDescription = "Group picture",
+        contentDescription = stringResource(R.string.group_picture),
         modifier = Modifier.fillMaxWidth().height(200.dp),
         contentScale = ContentScale.Crop)
     Text(
-        text = "In group ${nameState.value} with uid $groupUID",
+        text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
         style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
         modifier =
             Modifier.fillMaxSize().padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
