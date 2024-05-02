@@ -56,6 +56,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
   }
 
   private fun startLocalCountdown(duration: Long, startTime: Long) {
+
     if (timerJob == null || timerJob?.isCompleted == true) {
 
       timerJob =
@@ -64,7 +65,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
               timerData.value?.duration = duration - (timerData.value?.elapsedTime ?: 0L)
 
-               while (timerData.value?.duration!! > 0) {
+              while (timerData.value?.duration!! > 0) {
                 delay(1000)
                 timerData.value?.duration =
                     timerData.value?.duration!! - 1000 // Decrement timeLeft by 1 second
