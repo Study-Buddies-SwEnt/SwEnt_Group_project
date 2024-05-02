@@ -46,6 +46,7 @@
     <string name="focus_mode">Focus Mode</string>
     <string name="timer">Timer</string>
     <string name="calendar">Calendar</string>
+    <string name="chat">Chat</string>
     <string name="you_have_been_successfully_added_to_the_group">You have been successfully added to the group</string>
     <string name="can_t_find_a_member_with_this_uid">Can\'t find a member with this UID</string>
     <string name="user_have_been_successfully_added_to_the_group">User have been successfully added to the group</string>
