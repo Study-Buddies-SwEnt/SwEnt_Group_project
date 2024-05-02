@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,14 +38,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
+import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.BottomNavigationBar
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -56,6 +55,7 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 fun GroupScreen(
     groupUID: String,
     groupViewModel: GroupViewModel,
+    chatViewModel: ChatViewModel,
     navigationActions: NavigationActions
 ) {
   val group by groupViewModel.group.observeAsState()
@@ -71,9 +71,7 @@ fun GroupScreen(
   }
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .testTag("GroupScreen"),
+      modifier = Modifier.fillMaxSize().testTag("GroupScreen"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
@@ -94,41 +92,58 @@ fun GroupScreen(
       floatingActionButton = {
         Button(
             onClick = { navigationActions.navigateTo("${Route.SHAREDTIMER}/$groupUID") },
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape),
+            modifier = Modifier.size(100.dp).clip(CircleShape),
         ) {
           Icon(
               painter = painterResource(id = R.drawable.timer),
               contentDescription = "Timer",
-              tint = Color.White
-          )
+              tint = Color.White)
         }
       },
   ) {
-      Column(
-          modifier = Modifier.fillMaxSize(),
-          verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-          horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-          Image(
-              painter = rememberImagePainter(pictureState.value),
-              contentDescription = stringResource(R.string.group_picture),
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .height(200.dp),
-              contentScale = ContentScale.Crop)
-          Text(
-              text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
-              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-              modifier =
-              Modifier
-                  .fillMaxSize()
-                  .padding(16.dp),
-                  //.wrapContentHeight(Alignment.CenterVertically),
-              textAlign = TextAlign.Center)
-
-      }
-
+    Column {
+      Image(
+          painter = rememberImagePainter(pictureState.value),
+          contentDescription = stringResource(R.string.group_picture),
+          modifier = Modifier.fillMaxWidth().height(200.dp),
+          contentScale = ContentScale.Crop)
+      Text(
+          text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
+          style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+          modifier = Modifier.padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
+          textAlign = TextAlign.Center)
+      Button(
+          modifier = Modifier.padding(16.dp).fillMaxWidth(),
+          onClick = {
+            chatViewModel.setChat(
+                group?.let {
+                  Chat(
+                      it.uid,
+                      it.name,
+                      it.picture.toString(),
+                      ChatType.GROUP,
+                      groupViewModel.members.value!!.toList())
+                })
+            navigationActions.navigateTo(Route.CHAT)
+          }) {
+            Text(stringResource(R.string.chat))
+          }
     }
+  }
+  Column(
+      modifier = Modifier.fillMaxSize(),
+      verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = rememberImagePainter(pictureState.value),
+            contentDescription = stringResource(R.string.group_picture),
+            modifier = Modifier.fillMaxWidth().height(200.dp),
+            contentScale = ContentScale.Crop)
+        Text(
+            text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
+            style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            // .wrapContentHeight(Alignment.CenterVertically),
+            textAlign = TextAlign.Center)
+      }
 }

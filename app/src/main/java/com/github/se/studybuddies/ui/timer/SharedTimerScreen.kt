@@ -1,4 +1,3 @@
-
 package com.github.se.studybuddies.ui.timer
 
 import android.annotation.SuppressLint
@@ -22,100 +21,82 @@ import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
+import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
-import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.viewModels.TimerData
 import kotlin.text.*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-
 @Composable
 fun SharedTimerScreen(
     navigationActions: NavigationActions,
     sharedTimerViewModel: SharedTimerViewModel
 ) {
-    val timerData by sharedTimerViewModel.timerData.observeAsState(TimerData())
-    val remainingTime by sharedTimerViewModel.remainingTime.observeAsState(0L)
+  val timerData by sharedTimerViewModel.timerData.observeAsState(TimerData())
+  val remainingTime by sharedTimerViewModel.remainingTime.observeAsState(0L)
 
-
-
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .testTag("sharedtimer_scaffold"),
-        topBar = {
-            TopNavigationBar(
-                title = { Sub_title(title = "Timer") },
-                navigationIcon = {
-                    GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-                },
-                actions = {})
-        },
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp).testTag("timer_column"),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Card(
-                shape = RoundedCornerShape(30.dp),
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-                    .height(160.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
+  Scaffold(
+      modifier = Modifier.fillMaxSize().testTag("sharedtimer_scaffold"),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title = "Timer") },
+            navigationIcon = {
+              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+            },
+            actions = {})
+      },
+  ) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp).testTag("timer_column"),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally) {
+          Card(
+              shape = RoundedCornerShape(30.dp),
+              modifier = Modifier.padding(20.dp).fillMaxWidth().height(160.dp),
+              colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = formatDuration(remainingTime),
-
-                        fontSize = 40.sp,
-                        color = Color.Blue,
-                        textAlign = TextAlign.Center
-                    )
-
+                  Text(
+                      text = formatDuration(remainingTime),
+                      fontSize = 40.sp,
+                      color = Color.Blue,
+                      textAlign = TextAlign.Center)
                 }
-            }
+              }
 
-            Spacer(modifier = Modifier.height(20.dp))
+          Spacer(modifier = Modifier.height(20.dp))
 
-            // Timer control buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                TimerButton(onClick = { sharedTimerViewModel.startTimer() }, text = "Start" )
-                TimerButton(onClick = { sharedTimerViewModel.pauseTimer() }, text = "Pause" )
-                TimerButton(onClick = {  sharedTimerViewModel.resetTimer()  }, text = "Reset" )
-            }
+          // Timer control buttons
+          Row(
+              modifier = Modifier.fillMaxWidth().padding(16.dp),
+              horizontalArrangement = Arrangement.SpaceEvenly) {
+                TimerButton(onClick = { sharedTimerViewModel.startTimer() }, text = "Start")
+                TimerButton(onClick = { sharedTimerViewModel.pauseTimer() }, text = "Pause")
+                TimerButton(onClick = { sharedTimerViewModel.resetTimer() }, text = "Reset")
+              }
 
-            Spacer(modifier = Modifier.height(20.dp).testTag("timer_spacer"))
+          Spacer(modifier = Modifier.height(20.dp).testTag("timer_spacer"))
 
-            // Time adjustment buttons
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround) {
+          // Time adjustment buttons
+          Row(
+              modifier = Modifier.fillMaxWidth().padding(16.dp),
+              horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, sharedTimerViewModel::addHours)
                 TimeAdjustSection("Minutes", 1, sharedTimerViewModel::addMinutes)
                 TimeAdjustSection("Seconds", 10, sharedTimerViewModel::addSeconds)
-            }
+              }
         }
-    }
+  }
 }
+
 fun formatDuration(millis: Long?): String {
-    val hours = millis?.div(3600000)
-    val minutes = (millis?.rem(3600000))?.div(60000)
-    val seconds = (millis?.rem(60000))?.div(1000)
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+  val hours = millis?.div(3600000)
+  val minutes = (millis?.rem(3600000))?.div(60000)
+  val seconds = (millis?.rem(60000))?.div(1000)
+  return String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
+
 @Composable
 fun TimeAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
-    Button(onClick = { onAdjust(amount) }) {
-        Text(label)
-    }
+  Button(onClick = { onAdjust(amount) }) { Text(label) }
 }

@@ -79,7 +79,7 @@ fun TimerScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           Spacer(modifier = Modifier.height(120.dp))
-              if (timerEnd) {
+          if (timerEnd) {
             Card(
                 shape = RoundedCornerShape(30.dp),
                 modifier =

@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -7,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.ncorti.ktfmt.gradle") version "0.16.0"
     id("com.google.gms.google-services")
+    id("com.google.secrets_gradle_plugin") version "0.6"
 }
 android {
     namespace = "com.github.se.studybuddies"
@@ -21,29 +21,24 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
-    buildFeatures{
-        viewBinding = true
-    }
+        //load the values from .properties file
+        val mapsKeyFile = project.rootProject.file("local.properties")
+        val properties = Properties()
+        properties.load(mapsKeyFile.inputStream())
+
+        //fetch the map key
+        val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
+
+        //inject the key dynamically into the manifest
+        manifestPlaceholders["MAPS_API_KEY"]  = apiKey
+        }
 
     configurations.configureEach {
         exclude(group= "com.google.protobuf", module= "protobuf-lite")
     }
 
-    signingConfigs {
-        create("release") {
-            val properties = Properties()
-            properties.load(FileInputStream("app/keystore.properties"))
-            storeFile = file(properties["storeFile"] as String)
-            storePassword = properties["storePassword"] as String
-            keyAlias = properties["keyAlias"] as String
-            keyPassword = properties["keyPassword"] as String
-        }
-    }
-
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -147,6 +142,12 @@ dependencies {
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
+
+    testImplementation("org.robolectric:robolectric:4.11.1")
+    //Location service
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+
+
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {
     mustRunAfter("testDebugUnitTest", "connectedDebugAndroidTest")
@@ -179,4 +180,10 @@ tasks.withType<Test> {
     onlyIf {
         !name.toLowerCaseAsciiOnly().contains("release")
     }
+}
+
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "local.properties"
 }

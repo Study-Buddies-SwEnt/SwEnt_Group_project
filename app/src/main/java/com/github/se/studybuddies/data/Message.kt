@@ -32,7 +32,4 @@ object MessageVal {
   const val TIMESTAMP = "timestamp"
   const val TEXT = "text"
   const val SENDER_UID = "senderId"
-  // name of the path in the database
-  const val GROUPS = "groups"
-  const val MESSAGES = "messages"
 }

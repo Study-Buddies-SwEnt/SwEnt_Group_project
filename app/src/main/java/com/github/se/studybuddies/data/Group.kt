@@ -2,10 +2,23 @@ package com.github.se.studybuddies.data
 
 import android.net.Uri
 
-data class Group(val uid: String, val name: String, val picture: Uri, val members: List<String>,val timer : Long = 0) {
+data class Group(
+    val uid: String,
+    val name: String,
+    val picture: Uri,
+    val members: List<String>,
+    val topics: List<String>,
+    val timer: Long
+) {
   companion object {
     fun empty(): Group {
-      return Group(uid = "", name = "", picture = Uri.EMPTY, members = emptyList(),timer = 0L)
+      return Group(
+          uid = "",
+          name = "",
+          picture = Uri.EMPTY,
+          members = emptyList(),
+          topics = emptyList(),
+          timer = 0L)
     }
   }
 }

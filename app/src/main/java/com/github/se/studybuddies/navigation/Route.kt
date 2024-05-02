@@ -14,8 +14,10 @@ object Route {
   const val FOCUSMODE = "Focus Mode"
   const val TIMER = "Timer"
   const val CALENDAR = "Calendar"
-  const val CHAT = "GeneralChat"
   const val SHAREDTIMER = "Shared timer"
+  const val CHAT = "Chat"
+  const val DIRECT_MESSAGE = "DirectMessage"
+  const val MAP = "Map"
   /*
   const val OVERVIEW = "Overview"
   const val MAP = "Map"
