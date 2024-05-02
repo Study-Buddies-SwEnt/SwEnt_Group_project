@@ -3,18 +3,13 @@ package com.github.se.studybuddies.ui.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.location.Location
-import android.location.LocationManager
-import android.util.Log
-import android.widget.Toast
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -45,11 +40,9 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.MainScreenScaffold
 import com.github.se.studybuddies.ui.permissions.hasLocationPermission
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.CameraPosition
+
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
@@ -81,7 +74,6 @@ import kotlinx.coroutines.flow.asStateFlow
 @SuppressLint("InlinedApi")
 @Composable
 fun MapScreen(
-<<<<<<< HEAD
     uid: String, // This will be useful for later versions when we'll store the user location in the
     // firebase
     navigationActions: NavigationActions,
@@ -199,96 +191,3 @@ fun MapScreen(
       },
   )
 }
-=======
-    uid: String,
-    mapViewModel: MapViewModel,
-    navigationActions: NavigationActions,
-    context: Context,
-    ) {
-
-    val location by mapViewModel.locationFlow.collectAsState(initial = null)
-    //val isLocationOn by mapViewModel.isLocationOn.collectAsState()
-    var isLocationOn = false
-
-    var positionClient = LatLng(location?.latitude ?: -35.016, location?.longitude ?:143.321)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(positionClient, 3f)
-    }
-    var uiSettings by remember {
-        mutableStateOf(MapUiSettings(zoomControlsEnabled = true))
-    }
-
-    DrawerMenu(
-        navigationActions = navigationActions,
-        backRoute = Route.MAP,
-        content = {
-            LaunchedEffect(location){
-                location?.let {
-                    positionClient = LatLng(it.latitude, it.longitude)
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(positionClient, 15f)
-                }
-            }
-            GoogleMap(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("mapScreen"),
-                cameraPositionState = cameraPositionState,
-                uiSettings = uiSettings
-            ) {
-                location?.let {
-                    val position = LatLng(it.latitude, it.longitude)
-                    Marker(
-                        state = rememberMarkerState(position = position),
-                        title = "Your Location",
-                        snippet = "This is your current location"
-                    )
-
-
-                }
-
-            }
-
-        },
-        title = { Main_title("Map") },
-        iconOptions = {
-            Icon(
-                painter = painterResource(id = R.drawable.globe),
-                modifier = Modifier
-                    .padding(26.dp)
-                    .size(30.dp)
-                    .clickable {
-                           if(!isLocationOn){
-                               Intent(context, LocationService::class.java).apply {
-                                   action = LocationService.ACTION_START
-                                   context.startService(this)
-                               }
-                               CoroutineScope(Dispatchers.Main).launch {
-                                   mapViewModel.startLocationUpdates()
-                               }
-                               isLocationOn = true
-                               Toast
-                                   .makeText(context, "Location service started", Toast.LENGTH_SHORT)
-                                   .show()
-                           }else if(isLocationOn){
-                               Intent(context, LocationService::class.java).apply {
-                                   action = LocationService.ACTION_STOP
-                                   context.startService(this)
-                               }
-                               isLocationOn = false
-                               Toast
-                                   .makeText(context, "Location service stopped", Toast.LENGTH_SHORT)
-                                   .show()
-                           }
-
-
-                    },
-                tint = Color.Red,
-                contentDescription = "Map"
-            )
-        },
-    )
-
-}
-
-
->>>>>>> a9b2e6f (Add zoom option and MapViewModel)

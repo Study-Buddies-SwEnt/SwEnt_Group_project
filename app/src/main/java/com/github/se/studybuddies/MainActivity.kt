@@ -145,9 +145,7 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 TimerScreenContent(TimerViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
-              if(currentUser != null) {
-                MapScreen(currentUser.uid, MapViewModel(applicationContext), navigationActions, applicationContext)
-              }
+             }
             }
           }
         }
