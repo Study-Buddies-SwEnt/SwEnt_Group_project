@@ -129,7 +129,7 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
                 }
               }
               Spacer(modifier = Modifier.padding(20.dp))
-              AddMemberButton(db)
+              AddMemberButton(groupUID, db)
               Spacer(modifier = Modifier.padding(0.dp))
               ShareLinkButton(groupLink.value)
               Spacer(modifier = Modifier.padding(10.dp))
@@ -180,7 +180,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(db: DatabaseConnection) {
+fun AddMemberButton(groupUID : String, db: DatabaseConnection) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
@@ -211,7 +211,7 @@ fun AddMemberButton(db: DatabaseConnection) {
                   // add the user to the database
                   isTextFieldVisible = false
                   scope.launch {
-                    val error = db.addUserToGroup(text)
+                    val error = db.addUserToGroup(groupUID, text)
                     if (error == -1) {
                       showError = true
                       delay(3000L) // delay for 3 seconds
