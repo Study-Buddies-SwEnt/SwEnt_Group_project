@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -22,21 +21,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
+        }
 
     configurations.configureEach {
         exclude(group= "com.google.protobuf", module= "protobuf-lite")
-    }
-
-    signingConfigs {
-        create("release") {
-            val properties = Properties()
-            properties.load(FileInputStream("app/keystore.properties"))
-            storeFile = file(properties["storeFile"] as String)
-            storePassword = properties["storePassword"] as String
-            keyAlias = properties["keyAlias"] as String
-            keyPassword = properties["keyPassword"] as String
-        }
     }
 
     buildTypes {
@@ -182,4 +170,10 @@ tasks.withType<Test> {
     onlyIf {
         !name.toLowerCaseAsciiOnly().contains("release")
     }
+}
+
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "local.properties"
 }
