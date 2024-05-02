@@ -10,3 +10,4 @@
 local.properties
 app/keystore.jks
 app/keystore.properties
+app/google-services.json
