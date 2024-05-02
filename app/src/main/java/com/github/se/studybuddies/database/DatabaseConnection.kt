@@ -372,7 +372,7 @@ class DatabaseConnection {
     return 0
   }
 
-  suspend fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
+  fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
 
     // change name of group
     groupDataCollection

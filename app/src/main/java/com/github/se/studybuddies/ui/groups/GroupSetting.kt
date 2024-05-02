@@ -141,12 +141,10 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
               item { Spacer(modifier = Modifier.padding(10.dp)) }
               item {
                 SaveGroupButton {
-                  scope.launch {
-                    if (nameState.value == "") {
-                      db.updateGroup(groupUID, name.value, photoState.value)
-                    } else {
-                      db.updateGroup(groupUID, nameState.value, photoState.value)
-                    }
+                  if (nameState.value == "") {
+                    db.updateGroup(groupUID, name.value, photoState.value)
+                  } else {
+                    db.updateGroup(groupUID, nameState.value, photoState.value)
                   }
                   navigationActions.navigateTo(Route.GROUPSHOME)
                 }
