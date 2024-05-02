@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Group
-import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.data.TopicList
+import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -27,9 +27,9 @@ import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
+import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
-import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel

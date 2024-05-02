@@ -13,7 +13,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -90,36 +89,33 @@ fun GroupScreen(
             navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
       },
   ) {
-      Column {
-          Image(
-              painter = rememberImagePainter(pictureState.value),
-              contentDescription = stringResource(R.string.group_picture),
-              modifier = Modifier.fillMaxWidth().height(200.dp),
-              contentScale = ContentScale.Crop
-          )
-          Text(
-              text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
-              style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-              modifier =
-              Modifier.padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
-              textAlign = TextAlign.Center
-          )
-          Button(
-              modifier = Modifier.padding(16.dp).fillMaxWidth(),
-              onClick = {
-                  chatViewModel.setChat(
-                      group?.let {
-                          Chat(
-                              it.uid,
-                              it.name,
-                              it.picture.toString(),
-                              ChatType.GROUP,
-                              groupViewModel.members.value!!.toList())
-                      })
-                  navigationActions.navigateTo(Route.CHAT)
-              }) {
-              Text(stringResource(R.string.chat))
+    Column {
+      Image(
+          painter = rememberImagePainter(pictureState.value),
+          contentDescription = stringResource(R.string.group_picture),
+          modifier = Modifier.fillMaxWidth().height(200.dp),
+          contentScale = ContentScale.Crop)
+      Text(
+          text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
+          style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+          modifier = Modifier.padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
+          textAlign = TextAlign.Center)
+      Button(
+          modifier = Modifier.padding(16.dp).fillMaxWidth(),
+          onClick = {
+            chatViewModel.setChat(
+                group?.let {
+                  Chat(
+                      it.uid,
+                      it.name,
+                      it.picture.toString(),
+                      ChatType.GROUP,
+                      groupViewModel.members.value!!.toList())
+                })
+            navigationActions.navigateTo(Route.CHAT)
+          }) {
+            Text(stringResource(R.string.chat))
           }
-      }
+    }
   }
 }
