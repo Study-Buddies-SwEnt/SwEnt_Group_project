@@ -82,6 +82,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
     }
 
+
     fun pauseTimer() {
         timerJob?.cancel() // Cancel the ongoing timer job
 
