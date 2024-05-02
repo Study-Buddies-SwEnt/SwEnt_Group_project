@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class MessageViewModel(val chat: Chat) : ViewModel() {
 
-  val db = DatabaseConnection()
+  private val db = DatabaseConnection()
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
@@ -44,14 +44,14 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
         }
 
     if (message != null) {
-      db.sendMessage(chat.uid, message)
+      db.sendMessage(chat.uid, message, chat.type)
     } else Log.d("MyPrint", "message is null, could not retrieve")
   }
 
   fun deleteMessage(message: Message) {
     if (!isUserMessageSender(message)) return
     else {
-      db.deleteMessage(chat.uid, message)
+      db.deleteMessage(chat.uid, message, chat.type)
       _messages.value = _messages.value.filter { it.uid != message.uid }
     }
   }
@@ -59,7 +59,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   fun editMessage(message: Message, newText: String) {
     if (!isUserMessageSender(message)) return
     else {
-      db.editMessage(chat.uid, message, newText)
+      db.editMessage(chat.uid, message, chat.type, newText)
       _messages.value =
           _messages.value.map {
             if (it.uid == message.uid) {

@@ -56,16 +56,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
-import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
-import com.github.se.studybuddies.viewModels.UserViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -94,17 +91,21 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
               .navigationBarsPadding()
               .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-          when (viewModel.chat.type) {
-            ChatType.GROUP ->
-                GroupViewModel(uid = viewModel.chat.uid).group.value?.let {
-                  currentUser.value?.let { currentUser -> ChatGroupTitle(it, currentUser) }
-                }
-            /*MessageType.GROUP ->
-            ChatGroupTitle(group = GroupViewModel(viewModel.chatUID).group.value!!,
-                currentUser = viewModel.currentUser.value!!)*/
+          /*when (viewModel.chat.type) {
+          ChatType.GROUP ->
+              GroupViewModel(uid = viewModel.chat.uid).group.value?.let {
+                currentUser.value?.let { currentUser -> ChatGroupTitle(it, currentUser) }
+              }
+          ChatType.TOPIC -> Text(text = viewModel.chat.name)
+          */
+          /*MessageType.GROUP ->
+          ChatGroupTitle(group = GroupViewModel(viewModel.chatUID).group.value!!,
+              currentUser = viewModel.currentUser.value!!)*/
+          /*
             ChatType.PRIVATE ->
                 PrivateChatTitle(UserViewModel(viewModel.getOtherUserUID()).userData.value!!)
-          }
+          }*/
+
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->

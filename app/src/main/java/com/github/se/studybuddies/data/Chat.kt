@@ -33,7 +33,8 @@ data class Chat(
 
 enum class ChatType {
   PRIVATE,
-  GROUP
+  GROUP,
+  TOPIC
 }
 
 object ChatVal {
@@ -41,4 +42,5 @@ object ChatVal {
   const val DIRECT_MESSAGES = "direct_messages"
   const val MEMBERS = "members"
   const val MESSAGES = "messages"
+  const val TOPICS = "topics"
 }

@@ -29,6 +29,7 @@ import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 
 @Composable
@@ -37,7 +38,13 @@ fun DirectMessageScreen(viewModel: DirectMessageViewModel, navigationActions: Na
   Column {
     SecondaryTopBar(onClick = { navigationActions.goBack() }) {}
 
-    LazyColumn() { items(chats.value) { chat -> DirectMessageItem(chat) } }
+    LazyColumn() {
+      items(chats.value) { chat ->
+        DirectMessageItem(chat) {
+          navigationActions.navigateTo("${Route.CHAT}/${chat.uid}/${ChatType.PRIVATE}")
+        }
+      }
+    }
   }
 }
 

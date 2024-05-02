@@ -311,8 +311,8 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendMessage(groupUID: String, message: Message) {
-    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+  fun sendMessage(UID: String, message: Message, chatType: ChatType) {
+    val messagePath = getMessagePath(UID, chatType) + "/${message.uid}"
     val messageData =
         mapOf(
             MessageVal.TEXT to message.text,
@@ -325,32 +325,37 @@ class DatabaseConnection {
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
   }
 
-  fun deleteMessage(groupUID: String, message: Message) {
-    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+  fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
+    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rt_db.getReference(messagePath).removeValue()
   }
 
-  fun editMessage(groupUID: String, message: Message, newText: String) {
-    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
-  fun getMessagePath(UID: String, chatType: ChatType): String {
+  private fun getMessagePath(UID: String, chatType: ChatType, additionalUID: String = ""): String {
     return when (chatType) {
       ChatType.PRIVATE -> getPrivateMessagesPath(UID)
       ChatType.GROUP -> getGroupMessagesPath(UID)
+      ChatType.TOPIC -> getTopicMessagesPath(UID, additionalUID)
     }
   }
 
-  fun getGroupMessagesPath(groupUID: String): String {
+  private fun getGroupMessagesPath(groupUID: String): String {
     return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
-  fun getPrivateMessagesPath(chatUID: String): String {
+  private fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
+    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.TOPICS + "/$topicUID/" + ChatVal.MESSAGES
+  }
+
+  private fun getPrivateMessagesPath(chatUID: String): String {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
   }
 
-  fun getPrivateChatMembersPath(chatUID: String): String {
+  private fun getPrivateChatMembersPath(chatUID: String): String {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
@@ -372,7 +377,6 @@ class DatabaseConnection {
 
   fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
     val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
-    val userRef = rt_db.getReference("users") // Assuming 'users' node holds user data
 
     CoroutineScope(Dispatchers.IO).launch {
       val chatList = mutableListOf<Chat>()
