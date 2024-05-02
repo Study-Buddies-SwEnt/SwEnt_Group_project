@@ -249,7 +249,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                       showError = false
                     } else {
                         showSucces = true
-                        delay(1500L) // delay for 3 seconds
+                        delay(1500L) // delay for 1.5 seconds
                         showSucces = false
                       navigationActions.navigateTo("${Route.GROUP}/$groupUID")
 
