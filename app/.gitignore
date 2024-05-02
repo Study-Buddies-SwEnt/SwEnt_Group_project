@@ -1,4 +1,4 @@
 /build
-google-services.json
-keystore.properties
 keystore.jks
+keystore.properties
+google-services.json
