@@ -21,6 +21,7 @@ import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.UUID
 
 @Composable
 fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
@@ -41,9 +42,10 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
                   TodoFields(titleState, descriptionState, selectedDate, isOpen)
                   TodoSaveButton(titleState) {
-                    val newTodo =
+                    val randomUID = UUID.randomUUID().toString()
+                      val newTodo =
                         ToDo(
-                            uid = "",
+                            uid = randomUID,
                             name = titleState.value,
                             description = descriptionState.value,
                             dueDate = selectedDate.value,
