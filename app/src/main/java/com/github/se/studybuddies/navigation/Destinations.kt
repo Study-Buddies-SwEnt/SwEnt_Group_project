@@ -18,5 +18,5 @@ val BOTTOM_NAVIGATION_DESTINATIONS =
     listOf(
         Destination(route = Route.SOLOSTUDYHOME, icon = R.drawable.user_v2, textId = "Solo Study"),
         Destination(route = Route.GROUPSHOME, icon = R.drawable.groups, textId = "Groups"),
-        Destination(route = Route.CHAT, icon = R.drawable.messages, textId = "Messages"),
+        Destination(route = Route.DIRECT_MESSAGE, icon = R.drawable.messages, textId = "Messages"),
         Destination(route = Route.MAP, icon = R.drawable.map, textId = "Map"))
