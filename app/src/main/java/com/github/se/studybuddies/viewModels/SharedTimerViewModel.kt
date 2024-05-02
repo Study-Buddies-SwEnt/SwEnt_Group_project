@@ -80,7 +80,8 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     }
 
     fun pauseTimer() {
-        timerJob?.cancel()
+        timerJob?.cancel() // Cancel the ongoing timer job
+
         viewModelScope.launch(Dispatchers.IO) {
             timerData.value?.let { timer ->
                 if (timer.isRunning) {
@@ -105,6 +106,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             }
         }
     }
+
 
     fun resetTimer() {
         timerJob?.cancel()
