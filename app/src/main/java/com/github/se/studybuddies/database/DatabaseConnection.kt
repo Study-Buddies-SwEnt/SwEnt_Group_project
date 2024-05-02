@@ -382,8 +382,20 @@ class DatabaseConnection {
         .addOnSuccessListener { Log.d("MyPrint", "group name successfully updated") }
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed modify group name with error: ", e) }
 
-    // todo replace picture in database
+      if (photoUri != getDefaultPicture()) {
     // change picture of group
+      val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+      pictureRef
+          .putFile(photoUri)
+          .addOnSuccessListener {
+              pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                  groupDataCollection.document(groupUID).update("picture", uri.toString())
+                  Log.d("MyPrint", "Successfully upload group photo")
+              }
+          }
+          .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to upload photo with error: ", e)
+          }
     groupDataCollection
         .document(groupUID)
         .update("picture", FieldValue.arrayUnion(photoUri.toString()))
@@ -391,7 +403,7 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed modify group picture with error: ", e)
         }
-  }
+  }}
 
   // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {

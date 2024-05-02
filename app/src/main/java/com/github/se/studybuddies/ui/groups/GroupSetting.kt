@@ -23,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
@@ -128,7 +129,7 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
                 }
               }
               Spacer(modifier = Modifier.padding(20.dp))
-              AddMemberButton(navigationActions, db)
+              AddMemberButton(db)
               Spacer(modifier = Modifier.padding(0.dp))
               ShareLinkButton(groupLink.value)
               Spacer(modifier = Modifier.padding(10.dp))
@@ -157,8 +158,12 @@ fun ModifyName(name: String, nameState: MutableState<String>) {
               .clip(MaterialTheme.shapes.small)
               .testTag("group_name_field"),
       colors =
-          TextFieldDefaults.outlinedTextFieldColors(
-              focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))
+      OutlinedTextFieldDefaults.colors(
+          cursorColor = Blue,
+          focusedBorderColor = Blue,
+          unfocusedBorderColor = Blue,
+      )
+  )
 }
 
 @Composable
@@ -175,7 +180,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(navigationActions: NavigationActions, db: DatabaseConnection) {
+fun AddMemberButton(db: DatabaseConnection) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }

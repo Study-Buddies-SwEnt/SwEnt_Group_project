@@ -208,8 +208,6 @@ fun AddGroupButton(navigationActions: NavigationActions) {
       }
 }
 
-// todo add show succes on GroupHome function
-
 @Composable
 fun AddLinkButton(navigationActions: NavigationActions) {
   var text by remember { mutableStateOf("") }
@@ -250,10 +248,11 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                       delay(3000L) // delay for 3 seconds
                       showError = false
                     } else {
-                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                         showSucces = true
-                        delay(3000L) // delay for 3 seconds
+                        delay(1500L) // delay for 3 seconds
                         showSucces = false
+                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+
                     }
                   }
                 }),
