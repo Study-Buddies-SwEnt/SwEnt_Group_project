@@ -2,7 +2,12 @@ package com.github.se.studybuddies.database
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -15,12 +20,22 @@ import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -356,8 +371,8 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendGroupMessage(groupUID: String, message: Message) {
-    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+  fun sendMessage(UID: String, message: Message, chatType: ChatType) {
+    val messagePath = getMessagePath(UID, chatType) + "/${message.uid}"
     val messageData =
         mapOf(
             MessageVal.TEXT to message.text,
@@ -370,18 +385,153 @@ class DatabaseConnection {
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
   }
 
-  fun deleteMessage(groupUID: String, message: Message) {
-    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+  fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
+    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rt_db.getReference(messagePath).removeValue()
   }
 
-  fun editMessage(groupUID: String, message: Message, newText: String) {
-    val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
+  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
-  fun getGroupMessagesPath(groupUID: String): String {
-    return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
+  private fun getMessagePath(UID: String, chatType: ChatType, additionalUID: String = ""): String {
+    return when (chatType) {
+      ChatType.PRIVATE -> getPrivateMessagesPath(UID)
+      ChatType.GROUP -> getGroupMessagesPath(UID)
+      ChatType.TOPIC -> getTopicMessagesPath(UID, additionalUID)
+    }
+  }
+
+  private fun getGroupMessagesPath(groupUID: String): String {
+    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
+  }
+
+  private fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
+    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.TOPICS + "/$topicUID/" + ChatVal.MESSAGES
+  }
+
+  private fun getPrivateMessagesPath(chatUID: String): String {
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
+  }
+
+  private fun getPrivateChatMembersPath(chatUID: String): String {
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
+  }
+
+  fun getPrivateChatMembers(chatUID: String, liveData: MutableStateFlow<List<User>>) {
+    val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
+
+    ref.addListenerForSingleValueEvent(
+        object : ValueEventListener {
+          override fun onDataChange(dataSnapshot: DataSnapshot) {
+            CoroutineScope(Dispatchers.IO).launch {
+              val members =
+                  dataSnapshot.children
+                      .mapNotNull { dataSnapshotChild ->
+                        async { dataSnapshotChild.key?.let { getUser(it) } }
+                      }
+                      .awaitAll()
+                      .filterNotNull()
+              liveData.value = members
+            }
+          }
+
+          override fun onCancelled(databaseError: DatabaseError) {
+            Log.w(
+                "DatabaseConnection - getPrivateChatMembers",
+                "Database error: ${databaseError.message}")
+          }
+        })
+  }
+
+  fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
+    val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
+
+    CoroutineScope(Dispatchers.IO).launch {
+      val chatList = mutableListOf<Chat>()
+
+      val chatsSnapshot = ref.get().await()
+
+      chatsSnapshot.children.forEach { chat ->
+        val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
+        if (userUID in members) {
+          val otherUserId = members.first { it != userUID }
+
+          Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
+
+          if (otherUserId != null) {
+            getUser(otherUserId).let { otherUser ->
+              val otherUserName = otherUser.username
+              val otherUserPhotoUrl = otherUser.photoUrl.toString()
+
+              // Create a new Chat object with the other user's name and photo URL
+              val messages = MutableStateFlow<List<Message>>(emptyList())
+              getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
+              Log.d("MyPrint", "Chat key ${chat.key}")
+              Log.d("MyPrint", "Messages: ${messages.value}")
+              val newChat =
+                  Chat(
+                      uid = chat.key ?: "",
+                      name = otherUserName,
+                      photoUrl = otherUserPhotoUrl,
+                      type = ChatType.PRIVATE,
+                      members = listOf(otherUser, getUser(userUID)),
+                  /*messages = messages.value*/ )
+              chatList.add(newChat)
+            }
+          }
+        }
+      }
+
+      liveData.value = chatList
+    }
+  }
+
+  fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
+    val ref = rt_db.getReference(getMessagePath(uid, chatType))
+
+    Log.d("DB Connection - getMessages", "Getting messages for $uid")
+    Log.d("DB Connection - getMessages", "Chat type: $chatType")
+
+    Log.d("DB Connection - getMessages", "Reference: $ref")
+
+    ref.addValueEventListener(
+        object : ValueEventListener {
+          private var handler = Handler(Looper.getMainLooper())
+          private var runnable: Runnable? = null
+
+          override fun onDataChange(snapshot: DataSnapshot) {
+            runnable?.let { handler.removeCallbacks(it) }
+            runnable = Runnable {
+              CoroutineScope(Dispatchers.IO).launch {
+                val newMessages = mutableListOf<Message>()
+
+                // Process snapshot data to fetch user details and create message objects
+                for (postSnapshot in snapshot.children) {
+                  val text = postSnapshot.child(MessageVal.TEXT).value.toString()
+                  val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
+                  val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
+
+                  // Assuming db.getUser is adapted to fetch user details without being suspending
+                  val user = getUser(senderUID)
+
+                  val message = Message(postSnapshot.key.toString(), text, user, timestamp)
+                  newMessages.add(message)
+                }
+
+                // Post new message list to the main thread to update the UI
+                withContext(Dispatchers.Main) { liveData.value = newMessages }
+              }
+            }
+            handler.post(runnable!!)
+          }
+
+          override fun onCancelled(error: DatabaseError) {
+            Log.w(
+                "DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
+          }
+        })
   }
 
   // using the topicData collection
