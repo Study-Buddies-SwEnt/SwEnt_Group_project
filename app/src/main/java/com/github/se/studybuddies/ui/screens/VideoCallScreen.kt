@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
@@ -35,7 +36,10 @@ fun VideoCallScreen(videoCallViewModel: VideoCallViewModel, navigationActions: N
   VideoTheme {
     videoCallViewModel.joinCall()
     CallContent(
-        modifier = Modifier.fillMaxSize().background(color = VideoTheme.colors.appBackground),
+        modifier =
+            Modifier.fillMaxSize()
+                .background(color = VideoTheme.colors.appBackground)
+                .testTag("VideoCallScreen"),
         call = call,
         onBackPressed = { navigationActions.goBack() },
         videoContent = {
@@ -56,30 +60,33 @@ fun VideoCallScreen(videoCallViewModel: VideoCallViewModel, navigationActions: N
         controlsContent = {
           ControlActions(
               call = call,
+              modifier = Modifier.testTag("ControlActions"),
               actions =
                   listOf(
                       {
                         ToggleCameraAction(
-                            modifier = Modifier.size(52.dp),
+                            modifier = Modifier.size(52.dp).testTag("ToggleCameraAction"),
                             isCameraEnabled = isCameraEnabled,
                             onCallAction = { call.camera.setEnabled(it.isEnabled) })
                       },
                       {
                         ToggleMicrophoneAction(
-                            modifier = Modifier.size(52.dp),
+                            modifier = Modifier.size(52.dp).testTag("ToggleMicrophoneAction"),
                             isMicrophoneEnabled = isMicrophoneEnabled,
                             onCallAction = { call.microphone.setEnabled(it.isEnabled) })
                       },
                       {
                         FlipCameraAction(
-                            modifier = Modifier.size(52.dp), onCallAction = { call.camera.flip() })
+                            modifier = Modifier.size(52.dp).testTag("FlipCameraAction"),
+                            onCallAction = { call.camera.flip() })
                       },
                       {
                         CancelCallAction(
                             modifier =
                                 Modifier.size(
-                                    VideoTheme.dimens.controlActionsButtonSize,
-                                ),
+                                        VideoTheme.dimens.controlActionsButtonSize,
+                                    )
+                                    .testTag("CancelCallAction"),
                             onCallAction = {
                               videoCallViewModel.leaveCall()
                               navigationActions.goBack()
