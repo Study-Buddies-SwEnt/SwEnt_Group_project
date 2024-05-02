@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
@@ -19,7 +18,6 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
-  val currentUser = _currentUser
 
   init {
     getMessage()
@@ -32,8 +30,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
 
   private fun getCurrentUser() {
     viewModelScope.launch {
-      val currentUser = db.getCurrentUser()
-      _currentUser.value = currentUser
+      _currentUser.value = db.getCurrentUser()
     }
   }
 
@@ -69,15 +66,6 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
             }
           }
     }
-  }
-
-  fun getOtherUserUID(): String {
-    if (chat.type == ChatType.GROUP) return ""
-    var otherUser = ""
-    db.getPrivateChatMembers(chat.uid) { members ->
-      otherUser = members.firstOrNull { it != _currentUser.value?.uid }.toString()
-    }
-    return otherUser
   }
 
   fun isUserMessageSender(message: Message): Boolean {

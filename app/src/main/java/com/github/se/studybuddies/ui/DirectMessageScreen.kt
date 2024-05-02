@@ -22,9 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
@@ -68,25 +66,4 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
         Text(text = chat.name)
         Spacer(modifier = Modifier.weight(1f))
       }
-}
-
-@Preview
-@Composable
-fun DirectMessageItemPreview() {
-  DirectMessageItem(
-      Chat(
-          uid = "1",
-          name = "John Doe",
-          photoUrl = "https://example.com/profile.jpg",
-          type = ChatType.PRIVATE,
-          members = emptyList(),
-          messages = emptyList()))
-}
-
-@Preview
-@Composable
-fun DirectMessageScreenPreview() {
-  DirectMessageScreen(
-      DirectMessageViewModel("npvnkh75JFhZi07QsLob8moNkAn1"),
-      NavigationActions(rememberNavController()))
 }

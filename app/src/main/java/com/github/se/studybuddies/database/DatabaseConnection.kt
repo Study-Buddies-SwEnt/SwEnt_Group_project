@@ -23,6 +23,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -359,18 +361,28 @@ class DatabaseConnection {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun getPrivateChatMembers(chatUID: String, callback: (List<String?>) -> Unit) {
+  fun getPrivateChatMembers(chatUID: String, liveData: MutableStateFlow<List<User>>) {
     val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
 
     ref.addListenerForSingleValueEvent(
         object : ValueEventListener {
           override fun onDataChange(dataSnapshot: DataSnapshot) {
-            val members = dataSnapshot.children.map { it.key }.toList()
-            callback(members)
+            CoroutineScope(Dispatchers.IO).launch {
+              val members =
+                  dataSnapshot.children
+                      .mapNotNull { dataSnapshotChild ->
+                        async { dataSnapshotChild.key?.let { getUser(it) } }
+                      }
+                      .awaitAll()
+                      .filterNotNull()
+              liveData.value = members
+            }
           }
 
           override fun onCancelled(databaseError: DatabaseError) {
-            println("Database error: ${databaseError.message}")
+            Log.w(
+                "DatabaseConnection - getPrivateChatMembers",
+                "Database error: ${databaseError.message}")
           }
         })
   }
@@ -458,7 +470,8 @@ class DatabaseConnection {
           }
 
           override fun onCancelled(error: DatabaseError) {
-            Log.w("MessageViewModel", "Failed to read value.", error.toException())
+            Log.w(
+                "DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
           }
         })
   }
