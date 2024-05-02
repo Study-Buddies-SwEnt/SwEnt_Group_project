@@ -17,9 +17,8 @@ object Route {
   const val CHAT = "GeneralChat"
   const val CREATETODO = "CreateToDo"
   const val EDITTODO = "EditToDo"
+  const val MAP = "Map"
   /*
   const val OVERVIEW = "Overview"
-  const val MAP = "Map"
-
    */
 }
