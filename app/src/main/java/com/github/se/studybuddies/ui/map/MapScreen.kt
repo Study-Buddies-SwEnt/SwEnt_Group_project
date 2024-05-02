@@ -33,8 +33,8 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.mapService.LocationService
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.MainScreenScaffold
 import com.github.se.studybuddies.ui.permissions.hasLocationPermission
+import com.github.se.studybuddies.ui.screens.MainScreenScaffold
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
