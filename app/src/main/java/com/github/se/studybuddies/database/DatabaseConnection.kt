@@ -29,12 +29,11 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -418,32 +417,6 @@ class DatabaseConnection {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun getPrivateChatMembers(chatUID: String, liveData: MutableStateFlow<List<User>>) {
-    val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
-
-    ref.addListenerForSingleValueEvent(
-        object : ValueEventListener {
-          override fun onDataChange(dataSnapshot: DataSnapshot) {
-            CoroutineScope(Dispatchers.IO).launch {
-              val members =
-                  dataSnapshot.children
-                      .mapNotNull { dataSnapshotChild ->
-                        async { dataSnapshotChild.key?.let { getUser(it) } }
-                      }
-                      .awaitAll()
-                      .filterNotNull()
-              liveData.value = members
-            }
-          }
-
-          override fun onCancelled(databaseError: DatabaseError) {
-            Log.w(
-                "DatabaseConnection - getPrivateChatMembers",
-                "Database error: ${databaseError.message}")
-          }
-        })
-  }
-
   fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
     val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
 
@@ -490,11 +463,6 @@ class DatabaseConnection {
   fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
     val ref = rt_db.getReference(getMessagePath(uid, chatType))
 
-    Log.d("DB Connection - getMessages", "Getting messages for $uid")
-    Log.d("DB Connection - getMessages", "Chat type: $chatType")
-
-    Log.d("DB Connection - getMessages", "Reference: $ref")
-
     ref.addValueEventListener(
         object : ValueEventListener {
           private var handler = Handler(Looper.getMainLooper())
@@ -532,6 +500,30 @@ class DatabaseConnection {
           }
         })
   }
+
+    fun startDirectMessage(otherUID: String){
+        val memberPath = getPrivateChatMembersPath(UUID.randomUUID().toString())
+        val members = mapOf(
+            getCurrentUserUID() to true,
+            otherUID to true
+        )
+        val listChat = MutableStateFlow<List<Chat>>(emptyList())
+
+        getPrivateChatsList(otherUID, listChat)
+
+        CoroutineScope(Dispatchers.Default).launch {
+            listChat.collect { chats ->
+                chats.forEach { chat ->
+                    if (chat.members.none { user -> user.uid == getCurrentUserUID() })
+                    {
+                        rt_db.getReference(memberPath).updateChildren(members)
+                                .addOnSuccessListener { Log.d("DatabaseConnect", "Members successfully added!") }
+                                .addOnFailureListener { Log.w("DatabaseConnect", "Failed to write members.", it) }
+                    }
+                }
+            }
+        }
+    }
 
   // using the topicData collection
   suspend fun getTopic(uid: String): Topic {

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
@@ -41,6 +42,12 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     if (message != null) {
       db.sendMessage(chat.uid, message, chat.type)
     } else Log.d("MyPrint", "message is null, could not retrieve")
+  }
+
+  fun startDirectMessage(messageUserUID: String) {
+    if (chat.type == ChatType.TOPIC || chat.type == ChatType.GROUP) {
+      db.startDirectMessage(messageUserUID)
+    }
   }
 
   fun deleteMessage(message: Message) {

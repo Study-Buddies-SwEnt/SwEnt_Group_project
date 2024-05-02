@@ -46,4 +46,5 @@
     <string name="timer">Timer</string>
     <string name="calendar">Calendar</string>
     <string name="chat">Chat</string>
+    <string name="start_direct_message">Start Private Message</string>
 </resources>
