@@ -1,25 +1,17 @@
 package com.github.se.studybuddies.navigation
 
-import android.content.res.Resources
 import com.github.se.studybuddies.R
 
 data class Destination(val route: String, val icon: Int = 0, val textId: String)
 
 val SETTINGS_DESTINATIONS =
     listOf(
-        Destination(
-            route = Route.SETTINGS,
-            icon = R.drawable.settings,
-            textId = Resources.getSystem().getString(R.string.settings)),
-        Destination(
-            route = Route.ACCOUNT,
-            icon = R.drawable.user,
-            textId = Resources.getSystem().getString(R.string.account)))
+        Destination(route = Route.SETTINGS, icon = R.drawable.settings, textId = "Settings"),
+        Destination(route = Route.ACCOUNT, icon = R.drawable.user, textId = "Account"),
+    )
 
 val GROUPS_SETTINGS_DESTINATIONS =
-    listOf(
-        Destination(
-            route = Route.GROUP, textId = Resources.getSystem().getString(R.string.modify_a_group)))
+    listOf(Destination(route = Route.GROUP, textId = "Modify a group"))
 
 val BOTTOM_NAVIGATION_DESTINATIONS =
     // 4rth route is a placeholder
