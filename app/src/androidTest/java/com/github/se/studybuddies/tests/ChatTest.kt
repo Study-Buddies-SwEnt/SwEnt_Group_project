@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -40,7 +41,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
 
   @Before
   fun testSetup() {
-    val vm = MessageViewModel(groupUID)
+    val vm = MessageViewModel(groupUID, ChatType.GROUP)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
   }
 
@@ -148,7 +149,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   @Composable
   fun testTrySetup() {
-    val vm = MessageViewModel(groupUID)
+    val vm = MessageViewModel(groupUID, ChatType.GROUP)
     val message =
         Message(
             text = "Hello, World!",
@@ -161,7 +162,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   @Before
   fun testSetup() {
-    val vm = MessageViewModel(groupUID)
+    val vm = MessageViewModel(groupUID, ChatType.GROUP)
     val message =
         Message(
             text = "Hello, World!",
@@ -201,7 +202,7 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
   @Composable
   fun testTrySetup() {
-    val vm = MessageViewModel(groupUID)
+    val vm = MessageViewModel(groupUID, ChatType.GROUP)
     val message =
         Message(
             text = "Hello, World!",
@@ -214,7 +215,7 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
   @Before
   fun testSetup() {
-    val vm = MessageViewModel(groupUID)
+    val vm = MessageViewModel(groupUID, ChatType.GROUP)
     val message =
         Message(
             text = "Hello, World!",

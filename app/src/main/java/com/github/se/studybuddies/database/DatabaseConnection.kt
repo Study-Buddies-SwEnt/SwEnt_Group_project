@@ -2,10 +2,12 @@ package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
+import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageType
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +19,10 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class DatabaseConnection {
@@ -326,23 +332,23 @@ class DatabaseConnection {
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
-    fun getMessagePath(UID: String, chatType: MessageType): String {
+    fun getMessagePath(UID: String, chatType: ChatType): String {
        return when (chatType) {
-            MessageType.PRIVATE -> getPrivateMessagesPath(UID)
-            MessageType.GROUP -> getGroupMessagesPath(UID)
+            ChatType.PRIVATE -> getPrivateMessagesPath(UID)
+            ChatType.GROUP -> getGroupMessagesPath(UID)
         }
     }
 
   fun getGroupMessagesPath(groupUID: String): String {
-    return MessageVal.GROUPS + "/$groupUID/" + MessageVal.MESSAGES
+    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
     fun getPrivateMessagesPath(chatUID: String): String {
-        return MessageVal.DIRECT_MESSAGES + "/$chatUID/" + MessageVal.MESSAGES
+        return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
     }
 
     fun getPrivateChatMembersPath(chatUID: String): String {
-        return MessageVal.DIRECT_MESSAGES + "/$chatUID/" + MessageVal.MEMBERS
+        return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
     }
 
     fun getPrivateChatMembers(chatUID: String, callback: (List<String?>) -> Unit) {
@@ -360,24 +366,43 @@ class DatabaseConnection {
         })
     }
 
-    fun getPrivateChatsList(userUID : String, callback: (List<String>) -> Unit){
-        val ref = rt_db.getReference(MessageVal.DIRECT_MESSAGES)
+    fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
+        val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
+        val userRef = rt_db.getReference("users") // Assuming 'users' node holds user data
 
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val chatList = mutableListOf<String>()
-                dataSnapshot.children.forEach { chat ->
-                    val members = chat.child(MessageVal.MEMBERS).children.map { it.key }.toList()
-                    if (userUID in members) {
-                        chatList.add(chat.key ?: "")
+        CoroutineScope(Dispatchers.IO).launch {
+            val chatList = mutableListOf<Chat>()
+
+            val chatsSnapshot = ref.get().await()
+
+            chatsSnapshot.children.forEach { chat ->
+                val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
+                if (userUID in members) {
+                    val otherUserId = members.first { it != userUID }
+
+                    Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
+
+                    if (otherUserId != null) {
+                        getUser(otherUserId).let { otherUser ->
+                            val otherUserName = otherUser.username
+                            val otherUserPhotoUrl = otherUser.photoUrl.toString()
+
+                            // Create a new Chat object with the other user's name and photo URL
+                            val newChat = Chat(
+                                uid = chat.key ?: "",
+                                name = otherUserName,
+                                photoUrl = otherUserPhotoUrl,
+                                members = listOf(), // You may want to fetch or create User objects here
+                                messages = listOf() // Optionally, you could fetch messages here if needed
+                            )
+                            chatList.add(newChat)
+                        }
                     }
                 }
-                callback(chatList)
             }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                println("Database error: ${databaseError.message}")
-            }
-        })
+            liveData.value = chatList
+        }
     }
+
 }

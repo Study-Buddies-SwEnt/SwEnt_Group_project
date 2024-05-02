@@ -56,9 +56,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageType
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.theme.Blue
@@ -96,7 +96,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
           .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
             when(viewModel.chatType) {
-                MessageType.GROUP -> GroupViewModel(uid = viewModel.chatUID).group.value?.let { currentUser.value?.let { currentUser ->
+                ChatType.GROUP -> GroupViewModel(uid = viewModel.chatUID).group.value?.let { currentUser.value?.let { currentUser ->
                     ChatGroupTitle(it,
                         currentUser
                     )
@@ -104,7 +104,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                 /*MessageType.GROUP ->
                     ChatGroupTitle(group = GroupViewModel(viewModel.chatUID).group.value!!,
                         currentUser = viewModel.currentUser.value!!)*/
-                MessageType.PRIVATE ->
+                ChatType.PRIVATE ->
                     PrivateChatTitle(UserViewModel(viewModel.getOtherUserUID()).userData.value!!)
             }
             GroupViewModel(uid = viewModel.chatUID).group.value?.let { currentUser.value?.let { currentUser ->

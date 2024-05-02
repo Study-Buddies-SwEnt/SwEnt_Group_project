@@ -7,9 +7,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageType
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
@@ -21,7 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class MessageViewModel(val chatUID: String, val chatType: MessageType) : ViewModel() {
+class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel() {
 
   val db = DatabaseConnection()
   private val dbMessage = db.rt_db.getReference(db.getMessagePath(chatUID, chatType))
@@ -118,7 +117,7 @@ class MessageViewModel(val chatUID: String, val chatType: MessageType) : ViewMod
   }
 
   fun getOtherUserUID(): String {
-    if(chatType == MessageType.GROUP) return ""
+    if(chatType == ChatType.GROUP) return ""
     var otherUser = ""
     db.getPrivateChatMembers(chatUID) { members ->
       otherUser = members.firstOrNull { it != _currentUser.value?.uid }.toString()
