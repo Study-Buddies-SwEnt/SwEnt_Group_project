@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
               }
           val apiKey = "x52wgjq8qyfc"
           val test_apiKey = "mmhfdzb5evj2" // test
-          val groupUID = "default_55e4134c-de9d-47b6-a17b-f1c93629c04f" // test
+          val groupUID = "default_a0546550-933a-4aa8-b3f4-06cd068f998c" // test
           // val groupUID = "vMsJ8zIUDzwh" // test
           val test_token =
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
