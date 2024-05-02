@@ -47,7 +47,7 @@ fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOp
           Icon(
               painter = painterResource(id = option.icon_id),
               contentDescription = option.name,
-              tint = Color.Blue,
+              tint = Blue,
               modifier = Modifier.height(80.dp).width(100.dp).testTag("solo_study_icon"))
           Text(
               option.name,

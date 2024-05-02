@@ -52,6 +52,11 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.GoBackRouteButton
+import com.github.se.studybuddies.ui.Main_title
+import com.github.se.studybuddies.ui.Sub_title
+import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -75,7 +80,9 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
   }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().testTag("overviewScreen"),
+      modifier = Modifier
+          .fillMaxSize()
+          .testTag("overviewScreen"),
       floatingActionButton = {
         FloatingActionButton(
             onClick = { navigationActions.navigateTo(Route.CREATETODO) },
@@ -90,7 +97,24 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
             }
       },
       topBar = {
-        CustomSearchBar(
+          TopNavigationBar(
+              title = { Sub_title(title = "To do") },
+              navigationIcon = {
+                  GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
+              },
+              actions = {CustomSearchBar(
+                  searchQuery = searchQuery,
+                  onSearchQueryChange = setSearchQuery,
+                  onSearchAction = {
+                      if (searchQuery.isNotEmpty()) {
+                          todoList.value = todos.getFilteredTasks(searchQuery)
+                      } else {
+                          todoList.value = todos.getAllTasks()
+                      }
+                  },
+                  onClearAction = { setSearchQuery("") },
+                  noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())})
+        /*CustomSearchBar(
             searchQuery = searchQuery,
             onSearchQueryChange = setSearchQuery,
             onSearchAction = {
@@ -101,7 +125,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
               }
             },
             onClearAction = { setSearchQuery("") },
-            noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())
+            noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())*/
       },
       content = { innerPadding ->
         if (todoList.value.isEmpty()) {
@@ -109,14 +133,18 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
               text = "You have no tasks yet. Create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
               modifier =
-                  Modifier.padding(innerPadding)
-                      .fillMaxSize()
-                      .padding(4.dp)
-                      .wrapContentHeight(Alignment.CenterVertically),
+              Modifier
+                  .padding(innerPadding)
+                  .fillMaxSize()
+                  .padding(4.dp)
+                  .wrapContentHeight(Alignment.CenterVertically),
               textAlign = TextAlign.Center)
         } else {
           LazyColumn(
-              modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("todoList"),
+              modifier = Modifier
+                  .padding(innerPadding)
+                  .fillMaxSize()
+                  .testTag("todoList"),
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
               horizontalAlignment = Alignment.Start,
               content = { items(todoList.value) { todo -> ToDoItem(todo, navigationActions) } })
@@ -128,18 +156,21 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
 fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
   Box(
       modifier =
-          Modifier.fillMaxWidth()
-              .clickable {
-                val todoUID = todo.uid
-                navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
-              }
-              .drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }
-              .testTag("todoListItem")) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+      Modifier
+          .fillMaxWidth()
+          .clickable {
+              val todoUID = todo.uid
+              navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
+          }
+          .drawBehind {
+              val strokeWidth = 1f
+              val y = size.height - strokeWidth / 2
+              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+          }
+          .testTag("todoListItem")) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
           Text(
               text = formatDate(todo.dueDate),
               style = TextStyle(fontSize = 12.sp),
@@ -151,7 +182,9 @@ fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
               lineHeight = 28.sp,
               modifier = Modifier.align(Alignment.Start))
         }
-        Row(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
+        Row(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(16.dp)) {
           Text(
               text = todo.status.name,
               style = TextStyle(fontSize = 11.sp, color = statusColor(todo.status)),
@@ -179,18 +212,17 @@ fun CustomSearchBar(
   TextField(
       value = searchQuery,
       onValueChange = { onSearchQueryChange(it) },
-      placeholder = { Text("Search a Task") },
+      placeholder = { Text("Search a Task",color = Blue, fontSize = 20.sp) },
       singleLine = true,
       modifier =
-          Modifier.padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
-              .width(360.dp)
-              .height(80.dp)
-              .testTag("searchTodo"),
+      Modifier
+          .padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
+          .width(360.dp)
+          .height(80.dp)
+          .testTag("searchTodo"),
       shape = RoundedCornerShape(28.dp),
-      colors =
-          TextFieldDefaults.colors(
-              focusedIndicatorColor = Color.Transparent,
-              unfocusedIndicatorColor = Color.Transparent),
+      colors = TextFieldDefaults.outlinedTextFieldColors(
+          focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue),
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
       keyboardActions =
           KeyboardActions(
@@ -203,7 +235,9 @@ fun CustomSearchBar(
           Icon(
               painterResource(R.drawable.search),
               contentDescription = null,
-              modifier = Modifier.padding(8.dp).size(48.dp))
+              modifier = Modifier
+                  .padding(8.dp)
+                  .size(52.dp))
         }
       },
       trailingIcon = {
@@ -212,7 +246,9 @@ fun CustomSearchBar(
             Icon(
                 Icons.Default.Clear,
                 contentDescription = null,
-                modifier = Modifier.padding(8.dp).size(30.dp))
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(30.dp))
           }
         }
       },
