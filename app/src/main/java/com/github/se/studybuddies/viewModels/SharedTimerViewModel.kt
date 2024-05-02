@@ -147,9 +147,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     // Update TimerData
     currentTimerData.duration = newDuration
 
-
     timerData.postValue(currentTimerData)
-
 
     // Update remaining time assuming the timer is counting down
     val newRemainingTime = (remainingTime.value ?: 0L) + millisToAdd
