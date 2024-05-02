@@ -118,7 +118,7 @@ fun MainScreenScaffold(
         }
       }) {
         Scaffold(
-            modifier = Modifier.fillMaxSize().testTag("drawer_scaffold"),
+            modifier = Modifier.fillMaxSize().testTag(title + "_drawer_scaffold"),
             topBar = {
               Box {
                 CenterAlignedTopAppBar(
