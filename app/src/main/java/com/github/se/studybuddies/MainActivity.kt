@@ -29,9 +29,11 @@ import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -41,6 +43,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
+
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -126,6 +129,12 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 SoloStudyHome(navigationActions)
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+              }
+            }
+            composable(Route.TIMER) {
+              if (currentUser != null) {
+                TimerScreenContent(TimerViewModel(), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
           }

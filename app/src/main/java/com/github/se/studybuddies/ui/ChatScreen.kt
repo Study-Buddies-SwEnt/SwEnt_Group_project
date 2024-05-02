@@ -126,10 +126,9 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 fun TextBubble(message: Message, displayName: Boolean = false) {
   Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
     if (displayName) {
-      // add user profile picture
       Image(
           painter = rememberImagePainter(message.sender.photoUrl.toString()),
-          contentDescription = "User profile picture",
+          contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
           modifier =
               Modifier.size(40.dp)
                   .clip(CircleShape)
@@ -193,7 +192,10 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
         IconButton(
             modifier = Modifier.size(48.dp).padding(6.dp),
             onClick = { /*TODO add more message option as send photos*/}) {
-              Icon(Icons.Outlined.Add, contentDescription = "Icon", tint = Blue)
+              Icon(
+                  Icons.Outlined.Add,
+                  contentDescription = stringResource(R.string.contentDescription_icon_add),
+                  tint = Blue)
             }
       },
       trailingIcon = {
@@ -205,7 +207,10 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
                 textToSend = ""
               }
             }) {
-              Icon(Icons.Outlined.Send, contentDescription = "Icon", tint = Blue)
+              Icon(
+                  Icons.Outlined.Send,
+                  contentDescription = stringResource(R.string.contentDescription_icon_send),
+                  tint = Blue)
             }
       },
       placeholder = { Text(stringResource(R.string.type_a_message)) })
@@ -297,7 +302,7 @@ fun EditDialog(
 fun ChatGroupTitle(chat: Chat) {
   Image(
       painter = rememberImagePainter(chat.photoUrl),
-      contentDescription = "Group profile picture",
+      contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
       modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
 

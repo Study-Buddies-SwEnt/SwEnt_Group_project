@@ -17,18 +17,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -44,22 +50,27 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DrawerMenu
-import com.github.se.studybuddies.ui.Main_title
+import com.github.se.studybuddies.ui.MainScreenScaffold
 import com.github.se.studybuddies.ui.SearchIcon
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private val db = DatabaseConnection()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -83,7 +94,7 @@ fun GroupsHome(
     }
   }
 
-  DrawerMenu(
+  MainScreenScaffold(
       navigationActions,
       Route.GROUPSHOME,
       content = { innerPadding ->
@@ -98,9 +109,10 @@ fun GroupsHome(
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
             Spacer(modifier = Modifier.height(80.dp))
-            Text("Join or create a new group", textAlign = TextAlign.Center)
+            Text(stringResource(R.string.join_or_create_a_new_group), textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(80.dp))
             AddGroupButton(navigationActions = navigationActions)
+            AddLinkButton(navigationActions = navigationActions)
           }
         } else {
           Column(
@@ -115,11 +127,12 @@ fun GroupsHome(
                 content = {
                   items(groupList.value) { group -> GroupItem(group, navigationActions) }
                   item { AddGroupButton(navigationActions) }
+                  item { AddLinkButton(navigationActions) }
                 })
           }
         }
       },
-      title = { Main_title("Groups") },
+      title = stringResource(R.string.groups),
       iconOptions = { SearchIcon() })
 }
 
@@ -129,7 +142,9 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
   IconButton(
       onClick = { expandedState.value = true },
   ) {
-    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Dots Menu")
+    Icon(
+        imageVector = Icons.Default.MoreVert,
+        contentDescription = stringResource(R.string.dots_menu))
   }
   DropdownMenu(expanded = expandedState.value, onDismissRequest = { expandedState.value = false }) {
     GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
@@ -163,7 +178,8 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Image(
               painter = rememberImagePainter(group.picture),
-              contentDescription = "Group profile picture",
+              contentDescription =
+                  stringResource(id = R.string.contentDescription_group_profile_picture),
               modifier = Modifier.size(32.dp),
               contentScale = ContentScale.Crop)
           Spacer(modifier = Modifier.size(16.dp))
@@ -185,10 +201,64 @@ fun AddGroupButton(navigationActions: NavigationActions) {
             modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Add,
-                  contentDescription = "Create a task",
+                  contentDescription = stringResource(R.string.create_a_task),
                   tint = White)
             }
       }
+}
+
+@Composable
+fun AddLinkButton(navigationActions: NavigationActions) {
+  var text by remember { mutableStateOf("") }
+  var isTextFieldVisible by remember { mutableStateOf(false) }
+  var showError by remember { mutableStateOf(false) }
+  val scope = rememberCoroutineScope()
+
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      verticalAlignment = Alignment.Bottom,
+      horizontalArrangement = Arrangement.End) {
+        Button(
+            onClick = { isTextFieldVisible = !isTextFieldVisible },
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+              Icon(
+                  imageVector = Icons.Default.Share,
+                  contentDescription = stringResource(R.string.link_button),
+                  tint = White)
+            }
+      }
+  if (isTextFieldVisible) {
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text(stringResource(R.string.enter_link)) },
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                  isTextFieldVisible = false
+                  // add user to groups
+                  val groupUID = text.substringAfterLast("/")
+                  scope.launch {
+                    val error = db.updateGroup(groupUID)
+                    if (error == -1) {
+                      showError = true
+                      delay(3000L) // delay for 3 seconds
+                      showError = false
+                    } else {
+                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                    }
+                  }
+                }),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
+  }
+  if (showError) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showError = false }) {} }) {
+          Text(stringResource(R.string.the_link_entered_is_invalid))
+        }
+  }
 }
 
 @Composable
@@ -196,6 +266,9 @@ fun AddGroup(navigationActions: NavigationActions) {
   Button(
       onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
       modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = "Create a task", tint = White)
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(id = R.string.create_a_task),
+            tint = White)
       }
 }
