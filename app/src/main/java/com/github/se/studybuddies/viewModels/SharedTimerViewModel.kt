@@ -83,25 +83,21 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
         timerJob?.cancel()
         viewModelScope.launch(Dispatchers.IO) {
             timerData.value?.let { timer ->
-
                 if (timer.isRunning) {
-
-
-
-                    timer.isRunning = false
                     val currentTime = System.currentTimeMillis()
                     val startTime = timer.startTime ?: currentTime
                     val elapsedTime = currentTime - startTime
-                    timer.isRunning = false
 
-                    timer.elapsedTime = elapsedTime
+                    // Update the timer data
+                    timer.isRunning = false
+                    timer.elapsedTime += elapsedTime
 
                     // Calculate the remaining time properly
-                    val remainingTimeCalc = (timer.duration ?: 0L) - elapsedTime
+                    val remainingTimeCalc = (timer.duration ?: 0L) - timer.elapsedTime
                     remainingTime.postValue(remainingTimeCalc)
 
-
-                    databaseConnection.updateGroupTimer(groupId,remainingTimeCalc)
+                    // Update Firebase to reflect that the timer is paused
+                    databaseConnection.updateGroupTimer(groupId, remainingTimeCalc)
 
                     // Update the local timer data
                     timerData.postValue(timer)
