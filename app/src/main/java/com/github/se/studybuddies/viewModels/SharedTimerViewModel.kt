@@ -54,7 +54,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
     private fun startLocalCountdown(duration: Long, startTime: Long) {
         viewModelScope.launch {
-            var timeLeft = duration
+            var timeLeft = duration - (timerData.value?.elapsedTime ?: 0L)
             val elapsedTime = System.currentTimeMillis() - startTime
             timeLeft -= elapsedTime // Adjust timeLeft based on elapsed time
 
