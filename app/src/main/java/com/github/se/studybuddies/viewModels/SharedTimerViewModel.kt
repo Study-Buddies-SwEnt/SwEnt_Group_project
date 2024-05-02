@@ -68,22 +68,50 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     fun pauseTimer() {
         viewModelScope.launch(Dispatchers.IO) {
             timerData.value?.let { timer ->
-                val defaultDuration = timer.duration ?: 0L
-                val elapsedTime = defaultDuration - (remainingTime.value ?: defaultDuration)
-                timer.isRunning = false
-                timer.elapsedTime = elapsedTime
-                timerRef.setValue(remainingTime.value ?: 0L)
+                // Calculate the elapsed time correctly
+                if (timer.isRunning) {
+                    val currentTime = System.currentTimeMillis()
+                    val startTime = timer.startTime ?: currentTime
+                    val elapsedTime = currentTime - startTime
+
+                    // Update the timer data locally
+                    timer.isRunning = false
+                    timer.elapsedTime = elapsedTime
+
+                    // Calculate the remaining time properly
+                    val remainingTimeCalc = (timer.duration ?: 0L) - elapsedTime
+                    remainingTime.postValue(remainingTimeCalc)
+
+                    // Update Firebase to reflect that the timer is paused
+                    // This could be a structured update if your database design allows
+                    // For example, setting the timer state, remaining time, etc.
+                    timerRef.setValue(remainingTimeCalc)
+
+                    // Update the local timer data
+                    timerData.postValue(timer)
+                }
             }
         }
     }
 
     fun resetTimer() {
         viewModelScope.launch(Dispatchers.IO) {
-            timerData.postValue(TimerData())
-            remainingTime.postValue(0)
-            timerRef.setValue(0L)
+            // Reset the TimerData locally
+            timerData.postValue(
+                TimerData(
+                    startTime = null,
+                    duration = 0L,
+                    isRunning = false,
+                    elapsedTime = 0L
+                )
+            )
+
+            // Post the reset duration to Firebase and locally
+            timerRef.setValue(0L) // Assume timerRef directly sets the duration in Firebase
+            remainingTime.postValue(0L)
         }
     }
+
 
     fun addHours(hours: Long) {
         addTimeMillis(hours * 3600 * 1000)
@@ -100,7 +128,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private fun addTimeMillis(millisToAdd: Long) {
         val currentTimerData = timerData.value ?: TimerData()
         if (currentTimerData.isRunning) {
-            // Calculate the new duration by adding time
+            // Calculate the new duration by adding time only if the timer is running
             val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
 
             // Update TimerData
@@ -113,35 +141,9 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
             // Update Firebase with the new duration
             timerRef.setValue(newDuration)
-
-            // Optionally, restart or continue the timer based on new duration
-            restartTimer(newDuration)
-        } else {
-            // If timer is not running, just update the duration and Firebase
-            val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
-            currentTimerData.duration = newDuration
-            timerData.postValue(currentTimerData)
-
-            // Update remaining time and Firebase
-            remainingTime.postValue(newDuration)
-            timerRef.setValue(newDuration)
         }
     }
 
-    // Function to restart or continue the timer
-    private fun restartTimer(newDuration: Long) {
-        if (timerData.value?.isRunning == true) {
-            val startTime = System.currentTimeMillis() - (timerData.value?.elapsedTime ?: 0L)
-            timerData.postValue(timerData.value?.apply {
-                this.duration = newDuration
-                this.startTime = startTime
-            })
-            startLocalCountdown(newDuration, startTime)
-        } else {
-            // Start the timer if it was not running
-            startTimer(newDuration)
-        }
-    }
 }
 
 data class TimerData(
