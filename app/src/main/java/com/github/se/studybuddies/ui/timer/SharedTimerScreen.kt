@@ -26,6 +26,7 @@ import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.viewModels.TimerData
+import kotlin.text.*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 

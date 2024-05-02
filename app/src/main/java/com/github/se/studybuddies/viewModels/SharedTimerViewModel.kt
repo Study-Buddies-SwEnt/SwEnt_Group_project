@@ -27,9 +27,8 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private fun listenToTimerUpdates() {
         timerRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val data = snapshot.getValue(TimerData::class.java) ?: TimerData()
-                timerData.value = data
-                updateRemainingTime(data)
+                val time = snapshot.getValue(Long::class.java) ?: 0L
+                remainingTime.postValue(time)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -38,30 +37,10 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
         })
     }
 
-    private fun updateRemainingTime(data: TimerData) {
-        if (data.isRunning) {
-            val currentTime = System.currentTimeMillis()
-            val elapsed = currentTime - (data.startTime ?: currentTime)
-            data.elapsedTime = elapsed
-            val newRemainingTime = (data.duration ?: 0L) - elapsed
-            if (newRemainingTime <= 0) {
-                pauseTimer()
-                remainingTime.postValue(0)
-            } else {
-                remainingTime.postValue(newRemainingTime)
-            }
-        } else {
-            remainingTime.postValue(data.duration)
-        }
-    }
-
     fun startTimer(duration: Long) {
         val startTime = System.currentTimeMillis()
         viewModelScope.launch(Dispatchers.IO) {
-            timerRef.child("startTime").setValue(startTime)
-            timerRef.child("duration").setValue(duration)
-            timerRef.child("elapsedTime").setValue(0L)
-            timerRef.child("isRunning").setValue(true)
+            timerData.postValue(TimerData(startTime, duration, true, 0L))
             remainingTime.postValue(duration)
             startLocalCountdown(duration, startTime)
         }
@@ -80,26 +59,29 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                     break
                 }
                 remainingTime.postValue(timeLeft)
-                timerRef.child("elapsedTime").setValue(elapsed)  // Update elapsed time in Firebase
             }
+            // Here, update Firebase with the remaining time
+            timerRef.setValue(timeLeft)
         }
     }
 
     fun pauseTimer() {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentElapsedTime = timerData.value?.elapsedTime ?: 0L
-            timerRef.child("isRunning").setValue(false)
-            timerRef.child("elapsedTime").setValue(currentElapsedTime)
+            timerData.value?.let { timer ->
+                val defaultDuration = timer.duration ?: 0L
+                val elapsedTime = defaultDuration - (remainingTime.value ?: defaultDuration)
+                timer.isRunning = false
+                timer.elapsedTime = elapsedTime
+                timerRef.setValue(remainingTime.value ?: 0L)
+            }
         }
     }
 
     fun resetTimer() {
         viewModelScope.launch(Dispatchers.IO) {
-            timerRef.child("startTime").setValue(null)
-            timerRef.child("duration").setValue(null)
-            timerRef.child("elapsedTime").setValue(0L)
-            timerRef.child("isRunning").setValue(false)
+            timerData.postValue(TimerData())
             remainingTime.postValue(0)
+            timerRef.setValue(0L)
         }
     }
 
@@ -119,13 +101,14 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
         remainingTime.value?.let {
             val newTime = it + millisToAdd
             remainingTime.postValue(newTime)
-            timerRef.child("duration").setValue(newTime + (timerData.value?.elapsedTime ?: 0L))
+            timerRef.setValue(newTime)
         }
     }
 }
+
 data class TimerData(
     var startTime: Long? = null,
     var duration: Long? = null,
     var isRunning: Boolean = false,
-    var elapsedTime: Long = 0L  // Track elapsed time separately
+    var elapsedTime: Long = 0L
 )

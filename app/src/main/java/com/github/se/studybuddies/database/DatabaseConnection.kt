@@ -59,7 +59,7 @@ class DatabaseConnection {
       ""
     }
   }
-    fun getTimerReference(groupId: String) = rt_db.getReference("timers/$groupId")
+    fun getTimerReference(groupId: String) = rt_db.getReference("timer/$groupId")
 
   suspend fun getGroupName(groupUID: String): String {
     val document = groupDataCollection.document(groupUID).get().await()
