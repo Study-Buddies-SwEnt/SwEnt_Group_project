@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
+import com.github.se.studybuddies.navigation.GROUPS_BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.screens.BottomNavigationBar
@@ -87,7 +87,8 @@ fun GroupScreen(
       },
       bottomBar = {
         BottomNavigationBar(
-            navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
+            navigationActions = navigationActions,
+            destinations = GROUPS_BOTTOM_NAVIGATION_DESTINATIONS)
       },
   ) {
     Image(

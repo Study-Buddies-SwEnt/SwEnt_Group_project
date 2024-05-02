@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
 import android.content.Context
-import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,58 +8,48 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.database.DatabaseConnection
-import io.getstream.video.android.core.GEO
-import io.getstream.video.android.core.StreamVideoBuilder
+import io.getstream.video.android.core.Call
+import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.model.User
 import kotlinx.coroutines.launch
-import java.net.URI
 
-class VideoCallViewModel(val groupUID: String? = null, val uid: String, videoContext: Context) : ViewModel() {
+class VideoCallViewModel(val groupUID: String, val uid: String) : ViewModel() {
 
-    val apiKey = "x52wgjq8qyfc"
   private val db = DatabaseConnection()
-  private val _group = MutableLiveData<Group>(Group.empty())
+  private val _group = MutableLiveData(Group.empty())
   val group: LiveData<Group> = _group
 
-    private val _userData = MutableLiveData<com.github.se.studybuddies.data.User>()
-    val userData: LiveData<com.github.se.studybuddies.data.User> = _userData
+  private val _userData = MutableLiveData<com.github.se.studybuddies.data.User>()
+  val userData: LiveData<com.github.se.studybuddies.data.User> = _userData
+
+  var username: String = ""
+
+  val call = StreamVideo.instance().call("default", groupUID)
+
   init {
-      if (groupUID != null) {
-          viewModelScope.launch { _group.value = db.getGroup(groupUID) }
-          fetchUserData(db.getCurrentUserUID())
+    if (uid != null) {
+      fetchUserData(uid)
+      viewModelScope.launch {
+        _group.value = db.getGroup(groupUID)
+        username = db.getCurrentUser().username
       }
+    }
   }
-
-    val userToken = userData.value!!.uid
-    val userId = userData.value!!.username
-    val callId = group.value.callId
-
-
-  // Initialize StreamVideo. For a production app we recommend adding the client to your Application
-  // class or di module.
-  private val client =
-      StreamVideoBuilder(
-              context = videoContext,
-              apiKey = apiKey, // demo API key
-              geo = GEO.GlobalEdgeNetwork,
-              user = User(id = userId),
-              token = userToken,
-          )
-          .build()
-
 
   // Join a call, which type is `default` and id is `123`.
-  fun joinCall(context: Context, callType: String) {
-      val call = client.call(callType, callId)
-      viewModelScope.launch {
-        val result = call.join(create = true)
-        result.onError {
-            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
-        }
+  fun joinCall(context: Context): Call {
+    viewModelScope.launch {
+      val result = call.join(create = true)
+      result.onError { Toast.makeText(context, it.message, Toast.LENGTH_LONG).show() }
     }
+    return call
   }
 
-    fun fetchUserData(uid: String) {
-        viewModelScope.launch { _userData.value = db.getUser(uid) }
-    }
+  fun leaveCall() {
+    viewModelScope.launch { call.leave() }
+  }
+
+  fun fetchUserData(uid: String) {
+    viewModelScope.launch { _userData.value = db.getUser(uid) }
+  }
 }
