@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,7 +30,6 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -45,8 +45,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -133,8 +135,14 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
               Spacer(modifier = Modifier.padding(0.dp))
               ShareLinkButton(groupLink.value)
               Spacer(modifier = Modifier.padding(10.dp))
-              SaveButton(nameState) {
-                scope.launch { db.updateGroup(groupUID, nameState.value, photoState.value) }
+              SaveGroupButton() {
+                scope.launch {
+                  if (nameState.value == "") {
+                    db.updateGroup(groupUID, name.value, photoState.value)
+                  } else {
+                    db.updateGroup(groupUID, nameState.value, photoState.value)
+                  }
+                }
                 navigationActions.navigateTo(Route.GROUPSHOME)
               }
             }
@@ -158,12 +166,11 @@ fun ModifyName(name: String, nameState: MutableState<String>) {
               .clip(MaterialTheme.shapes.small)
               .testTag("group_name_field"),
       colors =
-      OutlinedTextFieldDefaults.colors(
-          cursorColor = Blue,
-          focusedBorderColor = Blue,
-          unfocusedBorderColor = Blue,
-      )
-  )
+          OutlinedTextFieldDefaults.colors(
+              cursorColor = Blue,
+              focusedBorderColor = Blue,
+              unfocusedBorderColor = Blue,
+          ))
 }
 
 @Composable
@@ -180,7 +187,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(groupUID : String, db: DatabaseConnection) {
+fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
@@ -264,4 +271,25 @@ fun ShareLinkButton(groupLink: String) {
           value = text, onValueChange = {}, readOnly = true, modifier = Modifier.padding(16.dp))
     }
   }
+}
+
+@Composable
+fun SaveGroupButton(save: () -> Unit) {
+  Button(
+      onClick = save,
+      modifier =
+          Modifier.padding(20.dp)
+              .width(300.dp)
+              .height(50.dp)
+              .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
+              .testTag("save_group_button"),
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = Blue,
+          )) {
+        Text(
+            stringResource(R.string.save),
+            color = White,
+            modifier = Modifier.testTag("save_group_button_text"))
+      }
 }

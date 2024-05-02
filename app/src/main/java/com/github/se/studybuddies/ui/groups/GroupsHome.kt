@@ -214,7 +214,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
-    var showSucces by remember { mutableStateOf(false) }
+  var showSucces by remember { mutableStateOf(false) }
 
   Row(
       modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -248,11 +248,10 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                       delay(3000L) // delay for 3 seconds
                       showError = false
                     } else {
-                        showSucces = true
-                        delay(1500L) // delay for 1.5 seconds
-                        showSucces = false
+                      showSucces = true
+                      delay(1500L) // delay for 1.5 seconds
+                      showSucces = false
                       navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-
                     }
                   }
                 }),
@@ -266,13 +265,13 @@ fun AddLinkButton(navigationActions: NavigationActions) {
           Text(stringResource(R.string.the_link_entered_is_invalid))
         }
   }
-    if (showSucces) {
-        Snackbar(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            action = { TextButton(onClick = { showSucces = false }) {} }) {
-            Text("You have been successfully added to the group")
+  if (showSucces) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showSucces = false }) {} }) {
+          Text("You have been successfully added to the group")
         }
-    }
+  }
 }
 
 @Composable

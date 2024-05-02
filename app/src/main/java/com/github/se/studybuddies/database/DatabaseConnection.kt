@@ -329,10 +329,10 @@ class DatabaseConnection {
    */
   suspend fun addUserToGroup(groupUID: String, user: String = ""): Int {
 
-      if (groupUID == "") {
-          Log.d("MyPrint", "Group UID is empty")
-          return -1
-      }
+    if (groupUID == "") {
+      Log.d("MyPrint", "Group UID is empty")
+      return -1
+    }
 
     // only look if userUID exist, can't find user by username
     val userToAdd: String
@@ -346,7 +346,6 @@ class DatabaseConnection {
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return -1
     }
-    
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
@@ -378,32 +377,34 @@ class DatabaseConnection {
     // change name of group
     groupDataCollection
         .document(groupUID)
-        .update("name", FieldValue.arrayUnion(name))
-        .addOnSuccessListener { Log.d("MyPrint", "group name successfully updated") }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed modify group name with error: ", e) }
+        .update("name", name)
+        .addOnSuccessListener { Log.d("UpdateGroup", "group name successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateGroup", "Failed modify group name with error: ", e)
+        }
 
-      if (photoUri != getDefaultPicture()) {
     // change picture of group
-      val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
-      pictureRef
-          .putFile(photoUri)
-          .addOnSuccessListener {
-              pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  groupDataCollection.document(groupUID).update("picture", uri.toString())
-                  Log.d("MyPrint", "Successfully upload group photo")
-              }
-          }
-          .addOnFailureListener { e ->
-              Log.d("MyPrint", "Failed to upload photo with error: ", e)
-          }
     groupDataCollection
         .document(groupUID)
-        .update("picture", FieldValue.arrayUnion(photoUri.toString()))
+        .update("picture", photoUri.toString())
         .addOnSuccessListener { Log.d("MyPrint", "picture successfully updated") }
         .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed modify group picture with error: ", e)
+          Log.d("UpdateGroup", "Failed modify group picture with error: ", e)
         }
-  }}
+
+    val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+    pictureRef
+        .putFile(photoUri)
+        .addOnSuccessListener {
+          pictureRef.downloadUrl.addOnSuccessListener { uri ->
+            groupDataCollection.document(groupUID).update("picture", uri.toString())
+            Log.d("UpdateGroup", "Successfully upload group photo")
+          }
+        }
+        .addOnFailureListener { e ->
+          Log.d("UpdateGroup", "Failed to upload photo with error: ", e)
+        }
+  }
 
   // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {
