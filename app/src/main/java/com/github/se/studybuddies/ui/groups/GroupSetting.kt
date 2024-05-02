@@ -229,7 +229,7 @@ fun AddMemberButton(navigationActions: NavigationActions, db: DatabaseConnection
   if (showSucces) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        action = { TextButton(onClick = { showError = false }) {} }) {
+        action = { TextButton(onClick = { showSucces = false }) {} }) {
           Text("User have been successfully added to the group")
         }
   }
