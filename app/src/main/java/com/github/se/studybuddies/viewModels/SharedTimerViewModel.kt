@@ -17,8 +17,9 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private val databaseConnection = DatabaseConnection()
     private val timerRef = databaseConnection.getTimerReference(groupId)
 
-    val timerData = MutableLiveData<TimerData>()
-    var remainingTime = MutableLiveData<Long?>()
+    val timerData: MutableLiveData<TimerData> = MutableLiveData()
+    var remainingTime: MutableLiveData<Long?> = MutableLiveData()
+
 
     init {
         listenToTimerUpdates()
@@ -27,22 +28,25 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private fun listenToTimerUpdates() {
         timerRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val time = snapshot.getValue(Long::class.java) ?: 0L
-                remainingTime.postValue(time)
+                val timerValue = snapshot.getValue(Long::class.java) ?: 0L
+                remainingTime.postValue(timerValue)
+                timerData.postValue(TimerData(System.currentTimeMillis() , timerValue, true, 0L))
+
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Log or handle database read failures
+                // Handle database read failures
             }
         })
     }
 
     fun startTimer(duration: Long) {
-        val startTime = System.currentTimeMillis()
+        val elapsedTime = System.currentTimeMillis() - (timerData.value?.startTime ?: 0L)
+
         viewModelScope.launch(Dispatchers.IO) {
-            timerData.postValue(TimerData(startTime, duration, true, 0L))
+            timerData.postValue(TimerData(System.currentTimeMillis(), duration, true, elapsedTime))
             remainingTime.postValue(duration)
-            startLocalCountdown(duration, startTime,)
+            startLocalCountdown(duration, System.currentTimeMillis(),)
         }
     }
 
@@ -104,8 +108,8 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                 )
             )
 
-            // Post the reset duration to Firebase and locally
-            timerRef.setValue(0L) // Assume timerRef directly sets the duration in Firebase
+
+            timerRef.setValue(0L)
             remainingTime.postValue(0L)
         }
     }
