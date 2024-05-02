@@ -36,6 +36,7 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.GEO
+import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.model.User
 
@@ -150,9 +151,10 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.VIDEOCALL) {
+              val call = StreamVideo.instance().call("default", groupUID)
               if (currentUser != null) {
                 Log.d("MyPrint", "Trying to navigate to VideoGroupScreen")
-                VideoCallScreen(VideoCallViewModel(groupUID, currentUser.uid), navigationActions)
+                VideoCallScreen(VideoCallViewModel(call, currentUser.uid), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
               }
             }

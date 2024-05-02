@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.compose.theme.VideoTheme
-import io.getstream.video.android.compose.ui.components.call.CallAppBar
 import io.getstream.video.android.compose.ui.components.call.activecall.CallContent
 import io.getstream.video.android.compose.ui.components.call.controls.ControlActions
 import io.getstream.video.android.compose.ui.components.call.controls.actions.CancelCallAction
@@ -39,20 +37,7 @@ fun VideoCallScreen(videoCallViewModel: VideoCallViewModel, navigationActions: N
     CallContent(
         modifier = Modifier.fillMaxSize().background(color = VideoTheme.colors.appBackground),
         call = call,
-        onBackPressed = {
-          Log.d("MyPrint", "Trying to leave the call from call content")
-          videoCallViewModel.leaveCall()
-          navigationActions.goBack()
-        },
-        appBarContent = {
-          CallAppBar(
-              call = call,
-              onBackPressed = {
-                Log.d("MyPrint", "Trying to leave the call from app bar")
-                videoCallViewModel.leaveCall()
-                navigationActions.goBack()
-              })
-        },
+        onBackPressed = { navigationActions.goBack() },
         videoContent = {
           ParticipantsLayout(
               call = call,
