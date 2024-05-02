@@ -35,6 +35,7 @@ android {
             storePassword = properties["storePassword"] as String
             keyAlias = properties["keyAlias"] as String
             keyPassword = properties["keyPassword"] as String
+
         }
     }
 
