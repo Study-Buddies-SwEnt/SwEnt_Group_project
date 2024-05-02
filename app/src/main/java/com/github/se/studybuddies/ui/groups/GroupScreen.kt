@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,16 +85,11 @@ fun GroupScreen(
             })
       },
       floatingActionButton = {
-          FloatingActionButton(
-              onClick = { navigationActions.navigateTo(Route.TOPICCREATION) },
-
-          ) {
-              Icon(
-                  imageVector = Icons.Default.Add,
-                  tint = White,
-                  contentDescription = "Create Topic"
-              )
-          }
+        FloatingActionButton(
+            onClick = { navigationActions.navigateTo(Route.TOPICCREATION) },
+        ) {
+          Icon(imageVector = Icons.Default.Add, tint = White, contentDescription = "Create Topic")
+        }
       },
       bottomBar = {
         BottomNavigationBar(
@@ -114,5 +108,4 @@ fun GroupScreen(
             Modifier.fillMaxSize().padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
         textAlign = TextAlign.Center)
   }
-
 }
