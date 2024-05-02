@@ -7,6 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -52,15 +55,26 @@ class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
           val chatViewModel = ChatViewModel()
           val currentUser = auth.currentUser
+          // Allow the user to the user to move to the SoloStudyHome screen if they are signed in ->
+          // refresh screen
+          val signInSuccessful = remember { mutableStateOf(false) }
+
           val startDestination =
               if (currentUser != null) {
                 Route.SOLOSTUDYHOME
               } else {
                 Route.LOGIN
               }
+          // The solostudy screen wasn't launching after siging In -> added a LaunchedEffect to
+          // navigate to the screen
+          LaunchedEffect(key1 = signInSuccessful.value) {
+            if (currentUser != null && signInSuccessful.value) {
+              navController.navigate(Route.SOLOSTUDYHOME)
+            }
+          }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.LOGIN) {
-              LoginScreen(navigationActions)
+              LoginScreen(navigationActions, signInSuccessful)
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
             }
             composable(Route.GROUPSHOME) {
@@ -106,7 +120,7 @@ class MainActivity : ComponentActivity() {
                 }
             composable(Route.CREATEACCOUNT) {
               if (currentUser != null) {
-                CreateAccount(UserViewModel(), navigationActions)
+                CreateAccount(UserViewModel(), navigationActions, signInSuccessful)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
               }
             }

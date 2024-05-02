@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +34,11 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationActions) {
+fun CreateAccount(
+    userViewModel: UserViewModel,
+    navigationActions: NavigationActions,
+    signInSuccessful: MutableState<Boolean>
+) {
   val coroutineScope = rememberCoroutineScope()
 
   var uid = userViewModel.uid
@@ -89,6 +94,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                   SaveButton(usernameState) {
                     userViewModel.createUser(uid, email, usernameState.value, photoState.value)
                     navigationActions.navigateTo(Route.GROUPSHOME)
+                    signInSuccessful.value = true
                   }
                 }
           }

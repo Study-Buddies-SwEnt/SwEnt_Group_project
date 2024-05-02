@@ -1,3 +1,5 @@
+@file:Suppress("UNREACHABLE_CODE")
+
 package com.github.se.studybuddies.ui
 
 import android.app.Activity
@@ -18,6 +20,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +48,20 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(navigationActions: NavigationActions) {
+fun LoginScreen(navigationActions: NavigationActions, signInSuccessful: MutableState<Boolean>) {
+  val route = remember { mutableStateOf("") }
+
+  LaunchedEffect(signInSuccessful.value) {
+    if (signInSuccessful.value) {
+      navigationActions.navigateTo(route.value)
+    }
+  }
+
   val signInLauncher =
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-        onSignInResult(res, navigationActions)
+        onSignInResult(res, navigationActions, signInSuccessful, route)
       }
+
   val Playball = FontFamily(Font(R.font.playball_regular))
 
   Column(
@@ -103,7 +118,9 @@ fun LoginScreen(navigationActions: NavigationActions) {
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    signInSuccessful: MutableState<Boolean>,
+    route: MutableState<String>
 ) {
   if (result.resultCode == Activity.RESULT_OK) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -113,9 +130,13 @@ private fun onSignInResult(
           userId,
           onSuccess = { userExists ->
             if (!userExists) {
-              navigationActions.navigateTo(Route.CREATEACCOUNT)
+              signInSuccessful.value = true
+              route.value = Route.CREATEACCOUNT
+              Log.d("MyPrint", "User does not exist")
             } else {
-              navigationActions.navigateTo(Route.GROUPSHOME)
+              signInSuccessful.value = true
+              route.value = Route.SOLOSTUDYHOME
+              Log.d("MyPrint", "User exists")
             }
           },
           onFailure = { e -> Log.d("MyPrint", "Failed to check user existence with error: $e") })
