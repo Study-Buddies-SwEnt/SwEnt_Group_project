@@ -17,6 +17,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.ChatScreen
 import com.github.se.studybuddies.ui.LoginScreen
+import com.github.se.studybuddies.ui.TopicCreaction
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
@@ -30,6 +31,7 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
+import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -100,6 +102,12 @@ class MainActivity : ComponentActivity() {
             composable(Route.CREATEACCOUNT) {
               if (currentUser != null) {
                 CreateAccount(UserViewModel(), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to CreateAccount")
+              }
+            }
+            composable(Route.TOPICCREATION) {
+              if (currentUser != null) {
+                TopicCreaction(TopicViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
               }
             }

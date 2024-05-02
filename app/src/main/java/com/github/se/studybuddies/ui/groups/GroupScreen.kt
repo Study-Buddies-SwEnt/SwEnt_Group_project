@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +43,7 @@ import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -81,6 +85,18 @@ fun GroupScreen(
               }
             })
       },
+      floatingActionButton = {
+          FloatingActionButton(
+              onClick = { navigationActions.navigateTo(Route.TOPICCREATION) },
+
+          ) {
+              Icon(
+                  imageVector = Icons.Default.Add,
+                  tint = White,
+                  contentDescription = "Create Topic"
+              )
+          }
+      },
       bottomBar = {
         BottomNavigationBar(
             navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
@@ -98,4 +114,5 @@ fun GroupScreen(
             Modifier.fillMaxSize().padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
         textAlign = TextAlign.Center)
   }
+
 }
