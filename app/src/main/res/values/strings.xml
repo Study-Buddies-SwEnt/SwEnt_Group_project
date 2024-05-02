@@ -47,4 +47,5 @@
     <string name="calendar">Calendar</string>
     <string name="group_chat">Group chat</string>
     <string name="topic_settings">Topic Settings</string>
+    <string name="create_a_topic_item">Create a topic item</string>
 </resources>

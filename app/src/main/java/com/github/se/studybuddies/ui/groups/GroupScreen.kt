@@ -138,20 +138,20 @@ fun GroupScreen(
           modifier = Modifier.fillMaxSize(),
           verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           horizontalAlignment = Alignment.Start,
-          content = { items(topicList.value) { topic -> TopicItem(topic, navigationActions) } })
+          content = { items(topicList.value) { topic -> TopicItem(groupUID, topic, navigationActions) } })
     }
   }
 }
 
 @Composable
-fun TopicItem(topic: Topic, navigationActions: NavigationActions) {
+fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActions) {
   Box(
       modifier =
           Modifier.fillMaxWidth()
               .background(Color.White)
               .clickable {
                 val topicUid = topic.uid
-                navigationActions.navigateTo("${Route.TOPIC}/$topicUid")
+                navigationActions.navigateTo("${Route.TOPIC}/$topicUid/$groupUID")
               }
               .drawBehind {
                 val strokeWidth = 1f
