@@ -140,18 +140,17 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
   fun addTimeMillis(millisToAdd: Long) {
 
-    if (millisToAdd > 0) {
+    val currentTimerData = timerData.value ?: TimerData()
 
-      val currentTimerData = timerData.value ?: TimerData()
+    val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
 
-      val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
+    // Update TimerData
+    currentTimerData.duration = newDuration
+    timerData.postValue(currentTimerData)
 
-      // Update TimerData
-      currentTimerData.duration = newDuration
-      timerData.postValue(currentTimerData)
-
-      // Update remaining time assuming the timer is counting down
-      val newRemainingTime = (remainingTime.value ?: 0L) + millisToAdd
+    // Update remaining time assuming the timer is counting down
+    val newRemainingTime = (remainingTime.value ?: 0L) + millisToAdd
+    if (newRemainingTime >= 0) {
       remainingTime.postValue(newRemainingTime)
 
       viewModelScope.launch { databaseConnection.updateGroupTimer(groupId, newDuration) }
