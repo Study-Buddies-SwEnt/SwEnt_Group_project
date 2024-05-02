@@ -110,6 +110,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     fun resetTimer() {
         viewModelScope.launch(Dispatchers.IO) {
             // Reset the TimerData locally
+            timerJob?.cancel()
             timerData.postValue(
                 TimerData(
                     startTime = null,

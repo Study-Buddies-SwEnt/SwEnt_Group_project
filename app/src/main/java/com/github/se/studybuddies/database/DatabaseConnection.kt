@@ -316,6 +316,7 @@ class DatabaseConnection {
       return -1
     }
 
+
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
