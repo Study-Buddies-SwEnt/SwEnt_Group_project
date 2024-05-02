@@ -78,11 +78,12 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     }
 
     fun pauseTimer() {
+        timerJob?.cancel()
         viewModelScope.launch(Dispatchers.IO) {
             timerData.value?.let { timer ->
 
                 if (timer.isRunning) {
-                    timerJob?.cancel()
+
 
 
                     timer.isRunning = false
@@ -108,9 +109,10 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     }
 
     fun resetTimer() {
+        timerJob?.cancel()
         viewModelScope.launch(Dispatchers.IO) {
-            // Reset the TimerData locally
-            timerJob?.cancel()
+
+
             timerData.postValue(
                 TimerData(
                     startTime = null,
@@ -120,10 +122,10 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                 )
             )
 
-            // Reset the timer data in Firebase
+
             databaseConnection.updateGroupTimer(groupId,0L)
 
-            // Post the reset remaining time
+
             remainingTime.postValue(0L)
         }
     }
