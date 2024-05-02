@@ -277,10 +277,10 @@ class DatabaseConnection {
           .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
     } else {
       val defaultPictureRef = storage.child("groupData/default_group.jpg")
-      val pictureRef = storage.child("groupData/$uid/picture.jpg")
 
       groupDataCollection.add(group).addOnSuccessListener { documentReference ->
         val groupUID = documentReference.id
+          val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
         userMembershipsCollection
             .document(uid)
             .update("groups", FieldValue.arrayUnion(groupUID))
