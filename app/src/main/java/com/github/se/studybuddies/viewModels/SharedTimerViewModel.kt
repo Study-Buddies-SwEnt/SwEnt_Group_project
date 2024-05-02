@@ -46,17 +46,19 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
         val elapsedTime = System.currentTimeMillis() - (timerData.value?.startTime ?: 0L)
         val duration = timerData.value?.duration ?: 0L
+        if (timerJob == null || timerJob?.isCompleted == true) {
+            timerJob =
 
         viewModelScope.launch(Dispatchers.IO) {
             timerData.postValue(TimerData(System.currentTimeMillis(), duration, true, elapsedTime))
             remainingTime.postValue(duration)
             startLocalCountdown(duration, System.currentTimeMillis(),)
         }
+        }
     }
 
     private fun startLocalCountdown(duration: Long, startTime: Long) {
-        if (timerJob == null || timerJob?.isCompleted == true) {
-            timerJob =
+
                 viewModelScope.launch {
                     var timeLeft = duration - (timerData.value?.elapsedTime ?: 0L)
 
@@ -74,7 +76,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                         resetTimer()
                     }
                 }
-        }
+
     }
 
     fun pauseTimer() {
