@@ -65,7 +65,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                     var timeLeft = duration - (timerData.value?.elapsedTime ?: 0L)
 
                     while (timeLeft > 0 && timerData.value?.isRunning == true) {
-                        delay(1000)
+                        delay(3000)
                         timeLeft -= 1000 // Decrement timeLeft by 1 second
                         remainingTime.postValue(timeLeft)
                     }
@@ -96,11 +96,10 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                     timer.isRunning = false
                     timer.elapsedTime += elapsedTime
 
-                    // Calculate the remaining time properly
                     val remainingTimeCalc = (timer.duration ?: 0L) - timer.elapsedTime
                     remainingTime.postValue(remainingTimeCalc)
 
-                    // Update Firebase to reflect that the timer is paused
+
                     viewModelScope.launch {
                         databaseConnection.updateGroupTimer(groupId, remainingTimeCalc)
                     }
