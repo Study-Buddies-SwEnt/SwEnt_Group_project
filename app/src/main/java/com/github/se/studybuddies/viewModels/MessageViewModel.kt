@@ -29,9 +29,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   }
 
   private fun getCurrentUser() {
-    viewModelScope.launch {
-      _currentUser.value = db.getCurrentUser()
-    }
+    viewModelScope.launch { _currentUser.value = db.getCurrentUser() }
   }
 
   fun sendMessage(text: String) {

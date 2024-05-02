@@ -42,7 +42,21 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
 
   @Before
   fun testSetup() {
-    val vm = MessageViewModel(Chat.withId(groupUID, ChatType.GROUP))
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members =
+                listOf(
+                    User(
+                        "1",
+                        "e@a",
+                        "best 1",
+                        Uri.parse(
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))),
+            photoUrl = "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
+    val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
   }
 
@@ -150,7 +164,14 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   @Composable
   fun testTrySetup() {
-    val vm = MessageViewModel(Chat.withId(groupUID, ChatType.GROUP))
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            photoUrl = "")
+    val vm = MessageViewModel(chat)
     val message =
         Message(
             text = "Hello, World!",
@@ -200,10 +221,17 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
   @get:Rule val mockkRule = MockKRule(this)
 
   val groupUID = "automaticTestGroupUID"
+  val chat =
+      Chat(
+          uid = groupUID,
+          type = ChatType.GROUP,
+          name = "Test Group",
+          members = emptyList(),
+          photoUrl = "")
 
   @Composable
   fun testTrySetup() {
-    val vm = MessageViewModel(Chat.withId(groupUID, ChatType.GROUP))
+    val vm = MessageViewModel(chat)
     val message =
         Message(
             text = "Hello, World!",
@@ -216,12 +244,6 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
   @Before
   fun testSetup() {
-    val vm = MessageViewModel(Chat.withId(groupUID, ChatType.GROUP))
-    val message =
-        Message(
-            text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
-            timestamp = System.currentTimeMillis())
     composeTestRule.setContent { testTrySetup() }
   }
 

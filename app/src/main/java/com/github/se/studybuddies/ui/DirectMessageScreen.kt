@@ -31,7 +31,11 @@ import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 
 @Composable
-fun DirectMessageScreen(viewModel: DirectMessageViewModel, chatViewModel: ChatViewModel, navigationActions: NavigationActions) {
+fun DirectMessageScreen(
+    viewModel: DirectMessageViewModel,
+    chatViewModel: ChatViewModel,
+    navigationActions: NavigationActions
+) {
   val chats = viewModel.directMessages.collectAsState(initial = emptyList())
   Column {
     SecondaryTopBar(onClick = { navigationActions.goBack() }) {}
@@ -39,7 +43,7 @@ fun DirectMessageScreen(viewModel: DirectMessageViewModel, chatViewModel: ChatVi
     LazyColumn() {
       items(chats.value) { chat ->
         DirectMessageItem(chat) {
-            chatViewModel.setChat(chat)
+          chatViewModel.setChat(chat)
           navigationActions.navigateTo(Route.CHAT)
         }
       }

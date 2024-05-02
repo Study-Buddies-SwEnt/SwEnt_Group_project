@@ -41,9 +41,10 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
   fun fetchUsers() {
     viewModelScope.launch {
       _group.value?.members?.let { memberIds ->
-        val users = memberIds.map { uid ->
-          db.getUser(uid) // Assuming getUser is a suspend function
-        }
+        val users =
+            memberIds.map { uid ->
+              db.getUser(uid) // Assuming getUser is a suspend function
+            }
         _members.postValue(users)
       }
     }

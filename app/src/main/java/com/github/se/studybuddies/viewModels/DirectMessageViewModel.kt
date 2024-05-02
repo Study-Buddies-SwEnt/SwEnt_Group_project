@@ -9,9 +9,7 @@ class DirectMessageViewModel(val userUid: String) {
   private val db = DatabaseConnection()
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
   val directMessages =
-      _directMessages.map { directMessages ->
-        directMessages.sortedByDescending { it.name }
-      }
+      _directMessages.map { directMessages -> directMessages.sortedByDescending { it.name } }
 
   init {
     getDirectMessagesList()

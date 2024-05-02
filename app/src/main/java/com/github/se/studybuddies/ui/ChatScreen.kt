@@ -90,7 +90,8 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
               .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
           when (viewModel.chat.type) {
-            ChatType.GROUP, ChatType.TOPIC -> ChatGroupTitle(viewModel.chat)
+            ChatType.GROUP,
+            ChatType.TOPIC -> ChatGroupTitle(viewModel.chat)
             ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
           }
         }
@@ -306,11 +307,11 @@ fun ChatGroupTitle(chat: Chat) {
     Spacer(modifier = Modifier.width(8.dp))
     LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
       items(chat.members) { member ->
-          Text(
-              text = member.username,
-              modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
-              style = TextStyle(color = Gray),
-              maxLines = 1)
+        Text(
+            text = member.username,
+            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+            style = TextStyle(color = Gray),
+            maxLines = 1)
       }
     }
   }
@@ -325,7 +326,5 @@ fun PrivateChatTitle(chat: Chat) {
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
-  Column {
-    Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name"))
-  }
+  Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
 }

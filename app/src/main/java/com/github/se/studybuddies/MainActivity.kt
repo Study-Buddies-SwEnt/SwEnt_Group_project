@@ -71,7 +71,8 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    GroupScreen(groupUID, GroupViewModel(groupUID), chatViewModel, navigationActions)
+                    GroupScreen(
+                        groupUID, GroupViewModel(groupUID), chatViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -113,16 +114,14 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.DIRECT_MESSAGE) {
               if (currentUser != null) {
-                DirectMessageScreen(DirectMessageViewModel(currentUser.uid), chatViewModel, navigationActions)
+                DirectMessageScreen(
+                    DirectMessageViewModel(currentUser.uid), chatViewModel, navigationActions)
               }
             }
             composable(Route.CHAT) {
-                    ChatScreen(
-                        MessageViewModel(
-                            chatViewModel.getChat() ?: Chat.empty()
-                        ),
-                        navigationActions)
-                }
+              ChatScreen(
+                  MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
+            }
             composable(Route.SOLOSTUDYHOME) {
               if (currentUser != null) {
                 SoloStudyHome(navigationActions)

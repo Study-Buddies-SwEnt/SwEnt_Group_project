@@ -103,7 +103,15 @@ fun GroupScreen(
           Button(
               modifier = Modifier.padding(innerPadding).fillMaxWidth(),
               onClick = {
-                chatViewModel.setChat(group?.let { Chat(it.uid, it.name, it.picture.toString(), ChatType.GROUP, groupViewModel.members.value!!.toList()) })
+                chatViewModel.setChat(
+                    group?.let {
+                      Chat(
+                          it.uid,
+                          it.name,
+                          it.picture.toString(),
+                          ChatType.GROUP,
+                          groupViewModel.members.value!!.toList())
+                    })
                 navigationActions.navigateTo(Route.CHAT)
               }) {
                 Text(stringResource(R.string.chat))
