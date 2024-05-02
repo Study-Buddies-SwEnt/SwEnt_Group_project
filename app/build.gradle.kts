@@ -21,6 +21,16 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        //load the values from .properties file
+        val mapsKeyFile = project.rootProject.file("local.properties")
+        val properties = Properties()
+        properties.load(mapsKeyFile.inputStream())
+
+        //fetch the map key
+        val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
+
+        //inject the key dynamically into the manifest
+        manifestPlaceholders["MAPS_API_KEY"]  = apiKey
         }
 
     configurations.configureEach {
