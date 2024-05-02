@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.groups.GroupFields
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
@@ -31,7 +32,9 @@ fun TopicCreaction(topicViewModel: TopicViewModel, navigationActions: Navigation
   val nameState = remember { mutableStateOf("") }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(Color.White),
+      modifier = Modifier
+          .fillMaxSize()
+          .background(Color.White),
       topBar = {
         TopNavigationBar(
             title = { Sub_title("Create Topic") },
@@ -41,16 +44,15 @@ fun TopicCreaction(topicViewModel: TopicViewModel, navigationActions: Navigation
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxWidth().background(Color.White).padding(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(20.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               Text("Enter Topic Name")
 
-              TextField(
-                  value = nameState.value,
-                  onValueChange = { nameState.value = it },
-                  label = { Text("Topic Name") })
-
+             GroupFields(nameState)
               Spacer(modifier = Modifier.height(20.dp))
 
               Button(
