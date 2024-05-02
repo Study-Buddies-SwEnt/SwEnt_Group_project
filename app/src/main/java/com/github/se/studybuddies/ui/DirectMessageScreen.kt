@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -66,6 +67,8 @@ fun DirectMessageItem(chat: Chat) {
                 .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = chat.name)
+        Spacer(modifier = Modifier.weight(1f))
+        Text(text = chat.messages.lastOrNull()?.text ?: "")
     }
 }
 

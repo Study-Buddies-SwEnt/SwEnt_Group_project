@@ -30,11 +30,16 @@ class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel(
   val currentUser = _currentUser
 
   init {
-    listenToMessages()
+//    listenToMessages()
+    getMessage()
     getCurrentUser()
   }
 
-  private fun listenToMessages() {
+  private fun getMessage(){
+    db.getMessages(chatUID, chatType, _messages)
+  }
+
+  /*private fun listenToMessages() {
       dbMessage.addValueEventListener(
         object : ValueEventListener {
           private var handler = Handler(Looper.getMainLooper())
@@ -73,7 +78,7 @@ class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel(
             Log.w("MessageViewModel", "Failed to read value.", error.toException())
           }
         })
-  }
+  }*/
 
   private fun getCurrentUser() {
     viewModelScope.launch {
