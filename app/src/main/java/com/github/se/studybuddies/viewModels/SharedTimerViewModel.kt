@@ -98,10 +98,48 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     }
 
     private fun addTimeMillis(millisToAdd: Long) {
-        remainingTime.value?.let {
-            val newTime = it + millisToAdd
-            remainingTime.postValue(newTime)
-            timerRef.setValue(newTime)
+        val currentTimerData = timerData.value ?: TimerData()
+        if (currentTimerData.isRunning) {
+            // Calculate the new duration by adding time
+            val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
+
+            // Update TimerData
+            currentTimerData.duration = newDuration
+            timerData.postValue(currentTimerData)
+
+            // Update remaining time assuming the timer is counting down
+            val newRemainingTime = (remainingTime.value ?: 0L) + millisToAdd
+            remainingTime.postValue(newRemainingTime)
+
+            // Update Firebase with the new duration
+            timerRef.setValue(newDuration)
+
+            // Optionally, restart or continue the timer based on new duration
+            restartTimer(newDuration)
+        } else {
+            // If timer is not running, just update the duration and Firebase
+            val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
+            currentTimerData.duration = newDuration
+            timerData.postValue(currentTimerData)
+
+            // Update remaining time and Firebase
+            remainingTime.postValue(newDuration)
+            timerRef.setValue(newDuration)
+        }
+    }
+
+    // Function to restart or continue the timer
+    private fun restartTimer(newDuration: Long) {
+        if (timerData.value?.isRunning == true) {
+            val startTime = System.currentTimeMillis() - (timerData.value?.elapsedTime ?: 0L)
+            timerData.postValue(timerData.value?.apply {
+                this.duration = newDuration
+                this.startTime = startTime
+            })
+            startLocalCountdown(newDuration, startTime)
+        } else {
+            // Start the timer if it was not running
+            startTimer(newDuration)
         }
     }
 }
