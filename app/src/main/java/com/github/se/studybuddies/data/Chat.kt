@@ -6,7 +6,7 @@ data class Chat(
     var photoUrl: String,
     val type: ChatType,
     var members: List<User>,
-    var messages: List<Message>
+//    var messages: List<Message>
 ) {
   companion object {
     fun empty(): Chat {
@@ -16,7 +16,8 @@ data class Chat(
           photoUrl = "",
           type = ChatType.GROUP,
           members = emptyList(),
-          messages = emptyList())
+//          messages = emptyList()
+      )
     }
 
     fun withId(uid: String, type: ChatType): Chat {
@@ -26,7 +27,8 @@ data class Chat(
           photoUrl = "",
           type = type,
           members = emptyList(),
-          messages = emptyList())
+//          messages = emptyList()
+     )
     }
   }
 }

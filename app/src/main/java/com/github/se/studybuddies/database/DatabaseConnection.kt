@@ -419,7 +419,7 @@ class DatabaseConnection {
                       photoUrl = otherUserPhotoUrl,
                       type = ChatType.PRIVATE,
                       members = listOf(otherUser, getUser(userUID)),
-                      messages = messages.value)
+                      /*messages = messages.value*/)
               chatList.add(newChat)
             }
           }

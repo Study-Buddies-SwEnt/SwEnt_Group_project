@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -42,6 +42,7 @@ import com.github.se.studybuddies.ui.BottomNavigationBar
 import com.github.se.studybuddies.ui.GoBackButton
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +50,7 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 fun GroupScreen(
     groupUID: String,
     groupViewModel: GroupViewModel,
+    chatViewModel: ChatViewModel,
     navigationActions: NavigationActions
 ) {
   val group by groupViewModel.group.observeAsState()
@@ -101,7 +103,8 @@ fun GroupScreen(
           Button(
               modifier = Modifier.padding(innerPadding).fillMaxWidth(),
               onClick = {
-                navigationActions.navigateTo("${Route.CHAT}/${groupUID}/${ChatType.GROUP}")
+                chatViewModel.setChat(group?.let { Chat(it.uid, it.name, it.picture.toString(), ChatType.GROUP, groupViewModel.members.value!!.toList()) })
+                navigationActions.navigateTo(Route.CHAT)
               }) {
                 Text(stringResource(R.string.chat))
               }

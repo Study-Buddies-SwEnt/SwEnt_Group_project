@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.viewModels
 
-import androidx.lifecycle.map
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +10,7 @@ class DirectMessageViewModel(val userUid: String) {
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
   val directMessages =
       _directMessages.map { directMessages ->
-        directMessages.sortedByDescending { it.messages.lastOrNull()?.timestamp ?: Long.MIN_VALUE }
+        directMessages.sortedByDescending { it.name }
       }
 
   init {

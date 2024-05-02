@@ -25,13 +25,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 
 @Composable
-fun DirectMessageScreen(viewModel: DirectMessageViewModel, navigationActions: NavigationActions) {
+fun DirectMessageScreen(viewModel: DirectMessageViewModel, chatViewModel: ChatViewModel, navigationActions: NavigationActions) {
   val chats = viewModel.directMessages.collectAsState(initial = emptyList())
   Column {
     SecondaryTopBar(onClick = { navigationActions.goBack() }) {}
@@ -39,7 +39,8 @@ fun DirectMessageScreen(viewModel: DirectMessageViewModel, navigationActions: Na
     LazyColumn() {
       items(chats.value) { chat ->
         DirectMessageItem(chat) {
-          navigationActions.navigateTo("${Route.CHAT}/${chat.uid}/${ChatType.PRIVATE}")
+            chatViewModel.setChat(chat)
+          navigationActions.navigateTo(Route.CHAT)
         }
       }
     }
