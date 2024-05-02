@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.FirebaseDatabase
+import kotlin.time.Duration
 
 class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private val databaseConnection = DatabaseConnection()
@@ -40,8 +41,9 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
         })
     }
 
-    fun startTimer(duration: Long) {
+    fun startTimer() {
         val elapsedTime = System.currentTimeMillis() - (timerData.value?.startTime ?: 0L)
+        val duration = timerData.value?.duration ?: 0L
 
         viewModelScope.launch(Dispatchers.IO) {
             timerData.postValue(TimerData(System.currentTimeMillis(), duration, true, elapsedTime))
@@ -53,19 +55,22 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private fun startLocalCountdown(duration: Long, startTime: Long) {
         viewModelScope.launch {
             var timeLeft = duration
-            val elapsed = System.currentTimeMillis() - startTime
-            timeLeft = duration - elapsed
+            val elapsedTime = System.currentTimeMillis() - startTime
+            timeLeft -= elapsedTime // Adjust timeLeft based on elapsed time
 
             while (timeLeft > 0 && timerData.value?.isRunning == true) {
                 delay(1000)
-                timeLeft--;
+                timeLeft -= 1000 // Decrement timeLeft by 1 second
                 remainingTime.postValue(timeLeft)
             }
+
+            // Ensure remaining time is accurate
+            remainingTime.postValue(0L)
+
+            // Pause timer when countdown ends
             if (timeLeft <= 0) {
                 pauseTimer()
             }
-
-            timerRef.setValue(timeLeft)
         }
     }
 
