@@ -132,7 +132,6 @@ fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
           Modifier.fillMaxWidth()
               .clickable {
                 val todoUID = todo.uid
-                Log.d("TODOEDITCLICK", "Tapped on UID $todoUID")
                 navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
               }
               .drawBehind {
