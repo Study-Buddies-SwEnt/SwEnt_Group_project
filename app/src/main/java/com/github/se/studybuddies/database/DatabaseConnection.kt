@@ -316,6 +316,7 @@ class DatabaseConnection {
       return -1
     }
 
+
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
@@ -342,8 +343,32 @@ class DatabaseConnection {
         }
     return 0
   }
+    suspend fun updateGroupTimer(groupUID: String, newTimerValue: Long): Int {
+        if (groupUID.isEmpty()) {
+            Log.d("MyPrint", "Group UID is empty")
+            return -1
+        }
 
-  // using the Realtime Database for messages
+        val document = groupDataCollection.document(groupUID).get().await()
+        if (!document.exists()) {
+            Log.d("MyPrint", "Group with UID $groupUID does not exist")
+            return -1
+        }
+
+        // Update the timer parameter of the group
+        groupDataCollection
+            .document(groupUID)
+            .update("timer", newTimerValue)
+            .addOnSuccessListener { Log.d("MyPrint", "Timer parameter updated successfully for group with UID $groupUID") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to update timer parameter for group with UID $groupUID with error: ", e)
+            }
+
+        return 0
+    }
+
+
+    // using the Realtime Database for messages
   fun sendGroupMessage(groupUID: String, message: Message) {
     val messagePath = getGroupMessagesPath(groupUID) + "/${message.uid}"
     val messageData =
