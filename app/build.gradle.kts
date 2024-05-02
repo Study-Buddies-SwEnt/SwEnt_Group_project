@@ -41,8 +41,11 @@ android {
 
     buildTypes {
         release {
+<<<<<<< HEAD
             resValue("string", "MAPS_API_KEY", project.properties["MAPS_API_KEY"].toString())
             signingConfig = signingConfigs.getByName("release")
+=======
+>>>>>>> parent of 53b266e (modify way to read secret)
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -50,7 +53,6 @@ android {
             )
         }
         debug {
-            resValue("string", "MAPS_API_KEY", project.properties["MAPS_API_KEY"].toString())
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
         }
