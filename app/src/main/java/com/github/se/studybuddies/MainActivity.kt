@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.ChatScreen
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
 
-    val studyBuddies = application as StudyBuddies
+    val studyBuddies = application as LocationApp
 
     setContent {
       StudyBuddiesTheme {
