@@ -4,18 +4,16 @@ package com.github.se.studybuddies.ui.timer
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,10 +26,10 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.theme.White
+import com.github.se.studybuddies.viewModels.TimerData
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 
@@ -40,7 +38,9 @@ fun SharedTimerScreen(
     navigationActions: NavigationActions,
     sharedTimerViewModel: SharedTimerViewModel
 ) {
-    val timerInfo by sharedTimerViewModel.timerLiveData.observeAsState("00:00:00")
+    val timerData by sharedTimerViewModel.timerData.observeAsState(TimerData())
+    val remainingTime by sharedTimerViewModel.remainingTime.observeAsState(0L)
+
 
 
     Scaffold(
@@ -51,7 +51,7 @@ fun SharedTimerScreen(
             TopNavigationBar(
                 title = { Sub_title(title = "Timer") },
                 navigationIcon = {
-                    GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
+                    GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
                 },
                 actions = {})
         },
@@ -59,7 +59,7 @@ fun SharedTimerScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp).testTag("timer_column"),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -73,12 +73,12 @@ fun SharedTimerScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = timerInfo,
+                        text = formatDuration(remainingTime),
                         fontSize = 40.sp,
                         color = Color.Blue,
                         textAlign = TextAlign.Center
                     )
-                    
+
                 }
             }
 
@@ -91,12 +91,12 @@ fun SharedTimerScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TimerButton(onClick = { sharedTimerViewModel.startTimer() }, text = "Start" )
+                TimerButton(onClick = { sharedTimerViewModel.startTimer(0) }, text = "Start" )
                 TimerButton(onClick = { sharedTimerViewModel.pauseTimer() }, text = "Pause" )
                 TimerButton(onClick = {  sharedTimerViewModel.resetTimer()  }, text = "Reset" )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp).testTag("timer_spacer"))
 
             // Time adjustment buttons
             Row(
@@ -109,7 +109,12 @@ fun SharedTimerScreen(
         }
     }
 }
-
+fun formatDuration(millis: Long): String {
+    val hours = millis / 3600000
+    val minutes = (millis % 3600000) / 60000
+    val seconds = (millis % 60000) / 1000
+    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+}
 @Composable
 fun TimeAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
     Button(onClick = { onAdjust(amount) }) {
