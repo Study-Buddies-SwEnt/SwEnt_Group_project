@@ -81,6 +81,7 @@ class LocationService : Service() {
     stopSelf()
   }
 
+<<<<<<< HEAD
   override fun onDestroy() {
     super.onDestroy()
     serviceScope.cancel()
@@ -93,3 +94,12 @@ class LocationService : Service() {
     const val ACTION_STOP = "ACTION_STOP"
   }
 }
+=======
+
+
+    companion object {
+        const val ACTION_START = "ACTION_START"
+        const val ACTION_STOP = "ACTION_STOP"
+    }
+}
+>>>>>>> a9b2e6f (Add zoom option and MapViewModel)

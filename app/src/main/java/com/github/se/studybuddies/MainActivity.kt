@@ -34,6 +34,13 @@ import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+import android.Manifest
+import androidx.core.app.ActivityCompat
+import com.github.se.studybuddies.mapService.DefaultLocationClient
+import com.github.se.studybuddies.mapService.LocationClient
+import com.github.se.studybuddies.viewModels.MapViewModel
+import com.google.android.gms.location.LocationServices
+
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
 
@@ -41,6 +48,14 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
 
+    ActivityCompat.requestPermissions(
+      this,
+      arrayOf(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+      ),
+      0
+    )
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -130,6 +145,8 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 TimerScreenContent(TimerViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
+              if(currentUser != null) {
+                MapScreen(currentUser.uid, MapViewModel(applicationContext), navigationActions, applicationContext)
               }
             }
           }
