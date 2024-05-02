@@ -98,7 +98,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                     remainingTime.postValue(remainingTimeCalc)
 
 
-                    timerRef.setValue(remainingTimeCalc)
+                    databaseConnection.updateGroupTimer(groupId,remainingTimeCalc)
 
                     // Update the local timer data
                     timerData.postValue(timer)
@@ -121,26 +121,26 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             )
 
             // Reset the timer data in Firebase
-            timerRef.setValue(null)
+            databaseConnection.updateGroupTimer(groupId,0L)
 
             // Post the reset remaining time
             remainingTime.postValue(0L)
         }
     }
 
-    fun addHours(hours: Long) {
+    suspend fun addHours(hours: Long) {
         addTimeMillis(hours * 3600 * 1000)
     }
 
-    fun addMinutes(minutes: Long) {
+    suspend fun addMinutes(minutes: Long) {
         addTimeMillis(minutes * 60 * 1000)
     }
 
-    fun addSeconds(seconds: Long) {
+    suspend fun addSeconds(seconds: Long) {
         addTimeMillis(seconds * 1000)
     }
 
-    private fun addTimeMillis(millisToAdd: Long) {
+    private suspend fun addTimeMillis(millisToAdd: Long) {
 
         if (millisToAdd > 0) {
 
@@ -158,7 +158,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             remainingTime.postValue(newRemainingTime)
 
             // Update Firebase with the new duration
-            timerRef.setValue(newDuration)
+          databaseConnection.updateGroupTimer(groupId,newDuration)
         }
 
     }
