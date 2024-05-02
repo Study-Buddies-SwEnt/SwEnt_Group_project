@@ -125,8 +125,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
     private fun addTimeMillis(millisToAdd: Long) {
         val currentTimerData = timerData.value ?: TimerData()
-        if (currentTimerData.isRunning) {
-            // Calculate the new duration by adding time only if the timer is running
+
             val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
 
             // Update TimerData
@@ -139,7 +138,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
             // Update Firebase with the new duration
             timerRef.setValue(newDuration)
-        }
+
     }
 
 }
