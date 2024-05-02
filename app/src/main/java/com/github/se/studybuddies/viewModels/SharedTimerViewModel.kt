@@ -37,7 +37,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle database read failures
+
             }
         })
     }
@@ -46,20 +46,22 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
         val elapsedTime = System.currentTimeMillis() - (timerData.value?.startTime ?: 0L)
         val duration = timerData.value?.duration ?: 0L
-        if (timerJob == null || timerJob?.isCompleted == true) {
-            timerJob =
+
 
         viewModelScope.launch(Dispatchers.IO) {
             timerData.postValue(TimerData(System.currentTimeMillis(), duration, true, elapsedTime))
             remainingTime.postValue(duration)
             startLocalCountdown(duration, System.currentTimeMillis(),)
         }
-        }
+
     }
 
     private fun startLocalCountdown(duration: Long, startTime: Long) {
+        if (timerJob == null || timerJob?.isCompleted == true) {
+            timerJob =
 
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
+
                     var timeLeft = duration - (timerData.value?.elapsedTime ?: 0L)
 
                     while (timeLeft > 0 && timerData.value?.isRunning == true) {
@@ -76,13 +78,14 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                         resetTimer()
                     }
                 }
+        }
 
     }
 
     fun pauseTimer() {
         timerJob?.cancel() // Cancel the ongoing timer job
 
-        viewModelScope.launch(Dispatchers.IO) {
+
             timerData.value?.let { timer ->
                 if (timer.isRunning) {
                     val currentTime = System.currentTimeMillis()
@@ -98,19 +101,20 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                     remainingTime.postValue(remainingTimeCalc)
 
                     // Update Firebase to reflect that the timer is paused
-                    databaseConnection.updateGroupTimer(groupId, remainingTimeCalc)
-
+                    viewModelScope.launch {
+                        databaseConnection.updateGroupTimer(groupId, remainingTimeCalc)
+                    }
                     // Update the local timer data
                     timerData.postValue(timer)
                 }
             }
-        }
+
     }
 
 
     fun resetTimer() {
         timerJob?.cancel()
-        viewModelScope.launch(Dispatchers.IO) {
+
 
 
             timerData.postValue(
@@ -123,11 +127,13 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             )
 
 
-            databaseConnection.updateGroupTimer(groupId,0L)
 
+        viewModelScope.launch {
+            databaseConnection.updateGroupTimer(groupId, 0)
+        }
 
             remainingTime.postValue(0L)
-        }
+
     }
 
     suspend fun addHours(hours: Long) {
