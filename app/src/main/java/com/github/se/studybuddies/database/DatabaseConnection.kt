@@ -491,7 +491,7 @@ class DatabaseConnection {
                 withContext(Dispatchers.Main) { liveData.value = newMessages }
               }
             }
-            handler.post(runnable!!)
+            handler.postDelayed(runnable!!, 500)
           }
 
           override fun onCancelled(error: DatabaseError) {
@@ -501,29 +501,27 @@ class DatabaseConnection {
         })
   }
 
-    fun startDirectMessage(otherUID: String){
-        val memberPath = getPrivateChatMembersPath(UUID.randomUUID().toString())
-        val members = mapOf(
-            getCurrentUserUID() to true,
-            otherUID to true
-        )
-        val listChat = MutableStateFlow<List<Chat>>(emptyList())
+  fun startDirectMessage(otherUID: String) {
+    val memberPath = getPrivateChatMembersPath(UUID.randomUUID().toString())
+    val members = mapOf(getCurrentUserUID() to true, otherUID to true)
+    val listChat = MutableStateFlow<List<Chat>>(emptyList())
 
-        getPrivateChatsList(otherUID, listChat)
+    getPrivateChatsList(otherUID, listChat)
 
-        CoroutineScope(Dispatchers.Default).launch {
-            listChat.collect { chats ->
-                chats.forEach { chat ->
-                    if (chat.members.none { user -> user.uid == getCurrentUserUID() })
-                    {
-                        rt_db.getReference(memberPath).updateChildren(members)
-                                .addOnSuccessListener { Log.d("DatabaseConnect", "Members successfully added!") }
-                                .addOnFailureListener { Log.w("DatabaseConnect", "Failed to write members.", it) }
-                    }
-                }
-            }
+    CoroutineScope(Dispatchers.Default).launch {
+      listChat.collect { chats ->
+        chats.forEach { chat ->
+          if (chat.members.none { user -> user.uid == getCurrentUserUID() }) {
+            rt_db
+                .getReference(memberPath)
+                .updateChildren(members)
+                .addOnSuccessListener { Log.d("DatabaseConnect", "Members successfully added!") }
+                .addOnFailureListener { Log.w("DatabaseConnect", "Failed to write members.", it) }
+          }
         }
+      }
     }
+  }
 
   // using the topicData collection
   suspend fun getTopic(uid: String): Topic {

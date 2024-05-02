@@ -115,7 +115,10 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                     } else {
                       Arrangement.Start
                     }) {
-                  TextBubble(message, !viewModel.isUserMessageSender(message) && viewModel.chat.type != ChatType.PRIVATE)
+                  TextBubble(
+                      message,
+                      !viewModel.isUserMessageSender(message) &&
+                          viewModel.chat.type != ChatType.PRIVATE)
                 }
           }
         }
@@ -258,22 +261,21 @@ fun OptionsDialog(
                     )
                   }
             } else {
-                if (viewModel.chat.type == ChatType.GROUP || viewModel.chat.type == ChatType.TOPIC) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        modifier = Modifier.testTag("option_dialog_start_direct_message"),
-                        onClick = {
-                            showOptionsDialog.value = false
-                            viewModel.startDirectMessage(selectedMessage.sender.uid)
-                            navigationActions.navigateTo(Route.DIRECT_MESSAGE)
-                        }) {
-                        Text(
-                            text = stringResource(R.string.start_direct_message),
-                            style = TextStyle(color = White),
-                        )
+              if (viewModel.chat.type == ChatType.GROUP || viewModel.chat.type == ChatType.TOPIC) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.testTag("option_dialog_start_direct_message"),
+                    onClick = {
+                      showOptionsDialog.value = false
+                      viewModel.startDirectMessage(selectedMessage.sender.uid)
+                      navigationActions.navigateTo(Route.DIRECT_MESSAGE)
+                    }) {
+                      Text(
+                          text = stringResource(R.string.start_direct_message),
+                          style = TextStyle(color = White),
+                      )
                     }
-                }
-
+              }
             }
           }
         },
