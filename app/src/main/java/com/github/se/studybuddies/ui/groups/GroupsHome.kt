@@ -51,12 +51,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
@@ -108,7 +110,7 @@ fun GroupsHome(
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
             Spacer(modifier = Modifier.height(80.dp))
-            Text("Join or create a new group", textAlign = TextAlign.Center)
+            Text(stringResource(R.string.join_or_create_a_new_group), textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(80.dp))
             AddGroupButton(navigationActions = navigationActions)
             AddLinkButton(navigationActions = navigationActions)
@@ -131,7 +133,7 @@ fun GroupsHome(
           }
         }
       },
-      title = "Groups",
+      title = stringResource(R.string.groups),
       iconOptions = { SearchIcon() })
 }
 
@@ -141,7 +143,9 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
   IconButton(
       onClick = { expandedState.value = true },
   ) {
-    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Dots Menu")
+    Icon(
+        imageVector = Icons.Default.MoreVert,
+        contentDescription = stringResource(R.string.dots_menu))
   }
   DropdownMenu(expanded = expandedState.value, onDismissRequest = { expandedState.value = false }) {
     GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
@@ -176,7 +180,8 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Image(
               painter = rememberImagePainter(group.picture),
-              contentDescription = "Group profile picture",
+              contentDescription =
+                  stringResource(id = R.string.contentDescription_group_profile_picture),
               modifier = Modifier.size(32.dp),
               contentScale = ContentScale.Crop)
           Spacer(modifier = Modifier.size(16.dp))
@@ -198,7 +203,7 @@ fun AddGroupButton(navigationActions: NavigationActions) {
             modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Add,
-                  contentDescription = "Create a task",
+                  contentDescription = stringResource(R.string.create_a_task),
                   tint = White)
             }
       }
@@ -216,11 +221,11 @@ fun AddLinkButton(navigationActions: NavigationActions) {
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
-            onClick = { isTextFieldVisible = true },
+            onClick = { isTextFieldVisible = !isTextFieldVisible },
             modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Share,
-                  contentDescription = "Link button",
+                  contentDescription = stringResource(R.string.link_button),
                   tint = White)
             }
       }
@@ -228,7 +233,8 @@ fun AddLinkButton(navigationActions: NavigationActions) {
     TextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Enter Link") },
+        label = { Text(stringResource(R.string.enter_link)) },
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         keyboardActions =
             KeyboardActions(
                 onDone = {
@@ -239,10 +245,8 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                     val error = db.updateGroup(groupUID)
                     if (error == -1) {
                       showError = true
-                      scope.launch {
-                        delay(3000L) // delay for 3 seconds
-                        showError = false
-                      }
+                      delay(3000L) // delay for 3 seconds
+                      showError = false
                     } else {
                       navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                     }
@@ -254,7 +258,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = { TextButton(onClick = { showError = false }) {} }) {
-          Text("The link entered is invalid")
+          Text(stringResource(R.string.the_link_entered_is_invalid))
         }
   }
 }
@@ -264,6 +268,9 @@ fun AddGroup(navigationActions: NavigationActions) {
   Button(
       onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
       modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = "Create a task", tint = White)
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(id = R.string.create_a_task),
+            tint = White)
       }
 }
