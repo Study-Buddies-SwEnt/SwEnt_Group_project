@@ -20,6 +20,7 @@ import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
+import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.ui.settings.AccountSettings
 import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
@@ -121,6 +122,11 @@ class MainActivity : ComponentActivity() {
               if (currentUser != null) {
                 SoloStudyHome(navigationActions)
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+              }
+            }
+            composable(Route.MAP) {
+              if (currentUser != null) {
+                MapScreen(currentUser.uid, navigationActions, applicationContext)
               }
             }
             composable(Route.TIMER) {

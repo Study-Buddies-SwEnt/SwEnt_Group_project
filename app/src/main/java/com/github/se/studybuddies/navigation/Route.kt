@@ -17,6 +17,7 @@ object Route {
   const val CHAT = "GeneralChat"
   const val TOPIC = "Topic"
   const val TOPIC_SETTINGS = "Topic settings"
+  const val MAP = "Map"
   /*
   const val OVERVIEW = "Overview"
   const val MAP = "Map"
