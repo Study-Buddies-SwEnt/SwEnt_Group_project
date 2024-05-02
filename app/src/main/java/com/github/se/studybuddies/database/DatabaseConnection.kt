@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.database
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Group
@@ -390,8 +391,18 @@ class DatabaseConnection {
       val name = document.getString("name") ?: ""
       val exercisesList = document.get("exercises") as List<String>
       val theoryList = document.get("theory") as List<String>
-      val exercises = fetchTopicItems(exercisesList)
-      val theory = fetchTopicItems(theoryList)
+      val exercises =
+          if (exercisesList.isNotEmpty()) {
+            fetchTopicItems(exercisesList)
+          } else {
+            emptyList()
+          }
+      val theory =
+          if (theoryList.isNotEmpty()) {
+            fetchTopicItems(theoryList)
+          } else {
+            emptyList()
+          }
       Topic(uid, name, exercises, theory)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
@@ -432,27 +443,39 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create topic with error ", e) }
   }
 
-  fun updateTopicData(
-      uid: String,
-      name: String,
-      exercises: List<TopicItem>,
-      theory: List<TopicItem>
-  ) {
-    val exercisesUIDs = exercises.map { it.uid }
-    val theoryUIDs = theory.map { it.uid }
-    val task = hashMapOf("name" to name, "exercises" to exercisesUIDs, "theory" to theoryUIDs)
+  fun addExercise(uid: String, exercise: TopicItem) {
+    val exerciseUID = exercise.uid
     topicDataCollection
         .document(uid)
-        .update(task as Map<String, Any>)
+        .update("exercises", FieldValue.arrayUnion(exerciseUID))
         .addOnSuccessListener {
           Log.d("MyPrint", "topic data successfully updated")
-          updateTopicItems(exercises)
-          updateTopicItems(theory)
+          updateTopicItem(exercise)
         }
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  fun createTopicFolder(name: String): TopicFolder {
+  fun addTheory(uid: String, theory: TopicItem) {
+    val theoryUID = theory.uid
+    topicDataCollection
+        .document(uid)
+        .update("theory", FieldValue.arrayUnion(theoryUID))
+        .addOnSuccessListener {
+          Log.d("MyPrint", "topic data successfully updated")
+          updateTopicItem(theory)
+        }
+        .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
+  }
+
+  fun updateTopicName(uid: String, name: String) {
+    topicDataCollection
+        .document(uid)
+        .update("name", name)
+        .addOnSuccessListener { Log.d("MyPrint", "topic data successfully updated") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
+  }
+
+  fun createTopicFolder(name: String, callBack: (TopicFolder) -> Unit) {
     val folder =
         hashMapOf(
             "name" to name, "type" to ItemType.FOLDER.toString(), "items" to emptyList<String>())
@@ -462,14 +485,15 @@ class DatabaseConnection {
         .addOnSuccessListener { document ->
           uid = document.id
           Log.d("MyPrint", "New topic folder successfully created")
+          callBack(TopicFolder(uid, name, emptyList()))
         }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create new topic folder with error ", e)
+          callBack(TopicFolder("", "", emptyList()))
         }
-    return TopicFolder(uid, name, emptyList())
   }
 
-  fun createTopicFile(name: String): TopicFile {
+  fun createTopicFile(name: String, callBack: (TopicFile) -> Unit) {
     val file =
         hashMapOf(
             "name" to name,
@@ -480,48 +504,49 @@ class DatabaseConnection {
         .add(file)
         .addOnSuccessListener { document ->
           uid = document.id
-          Log.d("MyPrint", "New topic file successfully created")
+          Log.d("MyPrint", "New topic file successfully created with uid ${document.id}")
+          callBack(TopicFile(uid, name, emptyList()))
         }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create new topic file with error ", e)
+          callBack(TopicFile("", "", emptyList()))
         }
-    return TopicFile(uid, name, emptyList())
+    Log.d("MyPrint", "file uid returned is $uid")
   }
 
-  private fun updateTopicItems(items: List<TopicItem>) {
-    for (item in items) {
-      var type = ""
-      var folderItems = emptyList<String>()
-      var strongUsers = emptyList<String>()
-      when (item) {
-        is TopicFolder -> {
-          type = ItemType.FOLDER.toString()
-          folderItems = item.items.map { it.uid }
-        }
-        is TopicFile -> {
-          type = ItemType.FILE.toString()
-          strongUsers = item.strongUsers
-        }
+  private fun updateTopicItem(item: TopicItem) {
+    var type = ""
+    var folderItems = emptyList<String>()
+    var strongUsers = emptyList<String>()
+    when (item) {
+      is TopicFolder -> {
+        type = ItemType.FOLDER.toString()
+        folderItems = item.items.map { it.uid }
       }
-
-      val task =
-          hashMapOf(
-              "name" to item.name,
-              "type" to type,
-              "items" to folderItems,
-              "strongUsers" to strongUsers,
-          )
-
-      topicItemCollection
-          .document(item.uid)
-          .update(task as Map<String, Any>)
-          .addOnSuccessListener { Log.d("MyPrint", "topic item ${item.uid} successfully updated") }
-          .addOnFailureListener { e ->
-            Log.d("MyPrint", "topic item ${item.uid} failed to update with error ", e)
-          }
+      is TopicFile -> {
+        type = ItemType.FILE.toString()
+        strongUsers = item.strongUsers
+      }
     }
+
+    val task =
+        hashMapOf(
+            "name" to item.name,
+            "type" to type,
+            "items" to folderItems,
+            "strongUsers" to strongUsers,
+        )
+
+    topicItemCollection
+        .document(item.uid)
+        .update(task as Map<String, Any>)
+        .addOnSuccessListener { Log.d("MyPrint", "topic item ${item.uid} successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "topic item ${item.uid} failed to update with error ", e)
+        }
   }
 
+  @SuppressLint("SuspiciousIndentation")
   suspend fun getALlTopics(groupUID: String): TopicList {
     try {
       val snapshot = groupDataCollection.document(groupUID).get().await()
@@ -529,11 +554,17 @@ class DatabaseConnection {
 
       return if (snapshot.exists()) {
         val topicUIDs = snapshot.data?.get("topics") as? List<String>
-        topicUIDs?.let { topicUID ->
-          topicUID.forEach { topicUID ->
-            val topic = getTopic(topicUID)
-            items.add(topic)
+        if (topicUIDs != null) {
+          if (topicUIDs.isNotEmpty()) {
+            topicUIDs.forEach { topicUid ->
+              val topic = getTopic(topicUid)
+              items.add(topic)
+            }
+          } else {
+            Log.d("MyPrint", "List of topics is empty for this group")
           }
+        } else {
+          Log.d("MyPrint", "Could not fetch topics list")
         }
         TopicList(items)
       } else {

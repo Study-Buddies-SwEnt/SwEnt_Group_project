@@ -78,6 +78,7 @@ fun GroupScreen(
     pictureState.value = it.picture
     membersState.value = it.members
   }
+  topics?.let { topicList.value = it.getAllTopics() }
 
   Scaffold(
       modifier = Modifier.fillMaxSize().testTag("GroupScreen"),
@@ -138,21 +139,21 @@ fun GroupScreen(
           modifier = Modifier.fillMaxSize(),
           verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           horizontalAlignment = Alignment.Start,
-          content = { items(topicList.value) { topic -> TopicItem(groupUID, topic, navigationActions) } })
+          content = {
+            items(topicList.value) { topic -> TopicItem(groupUID, topic, navigationActions) }
+          })
     }
   }
 }
 
 @Composable
 fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActions) {
+  val topicUid = topic.uid
   Box(
       modifier =
           Modifier.fillMaxWidth()
               .background(Color.White)
-              .clickable {
-                val topicUid = topic.uid
-                navigationActions.navigateTo("${Route.TOPIC}/$topicUid/$groupUID")
-              }
+              .clickable { navigationActions.navigateTo("${Route.TOPIC}/$topicUid/$groupUID") }
               .drawBehind {
                 val strokeWidth = 1f
                 val y = size.height - strokeWidth / 2
@@ -165,12 +166,6 @@ fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActio
               modifier = Modifier.align(Alignment.CenterVertically),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
-          Spacer(modifier = Modifier.weight(1f))
-          IconButton(onClick = { navigationActions.navigateTo(Route.TOPIC_SETTINGS) }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(id = R.string.dots_menu))
-          }
         }
       }
 }

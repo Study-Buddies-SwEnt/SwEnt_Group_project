@@ -137,13 +137,13 @@ class MainActivity : ComponentActivity() {
             }
             composable(
                 route = "${Route.TOPIC}/{topicUID}/{groupUID}",
-                arguments = listOf(
-                    navArgument("topicUID") { type = NavType.StringType },
-                    navArgument("groupUID") { type = NavType.StringType })) {
-                    backStackEntry ->
+                arguments =
+                    listOf(
+                        navArgument("topicUID") { type = NavType.StringType },
+                        navArgument("groupUID") { type = NavType.StringType })) { backStackEntry ->
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
-                val groupUID = backStackEntry.arguments?.getString("groupUID")
-                if (topicUID != null && groupUID != null) {
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUID != null) {
                     TopicScreen(groupUID, topicUID, TopicViewModel(topicUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicScreen")
                   }
