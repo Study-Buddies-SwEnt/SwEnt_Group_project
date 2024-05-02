@@ -1,84 +1,34 @@
 package com.github.se.studybuddies.viewModels
 
-import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel() {
+class MessageViewModel(val chat: Chat) : ViewModel() {
 
   val db = DatabaseConnection()
-  private val dbMessage = db.rt_db.getReference(db.getMessagePath(chatUID, chatType))
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
   val currentUser = _currentUser
 
   init {
-//    listenToMessages()
     getMessage()
     getCurrentUser()
   }
 
-  private fun getMessage(){
-    db.getMessages(chatUID, chatType, _messages)
+  private fun getMessage() {
+    db.getMessages(chat.uid, chat.type, _messages)
   }
-
-  /*private fun listenToMessages() {
-      dbMessage.addValueEventListener(
-        object : ValueEventListener {
-          private var handler = Handler(Looper.getMainLooper())
-          private var runnable: Runnable? = null
-
-          override fun onDataChange(snapshot: DataSnapshot) {
-            runnable?.let { handler.removeCallbacks(it) }
-            runnable = Runnable {
-              viewModelScope.launch {
-                val newMessages = mutableListOf<Message>()
-                // Collect deferred results for all messages
-                val deferredMessages =
-                    snapshot.children.map { postSnapshot ->
-                      async {
-                        Message(
-                            postSnapshot.key.toString(),
-                            postSnapshot.child(MessageVal.TEXT).value.toString(),
-                            db.getUser(postSnapshot.child(MessageVal.SENDER_UID).value.toString()),
-                            postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong())
-                      }
-                    }
-                // Await all deferred results and add them to the list
-                deferredMessages.forEach {
-                  val message = it.await() // This ensures all messages are fetched before adding
-                  newMessages.add(message)
-                }
-                // Update LiveData post all messages being fetched and processed
-                _messages.value = newMessages
-              }
-            }
-            handler.postDelayed(
-                runnable!!, 500) // Delay the execution to allow for batch processing, if needed
-          }
-
-          override fun onCancelled(error: DatabaseError) {
-            Log.w("MessageViewModel", "Failed to read value.", error.toException())
-          }
-        })
-  }*/
 
   private fun getCurrentUser() {
     viewModelScope.launch {
@@ -94,14 +44,14 @@ class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel(
         }
 
     if (message != null) {
-      db.sendMessage(chatUID, message)
+      db.sendMessage(chat.uid, message)
     } else Log.d("MyPrint", "message is null, could not retrieve")
   }
 
   fun deleteMessage(message: Message) {
     if (!isUserMessageSender(message)) return
     else {
-      db.deleteMessage(chatUID, message)
+      db.deleteMessage(chat.uid, message)
       _messages.value = _messages.value.filter { it.uid != message.uid }
     }
   }
@@ -109,7 +59,7 @@ class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel(
   fun editMessage(message: Message, newText: String) {
     if (!isUserMessageSender(message)) return
     else {
-      db.editMessage(chatUID, message, newText)
+      db.editMessage(chat.uid, message, newText)
       _messages.value =
           _messages.value.map {
             if (it.uid == message.uid) {
@@ -122,9 +72,9 @@ class MessageViewModel(val chatUID: String, val chatType: ChatType) : ViewModel(
   }
 
   fun getOtherUserUID(): String {
-    if(chatType == ChatType.GROUP) return ""
+    if (chat.type == ChatType.GROUP) return ""
     var otherUser = ""
-    db.getPrivateChatMembers(chatUID) { members ->
+    db.getPrivateChatMembers(chat.uid) { members ->
       otherUser = members.firstOrNull { it != _currentUser.value?.uid }.toString()
     }
     return otherUser

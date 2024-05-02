@@ -2,32 +2,43 @@ package com.github.se.studybuddies.data
 
 data class Chat(
     val uid: String,
-    val name: String,
-    val photoUrl: String,
-    val members: List<User>,
-    val messages: List<Message>
+    var name: String,
+    var photoUrl: String,
+    val type: ChatType,
+    var members: List<User>,
+    var messages: List<Message>
 ) {
-    companion object {
-        fun empty(): Chat {
-            return Chat(
-                uid = "",
-                name = "",
-                photoUrl = "",
-                members = emptyList(),
-                messages = emptyList()
-            )
-        }
+  companion object {
+    fun empty(): Chat {
+      return Chat(
+          uid = "",
+          name = "",
+          photoUrl = "",
+          type = ChatType.GROUP,
+          members = emptyList(),
+          messages = emptyList())
     }
+
+    fun withId(uid: String, type: ChatType): Chat {
+      return Chat(
+          uid = uid,
+          name = "",
+          photoUrl = "",
+          type = type,
+          members = emptyList(),
+          messages = emptyList())
+    }
+  }
 }
 
 enum class ChatType {
-    PRIVATE,
-    GROUP
+  PRIVATE,
+  GROUP
 }
 
 object ChatVal {
-    const val GROUPS = "groups"
-    const val DIRECT_MESSAGES = "direct_messages"
-    const val MEMBERS = "members"
-    const val MESSAGES = "messages"
+  const val GROUPS = "groups"
+  const val DIRECT_MESSAGES = "direct_messages"
+  const val MEMBERS = "members"
+  const val MESSAGES = "messages"
 }

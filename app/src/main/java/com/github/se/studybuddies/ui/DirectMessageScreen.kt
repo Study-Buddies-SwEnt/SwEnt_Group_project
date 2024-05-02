@@ -27,67 +27,59 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 
 @Composable
 fun DirectMessageScreen(viewModel: DirectMessageViewModel, navigationActions: NavigationActions) {
-    val chats = viewModel.directMessages.collectAsState(initial = emptyList())
-    Column {
-        SecondaryTopBar(onClick = { navigationActions.goBack() }) {
+  val chats = viewModel.directMessages.collectAsState(initial = emptyList())
+  Column {
+    SecondaryTopBar(onClick = { navigationActions.goBack() }) {}
 
-        }
-        LazyColumn() {
-            items(chats.value) { chat ->
-                DirectMessageItem(chat)
-            }
-        }
-    }
+    LazyColumn() { items(chats.value) { chat -> DirectMessageItem(chat) } }
+  }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DirectMessageItem(chat: Chat) {
-    Row(verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .combinedClickable(onClick = { /*TODO*/ })
-    ) {
+fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
         Image(
             painter = rememberImagePainter(chat.photoUrl),
             contentDescription = "User profile picture",
             modifier =
-            Modifier
-                .padding(8.dp)
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color.Gray, CircleShape)
-                .align(Alignment.CenterVertically)
-                .testTag("chat_user_profile_picture"),
+                Modifier.padding(8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape)
+                    .align(Alignment.CenterVertically)
+                    .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = chat.name)
         Spacer(modifier = Modifier.weight(1f))
-        Text(text = chat.messages.lastOrNull()?.text ?: "")
-    }
+      }
 }
 
 @Preview
 @Composable
 fun DirectMessageItemPreview() {
-    DirectMessageItem(
-        Chat(
-            uid = "1",
-            name = "John Doe",
-            photoUrl = "https://example.com/profile.jpg",
-            members = emptyList(),
-            messages = emptyList()
-        )
-    )
+  DirectMessageItem(
+      Chat(
+          uid = "1",
+          name = "John Doe",
+          photoUrl = "https://example.com/profile.jpg",
+          type = ChatType.PRIVATE,
+          members = emptyList(),
+          messages = emptyList()))
 }
 
 @Preview
 @Composable
 fun DirectMessageScreenPreview() {
-    DirectMessageScreen(DirectMessageViewModel("npvnkh75JFhZi07QsLob8moNkAn1"), NavigationActions(rememberNavController()))
+  DirectMessageScreen(
+      DirectMessageViewModel("npvnkh75JFhZi07QsLob8moNkAn1"),
+      NavigationActions(rememberNavController()))
 }

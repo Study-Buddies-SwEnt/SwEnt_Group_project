@@ -33,4 +33,3 @@ object MessageVal {
   const val TEXT = "text"
   const val SENDER_UID = "senderId"
 }
-

@@ -335,132 +335,127 @@ class DatabaseConnection {
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
-    fun getMessagePath(UID: String, chatType: ChatType): String {
-       return when (chatType) {
-            ChatType.PRIVATE -> getPrivateMessagesPath(UID)
-            ChatType.GROUP -> getGroupMessagesPath(UID)
-        }
+  fun getMessagePath(UID: String, chatType: ChatType): String {
+    return when (chatType) {
+      ChatType.PRIVATE -> getPrivateMessagesPath(UID)
+      ChatType.GROUP -> getGroupMessagesPath(UID)
     }
+  }
 
   fun getGroupMessagesPath(groupUID: String): String {
     return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
-    fun getPrivateMessagesPath(chatUID: String): String {
-        return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-    }
+  fun getPrivateMessagesPath(chatUID: String): String {
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
+  }
 
-    fun getPrivateChatMembersPath(chatUID: String): String {
-        return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
-    }
+  fun getPrivateChatMembersPath(chatUID: String): String {
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
+  }
 
-    fun getPrivateChatMembers(chatUID: String, callback: (List<String?>) -> Unit) {
-        val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
+  fun getPrivateChatMembers(chatUID: String, callback: (List<String?>) -> Unit) {
+    val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
 
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val members = dataSnapshot.children.map { it.key }.toList()
-                callback(members)
-            }
+    ref.addListenerForSingleValueEvent(
+        object : ValueEventListener {
+          override fun onDataChange(dataSnapshot: DataSnapshot) {
+            val members = dataSnapshot.children.map { it.key }.toList()
+            callback(members)
+          }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                println("Database error: ${databaseError.message}")
-            }
+          override fun onCancelled(databaseError: DatabaseError) {
+            println("Database error: ${databaseError.message}")
+          }
         })
-    }
+  }
 
-    fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
-        val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
-        val userRef = rt_db.getReference("users") // Assuming 'users' node holds user data
+  fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
+    val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
+    val userRef = rt_db.getReference("users") // Assuming 'users' node holds user data
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val chatList = mutableListOf<Chat>()
+    CoroutineScope(Dispatchers.IO).launch {
+      val chatList = mutableListOf<Chat>()
 
-            val chatsSnapshot = ref.get().await()
+      val chatsSnapshot = ref.get().await()
 
-            chatsSnapshot.children.forEach { chat ->
-                val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
-                if (userUID in members) {
-                    val otherUserId = members.first { it != userUID }
+      chatsSnapshot.children.forEach { chat ->
+        val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
+        if (userUID in members) {
+          val otherUserId = members.first { it != userUID }
 
-                    Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
+          Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
 
-                    if (otherUserId != null) {
-                        getUser(otherUserId).let { otherUser ->
-                            val otherUserName = otherUser.username
-                            val otherUserPhotoUrl = otherUser.photoUrl.toString()
+          if (otherUserId != null) {
+            getUser(otherUserId).let { otherUser ->
+              val otherUserName = otherUser.username
+              val otherUserPhotoUrl = otherUser.photoUrl.toString()
 
-                            // Create a new Chat object with the other user's name and photo URL
-                            val messages = MutableStateFlow<List<Message>>(emptyList())
-                            getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
-                            Log.d("MyPrint", "Chat key ${chat.key}")
-                            Log.d("MyPrint", "Messages: ${messages.value}")
-                            val newChat = Chat(
-                                uid = chat.key ?: "",
-                                name = otherUserName,
-                                photoUrl = otherUserPhotoUrl,
-                                members = listOf(otherUser, getUser(userUID)),
-                                messages = messages.value
-                            )
-                            chatList.add(newChat)
-                        }
-                    }
-                }
+              // Create a new Chat object with the other user's name and photo URL
+              val messages = MutableStateFlow<List<Message>>(emptyList())
+              getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
+              Log.d("MyPrint", "Chat key ${chat.key}")
+              Log.d("MyPrint", "Messages: ${messages.value}")
+              val newChat =
+                  Chat(
+                      uid = chat.key ?: "",
+                      name = otherUserName,
+                      photoUrl = otherUserPhotoUrl,
+                      type = ChatType.PRIVATE,
+                      members = listOf(otherUser, getUser(userUID)),
+                      messages = messages.value)
+              chatList.add(newChat)
             }
-
-            liveData.value = chatList
+          }
         }
+      }
+
+      liveData.value = chatList
     }
+  }
 
-    fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>){
-        val ref = rt_db.getReference(getMessagePath(uid, chatType))
+  fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
+    val ref = rt_db.getReference(getMessagePath(uid, chatType))
 
-        Log.d("DB Connection - getMessages", "Getting messages for $uid")
-        Log.d("DB Connection - getMessages", "Chat type: $chatType")
+    Log.d("DB Connection - getMessages", "Getting messages for $uid")
+    Log.d("DB Connection - getMessages", "Chat type: $chatType")
 
-        Log.d("DB Connection - getMessages", "Reference: $ref")
+    Log.d("DB Connection - getMessages", "Reference: $ref")
 
-        ref.addValueEventListener(object : ValueEventListener {
-            private var handler = Handler(Looper.getMainLooper())
-            private var runnable: Runnable? = null
+    ref.addValueEventListener(
+        object : ValueEventListener {
+          private var handler = Handler(Looper.getMainLooper())
+          private var runnable: Runnable? = null
 
-            override fun onDataChange(snapshot: DataSnapshot) {
-                runnable?.let { handler.removeCallbacks(it) }
-                runnable = Runnable {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val newMessages = mutableListOf<Message>()
+          override fun onDataChange(snapshot: DataSnapshot) {
+            runnable?.let { handler.removeCallbacks(it) }
+            runnable = Runnable {
+              CoroutineScope(Dispatchers.IO).launch {
+                val newMessages = mutableListOf<Message>()
 
-                        // Process snapshot data to fetch user details and create message objects
-                        for (postSnapshot in snapshot.children) {
-                            val text = postSnapshot.child(MessageVal.TEXT).value.toString()
-                            val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
-                            val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
+                // Process snapshot data to fetch user details and create message objects
+                for (postSnapshot in snapshot.children) {
+                  val text = postSnapshot.child(MessageVal.TEXT).value.toString()
+                  val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
+                  val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
 
-                            // Assuming db.getUser is adapted to fetch user details without being suspending
-                            val user = getUser(senderUID)
+                  // Assuming db.getUser is adapted to fetch user details without being suspending
+                  val user = getUser(senderUID)
 
-                            val message = Message(
-                                postSnapshot.key.toString(),
-                                text,
-                                user,
-                                timestamp
-                            )
-                            newMessages.add(message)
-                        }
-
-                        // Post new message list to the main thread to update the UI
-                        withContext(Dispatchers.Main) {
-                            liveData.value = newMessages
-                        }
-                    }
+                  val message = Message(postSnapshot.key.toString(), text, user, timestamp)
+                  newMessages.add(message)
                 }
-                handler.post(runnable!!)
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("MessageViewModel", "Failed to read value.", error.toException())
+                // Post new message list to the main thread to update the UI
+                withContext(Dispatchers.Main) { liveData.value = newMessages }
+              }
             }
+            handler.post(runnable!!)
+          }
+
+          override fun onCancelled(error: DatabaseError) {
+            Log.w("MessageViewModel", "Failed to read value.", error.toException())
+          }
         })
-    }
-
+  }
 }

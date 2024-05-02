@@ -74,7 +74,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
-    val currentUser = viewModel.currentUser
+  val currentUser = viewModel.currentUser
 
   val listState = rememberLazyListState()
 
@@ -89,46 +89,36 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 
   Column(
       modifier =
-      Modifier
-          .fillMaxSize()
-          .background(LightBlue)
-          .navigationBarsPadding()
-          .testTag("chat_screen")) {
+          Modifier.fillMaxSize()
+              .background(LightBlue)
+              .navigationBarsPadding()
+              .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-            when(viewModel.chatType) {
-                ChatType.GROUP -> GroupViewModel(uid = viewModel.chatUID).group.value?.let { currentUser.value?.let { currentUser ->
-                    ChatGroupTitle(it,
-                        currentUser
-                    )
-                } }
-                /*MessageType.GROUP ->
-                    ChatGroupTitle(group = GroupViewModel(viewModel.chatUID).group.value!!,
-                        currentUser = viewModel.currentUser.value!!)*/
-                ChatType.PRIVATE ->
-                    PrivateChatTitle(UserViewModel(viewModel.getOtherUserUID()).userData.value!!)
-            }
-            GroupViewModel(uid = viewModel.chatUID).group.value?.let { currentUser.value?.let { currentUser ->
-                ChatGroupTitle(it,
-                    currentUser
-                )
-            } }
+          when (viewModel.chat.type) {
+            ChatType.GROUP ->
+                GroupViewModel(uid = viewModel.chat.uid).group.value?.let {
+                  currentUser.value?.let { currentUser -> ChatGroupTitle(it, currentUser) }
+                }
+            /*MessageType.GROUP ->
+            ChatGroupTitle(group = GroupViewModel(viewModel.chatUID).group.value!!,
+                currentUser = viewModel.currentUser.value!!)*/
+            ChatType.PRIVATE ->
+                PrivateChatTitle(UserViewModel(viewModel.getOtherUserUID()).userData.value!!)
+          }
         }
-        LazyColumn(state = listState, modifier = Modifier
-            .weight(1f)
-            .padding(8.dp)) {
+        LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             Row(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp)
-                    .combinedClickable(
-                        onClick = {},
-                        onLongClick = {
-                            selectedMessage = message
-                            showOptionsDialog.value = true
-                        })
-                    .testTag("chat_message_row"),
+                    Modifier.fillMaxWidth()
+                        .padding(2.dp)
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = {
+                              selectedMessage = message
+                              showOptionsDialog.value = true
+                            })
+                        .testTag("chat_message_row"),
                 horizontalArrangement =
                     if (viewModel.isUserMessageSender(message)) {
                       Arrangement.End
@@ -145,21 +135,18 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 
 @Composable
 fun TextBubble(message: Message, displayName: Boolean = false) {
-  Row(modifier = Modifier
-      .padding(1.dp)
-      .testTag("chat_text_bubble")) {
+  Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
     if (displayName) {
       // add user profile picture
       Image(
           painter = rememberImagePainter(message.sender.photoUrl.toString()),
           contentDescription = "User profile picture",
           modifier =
-          Modifier
-              .size(40.dp)
-              .clip(CircleShape)
-              .border(2.dp, Gray, CircleShape)
-              .align(Alignment.CenterVertically)
-              .testTag("chat_user_profile_picture"),
+              Modifier.size(40.dp)
+                  .clip(CircleShape)
+                  .border(2.dp, Gray, CircleShape)
+                  .align(Alignment.CenterVertically)
+                  .testTag("chat_user_profile_picture"),
           contentScale = ContentScale.Crop)
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -167,10 +154,9 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
 
     Box(
         modifier =
-        Modifier
-            .background(White, RoundedCornerShape(20.dp))
-            .padding(1.dp)
-            .testTag("chat_text_bubble_box")) {
+            Modifier.background(White, RoundedCornerShape(20.dp))
+                .padding(1.dp)
+                .testTag("chat_text_bubble_box")) {
           Column(modifier = Modifier.padding(8.dp)) {
             if (displayName) {
               Text(
@@ -199,11 +185,10 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
       value = textToSend,
       onValueChange = { textToSend = it },
       modifier =
-      Modifier
-          .padding(8.dp)
-          .fillMaxWidth()
-          .background(White, RoundedCornerShape(20.dp))
-          .testTag("chat_text_field"),
+          Modifier.padding(8.dp)
+              .fillMaxWidth()
+              .background(White, RoundedCornerShape(20.dp))
+              .testTag("chat_text_field"),
       shape = RoundedCornerShape(20.dp),
       textStyle = TextStyle(color = Black),
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
@@ -217,19 +202,14 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
               }),
       leadingIcon = {
         IconButton(
-            modifier = Modifier
-                .size(48.dp)
-                .padding(6.dp),
+            modifier = Modifier.size(48.dp).padding(6.dp),
             onClick = { /*TODO add more message option as send photos*/}) {
               Icon(Icons.Outlined.Add, contentDescription = "Icon", tint = Blue)
             }
       },
       trailingIcon = {
         IconButton(
-            modifier = Modifier
-                .size(48.dp)
-                .padding(6.dp)
-                .testTag("chat_send_button"),
+            modifier = Modifier.size(48.dp).padding(6.dp).testTag("chat_send_button"),
             onClick = {
               if (textToSend.isNotBlank()) {
                 onSend(textToSend)
@@ -286,9 +266,7 @@ fun OptionsDialog(
         },
         confirmButton = {
           Button(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .testTag("option_dialog_cancel"),
+              modifier = Modifier.fillMaxWidth().testTag("option_dialog_cancel"),
               onClick = { showOptionsDialog.value = false }) {
                 Text(text = stringResource(R.string.cancel), style = TextStyle(color = White))
               }
@@ -318,9 +296,7 @@ fun EditDialog(
         },
         confirmButton = {
           Button(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .testTag("edit_dialog_cancel"),
+              modifier = Modifier.fillMaxWidth().testTag("edit_dialog_cancel"),
               onClick = { showEditDialog.value = false }) {
                 Text(text = stringResource(R.string.cancel), style = TextStyle(color = White))
               }
@@ -333,10 +309,7 @@ fun ChatGroupTitle(group: Group, currentUser: User) {
   Image(
       painter = rememberImagePainter(group.picture.toString()),
       contentDescription = "Group profile picture",
-      modifier = Modifier
-          .size(40.dp)
-          .clip(CircleShape)
-          .testTag("group_title_profile_picture"),
+      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
@@ -345,30 +318,24 @@ fun ChatGroupTitle(group: Group, currentUser: User) {
     Spacer(modifier = Modifier.width(8.dp))
     LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
       items(group.members) { member ->
-          if (member != currentUser.username) {
-              Text(
-                  text = member,
-                  modifier = Modifier
-                      .padding(end = 8.dp)
-                      .testTag("group_title_member_name"),
-                  style = TextStyle(color = Gray),
-                  maxLines = 1
-              )
-          }
+        if (member != currentUser.username) {
+          Text(
+              text = member,
+              modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+              style = TextStyle(color = Gray),
+              maxLines = 1)
+        }
       }
     }
   }
 }
 
 @Composable
-fun PrivateChatTitle(user : User) {
-    Image(
+fun PrivateChatTitle(user: User) {
+  Image(
       painter = rememberImagePainter(user.photoUrl.toString()),
       contentDescription = "User profile picture",
-      modifier = Modifier
-          .size(40.dp)
-          .clip(CircleShape)
-          .testTag("private_title_profile_picture"),
+      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
