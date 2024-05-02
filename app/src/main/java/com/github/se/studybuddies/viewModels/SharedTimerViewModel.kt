@@ -57,6 +57,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
   private fun startLocalCountdown(duration: Long, startTime: Long) {
     if (timerJob == null || timerJob?.isCompleted == true) {
+
       timerJob =
           viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
