@@ -89,7 +89,7 @@ fun SharedTimerScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TimerButton(onClick = { sharedTimerViewModel.startTimer(0) }, text = "Start" )
+                TimerButton(onClick = { sharedTimerViewModel.startTimer() }, text = "Start" )
                 TimerButton(onClick = { sharedTimerViewModel.pauseTimer() }, text = "Pause" )
                 TimerButton(onClick = {  sharedTimerViewModel.resetTimer()  }, text = "Reset" )
             }
