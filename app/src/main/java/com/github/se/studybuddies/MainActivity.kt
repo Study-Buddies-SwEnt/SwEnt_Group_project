@@ -15,9 +15,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
@@ -31,6 +33,8 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
+import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
@@ -56,21 +60,22 @@ class MainActivity : ComponentActivity() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           val navController = rememberNavController()
           val navigationActions = NavigationActions(navController)
+          val chatViewModel = ChatViewModel()
           val currentUser = auth.currentUser
           val startDestination =
               if (currentUser != null) {
-                Route.GROUPSHOME
+                Route.SOLOSTUDYHOME
               } else {
                 Route.LOGIN
               }
           val context = LocalContext.current
           val apiKey = "x52wgjq8qyfc"
           val test_apiKey = "mmhfdzb5evj2" // test
-          val groupUID = "default_a0546550-933a-4aa8-b3f4-06cd068f998c" // test
+          val callID = "default_a0546550-933a-4aa8-b3f4-06cd068f998c" // test
           // val groupUID = "vMsJ8zIUDzwh" // test
           val test_token =
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
-
+          var groupUID = ""
           LaunchedEffect(key1 = Unit) {
             if (currentUser != null) {
               StreamVideoBuilder(
@@ -99,9 +104,10 @@ class MainActivity : ComponentActivity() {
                 route = "${Route.GROUP}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
-                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  groupUID = backStackEntry.arguments?.getString("groupUID").toString()
                   if (groupUID != null) {
-                    GroupScreen(groupUID, GroupViewModel(groupUID), navigationActions)
+                    GroupScreen(
+                        groupUID, GroupViewModel(groupUID), chatViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -141,10 +147,15 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
-            composable(Route.CHAT) {
+            composable(Route.DIRECT_MESSAGE) {
               if (currentUser != null) {
-                ChatScreen(MessageViewModel("general_group"), navigationActions)
+                DirectMessageScreen(
+                    DirectMessageViewModel(currentUser.uid), chatViewModel, navigationActions)
               }
+            }
+            composable(Route.CHAT) {
+              ChatScreen(
+                  MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
               if (currentUser != null) {
@@ -164,11 +175,14 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.VIDEOCALL) {
-              val call = StreamVideo.instance().call("default", groupUID)
-              if (currentUser != null) {
-                Log.d("MyPrint", "Trying to navigate to VideoGroupScreen")
-                VideoCallScreen(VideoCallViewModel(call, currentUser.uid), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
+              if (StreamVideo.isInstalled) {
+                val call = StreamVideo.instance().call("default", callID)
+                if (currentUser != null) {
+                  VideoCallScreen(VideoCallViewModel(call, currentUser.uid), navigationActions)
+                  Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
+                }
+              } else {
+                navigationActions.goBack()
               }
             }
           }

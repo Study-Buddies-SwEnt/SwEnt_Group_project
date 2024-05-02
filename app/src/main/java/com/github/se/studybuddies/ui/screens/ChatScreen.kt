@@ -56,7 +56,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.theme.Blue
@@ -70,7 +71,6 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
-
   val listState = rememberLazyListState()
 
   LaunchedEffect(messages) {
@@ -89,7 +89,11 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
               .navigationBarsPadding()
               .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-          ChatGroupTitle(viewModel.group)
+          when (viewModel.chat.type) {
+            ChatType.GROUP,
+            ChatType.TOPIC -> ChatGroupTitle(viewModel.chat)
+            ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
+          }
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
@@ -295,25 +299,37 @@ fun EditDialog(
 }
 
 @Composable
-fun ChatGroupTitle(group: Group) {
+fun ChatGroupTitle(chat: Chat) {
   Image(
-      painter = rememberImagePainter(group.picture.toString()),
+      painter = rememberImagePainter(chat.photoUrl),
       contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
       modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
   Column {
-    Text(text = group.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
+    Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
     Spacer(modifier = Modifier.width(8.dp))
     LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
-      items(group.members) { member ->
+      items(chat.members) { member ->
         Text(
-            text = member,
+            text = member.username,
             modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
             style = TextStyle(color = Gray),
             maxLines = 1)
       }
     }
   }
+}
+
+@Composable
+fun PrivateChatTitle(chat: Chat) {
+  Image(
+      painter = rememberImagePainter(chat.photoUrl),
+      contentDescription = "User profile picture",
+      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
+      contentScale = ContentScale.Crop)
+
+  Spacer(modifier = Modifier.width(8.dp))
+  Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
 }

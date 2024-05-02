@@ -15,12 +15,7 @@ object Route {
   const val TIMER = "Timer"
   const val CALENDAR = "Calendar"
   const val CHAT = "GeneralChat"
+  const val DIRECT_MESSAGE = "DirectMessage"
   const val VIDEOCALL = "VideoCall"
   const val MAP = "Map"
-  /*
-  const val OVERVIEW = "Overview"
-  const val MAP = "Map"
-  const val CREATETODO = "CreateToDo"
-  const val EDITTODO = "EditToDo"
-   */
 }
