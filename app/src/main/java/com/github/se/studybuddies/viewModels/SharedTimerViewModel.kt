@@ -135,19 +135,19 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
     }
 
-    suspend fun addHours(hours: Long) {
+     fun addHours(hours: Long) {
         addTimeMillis(hours * 3600 * 1000)
     }
 
-    suspend fun addMinutes(minutes: Long) {
+     fun addMinutes(minutes: Long) {
         addTimeMillis(minutes * 60 * 1000)
     }
 
-    suspend fun addSeconds(seconds: Long) {
+     fun addSeconds(seconds: Long) {
         addTimeMillis(seconds * 1000)
     }
 
-    private suspend fun addTimeMillis(millisToAdd: Long) {
+    private  fun addTimeMillis(millisToAdd: Long) {
 
         if (millisToAdd > 0) {
 
@@ -164,8 +164,10 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             val newRemainingTime = (remainingTime.value ?: 0L) + millisToAdd
             remainingTime.postValue(newRemainingTime)
 
-            // Update Firebase with the new duration
-          databaseConnection.updateGroupTimer(groupId,newDuration)
+            viewModelScope.launch {
+                databaseConnection.updateGroupTimer(groupId,newDuration)
+            }
+
         }
 
     }
