@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
@@ -29,7 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -112,38 +114,42 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
       modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title("Group settings") },
+            title = { Sub_title(stringResource(R.string.group_settings)) },
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
             actions = {})
       }) {
-        Column(
+        LazyColumn(
             modifier = Modifier.fillMaxWidth().background(White).testTag("modify_group_column"),
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
-              Spacer(modifier = Modifier.padding(20.dp))
-              ModifyName(name.value, nameState)
-              Spacer(modifier = Modifier.padding(10.dp))
-              ModifyProfilePicture(photoState) {
-                checkPermission(context, permission, requestPermissionLauncher) {
-                  getContent.launch(imageInput)
-                }
-              }
-              Spacer(modifier = Modifier.padding(20.dp))
-              AddMemberButton(groupUID, db)
-              Spacer(modifier = Modifier.padding(0.dp))
-              ShareLinkButton(groupLink.value)
-              Spacer(modifier = Modifier.padding(10.dp))
-              SaveGroupButton() {
-                scope.launch {
-                  if (nameState.value == "") {
-                    db.updateGroup(groupUID, name.value, photoState.value)
-                  } else {
-                    db.updateGroup(groupUID, nameState.value, photoState.value)
+              item { Spacer(modifier = Modifier.padding(20.dp)) }
+              item { ModifyName(name.value, nameState) }
+              item { Spacer(modifier = Modifier.padding(10.dp)) }
+              item {
+                ModifyProfilePicture(photoState) {
+                  checkPermission(context, permission, requestPermissionLauncher) {
+                    getContent.launch(imageInput)
                   }
                 }
-                navigationActions.navigateTo(Route.GROUPSHOME)
+              }
+              item { Spacer(modifier = Modifier.padding(20.dp)) }
+              item { AddMemberButton(groupUID, db) }
+              item { Spacer(modifier = Modifier.padding(0.dp)) }
+              item { ShareLinkButton(groupLink.value) }
+              item { Spacer(modifier = Modifier.padding(10.dp)) }
+              item {
+                SaveGroupButton {
+                  scope.launch {
+                    if (nameState.value == "") {
+                      db.updateGroup(groupUID, name.value, photoState.value)
+                    } else {
+                      db.updateGroup(groupUID, nameState.value, photoState.value)
+                    }
+                  }
+                  navigationActions.navigateTo(Route.GROUPSHOME)
+                }
               }
             }
       }
@@ -157,7 +163,7 @@ fun ModifyName(name: String, nameState: MutableState<String>) {
       value = nameState.value,
       onValueChange = { nameState.value = it },
       label = { Text(name, color = Blue) },
-      placeholder = { Text("Enter a new group name", color = Blue) },
+      placeholder = { Text(stringResource(R.string.enter_a_new_group_name), color = Blue) },
       singleLine = true,
       modifier =
           Modifier.padding(0.dp)
@@ -178,11 +184,11 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberImagePainter(photoState.value),
       contentDescription = "Profile Picture",
-      modifier = Modifier.size(200.dp),
+      modifier = Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),
       contentScale = ContentScale.Crop)
   Spacer(Modifier.height(20.dp))
   Text(
-      text = "Modify the profile picture",
+      text = stringResource(R.string.modify_the_profile_picture),
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
@@ -202,7 +208,7 @@ fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text("Add Members", color = Color.White)
+          Text(stringResource(R.string.add_members), color = Color.White)
         }
   }
 
@@ -210,23 +216,33 @@ fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Enter UserID") },
+        label = { Text(stringResource(R.string.enter_userID)) },
         singleLine = true,
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                unfocusedLabelColor = Blue,
+                unfocusedIndicatorColor = Blue,
+            ),
         keyboardActions =
             KeyboardActions(
                 onDone = {
                   // add the user to the database
                   isTextFieldVisible = false
                   scope.launch {
-                    val error = db.addUserToGroup(groupUID, text)
-                    if (error == -1) {
-                      showError = true
-                      delay(3000L) // delay for 3 seconds
-                      showError = false
-                    } else {
-                      showSucces = true
-                      delay(3000L) // delay for 3 seconds
-                      showSucces = false
+                    if (text != "") {
+
+                      val error = db.addUserToGroup(groupUID, text)
+                      if (error == -1) {
+                        showError = true
+                        delay(3000L) // delay for 3 seconds
+                        showError = false
+                      } else {
+                        showSucces = true
+                        delay(3000L) // delay for 3 seconds
+                        showSucces = false
+                      }
                     }
                   }
                 }))
@@ -235,14 +251,14 @@ fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = { TextButton(onClick = { showError = false }) {} }) {
-          Text("Can't find a member with this UID")
+          Text(stringResource(R.string.can_t_find_a_member_with_this_uid))
         }
   }
   if (showSucces) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = { TextButton(onClick = { showSucces = false }) {} }) {
-          Text("User have been successfully added to the group")
+          Text(stringResource(R.string.user_have_been_successfully_added_to_the_group))
         }
   }
 }
@@ -263,13 +279,23 @@ fun ShareLinkButton(groupLink: String) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text("Share Link", color = Color.White)
+          Text(stringResource(R.string.share_link), color = Color.White)
         }
+  }
 
-    if (isTextVisible) {
-      TextField(
-          value = text, onValueChange = {}, readOnly = true, modifier = Modifier.padding(16.dp))
-    }
+  if (isTextVisible) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = {},
+        readOnly = true,
+        modifier = Modifier.padding(16.dp),
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                unfocusedLabelColor = Blue,
+                unfocusedIndicatorColor = Blue,
+            ))
   }
 }
 
