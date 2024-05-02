@@ -280,7 +280,7 @@ class DatabaseConnection {
 
       groupDataCollection.add(group).addOnSuccessListener { documentReference ->
         val groupUID = documentReference.id
-          val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+        val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
         userMembershipsCollection
             .document(uid)
             .update("groups", FieldValue.arrayUnion(groupUID))

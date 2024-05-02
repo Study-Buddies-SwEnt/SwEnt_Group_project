@@ -20,4 +20,3 @@ val BOTTOM_NAVIGATION_DESTINATIONS =
         Destination(route = Route.GROUPSHOME, icon = R.drawable.groups, textId = "Groups"),
         Destination(route = Route.CHAT, icon = R.drawable.messages, textId = "Messages"),
         Destination(route = Route.SOLOSTUDYHOME, icon = R.drawable.map, textId = "Map"))
-

@@ -130,29 +130,28 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(
-              route = "${Route.TOPIC}/{topicUID}",
-              arguments = listOf(navArgument("topicUID") {type = NavType.StringType})) {
-                backStackEntry ->
-              val topicUID = backStackEntry.arguments?.getString("topicUID")
-              if (topicUID != null) {
-                TopicScreen(topicUID, TopicViewModel(topicUID), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to TopicScreen")
-              }
-            }
+                route = "${Route.TOPIC}/{topicUID}",
+                arguments = listOf(navArgument("topicUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val topicUID = backStackEntry.arguments?.getString("topicUID")
+                  if (topicUID != null) {
+                    TopicScreen(topicUID, TopicViewModel(topicUID), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicScreen")
+                  }
+                }
             composable(
-              route = "${Route.TOPIC_SETTINGS}/{backRoute}/{topicUID}",
-              arguments = listOf(
-                navArgument("backRoute") {type = NavType.StringType},
-                navArgument("topicUID") {type = NavType.StringType}
-              )) {
-                backStackEntry ->
-              val backRoute = backStackEntry.arguments?.getString("backRoute")
-              val topicUID = backStackEntry.arguments?.getString("topicUID")
-              if (backRoute != null && topicUID != null) {
-                TopicSettings(topicUID, TopicViewModel(topicUID), backRoute, navigationActions)
-                Log.d("MyPrint", "Successfully navigated to TopicSettings")
-              }
-            }
+                route = "${Route.TOPIC_SETTINGS}/{backRoute}/{topicUID}",
+                arguments =
+                    listOf(
+                        navArgument("backRoute") { type = NavType.StringType },
+                        navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
+                  val backRoute = backStackEntry.arguments?.getString("backRoute")
+                  val topicUID = backStackEntry.arguments?.getString("topicUID")
+                  if (backRoute != null && topicUID != null) {
+                    TopicSettings(topicUID, TopicViewModel(topicUID), backRoute, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicSettings")
+                  }
+                }
           }
         }
       }

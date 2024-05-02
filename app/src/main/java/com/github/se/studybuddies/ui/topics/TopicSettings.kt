@@ -26,34 +26,36 @@ import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TopicSettings(topicUID: String, topicViewModel: TopicViewModel, backRoute: String, navigationActions: NavigationActions) {
-    if (topicUID.isEmpty()) return
-    topicViewModel.fetchTopicData(topicUID)
-    val topicData by topicViewModel.topic.observeAsState()
+fun TopicSettings(
+    topicUID: String,
+    topicViewModel: TopicViewModel,
+    backRoute: String,
+    navigationActions: NavigationActions
+) {
+  if (topicUID.isEmpty()) return
+  topicViewModel.fetchTopicData(topicUID)
+  val topicData by topicViewModel.topic.observeAsState()
 
-    val nameState = remember { mutableStateOf(topicData?.name ?: "")
-    }
+  val nameState = remember { mutableStateOf(topicData?.name ?: "") }
 
-    topicData?.let {
-        nameState.value = it.name
-    }
+  topicData?.let { nameState.value = it.name }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize().testTag("account_settings"),
-        topBar = {
-            TopNavigationBar(
-                title = { Sub_title(title = stringResource(R.string.profile_setting)) },
-                navigationIcon = {
-                    GoBackRouteButton(navigationActions = navigationActions, backRoute)
-                },
-                actions = {})
-        }) {
+  Scaffold(
+      modifier = Modifier.fillMaxSize().testTag("account_settings"),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title = stringResource(R.string.profile_setting)) },
+            navigationIcon = {
+              GoBackRouteButton(navigationActions = navigationActions, backRoute)
+            },
+            actions = {})
+      }) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            Spacer(Modifier.height(150.dp))
-            // TODO: Topic settings page
-        }
-    }
+              Spacer(Modifier.height(150.dp))
+              // TODO: Topic settings page
+            }
+      }
 }

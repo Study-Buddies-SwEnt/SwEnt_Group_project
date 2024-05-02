@@ -177,17 +177,19 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Box(
-                modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)
-            ) {
-                Image(
-                    painter = rememberImagePainter(group.picture),
-                    contentDescription = stringResource(id = R.string.group_picture),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop)
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-          Text(text = group.name, modifier = Modifier.align(Alignment.CenterVertically), style = TextStyle(fontSize = 20.sp), lineHeight = 28.sp)
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+            Image(
+                painter = rememberImagePainter(group.picture),
+                contentDescription = stringResource(id = R.string.group_picture),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop)
+          }
+          Spacer(modifier = Modifier.size(16.dp))
+          Text(
+              text = group.name,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
           GroupsSettingsButton(navigationActions)
         }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -43,7 +42,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
@@ -68,13 +66,12 @@ fun GroupScreen(
     navigationActions: NavigationActions
 ) {
   val group by groupViewModel.group.observeAsState()
-    val topics by groupViewModel.topics.observeAsState()
+  val topics by groupViewModel.topics.observeAsState()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
   val membersState = remember { mutableStateOf(group?.members ?: emptyList()) }
-    val topicList = remember { mutableStateOf(topics?.getAllTopics() ?: emptyList()) }
-
+  val topicList = remember { mutableStateOf(topics?.getAllTopics() ?: emptyList()) }
 
   group?.let {
     nameState.value = it.name
@@ -83,9 +80,7 @@ fun GroupScreen(
   }
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .testTag("GroupScreen"),
+      modifier = Modifier.fillMaxSize().testTag("GroupScreen"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
@@ -108,88 +103,74 @@ fun GroupScreen(
             navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
       },
   ) {
-      Column(
-          modifier = Modifier
-              .fillMaxSize()
-              .padding(it)
-              .testTag("GroupsHome"),
-          horizontalAlignment = Alignment.Start,
-          verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-      ) {
-          Box(
-              modifier = Modifier
-                  .fillMaxWidth()
+    Column(
+        modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHome"),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+    ) {
+      Box(
+          modifier =
+              Modifier.fillMaxWidth()
                   .background(Color.White)
-                  .clickable {
-                      navigationActions.navigateTo(Route.CHAT)
-                  }
+                  .clickable { navigationActions.navigateTo(Route.CHAT) }
                   .drawBehind {
-                      val strokeWidth = 1f
-                      val y = size.height - strokeWidth / 2
-                      drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-                  }
-          ) {
-              Row(modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(16.dp)) {
-                  Box(
-                      modifier = Modifier
-                          .size(52.dp)
-                          .clip(CircleShape)
-                          .background(Color.Transparent)
-                  ) {
-                      Image(
-                          painter = rememberImagePainter(pictureState.value),
-                          contentDescription = stringResource(R.string.group_picture),
-                          modifier = Modifier.fillMaxSize(),
-                          contentScale = ContentScale.Crop)
-                  }
-                  Spacer(modifier = Modifier.size(16.dp))
-                  Text(text = stringResource(R.string.group_chat), modifier = Modifier.align(
-                      Alignment.CenterVertically), style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
+                    val strokeWidth = 1f
+                    val y = size.height - strokeWidth / 2
+                    drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                  }) {
+            Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+              Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+                Image(
+                    painter = rememberImagePainter(pictureState.value),
+                    contentDescription = stringResource(R.string.group_picture),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop)
               }
+              Spacer(modifier = Modifier.size(16.dp))
+              Text(
+                  text = stringResource(R.string.group_chat),
+                  modifier = Modifier.align(Alignment.CenterVertically),
+                  style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
+            }
           }
-          Divider( color = Blue, thickness = 4.dp)
-          LazyColumn(
-              modifier = Modifier.fillMaxSize(),
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-              horizontalAlignment = Alignment.Start,
-              content = {
-                  items(topicList.value) { topic -> TopicItem(topic, navigationActions) }
-              })
-      }
-
+      Divider(color = Blue, thickness = 4.dp)
+      LazyColumn(
+          modifier = Modifier.fillMaxSize(),
+          verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+          horizontalAlignment = Alignment.Start,
+          content = { items(topicList.value) { topic -> TopicItem(topic, navigationActions) } })
+    }
   }
 }
 
 @Composable
 fun TopicItem(topic: Topic, navigationActions: NavigationActions) {
-    Box(
-        modifier =
-        Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .clickable {
+  Box(
+      modifier =
+          Modifier.fillMaxWidth()
+              .background(Color.White)
+              .clickable {
                 val topicUid = topic.uid
                 navigationActions.navigateTo("${Route.TOPIC}/$topicUid")
-            }
-            .drawBehind {
+              }
+              .drawBehind {
                 val strokeWidth = 1f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-            }) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(text = topic.name, modifier = Modifier.align(Alignment.CenterVertically), style = TextStyle(fontSize = 20.sp), lineHeight = 28.sp)
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = { navigationActions.navigateTo(Route.TOPIC_SETTINGS) }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = stringResource(id = R.string.dots_menu)
-                )
-            }
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Spacer(modifier = Modifier.size(16.dp))
+          Text(
+              text = topic.name,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
+          Spacer(modifier = Modifier.weight(1f))
+          IconButton(onClick = { navigationActions.navigateTo(Route.TOPIC_SETTINGS) }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = stringResource(id = R.string.dots_menu))
+          }
         }
-    }
+      }
 }
