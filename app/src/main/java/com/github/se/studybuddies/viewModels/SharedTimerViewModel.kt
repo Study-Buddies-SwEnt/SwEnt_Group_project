@@ -62,12 +62,12 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                 remainingTime.postValue(timeLeft)
             }
 
-            // Ensure remaining time is accurate
+
             remainingTime.postValue(0L)
 
-            // Pause timer when countdown ends
+
             if (timeLeft <= 0) {
-                pauseTimer()
+                resetTimer()
             }
         }
     }
@@ -77,12 +77,14 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
             timerData.value?.let { timer ->
                 // Calculate the elapsed time correctly
                 if (timer.isRunning) {
+                    timerData.value?.isRunning = false
+
+                    timer.isRunning = false
                     val currentTime = System.currentTimeMillis()
                     val startTime = timer.startTime ?: currentTime
                     val elapsedTime = currentTime - startTime
-
-                    // Update the timer data locally
                     timer.isRunning = false
+
                     timer.elapsedTime = elapsedTime
 
                     // Calculate the remaining time properly
@@ -113,12 +115,13 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
                 )
             )
 
+            // Reset the timer data in Firebase
+            timerRef.setValue(null)
 
-            timerRef.setValue(0L)
+            // Post the reset remaining time
             remainingTime.postValue(0L)
         }
     }
-
 
     fun addHours(hours: Long) {
         addTimeMillis(hours * 3600 * 1000)
@@ -134,7 +137,10 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
     private fun addTimeMillis(millisToAdd: Long) {
 
-        val currentTimerData = timerData.value ?: TimerData()
+        if (millisToAdd > 0) {
+
+
+            val currentTimerData = timerData.value ?: TimerData()
 
             val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
 
@@ -148,6 +154,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
             // Update Firebase with the new duration
             timerRef.setValue(newDuration)
+        }
 
     }
 
