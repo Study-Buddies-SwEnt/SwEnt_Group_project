@@ -55,8 +55,6 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     private fun startLocalCountdown(duration: Long, startTime: Long) {
         viewModelScope.launch {
             var timeLeft = duration - (timerData.value?.elapsedTime ?: 0L)
-            val elapsedTime = System.currentTimeMillis() - startTime
-            timeLeft -= elapsedTime // Adjust timeLeft based on elapsed time
 
             while (timeLeft > 0 && timerData.value?.isRunning == true) {
                 delay(1000)
@@ -135,6 +133,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     }
 
     private fun addTimeMillis(millisToAdd: Long) {
+
         val currentTimerData = timerData.value ?: TimerData()
 
             val newDuration = (currentTimerData.duration ?: 0L) + millisToAdd
