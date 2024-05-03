@@ -27,6 +27,7 @@ import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.screens.SecondaryTopBar
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 
