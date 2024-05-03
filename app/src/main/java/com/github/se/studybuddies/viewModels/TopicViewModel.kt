@@ -21,13 +21,6 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun saveTopic(name: String) {
-    uid?.let { updateTopicName(name) }
-  }
-
-  fun deleteTopic() {
-    uid?.let { topicId -> viewModelScope.launch { db.deleteTopic(uid) } }
-  }
   /*
   @SuppressLint("CoroutineCreationDuringComposition")
   fun applyDeletions(deletions: Set<String>, onComplete: @Composable () -> Unit) {

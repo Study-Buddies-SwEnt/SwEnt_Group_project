@@ -160,15 +160,15 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(
-                route = "${Route.TOPIC_SETTINGS}/{backRoute}/{topicUID}",
+                route = "${Route.TOPIC_SETTINGS}/{groupUID}/{topicUID}",
                 arguments =
                     listOf(
-                        navArgument("backRoute") { type = NavType.StringType },
+                        navArgument("groupUID"){type = NavType.StringType},
                         navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
-                  val backRoute = backStackEntry.arguments?.getString("backRoute")
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
-                  if (backRoute != null && topicUID != null) {
-                    TopicSettings(topicUID, TopicViewModel(topicUID), backRoute, navigationActions)
+                val groupUid=backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUid!= null) {
+                    TopicSettings(topicUID,groupUid, TopicViewModel(topicUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }

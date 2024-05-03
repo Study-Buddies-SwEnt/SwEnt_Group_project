@@ -19,8 +19,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FabPosition
@@ -97,7 +99,17 @@ fun TopicScreen(
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
             navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
-            actions = {})
+            actions = {
+                IconButton(
+                    onClick = {
+                        navigationActions.navigateTo("${Route.TOPIC_SETTINGS}/$groupUID/$topicUID")},
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        tint = Blue,
+                        contentDescription = stringResource(R.string.group_option))
+                }
+            })
       },
       floatingActionButton = {
         Column(horizontalAlignment = Alignment.End) {
