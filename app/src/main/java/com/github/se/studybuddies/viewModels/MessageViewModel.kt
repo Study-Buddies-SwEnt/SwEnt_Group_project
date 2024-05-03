@@ -19,6 +19,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
+  val currentUser = _currentUser
 
   init {
     getMessage()

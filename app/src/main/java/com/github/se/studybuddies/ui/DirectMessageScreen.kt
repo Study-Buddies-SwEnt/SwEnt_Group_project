@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.ui
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -24,8 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,35 +44,26 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 
 @Composable
 fun DirectMessageScreen(
-    uid: String,
     viewModel: DirectMessageViewModel,
     chatViewModel: ChatViewModel,
     usersViewModel: UsersViewModel,
     navigationActions: NavigationActions
 ) {
-    usersViewModel.fetchAllFriends(uid)
-
-    val friendsData by usersViewModel.friends.collectAsState()
-    val friends = remember { mutableStateOf(friendsData) }
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList())
 
-  if (showAddPrivateMessageList.value) {
-    chatViewModel
-        .getChat()
-        ?.let { MessageViewModel(it) }
-        ?.let { ListAllUsers(it, showAddPrivateMessageList) }
-  }
+  Log.d("MyPrint", "ListAllUsers called")
+  chatViewModel
+      .getChat()
+      ?.let { MessageViewModel(it) }
+      ?.let { ListAllUsers(it, showAddPrivateMessageList, usersViewModel) }
 
   Column {
-    //    SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-    //        Text(text = stringResource(R.string.direct_messages_title), modifier =
-    // Modifier.padding(8.dp), fontSize = 20.sp)
-    //    }
     TopNavigationBar(
         title = { Text(text = stringResource(R.string.direct_messages_title)) },
         navigationIcon = {
@@ -81,8 +72,12 @@ fun DirectMessageScreen(
         actions = {
           IconButton(
               onClick = {
-                  Log.d("MyPrint", "Add private message button clicked")
-                showAddPrivateMessageList.value = true
+                Log.d("MyPrint", "Add private message button clicked")
+                if (showAddPrivateMessageList.value) {
+                  showAddPrivateMessageList.value = false
+                } else {
+                  showAddPrivateMessageList.value = true
+                }
               }) {
                 Icon(
                     Icons.Default.Add,
@@ -90,11 +85,18 @@ fun DirectMessageScreen(
               }
         })
 
-    LazyColumn() {
-      items(chats.value) { chat ->
-        DirectMessageItem(chat) {
-          chatViewModel.setChat(chat)
-          navigationActions.navigateTo(Route.CHAT)
+    if (showAddPrivateMessageList.value) {
+      ListAllUsers(
+          MessageViewModel(Chat("uid", "name", "photoUrl", ChatType.PRIVATE, emptyList())),
+          showAddPrivateMessageList,
+          usersViewModel)
+    } else {
+      LazyColumn() {
+        items(chats.value) { chat ->
+          DirectMessageItem(chat) {
+            chatViewModel.setChat(chat)
+            navigationActions.navigateTo(Route.CHAT)
+          }
         }
       }
     }
@@ -106,46 +108,46 @@ fun DirectMessageScreen(
 fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier
-          .fillMaxWidth()
-          .padding(8.dp)
-          .combinedClickable(onClick = { onClick() })) {
+      modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
         Image(
             painter = rememberImagePainter(chat.photoUrl),
             contentDescription = "User profile picture",
             modifier =
-            Modifier
-                .padding(8.dp)
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color.Gray, CircleShape)
-                .align(Alignment.CenterVertically)
-                .testTag("chat_user_profile_picture"),
+                Modifier.padding(8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape)
+                    .align(Alignment.CenterVertically)
+                    .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = chat.name)
         Spacer(modifier = Modifier.weight(1f))
       }
 }
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ListAllUsers(viewModel: MessageViewModel, showAddPrivateMessageList: MutableState<Boolean>) {
-  LazyColumn {
-    // TODO: Replace with actual users from the database
-    items(10) {
-      UserItem(
-          User("uid", "https://www.example.com", "username", Uri.EMPTY),
-          viewModel,
-          showAddPrivateMessageList)
-    }
+fun ListAllUsers(
+    messageViewModel: MessageViewModel,
+    showAddPrivateMessageList: MutableState<Boolean>,
+    usersViewModel: UsersViewModel
+) {
+  val friendsData by usersViewModel.friends.collectAsState()
+  val friends = remember { mutableStateOf(friendsData) }
+  messageViewModel.currentUser.value?.let { usersViewModel.fetchAllFriends(it.uid) }
+
+  Log.d("MyPrint", "ListAllUsers: ${friendsData.size}")
+  Log.d("MyPrint", "ListAllUsers: ${friends.value.size}")
+  LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    items(friendsData) { UserItem(it, messageViewModel, showAddPrivateMessageList) }
   }
+  Text(text = "ListAllUsers: ${friendsData.size}")
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserItem(
     user: User,
-    viewModel: MessageViewModel,
+    messageViewModel: MessageViewModel,
     showAddPrivateMessageList: MutableState<Boolean>
 ) {
   Row(
@@ -155,7 +157,7 @@ fun UserItem(
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
-                    viewModel.startDirectMessage(user.uid)
+                    messageViewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
                   })) {
         Image(
@@ -178,5 +180,5 @@ fun UserItem(
 @Composable
 fun ListAllUsersPreview() {
   val viewModel = MessageViewModel(Chat("uid", "name", "photoUrl", ChatType.PRIVATE, emptyList()))
-  ListAllUsers(viewModel, mutableStateOf(true))
+  ListAllUsers(viewModel, mutableStateOf(true), UsersViewModel())
 }

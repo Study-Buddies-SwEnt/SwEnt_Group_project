@@ -35,6 +35,7 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
+import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
@@ -118,7 +119,10 @@ class MainActivity : ComponentActivity() {
             composable(Route.DIRECT_MESSAGE) {
               if (currentUser != null) {
                 DirectMessageScreen(
-                    DirectMessageViewModel(currentUser.uid), chatViewModel, navigationActions)
+                    DirectMessageViewModel(currentUser.uid),
+                    chatViewModel,
+                    UsersViewModel(),
+                    navigationActions)
               }
             }
             composable(Route.CHAT) {

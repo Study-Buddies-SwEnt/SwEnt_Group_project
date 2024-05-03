@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -34,7 +35,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -82,26 +82,28 @@ class DatabaseConnection {
       ""
     }
   }
-    suspend fun getAllFriends(uid: String): List<User> {
-        try {
-            val snapshot = userDataCollection.document(uid).get().await()
-            val snapshotQuery = userDataCollection.get().await()
-            val items = mutableListOf<User>()
 
-            if (snapshot.exists()) {
-                //val userUIDs = snapshot.data?.get("friends") as? List<String>
-                for (item in snapshotQuery.documents) {
-                    val id = item.id
-                    items.add(getUser(id))
-                }
-            } else {
-                Log.d("MyPrint", "User with uid $uid does not exist")
-            }
-        } catch (e: Exception) {
-            Log.d("MyPrint", "Could not fetch friends with error: $e")
+  suspend fun getAllFriends(uid: String): List<User> {
+    try {
+      val snapshot = userDataCollection.document(uid).get().await()
+      val snapshotQuery = userDataCollection.get().await()
+      val items = mutableListOf<User>()
+
+      if (snapshot.exists()) {
+        // val userUIDs = snapshot.data?.get("friends") as? List<String>
+        for (item in snapshotQuery.documents) {
+          val id = item.id
+          items.add(getUser(id))
         }
-        return emptyList()
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+      }
+    } catch (e: Exception) {
+      Log.d("MyPrint", "Could not fetch friends with error: $e")
     }
+    return emptyList()
+  }
+
   suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
@@ -218,7 +220,6 @@ class DatabaseConnection {
         .addOnFailureListener { e -> onFailure(e) }
   }
 
-
   // using the groups & userMemberships collections
   suspend fun getAllGroups(uid: String): GroupList {
     try {
@@ -262,15 +263,16 @@ class DatabaseConnection {
     }
   }
 
-    suspend fun getGroupName(groupUID: String): String {
-        val document = groupDataCollection.document(groupUID).get().await()
-        return if (document.exists()) {
-            document.getString("name") ?: ""
-        } else {
-            Log.d("MyPrint", "group document not found for group id $groupUID")
-            ""
-        }
+  suspend fun getGroupName(groupUID: String): String {
+    val document = groupDataCollection.document(groupUID).get().await()
+    return if (document.exists()) {
+      document.getString("name") ?: ""
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
+      ""
     }
+  }
+
   suspend fun getDefaultPicture(): Uri {
     return storage.child("groupData/default_group.jpg").downloadUrl.await()
   }
