@@ -95,16 +95,18 @@ fun MapScreen(
     onDispose { LocalBroadcastManager.getInstance(context).unregisterReceiver(locationReceiver) }
   }
 
+
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-              Log.d("MapScreen", "Permission granted")
+                Log.d("MapScreen", "Permission granted")
             } else {
               Log.d("MapScreen", "Permission denied")
             }
           }
+
   MainScreenScaffold(
       navigationActions = navigationActions,
       backRoute = Route.MAP,
