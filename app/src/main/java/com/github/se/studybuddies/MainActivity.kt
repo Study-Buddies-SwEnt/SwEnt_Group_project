@@ -1,5 +1,9 @@
 package com.github.se.studybuddies
 
+// import com.github.se.studybuddies.ui.todo.EditToDoScreen
+// import com.github.se.studybuddies.viewModels.ToDoViewModel
+
+// import com.github.se.studybuddies.viewModels.ToDoViewModel
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -17,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DirectMessageScreen
@@ -34,6 +39,9 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
+import com.github.se.studybuddies.ui.todo.CreateToDo
+import com.github.se.studybuddies.ui.todo.EditToDoScreen
+import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
@@ -43,6 +51,7 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
+import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
@@ -59,6 +68,8 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
     val db = DatabaseConnection()
+
+    val studyBuddies = application as LocationApp
 
     setContent {
       StudyBuddiesTheme {
@@ -184,6 +195,32 @@ class MainActivity : ComponentActivity() {
               Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
               SoloStudyHome(navigationActions)
             }
+
+            composable(Route.TODOLIST) {
+              if (currentUser != null) {
+                ToDoListScreen(ToDoListViewModel(studyBuddies = studyBuddies), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to ToDoList")
+              }
+            }
+
+            composable(Route.CREATETODO) {
+              if (currentUser != null) {
+                CreateToDo(ToDoListViewModel(studyBuddies), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to CreateToDo")
+              }
+            }
+
+            composable(
+                route = "${Route.EDITTODO}/{todoUID}",
+                arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val todoUID = backStackEntry.arguments?.getString("todoUID")
+                  if (todoUID != null) {
+                    EditToDoScreen(todoUID, ToDoListViewModel(studyBuddies), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
+                  }
+                }
+
             composable(Route.MAP) {
               if (currentUser != null) {
                 MapScreen(currentUser.uid, navigationActions, applicationContext)

@@ -30,7 +30,7 @@ class SoloStudyOptionList(private val SoloStudyOptions: List<SoloStudyOption>) {
 }
 
 val FLASH_CARD = SoloStudyOption("Flash Card", R.drawable.flash_cards, Route.TIMER)
-val TODO_LIST = SoloStudyOption("ToDo List", R.drawable.to_do_list, Route.TIMER)
+val TODO_LIST = SoloStudyOption("ToDo List", R.drawable.to_do_list, Route.TODOLIST)
 val FOCUS_MODE = SoloStudyOption("Focus Mode", R.drawable.flash_cards, Route.TIMER)
 val TIMER = SoloStudyOption("Timer", R.drawable.timer, Route.TIMER)
 val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.TIMER)
@@ -46,6 +46,7 @@ fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOp
           Icon(
               painter = painterResource(id = option.icon_id),
               contentDescription = option.name,
+              tint = Blue,
               modifier = Modifier.height(80.dp).width(100.dp).testTag("solo_study_icon"))
           Text(
               option.name,
