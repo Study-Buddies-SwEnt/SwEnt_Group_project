@@ -78,7 +78,6 @@ class MainActivity : ComponentActivity() {
           val navController = rememberNavController()
           val navigationActions = NavigationActions(navController)
           val chatViewModel = ChatViewModel()
-          val currentUser = auth.currentUser
           val startDestination = Route.START
           val context = LocalContext.current
           val apiKey = "x52wgjq8qyfc"
@@ -88,7 +87,7 @@ class MainActivity : ComponentActivity() {
           val test_token =
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
           LaunchedEffect(key1 = Unit) {
-            if (currentUser != null && !StreamVideo.isInstalled) {
+            if (auth.currentUser != null && !StreamVideo.isInstalled) {
               StreamVideoBuilder(
                       context = context,
                       apiKey = apiKey, // demo API key
@@ -101,7 +100,7 @@ class MainActivity : ComponentActivity() {
           }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              if (currentUser != null) {
+              if (auth.currentUser != null) {
                 navController.navigate(Route.GROUPSHOME)
               } else {
                 navController.navigate(Route.LOGIN)
@@ -112,6 +111,7 @@ class MainActivity : ComponentActivity() {
               LoginScreen(navigationActions)
             }
             composable(Route.GROUPSHOME) {
+                val currentUser = auth.currentUser
               if (currentUser != null) {
                 GroupsHome(currentUser.uid, GroupsHomeViewModel(currentUser.uid), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
@@ -143,6 +143,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
+                val currentUser = auth.currentUser
                   if (backRoute != null && currentUser != null) {
                     AccountSettings(
                         currentUser.uid,
@@ -153,8 +154,10 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-              CreateAccount(UserViewModel(), navigationActions)
-              Log.d("MyPrint", "Successfully navigated to CreateAccount")
+                if (auth.currentUser != null) {
+                    CreateAccount(UserViewModel(), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to CreateAccount")
+                }
             }
             composable(
                 route = "${Route.TOPICCREATION}/{groupUID}",
@@ -167,12 +170,13 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEGROUP) {
-              if (currentUser != null) {
+              if (auth.currentUser != null) {
                 CreateGroup(GroupViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
             composable(Route.DIRECT_MESSAGE) {
+                val currentUser = auth.currentUser
               if (currentUser != null) {
                 DirectMessageScreen(
                     DirectMessageViewModel(currentUser.uid),
@@ -196,19 +200,21 @@ class MainActivity : ComponentActivity() {
                   MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-              Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
-              SoloStudyHome(navigationActions)
+                if (auth.currentUser != null) {
+                    Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+                    SoloStudyHome(navigationActions)
+                }
             }
 
             composable(Route.TODOLIST) {
-              if (currentUser != null) {
+              if (auth.currentUser != null) {
                 ToDoListScreen(ToDoListViewModel(studyBuddies = studyBuddies), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to ToDoList")
               }
             }
 
             composable(Route.CREATETODO) {
-              if (currentUser != null) {
+              if (auth.currentUser != null) {
                 CreateToDo(ToDoListViewModel(studyBuddies), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateToDo")
               }
@@ -226,12 +232,13 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.MAP) {
+                val currentUser = auth.currentUser
               if (currentUser != null) {
                 MapScreen(currentUser.uid, navigationActions, applicationContext)
               }
             }
             composable(Route.TIMER) {
-              if (currentUser != null) {
+              if (auth.currentUser != null) {
                 TimerScreenContent(TimerViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
@@ -239,6 +246,7 @@ class MainActivity : ComponentActivity() {
             composable(Route.VIDEOCALL) {
               if (StreamVideo.isInstalled) {
                 val call = StreamVideo.instance().call("default", callID)
+                val currentUser = auth.currentUser
                 if (currentUser != null) {
                   VideoCallScreen(VideoCallViewModel(call, currentUser.uid), navigationActions)
                   Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
