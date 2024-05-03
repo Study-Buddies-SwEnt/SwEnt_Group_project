@@ -30,6 +30,7 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
 
   fun createTopic(name: String) {
     viewModelScope.launch { db.createTopic(name) }
+    fetchTopicData(name)
   }
 
   fun createTopicFolder(name: String, area: ItemArea) {
