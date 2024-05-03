@@ -730,12 +730,9 @@ class DatabaseConnection {
         }
   }
 
-
   fun getTimerReference(groupId: String) = rt_db.getReference("timer/$groupId")
 
-
   @SuppressLint("SuspiciousIndentation")
-
   suspend fun getALlTopics(groupUID: String): TopicList {
     try {
       val snapshot = groupDataCollection.document(groupUID).get().await()

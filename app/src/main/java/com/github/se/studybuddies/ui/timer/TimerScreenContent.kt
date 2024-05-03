@@ -137,7 +137,7 @@ fun TimeAdjustSection(label: String, amount: Long, onAdjust: (Long) -> Unit) {
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.testTag("timer_adjustment")) {
         Text(text = label, fontSize = 20.sp)
-        Row {
+        Column {
           TimerAdjustButton(label = "+$label", amount, onAdjust)
           TimerAdjustButton(label = "-$label", -amount, onAdjust)
         }

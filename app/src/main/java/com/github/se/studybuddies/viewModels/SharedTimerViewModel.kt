@@ -1,25 +1,52 @@
 package com.github.se.studybuddies.viewModels
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.*
 
 class SharedTimerViewModel(private val groupId: String) : ViewModel() {
   private val databaseConnection = DatabaseConnection()
-  private val timerRef = databaseConnection.getTimerReference(groupId)
-
+  private var timerRef: DatabaseReference = databaseConnection.getTimerReference(groupId)
   val timerData: MutableLiveData<TimerData> = MutableLiveData()
   var remainingTime: MutableLiveData<Long?> = MutableLiveData()
+
   private var timerJob: Job? = null
+  private var timerEventListener: ValueEventListener? = null
 
   init {
     listenToTimerUpdates()
   }
+
+  private fun listenToTimerUpdates() {
+    timerEventListener =
+        object : ValueEventListener {
+          override fun onDataChange(snapshot: DataSnapshot) {
+            val timerValue = snapshot.getValue(Long::class.java) ?: 0L
+            remainingTime.postValue(timerValue)
+            timerData.postValue(TimerData(System.currentTimeMillis(), timerValue, 0L))
+            synchro()
+            pauseTimer()
+          }
+
+          override fun onCancelled(error: DatabaseError) {
+            // Optionally handle database read/write operation cancellations
+            Log.e(
+                "SharedTimerViewModel",
+                "Listening to timer updates was cancelled: ${error.message}")
+          }
+        }
+    timerRef.addValueEventListener(timerEventListener!!)
+  }
+  /*
+
+
 
   private fun listenToTimerUpdates() {
     timerRef.addValueEventListener(
@@ -34,7 +61,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
 
           override fun onCancelled(error: DatabaseError) {}
         })
-  }
+  }*/
 
   fun synchro() {
     val elapsedTime = System.currentTimeMillis() - (timerData.value?.startTime ?: 0L)
@@ -140,7 +167,7 @@ class SharedTimerViewModel(private val groupId: String) : ViewModel() {
     addTimeMillis(seconds * 1000)
   }
 
-  fun addTimeMillis(millisToAdd: Long) {
+  private fun addTimeMillis(millisToAdd: Long) {
 
     val currentTimerData = timerData.value ?: TimerData()
 
