@@ -10,7 +10,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,9 +19,7 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.ChatScreen
 import com.github.se.studybuddies.ui.DirectMessageScreen
-import com.github.se.studybuddies.ui.LoginScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
@@ -71,25 +68,25 @@ class MainActivity : ComponentActivity() {
           val chatViewModel = ChatViewModel()
           val currentUser = auth.currentUser
           val startDestination = Route.START
-            val context = LocalContext.current
-            val apiKey = "x52wgjq8qyfc"
-            val test_apiKey = "mmhfdzb5evj2" // test
-            val callID = "default_a0546550-933a-4aa8-b3f4-06cd068f998c" // test
-            // val groupUID = "vMsJ8zIUDzwh" // test
-            val test_token =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
-            LaunchedEffect(key1 = Unit) {
-                if (currentUser != null) {
-                    StreamVideoBuilder(
-                        context = context,
-                        apiKey = apiKey, // demo API key
-                        geo = GEO.GlobalEdgeNetwork,
-                        user = User(id = db.getCurrentUser().username),
-                        // token = StreamVideo.devToken(currentUser.uid))
-                        token = test_token)
-                        .build()
-                }
+          val context = LocalContext.current
+          val apiKey = "x52wgjq8qyfc"
+          val test_apiKey = "mmhfdzb5evj2" // test
+          val callID = "default_a0546550-933a-4aa8-b3f4-06cd068f998c" // test
+          // val groupUID = "vMsJ8zIUDzwh" // test
+          val test_token =
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
+          LaunchedEffect(key1 = Unit) {
+            if (currentUser != null) {
+              StreamVideoBuilder(
+                      context = context,
+                      apiKey = apiKey, // demo API key
+                      geo = GEO.GlobalEdgeNetwork,
+                      user = User(id = db.getCurrentUser().username),
+                      // token = StreamVideo.devToken(currentUser.uid))
+                      token = test_token)
+                  .build()
             }
+          }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (currentUser != null) {
