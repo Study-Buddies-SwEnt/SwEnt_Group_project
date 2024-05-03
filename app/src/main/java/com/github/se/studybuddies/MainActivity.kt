@@ -153,7 +153,6 @@ class MainActivity : ComponentActivity() {
                   if (groupUID != null) {
                     SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
-
                   }
                 }
           }
