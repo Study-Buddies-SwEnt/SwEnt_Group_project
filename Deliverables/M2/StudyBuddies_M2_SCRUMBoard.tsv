@@ -1,0 +1,79 @@
+Title	URL	Assignees	Status	Task Type	Nature	Epic	Time Estimation	Sprint	Time Taken
+Account and group management			Done in Sprint 5		User Story	1			
+Channels	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/18		Product Backlog		User Story	1			
+Invite friends with link			Done in Sprint 5		User Story	1			
+Navigation in the app			Done in Sprint 5		User Story	1			
+Strengths 	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/21		Product Backlog		User Story	1			
+Sharing Study Material	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/20		Product Backlog		User Story	1			
+Setup SonarCloud	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/10	cemuelle, TdVBd	Done in Sprint 4	Backend	Sprint Task	1	2	Sprint 1	4
+Application Locker	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/7		Product Backlog		User Story	2			
+Add friends with number			Product Backlog		User Story	1			
+General chat			Done in Sprint 5		User Story	1			
+Video Call	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/8		Product Backlog		User Story	2			
+Epic 1			Product Backlog		User Story	1			
+Epic 2			Product Backlog		User Story	2			
+modify the UI size of the solo study screen so it can fit a phone screen	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/83	Ovoland	Done in Sprint 5	Frontend	Sprint Task		0.5	Sprint 5	0.5
+Add ability to send pictures or files in chats	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/137	cemuelle	In Development	Backend	Sprint Task	2	5	Sprint 7	
+Implement topics chat	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/110	cemuelle	In Development	Frontend	Sprint Task	2	2	Sprint 7	
+Create new private Chat	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/121	cemuelle	In Development	Frontend	Sprint Task	2	2	Sprint 6	
+Reformat CreateAccount	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/86	Ovoland	In Development	Frontend	Sprint Task	1	3	Sprint 7	
+Implement a call lobby before joining a call	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/126	Freezemoon	In Development	Frontend	Sprint Task	2	5	Sprint 7	
+Implement calls for each group and fix returning to call bug	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/125	Freezemoon	In Development	Backend	Sprint Task	2	7	Sprint 7	
+Video Call Backend Implementation	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/103	Freezemoon	Done in Sprint 6	Backend	Sprint Task	2	6	Sprint 6	8
+Implement contact list database	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/108	TdVBd	Done in Sprint 6	Backend	Sprint Task	2	4	Sprint 6	6
+Create topics	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/65	hanelmouta, Svannia	Done in Sprint 6	Backend	Sprint Task	1	2	Sprint 6	
+Implement Topic Screen Creation	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/133	hanelmouta	Done in Sprint 6	Backend	Sprint Task	2	5	Sprint 6	5
+Implement Setting Topic screen.	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/132	hanelmouta	In Review	Backend	Sprint Task	1	5	Sprint 6	16
+ToDo List		TdVBd	Done in Sprint 6		User Story	1			
+Receive private messages	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/49	cemuelle	Done in Sprint 6	Backend	Sprint Task	1	3	Sprint 6	4
+Write private messages	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/48	cemuelle	Done in Sprint 6	Backend	Sprint Task	1	2	Sprint 6	4
+Stop location tracking bug fixing	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/87	Ovoland	Done in Sprint 6	Backend	Sprint Task	1	3	Sprint 6	3
+Create Group Modifie Page	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/102	oliver216	Done in Sprint 6	Frontend	Sprint Task	2	8	Sprint 6	14
+ToDo UI	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/42	TdVBd	Done in Sprint 5	Frontend	Sprint Task	1	3	Sprint 5	4
+ToDo List Utilitary Functions	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/46	TdVBd	Done in Sprint 5	Backend	Sprint Task	1	4	Sprint 5	4
+Generalize the format of Column, Lazy Column and  Scaffold	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/77	Ovoland	Done in Sprint 4	Frontend	Sprint Task	1	2	Sprint 4	3
+Correct the "card" of the Solo Study to have the correct name, icons and destination	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/76	Ovoland	Done in Sprint 4	Frontend	Sprint Task	1	3	Sprint 4	3
+Update the topics and settings pannels in the Figma	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/70	TdVBd	Done in Sprint 4	Figma	Sprint Task	1	4	Sprint 4	4
+Correct UI of solo study (timer route + new logo)	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/66	Ovoland	Done in Sprint 5	Frontend	Sprint Task	1	5	Sprint 5	6
+Manage ToDo tasks	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/43	TdVBd	Done in Sprint 5	Backend	Sprint Task	1	2	Sprint 6	3
+Implement test for the UI and the navigation bar	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/67	Ovoland	Done in Sprint 5	Backend	Sprint Task	1	6	Sprint 5	8
+Redesign the topics screen and functions on Figma	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/95	Ovoland	Done in Sprint 5	Figma	User Story	1	1	Sprint 5	1
+Request permissions for group picture	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/60	Freezemoon	Done in Sprint 5	Backend	Sprint Task	1	3	Sprint 5	6
+Debug and optimization of Account and group	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/27	Svannia	Done in Sprint 5	Backend	Sprint Task	1	3	Sprint 5	9.5
+Request permissions for profile picture	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/59	Freezemoon	Done in Sprint 5	Backend	Sprint Task	1	3	Sprint 5	3
+Group Invitation UI	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/58	oliver216	Done in Sprint 5	Backend	Sprint Task	1	6	Sprint 5	7
+Permissions for profile and group settings		Freezemoon	Done in Sprint 5		User Story	1			
+Clean the Figma	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/113	Ovoland	Done in Sprint 6	Figma	Sprint Task	1	2	Sprint 6	2
+Implement profile screen for each user that allows to start chat with user	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/138		Sprint Backlog	Backend	Sprint Task				
+Video call feature	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/90	Freezemoon	Sprint Backlog		User Story	2			
+Private Chats			Sprint Backlog		User Story	1			
+Topic chat			Sprint Backlog		User Story	1			
+Timers			Sprint Backlog		User Story	1			
+User Profile			Sprint Backlog		User Story				
+Solo Calendar			Sprint Backlog		User Story				
+Shared Timer	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/96	hanelmouta	In Development	Backend	Sprint Task	1	5	Sprint 7	32
+Fix the Login bug	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/128	Ovoland	Done in Sprint 6	Backend	Sprint Task	1	3	Sprint 6	2
+clean up and uniformize the UI components	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/105	TdVBd	In Development	Frontend	Sprint Task	2	2	Sprint 7	
+Create group home page	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/89	Freezemoon, Svannia	In Development	Backend	Sprint Task	1	3	Sprint 7	
+Fix "save" button behaviour	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/88	Svannia	In Development	Backend	Sprint Task	1	0.5	Sprint 7	
+Add User Location to Database	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/135	Ovoland	In Development	Backend	Sprint Task	1	2	Sprint 7	
+Add all user locations on the map	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/136	Ovoland	In Development	Backend	Sprint Task	1	4	Sprint 7	
+Implement contact list	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/139	TdVBd	In Development	Backend	Sprint Task	2	5	Sprint 7	
+Implement contact list UI	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/107	TdVBd	In Development	Frontend	Sprint Task	2	3	Sprint 7	
+Topic items	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/140	Svannia	In Development	Frontend	Sprint Task	2	3	Sprint 7	
+Implement End-to-End tests	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/97	Ovoland	In Development	Tests	Sprint Task	1	6	Sprint 7	
+Leave group	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/141	oliver216	In Development	Backend	Sprint Task	2	7	Sprint 7	
+Add group settings nav in group screen	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/142	oliver216	In Development	Frontend	Sprint Task	2	3	Sprint 7	
+Strengths	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/143	Svannia	In Development	Backend	Sprint Task	2	7	Sprint 7	
+Solo Calendar	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/144	hanelmouta	In Development	Backend	Sprint Task	2	8	Sprint 7	
+Set up backend for topics feature	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/118	Svannia	Done in Sprint 6	Backend	Sprint Task	1	1	Sprint 6	1.5
+Implement the Map	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/68	Ovoland	Done in Sprint 6	Backend	Sprint Task	1	6	Sprint 6	20
+Add a way to edit tasks in the ToDoList	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/106	TdVBd	In Review	Backend	Sprint Task	2	1.5	Sprint 6	
+Video Call UI and navigation	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/104	Freezemoon	Done in Sprint 6	Frontend	Sprint Task	2	5	Sprint 6	8
+Topic home page	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/119	Svannia	Done in Sprint 6	Frontend	Sprint Task	1	6	Sprint 6	10
+Implement APK generation	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/111	cemuelle	Done in Sprint 6	Backend	Sprint Task	1	2	Sprint 6	6
+Force the Dark mode for the app	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/100	oliver216	Done in Sprint 6	Frontend	Sprint Task	2	1	Sprint 6	1
+Reformatting hard-coded strings and version numbers	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/74	Freezemoon	Done in Sprint 6	Backend	Sprint Task	1	1	Sprint 6	1
+Create Group Invitation	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/54	oliver216	Done in Sprint 5	Backend	Sprint Task	1	8	Sprint 5	18
+Edit and delete messages in chat	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/85	cemuelle	Done in Sprint 5	Backend	Sprint Task	2	3	Sprint 5	5
+Improve Chat UI	https://github.com/Study-Buddies-SwEnt/SwEnt_Group_project/issues/79	cemuelle	Done in Sprint 5	Frontend	Sprint Task	1	4	Sprint 5	3
