@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
           val test_token =
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
           LaunchedEffect(key1 = Unit) {
-            if (currentUser != null) {
+            if (currentUser != null && !StreamVideo.isInstalled) {
               StreamVideoBuilder(
                       context = context,
                       apiKey = apiKey, // demo API key
