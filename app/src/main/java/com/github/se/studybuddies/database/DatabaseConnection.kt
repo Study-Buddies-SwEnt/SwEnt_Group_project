@@ -82,17 +82,26 @@ class DatabaseConnection {
       ""
     }
   }
+    suspend fun getAllFriends(uid: String): List<User> {
+        try {
+            val snapshot = userDataCollection.document(uid).get().await()
+            val snapshotQuery = userDataCollection.get().await()
+            val items = mutableListOf<User>()
 
-  suspend fun getGroupName(groupUID: String): String {
-    val document = groupDataCollection.document(groupUID).get().await()
-    return if (document.exists()) {
-      document.getString("name") ?: ""
-    } else {
-      Log.d("MyPrint", "group document not found for group id $groupUID")
-      ""
+            if (snapshot.exists()) {
+                //val userUIDs = snapshot.data?.get("friends") as? List<String>
+                for (item in snapshotQuery.documents) {
+                    val id = item.id
+                    items.add(getUser(id))
+                }
+            } else {
+                Log.d("MyPrint", "User with uid $uid does not exist")
+            }
+        } catch (e: Exception) {
+            Log.d("MyPrint", "Could not fetch friends with error: $e")
+        }
+        return emptyList()
     }
-  }
-
   suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
@@ -209,6 +218,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> onFailure(e) }
   }
 
+
   // using the groups & userMemberships collections
   suspend fun getAllGroups(uid: String): GroupList {
     try {
@@ -252,6 +262,15 @@ class DatabaseConnection {
     }
   }
 
+    suspend fun getGroupName(groupUID: String): String {
+        val document = groupDataCollection.document(groupUID).get().await()
+        return if (document.exists()) {
+            document.getString("name") ?: ""
+        } else {
+            Log.d("MyPrint", "group document not found for group id $groupUID")
+            ""
+        }
+    }
   suspend fun getDefaultPicture(): Uri {
     return storage.child("groupData/default_group.jpg").downloadUrl.await()
   }
