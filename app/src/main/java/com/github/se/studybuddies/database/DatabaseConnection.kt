@@ -390,6 +390,11 @@ class DatabaseConnection {
     rt_db.getReference(messagePath).removeValue()
   }
 
+  suspend fun removeTopic(groupUID: String, uid: String) {
+    val topic = getTopic(uid)
+    rt_db.getReference(topic.toString()).removeValue()
+  }
+
   fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
@@ -615,6 +620,17 @@ class DatabaseConnection {
           updateTopicItem(theory)
         }
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
+  }
+
+  suspend fun deleteTopicItem(topicId: String, itemId: String) {
+    val itemRef = topicItemCollection.document(itemId)
+    try {
+      itemRef.delete().await()
+      Log.d("Database", "Item deleted successfully: $itemId")
+    } catch (e: Exception) {
+      Log.e("Database", "Error deleting item: $itemId, Error: $e")
+      throw e
+    }
   }
 
   fun updateTopicName(uid: String, name: String) {
