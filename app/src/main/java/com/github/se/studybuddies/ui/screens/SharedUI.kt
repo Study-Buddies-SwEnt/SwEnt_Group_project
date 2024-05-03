@@ -165,7 +165,11 @@ fun TopNavigationBar(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>,currentRoute : String = "") {
+fun BottomNavigationBar(
+    navigationActions: NavigationActions,
+    destinations: List<Destination>,
+    currentRoute: String = ""
+) {
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
   NavigationBar(
       modifier =
