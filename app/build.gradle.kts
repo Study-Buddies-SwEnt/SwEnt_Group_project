@@ -86,6 +86,7 @@ android {
 
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.8.8")
     implementation("androidx.core:core-ktx:1.7.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")

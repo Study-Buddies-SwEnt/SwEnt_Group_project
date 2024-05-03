@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -169,6 +170,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
               .background(Color.White)
               .clickable {
                 val groupUid = group.uid
+                Log.d("GROUPEDITCLICK", "Tapped on group")
                 navigationActions.navigateTo("${Route.GROUP}/$groupUid")
               }
               .drawBehind {
