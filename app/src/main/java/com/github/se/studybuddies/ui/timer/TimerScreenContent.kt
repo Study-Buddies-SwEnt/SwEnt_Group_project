@@ -148,7 +148,7 @@ fun TimeAdjustSection(label: String, amount: Long, onAdjust: (Long) -> Unit) {
 fun TimerAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
   OutlinedButton(
       onClick = { onAdjust(amount) },
-       colors = ButtonDefaults.buttonColors(Blue),
+      colors = ButtonDefaults.buttonColors(Blue),
       shape = RoundedCornerShape(0.dp),
       border = BorderStroke(1.dp, White),
       modifier = Modifier.padding(0.dp).width(60.dp).height(40.dp).testTag(label + "_button")) {

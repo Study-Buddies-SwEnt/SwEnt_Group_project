@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.topics
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -29,6 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.GoBackRouteButton
+import com.github.se.studybuddies.ui.Sub_title
+import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
@@ -36,7 +39,11 @@ import com.github.se.studybuddies.viewModels.TopicViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TopicCreaction(topicViewModel: TopicViewModel, navigationActions: NavigationActions) {
+fun TopicCreation(
+    groupUID: String,
+    topicViewModel: TopicViewModel,
+    navigationActions: NavigationActions
+) {
   val nameState = remember { mutableStateOf("") }
 
   Scaffold(
@@ -44,9 +51,7 @@ fun TopicCreaction(topicViewModel: TopicViewModel, navigationActions: Navigation
       topBar = {
         TopNavigationBar(
             title = { Sub_title("Create Topic") },
-            navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-            },
+            navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
             actions = {})
       }) {
         Column(
@@ -82,7 +87,7 @@ fun TopicCreaction(topicViewModel: TopicViewModel, navigationActions: Navigation
               Button(
                   onClick = {
                     topicViewModel.createTopic(nameState.value)
-                    navigationActions.navigateTo(Route.GROUPSHOME)
+                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                   }) {
                     Text(text = "Save Topic", color = White, fontSize = 15.sp)
                   }

@@ -19,7 +19,6 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.ChatScreen
 import com.github.se.studybuddies.ui.DirectMessageScreen
 import com.github.se.studybuddies.ui.LoginScreen
-import com.github.se.studybuddies.ui.TopicCreaction
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
@@ -30,6 +29,7 @@ import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
+import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.viewModels.ChatViewModel
@@ -114,12 +114,16 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
               }
             }
-            composable(Route.TOPICCREATION) {
-              if (currentUser != null) {
-                TopicCreaction(TopicViewModel(), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to CreateAccount")
-              }
-            }
+            composable(
+                route = "${Route.TOPICCREATION}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (groupUID != null) {
+                    TopicCreation(groupUID, TopicViewModel(), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to Creation of topic ")
+                  }
+                }
             composable(Route.CREATEGROUP) {
               if (currentUser != null) {
                 CreateGroup(GroupViewModel(), navigationActions)

@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.Button
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -34,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,6 +72,7 @@ fun GroupScreen(
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()
+  val coroutineScope = rememberCoroutineScope()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
@@ -84,6 +84,7 @@ fun GroupScreen(
     pictureState.value = it.picture
     membersState.value = it.members
   }
+
   topics?.let { topicList.value = it.getAllTopics() }
 
   Scaffold(
@@ -107,7 +108,7 @@ fun GroupScreen(
       },
       floatingActionButton = {
         FloatingActionButton(
-            onClick = { navigationActions.navigateTo(Route.TOPICCREATION) },
+            onClick = { navigationActions.navigateTo("${Route.TOPICCREATION}/$groupUID") },
         ) {
           Icon(imageVector = Icons.Default.Add, tint = White, contentDescription = "Create Topic")
         }
