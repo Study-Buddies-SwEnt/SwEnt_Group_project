@@ -59,7 +59,7 @@ fun LoginScreen(navigationActions: NavigationActions, signInSuccessful: MutableS
 
   val signInLauncher =
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-        onSignInResult(res, navigationActions, signInSuccessful, route)
+        onSignInResult(res, signInSuccessful, route)
       }
 
   val Playball = FontFamily(Font(R.font.playball_regular))
@@ -118,7 +118,6 @@ fun LoginScreen(navigationActions: NavigationActions, signInSuccessful: MutableS
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions,
     signInSuccessful: MutableState<Boolean>,
     route: MutableState<String>
 ) {
