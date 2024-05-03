@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -17,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -59,24 +59,34 @@ fun DirectMessageScreen(
 
   Column {
     TopNavigationBar(
-        title = { Text(text = stringResource(R.string.direct_messages_title)) },
+        title = {
+                if (showAddPrivateMessageList.value) {
+                    Text(stringResource(R.string.start_direct_message_title))
+                } else {
+                    Text(text = stringResource(R.string.direct_messages_title))
+                }
+        },
         navigationIcon = {
           GoBackRouteButton(navigationActions = navigationActions, backRoute = Route.GROUPSHOME)
         },
         actions = {
           IconButton(
               onClick = {
-                Log.d("MyPrint", "Add private message button clicked")
-                if (showAddPrivateMessageList.value) {
-                  showAddPrivateMessageList.value = false
-                } else {
-                  showAddPrivateMessageList.value = true
-                }
+                  showAddPrivateMessageList.value = !showAddPrivateMessageList.value
               }) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = stringResource(R.string.new_private_message_icon))
-              }
+              if (showAddPrivateMessageList.value) {
+                  Icon(
+                      Icons.Default.Close,
+                      contentDescription = stringResource(R.string.new_private_message_icon)
+                  )
+              } else {
+                  Icon(
+                      Icons.Default.Add,
+                      contentDescription = stringResource(R.string.new_private_message_icon)
+                  )
+                }
+            }
+
         })
 
     if (showAddPrivateMessageList.value) {
@@ -126,10 +136,7 @@ fun ListAllUsers(
     usersViewModel: UsersViewModel
 ) {
   val friendsData by usersViewModel.friends.collectAsState()
-  val friends = remember { mutableStateOf(friendsData) }
 
-  Log.d("MyPrint", "ListAllUsers: ${friendsData.size}")
-  Log.d("MyPrint", "ListAllUsers: ${friends.value.size}")
   LazyColumn(modifier = Modifier.fillMaxWidth()) {
     items(friendsData) { UserItem(it, messageViewModel, showAddPrivateMessageList) }
   }
