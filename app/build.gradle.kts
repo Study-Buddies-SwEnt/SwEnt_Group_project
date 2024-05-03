@@ -151,7 +151,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:20.0.0")
 
     // Stream Video Compose SDK
-    implementation ("io.getstream:stream-video-android-ui-compose:0.5.1")
+    implementation("io.getstream:stream-video-android-ui-compose:0.5.1")
 
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {

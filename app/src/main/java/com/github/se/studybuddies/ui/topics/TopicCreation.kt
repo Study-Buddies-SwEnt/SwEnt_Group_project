@@ -32,7 +32,6 @@ import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
