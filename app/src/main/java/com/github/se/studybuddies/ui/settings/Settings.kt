@@ -11,9 +11,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Main_title
-import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Main_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

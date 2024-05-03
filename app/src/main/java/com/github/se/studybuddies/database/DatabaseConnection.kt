@@ -337,9 +337,29 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun updateGroup(groupUID: String): Int {
+  /*
+   * Add the user given in the parameter to the group given in the parameter
+   * If no user is given add the user actually logged in
+   *
+   * return -1 in case of invalid entries
+   */
+  suspend fun addUserToGroup(groupUID: String, user: String = ""): Int {
+
     if (groupUID == "") {
       Log.d("MyPrint", "Group UID is empty")
+      return -1
+    }
+
+    // only look if userUID exist, can't find user by username
+    val userToAdd: String
+    if (user == "") {
+      userToAdd = getCurrentUserUID()
+    } else {
+      userToAdd = user
+    }
+
+    if (getUser(userToAdd) == User.empty()) {
+      Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return -1
     }
 
@@ -348,8 +368,6 @@ class DatabaseConnection {
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return -1
     }
-    val userToAdd = getCurrentUserUID()
-
     // add user to group
     groupDataCollection
         .document(groupUID)
@@ -368,6 +386,40 @@ class DatabaseConnection {
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
     return 0
+  }
+
+  fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
+
+    // change name of group
+    groupDataCollection
+        .document(groupUID)
+        .update("name", name)
+        .addOnSuccessListener { Log.d("UpdateGroup", "group name successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateGroup", "Failed modify group name with error: ", e)
+        }
+
+    // change picture of group
+    groupDataCollection
+        .document(groupUID)
+        .update("picture", photoUri.toString())
+        .addOnSuccessListener { Log.d("MyPrint", "picture successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateGroup", "Failed modify group picture with error: ", e)
+        }
+
+    val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+    pictureRef
+        .putFile(photoUri)
+        .addOnSuccessListener {
+          pictureRef.downloadUrl.addOnSuccessListener { uri ->
+            groupDataCollection.document(groupUID).update("picture", uri.toString())
+            Log.d("UpdateGroup", "Successfully upload group photo")
+          }
+        }
+        .addOnFailureListener { e ->
+          Log.d("UpdateGroup", "Failed to upload photo with error: ", e)
+        }
   }
 
   // using the Realtime Database for messages
@@ -588,14 +640,36 @@ class DatabaseConnection {
     return items
   }
 
-  suspend fun createTopic(name: String) {
+  suspend fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
             "name" to name, "exercises" to emptyList<String>(), "theory" to emptyList<String>())
     topicDataCollection
         .add(topic)
-        .addOnSuccessListener { Log.d("MyPrint", "topic successfully created") }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create topic with error ", e) }
+        .addOnSuccessListener { document ->
+          val uid = document.id
+          Log.d("MyPrint", "topic successfully created")
+          callBack(uid)
+        }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to create topic with error ", e)
+          callBack("")
+        }
+  }
+
+  suspend fun addTopicToGroup(topicUID: String, groupUID: String) {
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (document.exists()) {
+      groupDataCollection
+          .document(groupUID)
+          .update("topics", FieldValue.arrayUnion(topicUID))
+          .addOnSuccessListener { Log.d("MyPrint", ("topic successfully added to group")) }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", ("failed to add topic to group with error $e"))
+          }
+    } else {
+      Log.d("MyPrint", ("group document not found for uid $groupUID"))
+    }
   }
 
   fun addExercise(uid: String, exercise: TopicItem) {
