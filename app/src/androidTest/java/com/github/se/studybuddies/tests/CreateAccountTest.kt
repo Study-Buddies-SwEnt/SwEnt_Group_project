@@ -1,6 +1,8 @@
 package com.github.se.studybuddies.tests
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,7 +38,9 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   @Before
   fun testSetup() {
     userVM = UserViewModel(uid)
-    composeTestRule.setContent { CreateAccount(userVM, mockNavActions) }
+    composeTestRule.setContent {
+      CreateAccount(userVM, mockNavActions, remember { mutableStateOf(false) })
+    }
   }
 
   @Test
