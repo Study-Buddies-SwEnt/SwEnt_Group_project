@@ -1,8 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
-import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.ItemArea
@@ -23,15 +21,14 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun deleteTopicItem(itemId: String) {
-    uid?.let { topicId ->
-      viewModelScope.launch {
-        db.deleteTopicItem(topicId, itemId)
-        fetchTopicData(topicId)
-      }
-    }
+  fun saveTopic(name: String) {
+    uid?.let { updateTopicName(name) }
   }
 
+  fun deleteTopic() {
+    uid?.let { topicId -> viewModelScope.launch { db.deleteTopic(uid) } }
+  }
+  /*
   @SuppressLint("CoroutineCreationDuringComposition")
   fun applyDeletions(deletions: Set<String>, onComplete: @Composable () -> Unit) {
     viewModelScope.launch {
@@ -44,7 +41,7 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
         Log.e("TopicViewModel", "Error deleting topic items: $e")
       }
     }
-  }
+  }*/
 
   fun fetchTopicData(uid: String) {
     viewModelScope.launch {

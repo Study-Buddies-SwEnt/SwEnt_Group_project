@@ -622,13 +622,13 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  suspend fun deleteTopicItem(topicId: String, itemId: String) {
-    val itemRef = topicItemCollection.document(itemId)
+  suspend fun deleteTopic(topicId: String) {
+    val itemRef = topicDataCollection.document(topicId)
     try {
       itemRef.delete().await()
-      Log.d("Database", "Item deleted successfully: $itemId")
+      Log.d("Database", "Item deleted successfully: $topicId")
     } catch (e: Exception) {
-      Log.e("Database", "Error deleting item: $itemId, Error: $e")
+      Log.e("Database", "Error deleting item: $topicId, Error: $e")
       throw e
     }
   }
