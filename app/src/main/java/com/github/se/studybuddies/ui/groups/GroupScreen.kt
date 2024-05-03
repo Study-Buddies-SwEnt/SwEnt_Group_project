@@ -44,10 +44,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
@@ -128,59 +126,60 @@ fun GroupScreen(
         BottomNavigationBar(
             navigationActions = navigationActions,
             destinations = GROUPS_BOTTOM_NAVIGATION_DESTINATIONS)
-      }
-  ) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHome"),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-    ) {
-      Box(
-          modifier =
-              Modifier.fillMaxWidth()
-                  .background(Color.White)
-                  .clickable {
-                    chatViewModel.setChat(
-                        group?.let {
-                          Chat(
-                              it.uid,
-                              it.name,
-                              it.picture.toString(),
-                              ChatType.GROUP,
-                              groupViewModel.members.value!!.toList())
-                        })
-                    navigationActions.navigateTo(Route.CHAT)
-                  }
-                  .drawBehind {
-                    val strokeWidth = 1f
-                    val y = size.height - strokeWidth / 2
-                    drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-                  }) {
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-              Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
-                Image(
-                    painter = rememberImagePainter(pictureState.value),
-                    contentDescription = stringResource(R.string.group_picture),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop)
+      }) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHome"),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+        ) {
+          Box(
+              modifier =
+                  Modifier.fillMaxWidth()
+                      .background(Color.White)
+                      .clickable {
+                        chatViewModel.setChat(
+                            group?.let {
+                              Chat(
+                                  it.uid,
+                                  it.name,
+                                  it.picture.toString(),
+                                  ChatType.GROUP,
+                                  groupViewModel.members.value!!.toList())
+                            })
+                        navigationActions.navigateTo(Route.CHAT)
+                      }
+                      .drawBehind {
+                        val strokeWidth = 1f
+                        val y = size.height - strokeWidth / 2
+                        drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                      }) {
+                Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                  Box(
+                      modifier =
+                          Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+                        Image(
+                            painter = rememberImagePainter(pictureState.value),
+                            contentDescription = stringResource(R.string.group_picture),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop)
+                      }
+                  Spacer(modifier = Modifier.size(16.dp))
+                  Text(
+                      text = stringResource(R.string.group_chat),
+                      modifier = Modifier.align(Alignment.CenterVertically),
+                      style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
+                }
               }
-              Spacer(modifier = Modifier.size(16.dp))
-              Text(
-                  text = stringResource(R.string.group_chat),
-                  modifier = Modifier.align(Alignment.CenterVertically),
-                  style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
-            }
-          }
-      Divider(color = Blue, thickness = 4.dp)
-      LazyColumn(
-          modifier = Modifier.fillMaxSize(),
-          verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-          horizontalAlignment = Alignment.Start,
-          content = {
-            items(topicList.value) { topic -> TopicItem(groupUID, topic, navigationActions) }
-          })
-    }
-  }
+          Divider(color = Blue, thickness = 4.dp)
+          LazyColumn(
+              modifier = Modifier.fillMaxSize(),
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+              horizontalAlignment = Alignment.Start,
+              content = {
+                items(topicList.value) { topic -> TopicItem(groupUID, topic, navigationActions) }
+              })
+        }
+      }
 }
 
 @Composable

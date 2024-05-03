@@ -245,16 +245,16 @@ class MainActivity : ComponentActivity() {
                 navigationActions.goBack()
               }
             }
-              composable(
-                  route = "${Route.SHAREDTIMER}/{groupUID}",
-                  arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
-                      backStackEntry ->
+            composable(
+                route = "${Route.SHAREDTIMER}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                      SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
-                      Log.d("MyPrint", "Successfully navigated to SharedTimer")
+                    SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
+                    Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
-              }
+                }
             composable(
                 route = "${Route.TOPIC}/{topicUID}/{groupUID}",
                 arguments =
