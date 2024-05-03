@@ -77,7 +77,7 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
             performClick()
           }
         }
-    verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
+    verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
     confirmVerified(mockNavActions)
   }
 
