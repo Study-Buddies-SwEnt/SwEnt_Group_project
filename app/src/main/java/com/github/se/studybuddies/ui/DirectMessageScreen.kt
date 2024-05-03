@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -33,12 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -91,7 +88,6 @@ fun DirectMessageScreen(
 
     if (showAddPrivateMessageList.value) {
       ListAllUsers(
-          MessageViewModel(Chat("uid", "name", "photoUrl", ChatType.PRIVATE, emptyList())),
           showAddPrivateMessageList,
           usersViewModel)
     } else {
@@ -131,14 +127,13 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 
 @Composable
 fun ListAllUsers(
-    messageViewModel: MessageViewModel,
     showAddPrivateMessageList: MutableState<Boolean>,
     usersViewModel: UsersViewModel
 ) {
   val friendsData by usersViewModel.friends.collectAsState()
 
   LazyColumn(modifier = Modifier.fillMaxWidth()) {
-    items(friendsData) { UserItem(it, messageViewModel, showAddPrivateMessageList) }
+    items(friendsData) { UserItem(it, showAddPrivateMessageList) }
   }
 }
 
@@ -146,7 +141,6 @@ fun ListAllUsers(
 @Composable
 fun UserItem(
     user: User,
-    messageViewModel: MessageViewModel,
     showAddPrivateMessageList: MutableState<Boolean>
 ) {
   Row(
@@ -156,6 +150,7 @@ fun UserItem(
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
+                      val messageViewModel = MessageViewModel(Chat.empty())
                     messageViewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
                   })) {
@@ -172,12 +167,4 @@ fun UserItem(
             contentScale = ContentScale.Crop)
         Text(text = user.username)
       }
-}
-
-@SuppressLint("UnrememberedMutableState")
-@Preview
-@Composable
-fun ListAllUsersPreview() {
-  val viewModel = MessageViewModel(Chat("uid", "name", "photoUrl", ChatType.PRIVATE, emptyList()))
-  ListAllUsers(viewModel, mutableStateOf(true), UsersViewModel())
 }
