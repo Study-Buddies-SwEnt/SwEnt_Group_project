@@ -88,7 +88,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                   }
                   SaveButton(usernameState) {
                     userViewModel.createUser(uid, email, usernameState.value, photoState.value)
-                    navigationActions.navigateTo(Route.GROUPSHOME)
+                    navigationActions.navigateTo(Route.SOLOSTUDYHOME)
                   }
                 }
           }
