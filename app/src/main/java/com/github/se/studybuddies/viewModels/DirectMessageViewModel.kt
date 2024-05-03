@@ -8,8 +8,7 @@ import kotlinx.coroutines.flow.map
 class DirectMessageViewModel(val userUid: String) {
   private val db = DatabaseConnection()
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
-  val directMessages =
-      _directMessages.map { directMessages -> directMessages.sortedByDescending { it.name } }
+  val directMessages = _directMessages.map { directMessages -> directMessages.sortedBy { it.name } }
 
   init {
     getDirectMessagesList()

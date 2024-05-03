@@ -1,9 +1,5 @@
 package com.github.se.studybuddies
 
-// import com.github.se.studybuddies.ui.todo.EditToDoScreen
-// import com.github.se.studybuddies.viewModels.ToDoViewModel
-
-// import com.github.se.studybuddies.viewModels.ToDoViewModel
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -101,7 +97,7 @@ class MainActivity : ComponentActivity() {
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (auth.currentUser != null) {
-                navController.navigate(Route.GROUPSHOME)
+                navController.navigate(Route.SOLOSTUDYHOME)
               } else {
                 navController.navigate(Route.LOGIN)
               }
@@ -111,7 +107,7 @@ class MainActivity : ComponentActivity() {
               LoginScreen(navigationActions)
             }
             composable(Route.GROUPSHOME) {
-                val currentUser = auth.currentUser
+              val currentUser = auth.currentUser
               if (currentUser != null) {
                 GroupsHome(currentUser.uid, GroupsHomeViewModel(currentUser.uid), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
@@ -143,7 +139,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                val currentUser = auth.currentUser
+                  val currentUser = auth.currentUser
                   if (backRoute != null && currentUser != null) {
                     AccountSettings(
                         currentUser.uid,
@@ -154,10 +150,10 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-                if (auth.currentUser != null) {
-                    CreateAccount(UserViewModel(), navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to CreateAccount")
-                }
+              if (auth.currentUser != null) {
+                CreateAccount(UserViewModel(), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to CreateAccount")
+              }
             }
             composable(
                 route = "${Route.TOPICCREATION}/{groupUID}",
@@ -176,7 +172,7 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.DIRECT_MESSAGE) {
-                val currentUser = auth.currentUser
+              val currentUser = auth.currentUser
               if (currentUser != null) {
                 DirectMessageScreen(
                     DirectMessageViewModel(currentUser.uid),
@@ -200,10 +196,10 @@ class MainActivity : ComponentActivity() {
                   MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-                if (auth.currentUser != null) {
-                    Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
-                    SoloStudyHome(navigationActions)
-                }
+              if (auth.currentUser != null) {
+                Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+                SoloStudyHome(navigationActions)
+              }
             }
 
             composable(Route.TODOLIST) {
@@ -232,7 +228,7 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.MAP) {
-                val currentUser = auth.currentUser
+              val currentUser = auth.currentUser
               if (currentUser != null) {
                 MapScreen(currentUser.uid, navigationActions, applicationContext)
               }

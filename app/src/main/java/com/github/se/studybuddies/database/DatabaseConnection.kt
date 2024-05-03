@@ -28,13 +28,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -594,19 +594,57 @@ class DatabaseConnection {
         })
   }
 
+  private fun checkForExistingChat(
+      currentUserUID: String,
+      otherUID: String,
+      onResult: (Boolean, String?) -> Unit
+  ) {
+    val query =
+        rt_db
+            .getReference(ChatVal.DIRECT_MESSAGES)
+            .orderByChild("${ChatVal.MEMBERS}/$currentUserUID")
+            .equalTo(true)
+
+    query.addListenerForSingleValueEvent(
+        object : ValueEventListener {
+          override fun onDataChange(snapshot: DataSnapshot) {
+            snapshot.children.forEach { chatSnapshot ->
+              if (chatSnapshot.hasChild("${ChatVal.MEMBERS}/$otherUID")) {
+                onResult(true, chatSnapshot.key)
+                return
+              }
+            }
+            onResult(false, null)
+          }
+
+          override fun onCancelled(databaseError: DatabaseError) {
+            Log.w(
+                "DatabaseConnect", "Failed to check for existing chat", databaseError.toException())
+            onResult(false, null)
+          }
+        })
+  }
+
   fun startDirectMessage(otherUID: String) {
-    val memberPath = getPrivateChatMembersPath(UUID.randomUUID().toString())
-    val members = mapOf(getCurrentUserUID() to true, otherUID to true)
-    val listChat = MutableStateFlow<List<Chat>>(emptyList())
-
-    getPrivateChatsList(otherUID, listChat)
-
-    if (listChat.value.isEmpty()) {
-      rt_db
-          .getReference(memberPath)
-          .updateChildren(members)
-          .addOnSuccessListener { Log.d("DatabaseConnect", "Members successfully added!") }
-          .addOnFailureListener { Log.w("DatabaseConnect", "Failed to write members.", it) }
+    val currentUserUID = getCurrentUserUID()
+    checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
+      if (chatExists) {
+        Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
+      } else {
+        Log.d("MyPrint", "startDirectMessage: creating new chat")
+        val newChatId = UUID.randomUUID().toString()
+        val memberPath = getPrivateChatMembersPath(newChatId)
+        val members = mapOf(currentUserUID to true, otherUID to true)
+        rt_db
+            .getReference(memberPath)
+            .updateChildren(members)
+            .addOnSuccessListener {
+              Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
+            }
+            .addOnFailureListener {
+              Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
+            }
+      }
     }
   }
 
