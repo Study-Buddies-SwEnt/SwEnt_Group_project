@@ -16,7 +16,4 @@ class NavigationActions(private val navController: NavHostController) {
     navController.popBackStack()
   }
 
-  companion object {
-    fun navigateTo(route: String) {}
-  }
 }

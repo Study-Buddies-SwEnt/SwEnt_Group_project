@@ -166,5 +166,3 @@ fun EditToDoScreen(
     }
   }
 }
-
-fun item(function: () -> Unit) {}

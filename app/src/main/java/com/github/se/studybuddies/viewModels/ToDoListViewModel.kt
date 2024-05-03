@@ -109,7 +109,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   fun encrypt(yourKey: SecretKey, fileData: ByteArray): ByteArray {
     val data = yourKey.getEncoded()
     val skeySpec = SecretKeySpec(data, 0, data.size, "AES")
-    val cipher = Cipher.getInstance("AES", "BC")
+    val cipher = Cipher.getInstance("AES", "GCM")
     cipher.init(Cipher.ENCRYPT_MODE, skeySpec, IvParameterSpec(ByteArray(cipher.getBlockSize())))
     return cipher.doFinal(fileData)
   }
@@ -135,7 +135,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   @Throws(Exception::class)
   fun decrypt(yourKey: SecretKey, fileData: ByteArray): ByteArray {
     val decrypted: ByteArray
-    val cipher = Cipher.getInstance("AES", "BC")
+    val cipher = Cipher.getInstance("AES", "GCM")
     cipher.init(Cipher.DECRYPT_MODE, yourKey, IvParameterSpec(ByteArray(cipher.blockSize)))
     decrypted = cipher.doFinal(fileData)
     return decrypted
