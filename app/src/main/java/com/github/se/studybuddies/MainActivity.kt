@@ -107,8 +107,8 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-                CreateAccount(UserViewModel(), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to CreateAccount")
+              CreateAccount(UserViewModel(), navigationActions)
+              Log.d("MyPrint", "Successfully navigated to CreateAccount")
             }
             composable(Route.CREATEGROUP) {
               if (currentUser != null) {
@@ -127,8 +127,8 @@ class MainActivity : ComponentActivity() {
                   MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-                Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
-                SoloStudyHome(navigationActions)
+              Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+              SoloStudyHome(navigationActions)
             }
             composable(Route.MAP) {
               if (currentUser != null) {
