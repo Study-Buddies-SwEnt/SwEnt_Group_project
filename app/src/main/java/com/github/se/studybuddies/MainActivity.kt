@@ -105,7 +105,6 @@ class MainActivity : ComponentActivity() {
                         navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
-
                 }
             composable(Route.CREATEACCOUNT) {
               if (currentUser != null) {
