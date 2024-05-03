@@ -75,7 +75,6 @@ class MainActivity : ComponentActivity() {
           // val groupUID = "vMsJ8zIUDzwh" // test
           val test_token =
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
-          var groupUID = ""
           LaunchedEffect(key1 = Unit) {
             if (currentUser != null) {
               StreamVideoBuilder(
@@ -104,7 +103,7 @@ class MainActivity : ComponentActivity() {
                 route = "${Route.GROUP}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
-                  groupUID = backStackEntry.arguments?.getString("groupUID").toString()
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
                     GroupScreen(
                         groupUID, GroupViewModel(groupUID), chatViewModel, navigationActions)
