@@ -31,6 +31,7 @@
     <string name="create_a_task">Create a task</string>
     <string name="link_button">Link button</string>
     <string name="enter_link">Enter Link</string>
+    <string name="enter_userID">Enter UserID</string>
     <string name="the_link_entered_is_invalid">The link entered is invalid</string>
     <string name="group_name">Group Name</string>
     <string name="enter_a_group_name">Enter a group name</string>
@@ -53,4 +54,13 @@
     <string name="enter_a_folder_name">Enter a folder name</string>
     <string name="enter_a_file_name">Enter a file name</string>
     <string name="chat">Chat</string>
+    <string name="you_have_been_successfully_added_to_the_group">You have been successfully added to the group</string>
+    <string name="can_t_find_a_member_with_this_uid">Can\'t find a member with this UID</string>
+    <string name="user_have_been_successfully_added_to_the_group">User have been successfully added to the group</string>
+    <string name="share_link">Share Link</string>
+    <string name="add_members">Add Members</string>
+    <string name="modify_the_profile_picture">Modify the profile picture</string>
+    <string name="enter_a_new_group_name">Enter a new group name</string>
+    <string name="group_settings">Group settings</string>
+    <string name="edit_topic_name">Edit Topic Name</string>
 </resources>

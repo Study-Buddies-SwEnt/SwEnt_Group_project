@@ -19,8 +19,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FabPosition
@@ -44,7 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -56,10 +57,10 @@ import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
 import com.github.se.studybuddies.ui.groups.TopicItem
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Sub_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
@@ -97,7 +98,18 @@ fun TopicScreen(
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
             navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
-            actions = {})
+            actions = {
+              IconButton(
+                  onClick = {
+                    navigationActions.navigateTo("${Route.TOPIC_SETTINGS}/$groupUID/$topicUID")
+                  },
+              ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    tint = Blue,
+                    contentDescription = stringResource(R.string.group_option))
+              }
+            })
       },
       floatingActionButton = {
         Column(horizontalAlignment = Alignment.End) {

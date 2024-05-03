@@ -21,6 +21,21 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
+  /*
+  @SuppressLint("CoroutineCreationDuringComposition")
+  fun applyDeletions(deletions: Set<String>, onComplete: @Composable () -> Unit) {
+    viewModelScope.launch {
+      try {
+        deletions.forEach { itemId -> db.deleteTopicItem(topic.value.uid, itemId) }
+        // Refresh or update the local topic data after deletions
+        fetchTopicData(topic.value.uid)
+      } catch (e: Exception) {
+        // Handle exceptions that may occur during the deletion process
+        Log.e("TopicViewModel", "Error deleting topic items: $e")
+      }
+    }
+  }*/
+
   fun fetchTopicData(uid: String) {
     viewModelScope.launch {
       _topic.value = db.getTopic(uid)
@@ -28,8 +43,13 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun createTopic(name: String) {
-    viewModelScope.launch { db.createTopic(name) }
+  fun createTopic(name: String, groupUID: String) {
+    viewModelScope.launch {
+      db.createTopic(name) { topicUID ->
+        viewModelScope.launch { db.addTopicToGroup(topicUID, groupUID) }
+      }
+    }
+    fetchTopicData(name)
   }
 
   fun createTopicFolder(name: String, area: ItemArea) {

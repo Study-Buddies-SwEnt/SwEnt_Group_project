@@ -15,16 +15,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +34,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,12 +55,15 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
+import com.github.se.studybuddies.navigation.GROUPS_BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.screens.BottomNavigationBar
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Sub_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
@@ -71,6 +78,7 @@ fun GroupScreen(
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()
+  val coroutineScope = rememberCoroutineScope()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
@@ -82,6 +90,7 @@ fun GroupScreen(
     pictureState.value = it.picture
     membersState.value = it.members
   }
+
   topics?.let { topicList.value = it.getAllTopics() }
 
   Scaffold(
@@ -93,27 +102,33 @@ fun GroupScreen(
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
             actions = {
-              IconButton(
-                  onClick = {},
-              ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    tint = Blue,
-                    contentDescription = stringResource(R.string.group_option))
-              }
+              Icon(
+                  imageVector = Icons.Default.MoreVert,
+                  tint = Blue,
+                  contentDescription = stringResource(R.string.group_option))
             })
       },
       floatingActionButton = {
-        Button(
-            onClick = { navigationActions.navigateTo("${Route.SHAREDTIMER}/$groupUID") },
-            modifier = Modifier.size(100.dp).clip(CircleShape),
-        ) {
-          Icon(
-              painter = painterResource(id = R.drawable.timer),
-              contentDescription = "Timer",
-              tint = Color.White)
-        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.End) {
+              Button(
+                  onClick = { navigationActions.navigateTo("${Route.TOPICCREATION}/$groupUID") },
+                  modifier =
+                      Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.create_a_task),
+                        tint = White)
+                  }
+            }
       },
+      bottomBar = {
+        BottomNavigationBar(
+            navigationActions = navigationActions,
+            destinations = GROUPS_BOTTOM_NAVIGATION_DESTINATIONS)
+      }
   ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHome"),
@@ -166,22 +181,6 @@ fun GroupScreen(
           })
     }
   }
-  Column(
-      modifier = Modifier.fillMaxSize(),
-      verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally) {
-        Image(
-            painter = rememberImagePainter(pictureState.value),
-            contentDescription = stringResource(R.string.group_picture),
-            modifier = Modifier.fillMaxWidth().height(200.dp),
-            contentScale = ContentScale.Crop)
-        Text(
-            text = stringResource(R.string.in_group_with_uid, nameState.value, groupUID),
-            style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            // .wrapContentHeight(Alignment.CenterVertically),
-            textAlign = TextAlign.Center)
-      }
 }
 
 @Composable

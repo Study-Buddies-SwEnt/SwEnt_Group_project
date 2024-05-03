@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.MainScreenScaffold
+import com.github.se.studybuddies.ui.screens.MainScreenScaffold
 
 @Composable
 fun SoloStudyHome(navigationActions: NavigationActions) {
@@ -32,6 +32,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
                     Solo_study_buttons(navigationActions, option = FLASH_CARD)
                     Solo_study_buttons(navigationActions, option = TODO_LIST)
                   }
+
               Spacer(modifier = Modifier.height(100.dp))
               Row(
                   modifier = Modifier.fillMaxWidth(),
