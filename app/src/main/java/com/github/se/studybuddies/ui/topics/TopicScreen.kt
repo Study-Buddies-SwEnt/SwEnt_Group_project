@@ -55,10 +55,6 @@ import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
-import com.github.se.studybuddies.ui.groups.TopicItem
 import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
