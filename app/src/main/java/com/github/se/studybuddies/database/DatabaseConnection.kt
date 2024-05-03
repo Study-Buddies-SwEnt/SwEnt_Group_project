@@ -28,10 +28,9 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -84,14 +83,26 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getGroupName(groupUID: String): String {
-    val document = groupDataCollection.document(groupUID).get().await()
-    return if (document.exists()) {
-      document.getString("name") ?: ""
-    } else {
-      Log.d("MyPrint", "group document not found for group id $groupUID")
-      ""
+  suspend fun getAllFriends(uid: String): List<User> {
+    try {
+      val snapshot = userDataCollection.document(uid).get().await()
+      val snapshotQuery = userDataCollection.get().await()
+      val items = mutableListOf<User>()
+
+      if (snapshot.exists()) {
+        // val userUIDs = snapshot.data?.get("friends") as? List<String>
+        for (item in snapshotQuery.documents) {
+          val id = item.id
+          items.add(getUser(id))
+        }
+        return items
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+      }
+    } catch (e: Exception) {
+      Log.d("MyPrint", "Could not fetch friends with error: $e")
     }
+    return emptyList()
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -254,6 +265,16 @@ class DatabaseConnection {
     } else {
       Log.d("MyPrint", "group document not found for group id $groupUID")
       Group.empty()
+    }
+  }
+
+  suspend fun getGroupName(groupUID: String): String {
+    val document = groupDataCollection.document(groupUID).get().await()
+    return if (document.exists()) {
+      document.getString("name") ?: ""
+    } else {
+      Log.d("MyPrint", "group document not found for group id $groupUID")
+      ""
     }
   }
 
@@ -510,82 +531,64 @@ class DatabaseConnection {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun getPrivateChatMembers(chatUID: String, liveData: MutableStateFlow<List<User>>) {
-    val ref = rt_db.getReference(getPrivateChatMembersPath(chatUID))
+  fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
+    val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
 
-    ref.addListenerForSingleValueEvent(
+    ref.addValueEventListener(
         object : ValueEventListener {
-          override fun onDataChange(dataSnapshot: DataSnapshot) {
-            CoroutineScope(Dispatchers.IO).launch {
-              val members =
-                  dataSnapshot.children
-                      .mapNotNull { dataSnapshotChild ->
-                        async { dataSnapshotChild.key?.let { getUser(it) } }
+          private var handler = Handler(Looper.getMainLooper())
+          private var runnable: Runnable? = null
+
+          override fun onDataChange(snapshot: DataSnapshot) {
+            runnable?.let { handler.removeCallbacks(it) }
+            runnable = Runnable {
+              CoroutineScope(Dispatchers.IO).launch {
+                val chatList = mutableListOf<Chat>()
+
+                snapshot.children.forEach { chat ->
+                  val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
+                  if (userUID in members) {
+                    val otherUserId = members.first { it != userUID }
+
+                    Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
+
+                    if (otherUserId != null) {
+                      getUser(otherUserId).let { otherUser ->
+                        val otherUserName = otherUser.username
+                        val otherUserPhotoUrl = otherUser.photoUrl.toString()
+
+                        val messages = MutableStateFlow<List<Message>>(emptyList())
+                        getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
+                        val newChat =
+                            Chat(
+                                uid = chat.key ?: "",
+                                name = otherUserName,
+                                photoUrl = otherUserPhotoUrl,
+                                type = ChatType.PRIVATE,
+                                members = listOf(otherUser, getUser(userUID)))
+                        chatList.add(newChat)
                       }
-                      .awaitAll()
-                      .filterNotNull()
-              liveData.value = members
+                    }
+                  }
+                }
+
+                withContext(Dispatchers.Main) { liveData.value = chatList }
+              }
             }
+            handler.postDelayed(runnable!!, 1000)
           }
 
-          override fun onCancelled(databaseError: DatabaseError) {
+          override fun onCancelled(error: DatabaseError) {
             Log.w(
-                "DatabaseConnection - getPrivateChatMembers",
-                "Database error: ${databaseError.message}")
+                "DatabaseConnection - getPrivateChatsList()",
+                "Failed to read value.",
+                error.toException())
           }
         })
   }
 
-  fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
-    val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
-
-    CoroutineScope(Dispatchers.IO).launch {
-      val chatList = mutableListOf<Chat>()
-
-      val chatsSnapshot = ref.get().await()
-
-      chatsSnapshot.children.forEach { chat ->
-        val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
-        if (userUID in members) {
-          val otherUserId = members.first { it != userUID }
-
-          Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
-
-          if (otherUserId != null) {
-            getUser(otherUserId).let { otherUser ->
-              val otherUserName = otherUser.username
-              val otherUserPhotoUrl = otherUser.photoUrl.toString()
-
-              // Create a new Chat object with the other user's name and photo URL
-              val messages = MutableStateFlow<List<Message>>(emptyList())
-              getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
-              Log.d("MyPrint", "Chat key ${chat.key}")
-              Log.d("MyPrint", "Messages: ${messages.value}")
-              val newChat =
-                  Chat(
-                      uid = chat.key ?: "",
-                      name = otherUserName,
-                      photoUrl = otherUserPhotoUrl,
-                      type = ChatType.PRIVATE,
-                      members = listOf(otherUser, getUser(userUID)),
-                  /*messages = messages.value*/ )
-              chatList.add(newChat)
-            }
-          }
-        }
-      }
-
-      liveData.value = chatList
-    }
-  }
-
   fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
     val ref = rt_db.getReference(getMessagePath(uid, chatType))
-
-    Log.d("DB Connection - getMessages", "Getting messages for $uid")
-    Log.d("DB Connection - getMessages", "Chat type: $chatType")
-
-    Log.d("DB Connection - getMessages", "Reference: $ref")
 
     ref.addValueEventListener(
         object : ValueEventListener {
@@ -615,7 +618,7 @@ class DatabaseConnection {
                 withContext(Dispatchers.Main) { liveData.value = newMessages }
               }
             }
-            handler.post(runnable!!)
+            handler.postDelayed(runnable!!, 500)
           }
 
           override fun onCancelled(error: DatabaseError) {
@@ -623,6 +626,60 @@ class DatabaseConnection {
                 "DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
           }
         })
+  }
+
+  private fun checkForExistingChat(
+      currentUserUID: String,
+      otherUID: String,
+      onResult: (Boolean, String?) -> Unit
+  ) {
+    val query =
+        rt_db
+            .getReference(ChatVal.DIRECT_MESSAGES)
+            .orderByChild("${ChatVal.MEMBERS}/$currentUserUID")
+            .equalTo(true)
+
+    query.addListenerForSingleValueEvent(
+        object : ValueEventListener {
+          override fun onDataChange(snapshot: DataSnapshot) {
+            snapshot.children.forEach { chatSnapshot ->
+              if (chatSnapshot.hasChild("${ChatVal.MEMBERS}/$otherUID")) {
+                onResult(true, chatSnapshot.key)
+                return
+              }
+            }
+            onResult(false, null)
+          }
+
+          override fun onCancelled(databaseError: DatabaseError) {
+            Log.w(
+                "DatabaseConnect", "Failed to check for existing chat", databaseError.toException())
+            onResult(false, null)
+          }
+        })
+  }
+
+  fun startDirectMessage(otherUID: String) {
+    val currentUserUID = getCurrentUserUID()
+    checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
+      if (chatExists) {
+        Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
+      } else {
+        Log.d("MyPrint", "startDirectMessage: creating new chat")
+        val newChatId = UUID.randomUUID().toString()
+        val memberPath = getPrivateChatMembersPath(newChatId)
+        val members = mapOf(currentUserUID to true, otherUID to true)
+        rt_db
+            .getReference(memberPath)
+            .updateChildren(members)
+            .addOnSuccessListener {
+              Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
+            }
+            .addOnFailureListener {
+              Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
+            }
+      }
+    }
   }
 
   // using the topicData collection

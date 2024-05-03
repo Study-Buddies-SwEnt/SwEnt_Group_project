@@ -160,6 +160,8 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
   @get:Rule val mockkRule = MockKRule(this)
 
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
   val groupUID = "automaticTestGroupUID"
 
   @Composable
@@ -179,7 +181,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(true) }
     val showEditDialog = remember { mutableStateOf(false) }
-    OptionsDialog(vm, message, showOptionsDialog, showEditDialog)
+    OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
   }
 
   @Before

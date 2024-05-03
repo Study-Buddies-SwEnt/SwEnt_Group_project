@@ -18,6 +18,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
+  val currentUser = _currentUser
 
   init {
     getMessage()
@@ -41,6 +42,10 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     if (message != null) {
       db.sendMessage(chat.uid, message, chat.type)
     } else Log.d("MyPrint", "message is null, could not retrieve")
+  }
+
+  fun startDirectMessage(messageUserUID: String) {
+    db.startDirectMessage(messageUserUID)
   }
 
   fun deleteMessage(message: Message) {

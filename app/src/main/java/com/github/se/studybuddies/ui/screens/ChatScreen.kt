@@ -60,6 +60,7 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel
@@ -79,7 +80,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
     }
   }
 
-  OptionsDialog(viewModel, selectedMessage, showOptionsDialog, showEditDialog)
+  OptionsDialog(viewModel, selectedMessage, showOptionsDialog, showEditDialog, navigationActions)
   EditDialog(viewModel, selectedMessage, showEditDialog)
 
   Column(
@@ -114,7 +115,10 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                     } else {
                       Arrangement.Start
                     }) {
-                  TextBubble(message, !viewModel.isUserMessageSender(message))
+                  TextBubble(
+                      message,
+                      !viewModel.isUserMessageSender(message) &&
+                          viewModel.chat.type != ChatType.PRIVATE)
                 }
           }
         }
@@ -221,7 +225,8 @@ fun OptionsDialog(
     viewModel: MessageViewModel,
     selectedMessage: Message?,
     showOptionsDialog: MutableState<Boolean>,
-    showEditDialog: MutableState<Boolean>
+    showEditDialog: MutableState<Boolean>,
+    navigationActions: NavigationActions
 ) {
   if (showOptionsDialog.value) {
     AlertDialog(
@@ -255,6 +260,22 @@ fun OptionsDialog(
                         style = TextStyle(color = White),
                     )
                   }
+            } else {
+              if (viewModel.chat.type == ChatType.GROUP || viewModel.chat.type == ChatType.TOPIC) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.testTag("option_dialog_start_direct_message"),
+                    onClick = {
+                      showOptionsDialog.value = false
+                      viewModel.startDirectMessage(selectedMessage.sender.uid)
+                      navigationActions.navigateTo(Route.DIRECT_MESSAGE)
+                    }) {
+                      Text(
+                          text = stringResource(R.string.start_direct_message),
+                          style = TextStyle(color = White),
+                      )
+                    }
+              }
             }
           }
         },
