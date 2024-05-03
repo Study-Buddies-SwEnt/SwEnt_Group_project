@@ -27,7 +27,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,6 +34,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -95,6 +95,7 @@ class DatabaseConnection {
           val id = item.id
           items.add(getUser(id))
         }
+        return items
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
       }

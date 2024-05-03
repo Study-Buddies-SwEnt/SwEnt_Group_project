@@ -57,12 +57,6 @@ fun DirectMessageScreen(
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList())
 
-  Log.d("MyPrint", "ListAllUsers called")
-  chatViewModel
-      .getChat()
-      ?.let { MessageViewModel(it) }
-      ?.let { ListAllUsers(it, showAddPrivateMessageList, usersViewModel) }
-
   Column {
     TopNavigationBar(
         title = { Text(text = stringResource(R.string.direct_messages_title)) },
@@ -133,14 +127,12 @@ fun ListAllUsers(
 ) {
   val friendsData by usersViewModel.friends.collectAsState()
   val friends = remember { mutableStateOf(friendsData) }
-  messageViewModel.currentUser.value?.let { usersViewModel.fetchAllFriends(it.uid) }
 
   Log.d("MyPrint", "ListAllUsers: ${friendsData.size}")
   Log.d("MyPrint", "ListAllUsers: ${friends.value.size}")
   LazyColumn(modifier = Modifier.fillMaxWidth()) {
     items(friendsData) { UserItem(it, messageViewModel, showAddPrivateMessageList) }
   }
-  Text(text = "ListAllUsers: ${friendsData.size}")
 }
 
 @OptIn(ExperimentalFoundationApi::class)

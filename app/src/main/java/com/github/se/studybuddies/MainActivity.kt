@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
                 DirectMessageScreen(
                     DirectMessageViewModel(currentUser.uid),
                     chatViewModel,
-                    UsersViewModel(),
+                    UsersViewModel(currentUser.uid),
                     navigationActions)
               }
             }
