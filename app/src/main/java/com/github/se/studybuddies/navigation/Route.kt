@@ -17,6 +17,7 @@ object Route {
   const val TOPIC = "Topic"
   const val TOPIC_SETTINGS = "Topic settings"
   const val CHAT = "Chat"
+  const val TOPICCREATION = " TopicCreaction"
   const val DIRECT_MESSAGE = "DirectMessage"
   const val VIDEOCALL = "VideoCall"
   const val MAP = "Map"

@@ -583,14 +583,36 @@ class DatabaseConnection {
     return items
   }
 
-  suspend fun createTopic(name: String) {
+  suspend fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
             "name" to name, "exercises" to emptyList<String>(), "theory" to emptyList<String>())
     topicDataCollection
         .add(topic)
-        .addOnSuccessListener { Log.d("MyPrint", "topic successfully created") }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create topic with error ", e) }
+        .addOnSuccessListener { document ->
+          val uid = document.id
+          Log.d("MyPrint", "topic successfully created")
+          callBack(uid)
+        }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to create topic with error ", e)
+          callBack("")
+        }
+  }
+
+  suspend fun addTopicToGroup(topicUID: String, groupUID: String) {
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (document.exists()) {
+      groupDataCollection
+          .document(groupUID)
+          .update("topics", FieldValue.arrayUnion(topicUID))
+          .addOnSuccessListener { Log.d("MyPrint", ("topic successfully added to group")) }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", ("failed to add topic to group with error $e"))
+          }
+    } else {
+      Log.d("MyPrint", ("group document not found for uid $groupUID"))
+    }
   }
 
   fun addExercise(uid: String, exercise: TopicItem) {

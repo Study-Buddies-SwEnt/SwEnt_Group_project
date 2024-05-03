@@ -18,7 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -29,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +59,7 @@ import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
@@ -68,6 +73,7 @@ fun GroupScreen(
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()
+  val coroutineScope = rememberCoroutineScope()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
@@ -79,6 +85,7 @@ fun GroupScreen(
     pictureState.value = it.picture
     membersState.value = it.members
   }
+
   topics?.let { topicList.value = it.getAllTopics() }
 
   Scaffold(
@@ -95,6 +102,13 @@ fun GroupScreen(
                   tint = Blue,
                   contentDescription = stringResource(R.string.group_option))
             })
+      },
+      floatingActionButton = {
+        FloatingActionButton(
+            onClick = { navigationActions.navigateTo("${Route.TOPICCREATION}/$groupUID") },
+        ) {
+          Icon(imageVector = Icons.Default.Add, tint = White, contentDescription = "Create Topic")
+        }
       },
       bottomBar = {
         BottomNavigationBar(

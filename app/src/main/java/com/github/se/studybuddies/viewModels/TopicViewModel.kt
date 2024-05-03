@@ -28,8 +28,13 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun createTopic(name: String) {
-    viewModelScope.launch { db.createTopic(name) }
+  fun createTopic(name: String, groupUID: String) {
+    viewModelScope.launch {
+      db.createTopic(name) { topicUID ->
+        viewModelScope.launch { db.addTopicToGroup(topicUID, groupUID) }
+      }
+    }
+    fetchTopicData(name)
   }
 
   fun createTopicFolder(name: String, area: ItemArea) {
