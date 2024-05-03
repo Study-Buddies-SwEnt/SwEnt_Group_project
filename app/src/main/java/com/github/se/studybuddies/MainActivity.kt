@@ -155,6 +155,7 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }
+
           }
         }
       }
