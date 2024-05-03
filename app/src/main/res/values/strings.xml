@@ -47,4 +47,6 @@
     <string name="calendar">Calendar</string>
     <string name="chat">Chat</string>
     <string name="start_direct_message">Start Private Message</string>
+    <string name="direct_messages_title">Private Messages</string>
+    <string name="new_private_message_icon">New Private Message</string>
 </resources>
