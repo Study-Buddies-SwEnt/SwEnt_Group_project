@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image

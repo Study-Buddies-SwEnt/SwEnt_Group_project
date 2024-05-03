@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.screens
 
 import android.app.Activity
 import android.util.Log
@@ -47,7 +47,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
         onSignInResult(res, navigationActions)
       }
-  val Playball = FontFamily(Font(R.font.playball_regular))
+  val playball = FontFamily(Font(R.font.playball_regular))
 
   Column(
       modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
@@ -63,7 +63,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
             text = "Study Buddies",
             style =
                 TextStyle(
-                    fontFamily = Playball,
+                    fontFamily = playball,
                     fontSize = 52.sp,
                     fontWeight = FontWeight(700),
                     textAlign = TextAlign.Center,
@@ -115,7 +115,7 @@ private fun onSignInResult(
             if (!userExists) {
               navigationActions.navigateTo(Route.CREATEACCOUNT)
             } else {
-              navigationActions.navigateTo(Route.GROUPSHOME)
+              navigationActions.navigateTo(Route.SOLOSTUDYHOME)
             }
           },
           onFailure = { e -> Log.d("MyPrint", "Failed to check user existence with error: $e") })

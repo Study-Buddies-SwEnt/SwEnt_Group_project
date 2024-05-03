@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -7,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.ncorti.ktfmt.gradle") version "0.16.0"
     id("com.google.gms.google-services")
+    id("com.google.secrets_gradle_plugin") version "0.6"
 }
 android {
     namespace = "com.github.se.studybuddies"
@@ -21,26 +21,24 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
+        //load the values from .properties file
+        val mapsKeyFile = project.rootProject.file("local.properties")
+        val properties = Properties()
+        properties.load(mapsKeyFile.inputStream())
+
+        //fetch the map key
+        val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
+
+        //inject the key dynamically into the manifest
+        manifestPlaceholders["MAPS_API_KEY"]  = apiKey
+        }
 
     configurations.configureEach {
         exclude(group= "com.google.protobuf", module= "protobuf-lite")
     }
 
-    signingConfigs {
-        create("release") {
-            val properties = Properties()
-            properties.load(FileInputStream("app/keystore.properties"))
-            storeFile = file(properties["storeFile"] as String)
-            storePassword = properties["storePassword"] as String
-            keyAlias = properties["keyAlias"] as String
-            keyPassword = properties["keyPassword"] as String
-        }
-    }
-
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -55,6 +53,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -85,8 +84,10 @@ android {
     }
 }
 
+
 dependencies {
     implementation("androidx.core:core-ktx:1.7.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
@@ -95,9 +96,10 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.4.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.0")
     implementation("androidx.compose.material:material:1.1.1")
-    implementation("androidx.compose.material3:material3:1.1.2")
+    //implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("androidx.compose.material3:material3:1.2.0-rc01")
     implementation("androidx.navigation:navigation-compose:2.6.0-rc01")
-    implementation("io.coil-kt:coil-compose:1.4.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("com.google.accompanist:accompanist-permissions:0.31.0-alpha")
     implementation("com.google.maps.android:maps-compose:4.3.0")
     implementation("com.google.maps.android:maps-compose-utils:4.3.0")
@@ -144,6 +146,13 @@ dependencies {
     androidTestImplementation("io.mockk:mockk:1.13.7")
     androidTestImplementation("io.mockk:mockk-android:1.13.7")
     androidTestImplementation("io.mockk:mockk-agent:1.13.7")
+
+    //Location service
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+
+    // Stream Video Compose SDK
+    implementation("io.getstream:stream-video-android-ui-compose:0.5.1")
+
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {
     mustRunAfter("testDebugUnitTest", "connectedDebugAndroidTest")
@@ -176,4 +185,10 @@ tasks.withType<Test> {
     onlyIf {
         !name.toLowerCaseAsciiOnly().contains("release")
     }
+}
+
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "local.properties"
 }

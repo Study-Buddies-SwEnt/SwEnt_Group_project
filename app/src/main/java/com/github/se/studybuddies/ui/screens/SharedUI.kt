@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -118,7 +118,7 @@ fun MainScreenScaffold(
         }
       }) {
         Scaffold(
-            modifier = Modifier.fillMaxSize().testTag("drawer_scaffold"),
+            modifier = Modifier.fillMaxSize().testTag(title + "_drawer_scaffold"),
             topBar = {
               Box {
                 CenterAlignedTopAppBar(
