@@ -134,7 +134,8 @@ fun MainScreenScaffold(
             bottomBar = {
               BottomNavigationBar(
                   navigationActions = navigationActions,
-                  destinations = BOTTOM_NAVIGATION_DESTINATIONS)
+                  destinations = BOTTOM_NAVIGATION_DESTINATIONS,
+                  currentRoute = backRoute)
             },
             content = content)
       }
@@ -164,7 +165,11 @@ fun TopNavigationBar(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
+fun BottomNavigationBar(
+    navigationActions: NavigationActions,
+    destinations: List<Destination>,
+    currentRoute: String = ""
+) {
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
   NavigationBar(
       modifier =
@@ -177,6 +182,7 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
       NavigationBarItem(
           modifier = Modifier.testTag(item.textId + "_item"),
           selected = selectedItemIndex == index,
+          enabled = (currentRoute != item.route),
           onClick = {
             selectedItemIndex = index
             navigationActions.navigateTo(item.route)
@@ -189,7 +195,7 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
           },
           colors =
               androidx.compose.material3.NavigationBarItemDefaults.colors(
-                  selectedIconColor = Color.Transparent, indicatorColor = White))
+                  selectedIconColor = Color.Transparent, indicatorColor = Color.Transparent))
     }
   }
 }

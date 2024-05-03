@@ -105,6 +105,7 @@ fun MapScreen(
               Log.d("MapScreen", "Permission denied")
             }
           }
+
   MainScreenScaffold(
       navigationActions = navigationActions,
       backRoute = Route.MAP,
