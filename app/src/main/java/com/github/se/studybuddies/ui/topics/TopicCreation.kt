@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -26,12 +25,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.GoBackRouteButton
 import com.github.se.studybuddies.ui.Sub_title
 import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.groups.SaveButton
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
@@ -84,13 +83,10 @@ fun TopicCreation(
                           cursorColor = Blue))
               Spacer(modifier = Modifier.height(20.dp))
 
-              Button(
-                  onClick = {
-                    topicViewModel.createTopic(nameState.value)
-                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                  }) {
-                    Text(text = "Save Topic", color = White, fontSize = 15.sp)
-                  }
+              SaveButton(nameState) {
+                topicViewModel.createTopic(nameState.value, groupUID)
+                navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+              }
             }
       }
 }
