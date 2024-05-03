@@ -471,8 +471,7 @@ class DatabaseConnection {
                       name = otherUserName,
                       photoUrl = otherUserPhotoUrl,
                       type = ChatType.PRIVATE,
-                      members = listOf(otherUser, getUser(userUID)),
-                  /*messages = messages.value*/ )
+                      members = listOf(otherUser, getUser(userUID)))
               chatList.add(newChat)
             }
           }
@@ -532,18 +531,12 @@ class DatabaseConnection {
 
     getPrivateChatsList(otherUID, listChat)
 
-    CoroutineScope(Dispatchers.Default).launch {
-      listChat.collect { chats ->
-        chats.forEach { chat ->
-          if (chat.members.none { user -> user.uid == getCurrentUserUID() }) {
-            rt_db
-                .getReference(memberPath)
-                .updateChildren(members)
-                .addOnSuccessListener { Log.d("DatabaseConnect", "Members successfully added!") }
-                .addOnFailureListener { Log.w("DatabaseConnect", "Failed to write members.", it) }
-          }
-        }
-      }
+    if (listChat.value.isEmpty()) {
+      rt_db
+          .getReference(memberPath)
+          .updateChildren(members)
+          .addOnSuccessListener { Log.d("DatabaseConnect", "Members successfully added!") }
+          .addOnFailureListener { Log.w("DatabaseConnect", "Failed to write members.", it) }
     }
   }
 

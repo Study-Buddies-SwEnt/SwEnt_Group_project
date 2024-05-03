@@ -45,7 +45,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   }
 
   fun startDirectMessage(messageUserUID: String) {
-      db.startDirectMessage(messageUserUID)
+    db.startDirectMessage(messageUserUID)
   }
 
   fun deleteMessage(message: Message) {

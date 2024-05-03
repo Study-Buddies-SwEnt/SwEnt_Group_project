@@ -57,39 +57,32 @@ fun DirectMessageScreen(
   Column {
     TopNavigationBar(
         title = {
-                if (showAddPrivateMessageList.value) {
-                    Text(stringResource(R.string.start_direct_message_title))
-                } else {
-                    Text(text = stringResource(R.string.direct_messages_title))
-                }
+          if (showAddPrivateMessageList.value) {
+            Text(stringResource(R.string.start_direct_message_title))
+          } else {
+            Text(text = stringResource(R.string.direct_messages_title))
+          }
         },
         navigationIcon = {
           GoBackRouteButton(navigationActions = navigationActions, backRoute = Route.GROUPSHOME)
         },
         actions = {
           IconButton(
-              onClick = {
-                  showAddPrivateMessageList.value = !showAddPrivateMessageList.value
-              }) {
-              if (showAddPrivateMessageList.value) {
+              onClick = { showAddPrivateMessageList.value = !showAddPrivateMessageList.value }) {
+                if (showAddPrivateMessageList.value) {
                   Icon(
                       Icons.Default.Close,
-                      contentDescription = stringResource(R.string.new_private_message_icon)
-                  )
-              } else {
+                      contentDescription = stringResource(R.string.new_private_message_icon))
+                } else {
                   Icon(
                       Icons.Default.Add,
-                      contentDescription = stringResource(R.string.new_private_message_icon)
-                  )
+                      contentDescription = stringResource(R.string.new_private_message_icon))
                 }
-            }
-
+              }
         })
 
     if (showAddPrivateMessageList.value) {
-      ListAllUsers(
-          showAddPrivateMessageList,
-          usersViewModel)
+      ListAllUsers(showAddPrivateMessageList, usersViewModel)
     } else {
       LazyColumn() {
         items(chats.value) { chat ->
@@ -126,10 +119,7 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 }
 
 @Composable
-fun ListAllUsers(
-    showAddPrivateMessageList: MutableState<Boolean>,
-    usersViewModel: UsersViewModel
-) {
+fun ListAllUsers(showAddPrivateMessageList: MutableState<Boolean>, usersViewModel: UsersViewModel) {
   val friendsData by usersViewModel.friends.collectAsState()
 
   LazyColumn(modifier = Modifier.fillMaxWidth()) {
@@ -139,10 +129,7 @@ fun ListAllUsers(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UserItem(
-    user: User,
-    showAddPrivateMessageList: MutableState<Boolean>
-) {
+fun UserItem(user: User, showAddPrivateMessageList: MutableState<Boolean>) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
@@ -150,7 +137,7 @@ fun UserItem(
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
-                      val messageViewModel = MessageViewModel(Chat.empty())
+                    val messageViewModel = MessageViewModel(Chat.empty())
                     messageViewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
                   })) {
