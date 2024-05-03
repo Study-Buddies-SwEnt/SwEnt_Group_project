@@ -224,8 +224,10 @@ class DatabaseConnection {
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
+            val timer = document.getLong("timer") ?: 0L
+
             val topics = document.get("topics") as? List<String> ?: emptyList()
-            items.add(Group(groupUID, name, photo, members, topics))
+            items.add(Group(groupUID, name, photo, members, topics, timer))
           }
         }
         return GroupList(items)
@@ -245,8 +247,10 @@ class DatabaseConnection {
       val name = document.getString("name") ?: ""
       val picture = Uri.parse(document.getString("picture") ?: "")
       val members = document.get("members") as List<String>
+      val timer = document.getLong("timer") ?: 0L
+
       val topics = document.get("topics") as List<String>
-      Group(groupUID, name, picture, members, topics)
+      Group(groupUID, name, picture, members, topics, timer)
     } else {
       Log.d("MyPrint", "group document not found for group id $groupUID")
       Group.empty()
@@ -265,7 +269,8 @@ class DatabaseConnection {
             "name" to name,
             "picture" to photoUri.toString(),
             "members" to listOf(uid),
-            "topics" to emptyList<String>())
+            "topics" to emptyList<String>(),
+            "timer" to 0L)
     if (photoUri != getDefaultPicture()) {
       groupDataCollection
           .add(group)
@@ -385,6 +390,35 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
+    return 0
+  }
+
+  suspend fun updateGroupTimer(groupUID: String, newTimerValue: Long): Int {
+    if (groupUID.isEmpty()) {
+      Log.d("MyPrint", "Group UID is empty")
+      return -1
+    }
+
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (!document.exists()) {
+      Log.d("MyPrint", "Group with UID $groupUID does not exist")
+      return -1
+    }
+
+    // Update the timer parameter of the group
+    groupDataCollection
+        .document(groupUID)
+        .update("timer", newTimerValue)
+        .addOnSuccessListener {
+          Log.d("MyPrint", "Timer parameter updated successfully for group with UID $groupUID")
+        }
+        .addOnFailureListener { e ->
+          Log.d(
+              "MyPrint",
+              "Failed to update timer parameter for group with UID $groupUID with error: ",
+              e)
+        }
+
     return 0
   }
 
@@ -785,6 +819,8 @@ class DatabaseConnection {
           Log.d("MyPrint", "topic item ${item.uid} failed to update with error ", e)
         }
   }
+
+  fun getTimerReference(groupId: String) = rt_db.getReference("timer/$groupId")
 
   @SuppressLint("SuspiciousIndentation")
   suspend fun getALlTopics(groupUID: String): TopicList {

@@ -38,6 +38,7 @@ import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
+import com.github.se.studybuddies.ui.timer.SharedTimerScreen
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.ui.todo.EditToDoScreen
@@ -50,6 +51,7 @@ import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
@@ -101,7 +103,7 @@ class MainActivity : ComponentActivity() {
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (currentUser != null) {
-                navController.navigate(Route.GROUPSHOME)
+                navController.navigate(Route.SOLOSTUDYHOME)
               } else {
                 navController.navigate(Route.LOGIN)
               }
@@ -243,6 +245,16 @@ class MainActivity : ComponentActivity() {
                 navigationActions.goBack()
               }
             }
+            composable(
+                route = "${Route.SHAREDTIMER}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (groupUID != null) {
+                    SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
+                    Log.d("MyPrint", "Successfully navigated to SharedTimer")
+                  }
+                }
             composable(
                 route = "${Route.TOPIC}/{topicUID}/{groupUID}",
                 arguments =
