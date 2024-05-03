@@ -16,6 +16,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,13 +32,20 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.UsersViewModel
 
 @Composable
 fun DirectMessageScreen(
+    uid: String,
     viewModel: DirectMessageViewModel,
     chatViewModel: ChatViewModel,
+    usersViewModel: UsersViewModel,
     navigationActions: NavigationActions
 ) {
+    usersViewModel.fetchAllFriends(uid)
+
+    val friendsData by usersViewModel.friends.collectAsState()
+    val friends = remember { mutableStateOf(friendsData) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList())
   Column {
     SecondaryTopBar(onClick = { navigationActions.goBack() }) {}
@@ -56,17 +66,21 @@ fun DirectMessageScreen(
 fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(8.dp)
+          .combinedClickable(onClick = { onClick() })) {
         Image(
             painter = rememberImagePainter(chat.photoUrl),
             contentDescription = "User profile picture",
             modifier =
-                Modifier.padding(8.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .align(Alignment.CenterVertically)
-                    .testTag("chat_user_profile_picture"),
+            Modifier
+                .padding(8.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(2.dp, Color.Gray, CircleShape)
+                .align(Alignment.CenterVertically)
+                .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = chat.name)
         Spacer(modifier = Modifier.weight(1f))
