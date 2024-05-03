@@ -22,6 +22,7 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
+import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.ui.screens.ChatScreen
@@ -166,6 +167,16 @@ class MainActivity : ComponentActivity() {
                     DirectMessageViewModel(currentUser.uid), chatViewModel, navigationActions)
               }
             }
+            composable(
+                route = "${Route.GROUPSETTING}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (groupUID != null) {
+                    GroupSetting(groupUID, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                  }
+                }
             composable(Route.CHAT) {
               ChatScreen(
                   MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)

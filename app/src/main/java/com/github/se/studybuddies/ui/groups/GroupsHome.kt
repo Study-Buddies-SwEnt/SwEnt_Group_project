@@ -31,10 +31,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -63,6 +64,9 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.MainScreenScaffold
+import com.github.se.studybuddies.ui.SearchIcon
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.screens.MainScreenScaffold
 import com.github.se.studybuddies.ui.screens.SearchIcon
 import com.github.se.studybuddies.ui.theme.White
@@ -136,7 +140,7 @@ fun GroupsHome(
 }
 
 @Composable
-fun GroupsSettingsButton(navigationActions: NavigationActions) {
+fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions) {
   val expandedState = remember { mutableStateOf(false) }
   IconButton(
       onClick = { expandedState.value = true },
@@ -150,7 +154,7 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
       DropdownMenuItem(
           onClick = {
             expandedState.value = false
-            navigationActions.navigateTo(item.route)
+            navigationActions.navigateTo("${item.route}/$groupUID")
           }) {
             Spacer(modifier = Modifier.size(16.dp))
             Text(item.textId)
@@ -189,7 +193,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          GroupsSettingsButton(navigationActions)
+          GroupsSettingsButton(group.uid, navigationActions)
         }
       }
 }
@@ -217,6 +221,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
+  var showSucces by remember { mutableStateOf(false) }
 
   Row(
       modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -232,11 +237,19 @@ fun AddLinkButton(navigationActions: NavigationActions) {
             }
       }
   if (isTextFieldVisible) {
-    TextField(
+    OutlinedTextField(
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
         modifier = Modifier.fillMaxSize().padding(16.dp),
+        singleLine = true,
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                unfocusedLabelColor = Blue,
+                unfocusedIndicatorColor = Blue,
+            ),
         keyboardActions =
             KeyboardActions(
                 onDone = {
@@ -244,23 +257,34 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
                   scope.launch {
-                    val error = db.updateGroup(groupUID)
+                    val error = db.addUserToGroup(groupUID)
                     if (error == -1) {
                       showError = true
                       delay(3000L) // delay for 3 seconds
                       showError = false
                     } else {
+                      showSucces = true
+                      delay(1500L) // delay for 1.5 seconds
+                      showSucces = false
                       navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                     }
                   }
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
   }
+
   if (showError) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = { TextButton(onClick = { showError = false }) {} }) {
           Text(stringResource(R.string.the_link_entered_is_invalid))
+        }
+  }
+  if (showSucces) {
+    Snackbar(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = { TextButton(onClick = { showSucces = false }) {} }) {
+          Text(stringResource(R.string.you_have_been_successfully_added_to_the_group))
         }
   }
 }

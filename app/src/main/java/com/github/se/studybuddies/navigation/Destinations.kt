@@ -11,7 +11,7 @@ val SETTINGS_DESTINATIONS =
     )
 
 val GROUPS_SETTINGS_DESTINATIONS =
-    listOf(Destination(route = Route.GROUP, textId = "Modify a group"))
+    listOf(Destination(route = Route.GROUPSETTING, textId = "Modify a group"))
 
 val BOTTOM_NAVIGATION_DESTINATIONS =
     listOf(
