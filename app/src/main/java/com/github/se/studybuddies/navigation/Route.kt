@@ -4,6 +4,7 @@ object Route {
   const val LOGIN = "LoginScreen"
   const val GROUPSHOME = "GroupsHome"
   const val CREATEGROUP = "CreateGroup"
+  const val GROUPSETTING = "GroupSetting"
   const val GROUP = "Group"
   const val SETTINGS = "Settings"
   const val ACCOUNT = "AccountSettings"
@@ -19,9 +20,8 @@ object Route {
   const val TOPIC = "Topic"
   const val TOPIC_SETTINGS = "Topic settings"
   const val CHAT = "Chat"
+  const val TOPICCREATION = " TopicCreaction"
   const val DIRECT_MESSAGE = "DirectMessage"
+  const val VIDEOCALL = "VideoCall"
   const val MAP = "Map"
-  /*
-  const val OVERVIEW = "Overview"
-   */
 }
