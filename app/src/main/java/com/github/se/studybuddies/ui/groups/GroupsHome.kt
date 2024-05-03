@@ -67,8 +67,6 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.screens.MainScreenScaffold
 import com.github.se.studybuddies.ui.screens.SearchIcon
 import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.screens.MainScreenScaffold
-import com.github.se.studybuddies.ui.screens.SearchIcon
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay

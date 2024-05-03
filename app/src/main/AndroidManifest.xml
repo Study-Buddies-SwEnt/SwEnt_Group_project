@@ -40,6 +40,7 @@
             tools:ignore="ForegroundServicePermission" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:theme="@style/Theme.StudyBuddies"
             android:windowSoftInputMode="adjustResize">
