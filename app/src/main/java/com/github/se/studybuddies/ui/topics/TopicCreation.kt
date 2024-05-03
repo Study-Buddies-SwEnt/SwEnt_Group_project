@@ -27,9 +27,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Sub_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.groups.SaveButton
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White

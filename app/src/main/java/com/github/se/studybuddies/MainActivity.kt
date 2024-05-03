@@ -200,7 +200,8 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.VIDEOCALL) {
               if (StreamVideo.isInstalled) {
-                val call = StreamVideo.instance().call("default", callID)
+                  StreamVideo.removeClient()
+                  val call = StreamVideo.instance().call("default", callID)
                 if (currentUser != null) {
                   VideoCallScreen(VideoCallViewModel(call, currentUser.uid), navigationActions)
                   Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
