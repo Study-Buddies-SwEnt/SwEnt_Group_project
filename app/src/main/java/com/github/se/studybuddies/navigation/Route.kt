@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.navigation
 
 object Route {
+  const val START = "Start"
   const val LOGIN = "LoginScreen"
   const val GROUPSHOME = "GroupsHome"
   const val CREATEGROUP = "CreateGroup"
