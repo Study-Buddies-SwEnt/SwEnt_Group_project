@@ -52,7 +52,7 @@ fun DirectMessageScreen(
     navigationActions: NavigationActions
 ) {
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
-  val chats = viewModel.directMessages.collectAsState(initial = emptyList())
+  val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
 
   Column {
     TopNavigationBar(
@@ -85,7 +85,7 @@ fun DirectMessageScreen(
       ListAllUsers(showAddPrivateMessageList, usersViewModel)
     } else {
       LazyColumn() {
-        items(chats.value) { chat ->
+        items(chats) { chat ->
           DirectMessageItem(chat) {
             chatViewModel.setChat(chat)
             navigationActions.navigateTo(Route.CHAT)

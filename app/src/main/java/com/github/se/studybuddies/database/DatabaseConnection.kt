@@ -29,7 +29,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -443,44 +442,57 @@ class DatabaseConnection {
   fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
     val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
 
-    CoroutineScope(Dispatchers.IO).launch {
-      val chatList = mutableListOf<Chat>()
+    ref.addValueEventListener(
+        object : ValueEventListener {
+          private var handler = Handler(Looper.getMainLooper())
+          private var runnable: Runnable? = null
 
-      val chatsSnapshot = ref.get().await()
+          override fun onDataChange(snapshot: DataSnapshot) {
+            runnable?.let { handler.removeCallbacks(it) }
+            runnable = Runnable {
+              CoroutineScope(Dispatchers.IO).launch {
+                val chatList = mutableListOf<Chat>()
 
-      chatsSnapshot.children.forEach { chat ->
-        val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
-        if (userUID in members) {
-          val otherUserId = members.first { it != userUID }
+                snapshot.children.forEach { chat ->
+                  val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
+                  if (userUID in members) {
+                    val otherUserId = members.first { it != userUID }
 
-          Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
+                    Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
 
-          if (otherUserId != null) {
-            getUser(otherUserId).let { otherUser ->
-              val otherUserName = otherUser.username
-              val otherUserPhotoUrl = otherUser.photoUrl.toString()
+                    if (otherUserId != null) {
+                      getUser(otherUserId).let { otherUser ->
+                        val otherUserName = otherUser.username
+                        val otherUserPhotoUrl = otherUser.photoUrl.toString()
 
-              // Create a new Chat object with the other user's name and photo URL
-              val messages = MutableStateFlow<List<Message>>(emptyList())
-              getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
-              Log.d("MyPrint", "Chat key ${chat.key}")
-              Log.d("MyPrint", "Messages: ${messages.value}")
-              val newChat =
-                  Chat(
-                      uid = chat.key ?: "",
-                      name = otherUserName,
-                      photoUrl = otherUserPhotoUrl,
-                      type = ChatType.PRIVATE,
-                      members = listOf(otherUser, getUser(userUID)))
-              chatList.add(newChat)
+                        val messages = MutableStateFlow<List<Message>>(emptyList())
+                        getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
+                        val newChat =
+                            Chat(
+                                uid = chat.key ?: "",
+                                name = otherUserName,
+                                photoUrl = otherUserPhotoUrl,
+                                type = ChatType.PRIVATE,
+                                members = listOf(otherUser, getUser(userUID)))
+                        chatList.add(newChat)
+                      }
+                    }
+                  }
+                }
+
+                withContext(Dispatchers.Main) { liveData.value = chatList }
+              }
             }
+            handler.postDelayed(runnable!!, 1000)
           }
-        }
-      }
-      delay(1000L)
 
-      liveData.value = chatList
-    }
+          override fun onCancelled(error: DatabaseError) {
+            Log.w(
+                "DatabaseConnection - getPrivateChatsList()",
+                "Failed to read value.",
+                error.toException())
+          }
+        })
   }
 
   fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
