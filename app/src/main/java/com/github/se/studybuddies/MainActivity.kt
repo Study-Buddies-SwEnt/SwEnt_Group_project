@@ -67,12 +67,7 @@ class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
           val chatViewModel = ChatViewModel()
           val currentUser = auth.currentUser
-          val startDestination =
-              if (currentUser != null) {
-                Route.SOLOSTUDYHOME
-              } else {
-                Route.LOGIN
-              }
+          val startDestination = Route.START
           val context = LocalContext.current
           val apiKey = "x52wgjq8qyfc"
           val test_apiKey = "mmhfdzb5evj2" // test
@@ -92,11 +87,17 @@ class MainActivity : ComponentActivity() {
                   .build()
             }
           }
-
           NavHost(navController = navController, startDestination = startDestination) {
+            composable(Route.START) {
+              if (currentUser != null) {
+                navController.navigate(Route.GROUPSHOME)
+              } else {
+                navController.navigate(Route.LOGIN)
+              }
+            }
             composable(Route.LOGIN) {
-              LoginScreen(navigationActions)
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
+              LoginScreen(navigationActions)
             }
             composable(Route.GROUPSHOME) {
               if (currentUser != null) {
@@ -140,10 +141,8 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-              if (currentUser != null) {
-                CreateAccount(UserViewModel(), navigationActions)
-                Log.d("MyPrint", "Successfully navigated to CreateAccount")
-              }
+              CreateAccount(UserViewModel(), navigationActions)
+              Log.d("MyPrint", "Successfully navigated to CreateAccount")
             }
             composable(
                 route = "${Route.TOPICCREATION}/{groupUID}",
@@ -182,10 +181,8 @@ class MainActivity : ComponentActivity() {
                   MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-              if (currentUser != null) {
-                SoloStudyHome(navigationActions)
-                Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
-              }
+              Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
+              SoloStudyHome(navigationActions)
             }
             composable(Route.MAP) {
               if (currentUser != null) {
