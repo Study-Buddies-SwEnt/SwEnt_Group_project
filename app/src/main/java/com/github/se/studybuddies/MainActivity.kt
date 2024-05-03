@@ -226,12 +226,12 @@ class MainActivity : ComponentActivity() {
                 route = "${Route.TOPIC_SETTINGS}/{groupUID}/{topicUID}",
                 arguments =
                     listOf(
-                        navArgument("groupUID"){type = NavType.StringType},
+                        navArgument("groupUID") { type = NavType.StringType },
                         navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
-                val groupUid=backStackEntry.arguments?.getString("groupUID")
-                  if (topicUID != null && groupUid!= null) {
-                    TopicSettings(topicUID,groupUid, TopicViewModel(topicUID), navigationActions)
+                  val groupUid = backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUid != null) {
+                    TopicSettings(topicUID, groupUid, TopicViewModel(topicUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }

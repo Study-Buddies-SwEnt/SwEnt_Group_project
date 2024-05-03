@@ -15,16 +15,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -104,11 +105,20 @@ fun GroupScreen(
             })
       },
       floatingActionButton = {
-        FloatingActionButton(
-            onClick = { navigationActions.navigateTo("${Route.TOPICCREATION}/$groupUID") },
-        ) {
-          Icon(imageVector = Icons.Default.Add, tint = White, contentDescription = "Create Topic")
-        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.End) {
+              Button(
+                  onClick = { navigationActions.navigateTo("${Route.TOPICCREATION}/$groupUID") },
+                  modifier =
+                      Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.create_a_task),
+                        tint = White)
+                  }
+            }
       },
       bottomBar = {
         BottomNavigationBar(

@@ -34,10 +34,9 @@ import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
-import com.github.se.studybuddies.ui.groups.SaveButton
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Sub_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
@@ -46,84 +45,74 @@ import com.github.se.studybuddies.viewModels.TopicViewModel
 @Composable
 fun TopicSettings(
     topicUID: String,
-    groupUID:String,
+    groupUID: String,
     topicViewModel: TopicViewModel,
     navigationActions: NavigationActions
-
 ) {
 
-    if (topicUID.isEmpty()) return
-    topicViewModel.fetchTopicData(topicUID)
-    val topicData by topicViewModel.topic.collectAsState()
+  if (topicUID.isEmpty()) return
+  topicViewModel.fetchTopicData(topicUID)
+  val topicData by topicViewModel.topic.collectAsState()
 
-    val nameState = remember { mutableStateOf(topicData.name) }
-    var exercisesState by remember { mutableStateOf(topicData.exercises) }
-    val theoryState = remember { mutableStateOf(topicData.theory) }
+  val nameState = remember { mutableStateOf(topicData.name) }
+  var exercisesState by remember { mutableStateOf(topicData.exercises) }
+  val theoryState = remember { mutableStateOf(topicData.theory) }
 
-    topicData.let { nameState.value = it.name }
+  topicData.let { nameState.value = it.name }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .testTag("topic_settings"),
-        topBar = {
-            TopNavigationBar(
-                title = { Sub_title(title = stringResource(R.string.topic_settings)) },
-                navigationIcon = {
-                    GoBackRouteButton(navigationActions = navigationActions, "${Route.TOPIC}/$topicUID/$groupUID")
-                },
-                actions = {})
-        }) {
+  Scaffold(
+      modifier = Modifier.fillMaxSize().testTag("topic_settings"),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title = stringResource(R.string.topic_settings)) },
+            navigationIcon = {
+              GoBackRouteButton(
+                  navigationActions = navigationActions, "${Route.TOPIC}/$topicUID/$groupUID")
+            },
+            actions = {})
+      }) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(it),
+            modifier = Modifier.fillMaxWidth().padding(it),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(Modifier.height(40.dp))
-            Text(
-                stringResource(R.string.edit_topic_name),
-                style = TextStyle(fontSize = 20.sp)
-            )
-            Spacer(Modifier.height(20.dp))
-            OutlinedTextField(
-                value = nameState.value,
-                onValueChange = { nameState.value = it },
-                singleLine = true,
-                colors =
-                OutlinedTextFieldDefaults.colors(
-                    cursorColor = Color.Blue,
-                    focusedBorderColor = Color.Blue,
-                    unfocusedBorderColor = Color.Blue))
-            Spacer(Modifier.height(20.dp))
+              Spacer(Modifier.height(40.dp))
+              Text(stringResource(R.string.edit_topic_name), style = TextStyle(fontSize = 20.sp))
+              Spacer(Modifier.height(20.dp))
+              OutlinedTextField(
+                  value = nameState.value,
+                  onValueChange = { nameState.value = it },
+                  singleLine = true,
+                  colors =
+                      OutlinedTextFieldDefaults.colors(
+                          cursorColor = Color.Blue,
+                          focusedBorderColor = Color.Blue,
+                          unfocusedBorderColor = Color.Blue))
+              Spacer(Modifier.height(20.dp))
 
-            Spacer(modifier = Modifier.padding(20.dp))
-            Button(
-                onClick = { topicViewModel.updateTopicName(nameState.value)
-                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")},
-                modifier =
-                Modifier
-                    .padding(20.dp)
-                    .width(300.dp)
-                    .height(50.dp)
-                    .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
-                    .testTag("save_button"),
-                colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = Blue,
-                )) {
-                Text(
-                    stringResource(R.string.save),
-                    color = White,
-                    modifier = Modifier.testTag("save_button_text"))
+              Spacer(modifier = Modifier.padding(20.dp))
+              Button(
+                  onClick = {
+                    topicViewModel.updateTopicName(nameState.value)
+                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                  },
+                  modifier =
+                      Modifier.padding(20.dp)
+                          .width(300.dp)
+                          .height(50.dp)
+                          .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
+                          .testTag("save_button"),
+                  colors =
+                      ButtonDefaults.buttonColors(
+                          containerColor = Blue,
+                      )) {
+                    Text(
+                        stringResource(R.string.save),
+                        color = White,
+                        modifier = Modifier.testTag("save_button_text"))
+                  }
             }
-
-        }
-    }
+      }
 }
-
-
-
 
 /*
 
