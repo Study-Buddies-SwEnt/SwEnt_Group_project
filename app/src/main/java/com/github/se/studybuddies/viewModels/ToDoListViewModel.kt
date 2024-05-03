@@ -115,6 +115,7 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   }
 
   fun encryptAndSaveFile(file: File): File {
+    Log.d("Encryption", "Trying to encrypt error")
     try {
       val fileData = readFile(file.path)
 
@@ -252,63 +253,4 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   private fun emptyToDo(): ToDo {
     return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
-
-  /*fun addNewTodo(
-
-    name: String,
-    dueDate: Date,
-    description: String,
-    status: String
-  ) {
-    Log.d("addNewTodo", "Successfully navigated to addNewTodo")
-    val task = ToDo()
-    hashMapOf(
-      "title" to name,
-      "dueDate" to dueDate,
-      "description" to description,
-      "status" to status)
-
-    todos
-      .add(task)
-      .addOnSuccessListener { Log.d("MyPrint", "Task successfully added") }
-      .addOnFailureListener { Log.d("MyPrint", "Failed to add task") }
-  }
-
-
-  fun fetchTaskByUID(uid: String): Task<DocumentSnapshot> {
-    return todoCollection.document(uid).get()
-  }
-
-
-  fun deleteTodo(todoId: String) {
-    todoCollection
-      .document(todoId)
-      .delete()
-      .addOnSuccessListener { Log.d("MyPrint", "Successfully deleted task") }
-      .addOnFailureListener { Log.d("MyPrint", "Failed to delete task") }
-  }
-
-  */
-
-  /*
-  fun updateToDoList(toDos: List<ToDo>) {
-      _uiState.value = ToDoList(toDos)
-  }
-
-  fun filterToDoList(searchQuery: String) {
-      _uiState.update { currentState ->
-          val filteredTasks = currentState.todos.filter { todo ->
-              todo.name.contains(searchQuery, ignoreCase = true) ||
-                      todo.description.contains(searchQuery, ignoreCase = true)
-          }
-          ToDoList(filteredTasks)
-      }
-  }
-
-  private fun updateToDoListState() {
-      _toDoListState.value = _toDoListState.value.copy(getAllTask = _toDoList)
-  }
-
-   */
-
 }
