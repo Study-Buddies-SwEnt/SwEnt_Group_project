@@ -58,8 +58,7 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: List output files
-        run: ls -lah release/
-            ls -R app/build/outputs/apk/release/
+        run: ls -lah app/build/outputs/apk/release/
 
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v2
