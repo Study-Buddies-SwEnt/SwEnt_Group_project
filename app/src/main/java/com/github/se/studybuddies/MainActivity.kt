@@ -45,8 +45,8 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
-import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
+import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideo
