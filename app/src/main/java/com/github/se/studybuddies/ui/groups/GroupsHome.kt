@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenuItem
@@ -90,7 +91,7 @@ fun GroupsHome(
   groups?.let {
     groupList.value = it.getAllTasks()
     coroutineScope.launch {
-      delay(2000L) // delay for 1 second
+      delay(1500L) // delay for 1 second
       isLoading = false
     }
   }
@@ -178,14 +179,19 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Image(
-              painter = rememberImagePainter(group.picture),
-              contentDescription =
-                  stringResource(id = R.string.contentDescription_group_profile_picture),
-              modifier = Modifier.size(32.dp),
-              contentScale = ContentScale.Crop)
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+            Image(
+                painter = rememberImagePainter(group.picture),
+                contentDescription = stringResource(id = R.string.group_picture),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop)
+          }
           Spacer(modifier = Modifier.size(16.dp))
-          Text(text = group.name, style = TextStyle(fontSize = 16.sp), lineHeight = 28.sp)
+          Text(
+              text = group.name,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
           GroupsSettingsButton(navigationActions)
         }

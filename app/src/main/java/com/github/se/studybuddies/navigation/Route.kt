@@ -16,6 +16,8 @@ object Route {
   const val CALENDAR = "Calendar"
   const val CREATETODO = "CreateToDo"
   const val EDITTODO = "EditToDo"
+  const val TOPIC = "Topic"
+  const val TOPIC_SETTINGS = "Topic settings"
   const val CHAT = "Chat"
   const val DIRECT_MESSAGE = "DirectMessage"
   const val MAP = "Map"

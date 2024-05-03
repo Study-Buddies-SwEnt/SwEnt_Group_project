@@ -37,6 +37,8 @@ import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
+import com.github.se.studybuddies.ui.topics.TopicScreen
+import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -44,6 +46,7 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
+import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -180,6 +183,32 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
+            composable(
+                route = "${Route.TOPIC}/{topicUID}/{groupUID}",
+                arguments =
+                    listOf(
+                        navArgument("topicUID") { type = NavType.StringType },
+                        navArgument("groupUID") { type = NavType.StringType })) { backStackEntry ->
+                  val topicUID = backStackEntry.arguments?.getString("topicUID")
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUID != null) {
+                    TopicScreen(groupUID, topicUID, TopicViewModel(topicUID), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicScreen")
+                  }
+                }
+            composable(
+                route = "${Route.TOPIC_SETTINGS}/{backRoute}/{topicUID}",
+                arguments =
+                    listOf(
+                        navArgument("backRoute") { type = NavType.StringType },
+                        navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
+                  val backRoute = backStackEntry.arguments?.getString("backRoute")
+                  val topicUID = backStackEntry.arguments?.getString("topicUID")
+                  if (backRoute != null && topicUID != null) {
+                    TopicSettings(topicUID, TopicViewModel(topicUID), backRoute, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicSettings")
+                  }
+                }
           }
         }
       }
