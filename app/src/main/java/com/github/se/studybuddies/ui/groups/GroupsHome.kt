@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -64,8 +63,8 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.MainScreenScaffold
-import com.github.se.studybuddies.ui.SearchIcon
+import com.github.se.studybuddies.ui.screens.MainScreenScaffold
+import com.github.se.studybuddies.ui.screens.SearchIcon
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay
@@ -73,7 +72,6 @@ import kotlinx.coroutines.launch
 
 private val db = DatabaseConnection()
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GroupsHome(

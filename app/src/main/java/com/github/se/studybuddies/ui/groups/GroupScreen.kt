@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
@@ -30,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,13 +47,13 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
-import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
+import com.github.se.studybuddies.navigation.GROUPS_BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.BottomNavigationBar
-import com.github.se.studybuddies.ui.GoBackRouteButton
-import com.github.se.studybuddies.ui.Sub_title
-import com.github.se.studybuddies.ui.TopNavigationBar
+import com.github.se.studybuddies.ui.screens.BottomNavigationBar
+import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.Sub_title
+import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -90,19 +90,16 @@ fun GroupScreen(
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
             actions = {
-              IconButton(
-                  onClick = {},
-              ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    tint = Blue,
-                    contentDescription = stringResource(R.string.group_option))
-              }
+              Icon(
+                  imageVector = Icons.Default.MoreVert,
+                  tint = Blue,
+                  contentDescription = stringResource(R.string.group_option))
             })
       },
       bottomBar = {
         BottomNavigationBar(
-            navigationActions = navigationActions, destinations = BOTTOM_NAVIGATION_DESTINATIONS)
+            navigationActions = navigationActions,
+            destinations = GROUPS_BOTTOM_NAVIGATION_DESTINATIONS)
       },
   ) {
     Column(
