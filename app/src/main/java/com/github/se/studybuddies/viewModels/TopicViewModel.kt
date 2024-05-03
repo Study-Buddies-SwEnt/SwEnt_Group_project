@@ -1,18 +1,19 @@
 package com.github.se.studybuddies.viewModels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.database.DatabaseConnection
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TopicViewModel(private val uid: String? = null) : ViewModel() {
   private val db = DatabaseConnection()
-  private val _topic = MutableLiveData<Topic>(Topic.empty())
-  val topic: LiveData<Topic> = _topic
+  private val _topic = MutableStateFlow<Topic>(Topic.empty())
+  val topic: StateFlow<Topic> = _topic
 
   init {
     if (uid != null) {
@@ -21,7 +22,10 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun fetchTopicData(uid: String) {
-    viewModelScope.launch { _topic.value = db.getTopic(uid) }
+    viewModelScope.launch {
+      _topic.value = db.getTopic(uid)
+      Log.d("MyPrint", "Topic data fetched")
+    }
   }
 
   fun createTopic(name: String) {
@@ -29,36 +33,39 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun createTopicFolder(name: String, area: ItemArea) {
-    val folder = db.createTopicFolder(name)
-    when (area) {
-      ItemArea.EXERCISES -> {
-        val updatedExercises = _topic.value?.exercises?.toMutableList()?.apply { add(folder) }
-        if (uid != null && updatedExercises != null) {
-          _topic.value?.let { db.updateTopicData(uid, it.name, updatedExercises, it.theory) }
+    db.createTopicFolder(name) { folder ->
+      when (area) {
+        ItemArea.EXERCISES -> {
+          if (uid != null) {
+            db.addExercise(uid, folder)
+            fetchTopicData(uid)
+          }
         }
-      }
-      ItemArea.THEORY -> {
-        val updatedTheory = _topic.value?.theory?.toMutableList()?.apply { add(folder) }
-        if (uid != null && updatedTheory != null) {
-          _topic.value?.let { db.updateTopicData(uid, it.name, it.exercises, updatedTheory) }
+        ItemArea.THEORY -> {
+          if (uid != null) {
+            db.addTheory(uid, folder)
+            fetchTopicData(uid)
+          }
         }
       }
     }
   }
 
   fun createTopicFile(name: String, area: ItemArea) {
-    val file = db.createTopicFile(name)
-    when (area) {
-      ItemArea.EXERCISES -> {
-        val updatedExercises = _topic.value?.exercises?.toMutableList()?.apply { add(file) }
-        if (uid != null && updatedExercises != null) {
-          _topic.value?.let { db.updateTopicData(uid, it.name, updatedExercises, it.theory) }
+    db.createTopicFile(name) { file ->
+      when (area) {
+        ItemArea.EXERCISES -> {
+          if (uid != null) {
+            db.addExercise(uid, file)
+            fetchTopicData(uid)
+          }
         }
-      }
-      ItemArea.THEORY -> {
-        val updatedTheory = _topic.value?.theory?.toMutableList()?.apply { add(file) }
-        if (uid != null && updatedTheory != null) {
-          _topic.value?.let { db.updateTopicData(uid, it.name, it.exercises, updatedTheory) }
+        ItemArea.THEORY -> {
+          val updatedTheory = _topic.value.theory.toMutableList().apply { add(file) }
+          if (uid != null) {
+            db.addTheory(uid, file)
+            fetchTopicData(uid)
+          }
         }
       }
     }
@@ -66,7 +73,8 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
 
   fun updateTopicName(name: String) {
     if (uid != null) {
-      _topic.value?.let { db.updateTopicData(uid, name, it.exercises, it.theory) }
+      db.updateTopicName(uid, name)
+      fetchTopicData(uid)
     }
   }
 }

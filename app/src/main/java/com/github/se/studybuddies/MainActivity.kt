@@ -30,6 +30,8 @@ import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.SharedTimerScreen
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
+import com.github.se.studybuddies.ui.topics.TopicScreen
+import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -37,6 +39,7 @@ import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
+import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -147,6 +150,7 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(
+
                 route = "${Route.SHAREDTIMER}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
@@ -154,6 +158,30 @@ class MainActivity : ComponentActivity() {
                   if (groupUID != null) {
                     SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
+                route = "${Route.TOPIC}/{topicUID}/{groupUID}",
+                arguments =
+                    listOf(
+                        navArgument("topicUID") { type = NavType.StringType },
+                        navArgument("groupUID") { type = NavType.StringType })) { backStackEntry ->
+                  val topicUID = backStackEntry.arguments?.getString("topicUID")
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUID != null) {
+                    TopicScreen(groupUID, topicUID, TopicViewModel(topicUID), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicScreen")
+                  }
+                }
+            composable(
+                route = "${Route.TOPIC_SETTINGS}/{backRoute}/{topicUID}",
+                arguments =
+                    listOf(
+                        navArgument("backRoute") { type = NavType.StringType },
+                        navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
+                  val backRoute = backStackEntry.arguments?.getString("backRoute")
+                  val topicUID = backStackEntry.arguments?.getString("topicUID")
+                  if (backRoute != null && topicUID != null) {
+                    TopicSettings(topicUID, TopicViewModel(topicUID), backRoute, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicSettings")
+
                   }
                 }
           }
