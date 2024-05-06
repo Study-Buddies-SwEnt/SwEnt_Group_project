@@ -61,7 +61,7 @@ class DatabaseConnection {
       val email = document.getString("email") ?: ""
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-      val location = document.getString("location") ?: ""
+      val location = document.getString("location") ?: "offline"
       User(uid, email, username, photoUrl, location)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
@@ -115,7 +115,7 @@ class DatabaseConnection {
       email: String,
       username: String,
       profilePictureUri: Uri,
-      location: String = ""
+      location: String = "offline"
   ) {
     Log.d(
         "MyPrint",
@@ -228,6 +228,16 @@ class DatabaseConnection {
           Log.d("MyPrint", "Failed to update user data with error: ", e)
         }
   }
+
+    fun updateLocation(uid: String, location: String) {
+    userDataCollection
+        .document(uid)
+        .update("location", location)
+        .addOnSuccessListener { Log.d("MyPrint", "User data successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to update user data with error: ", e)
+        }
+    }
 
   fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
     userDataCollection
