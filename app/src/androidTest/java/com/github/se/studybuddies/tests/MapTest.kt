@@ -7,6 +7,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
 import com.github.se.studybuddies.ui.map.MapScreen
+import com.github.se.studybuddies.viewModels.UserViewModel
+import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
@@ -38,9 +40,11 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
   @Before
   fun setup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
+    val userVM = UserViewModel(uid)
+    val usersVM = UsersViewModel(uid)
 
     composeTestRule.setContent {
-      MapScreen(uid = uid, navigationActions = mockNavActions, context = context)
+      MapScreen(uid = uid,userVM,usersVM, navigationActions = mockNavActions, context = context)
     }
   }
 

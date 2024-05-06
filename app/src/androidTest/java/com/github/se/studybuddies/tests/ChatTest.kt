@@ -54,7 +54,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                         "e@a",
                         "best 1",
                         Uri.parse(
-                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))),
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+                    location = "offline")),
             photoUrl = "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
@@ -106,7 +107,7 @@ class ChatTestBubble : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { TextBubble(message, true) }
   }
@@ -136,7 +137,7 @@ class ChatTestBubbleNotUser : TestCase(kaspressoBuilder = Kaspresso.Builder.with
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { TextBubble(message, false) }
   }
@@ -177,7 +178,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     val message =
         Message(
             text = "Hello, World!",
-            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
+            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(true) }
     val showEditDialog = remember { mutableStateOf(false) }
@@ -190,7 +191,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { testTrySetup() }
   }
@@ -237,7 +238,7 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
     val message =
         Message(
             text = "Hello, World!",
-            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
+            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(true) }
