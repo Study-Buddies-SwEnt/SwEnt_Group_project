@@ -29,7 +29,6 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.viewModels.UserViewModel
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 

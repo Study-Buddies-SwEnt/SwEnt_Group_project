@@ -69,4 +69,5 @@
     <string name="start_direct_message_title">New Private Messages Chats</string>
     <string name="new_private_message_icon">New Private Message</string>
     <string name="edit_topic_name">Edit Topic Name</string>
+    <string name="friends_location_found">Friends location found</string>
 </resources>
