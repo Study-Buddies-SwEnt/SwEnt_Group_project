@@ -300,14 +300,14 @@ class MainActivity : ComponentActivity() {
     }
   }
 
-    override fun onStop() {
-        super.onStop()
-        auth = FirebaseAuth.getInstance()
-        val currentUser = auth.currentUser
-        val userViewModel = UserViewModel(currentUser?.uid)
-        //Set the user to offline when he closes the app
-        if (currentUser != null) {
-            userViewModel.updateLocation(currentUser.uid,"offline")
-        }
+  override fun onStop() {
+    super.onStop()
+    auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    val userViewModel = UserViewModel(currentUser?.uid)
+    // Set the user to offline when he closes the app
+    if (currentUser != null) {
+      userViewModel.updateLocation(currentUser.uid, "offline")
     }
+  }
 }

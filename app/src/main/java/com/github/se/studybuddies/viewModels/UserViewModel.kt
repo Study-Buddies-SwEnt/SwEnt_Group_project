@@ -52,12 +52,13 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    db.updateUserData(uid, email, username, profilePictureUri, userData.value?.location ?: "offline")
+    db.updateUserData(
+        uid, email, username, profilePictureUri, userData.value?.location ?: "offline")
   }
 
-    fun updateLocation(uid: String, location: String) {
-        db.updateLocation(uid, location)
-    }
+  fun updateLocation(uid: String, location: String) {
+    db.updateLocation(uid, location)
+  }
 
   fun signOut() {
     viewModelScope.cancel()

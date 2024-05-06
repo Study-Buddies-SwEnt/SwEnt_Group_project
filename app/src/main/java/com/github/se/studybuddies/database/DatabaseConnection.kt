@@ -229,7 +229,7 @@ class DatabaseConnection {
         }
   }
 
-    fun updateLocation(uid: String, location: String) {
+  fun updateLocation(uid: String, location: String) {
     userDataCollection
         .document(uid)
         .update("location", location)
@@ -237,7 +237,7 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to update user data with error: ", e)
         }
-    }
+  }
 
   fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
     userDataCollection

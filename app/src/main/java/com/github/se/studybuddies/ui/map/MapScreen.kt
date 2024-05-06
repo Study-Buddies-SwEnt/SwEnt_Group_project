@@ -18,10 +18,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +48,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.permissions.hasLocationPermission
 import com.github.se.studybuddies.ui.screens.MainScreenScaffold
+import com.github.se.studybuddies.ui.theme.Red
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.google.android.gms.maps.GoogleMap
@@ -214,7 +218,7 @@ fun UserLocationButton(
               }
               isTrackingOn.value = false
               Toast.makeText(context, "Location service stopped", Toast.LENGTH_SHORT).show()
-              UserViewModel().updateLocation(uid, "")
+              UserViewModel().updateLocation(uid, "offline")
               // In the case where nothing is wrong, we start the LocationService
             } else {
               Intent(context, LocationService::class.java).apply {
@@ -267,7 +271,10 @@ fun FriendsLocationButton(
     CircularProgressIndicator(modifier = Modifier.padding(24.dp).size(30.dp))
   } else {
     if (friends.isEmpty()) {
-      Toast.makeText(context, stringResource(R.string.no_friends_found), Toast.LENGTH_SHORT).show()
+      Text(
+          text = stringResource(id = R.string.no_friends_found),
+          modifier = Modifier.width(250.dp).height(80.dp).padding(25.dp).size(20.dp),
+          color = Red)
     }
   }
 }
