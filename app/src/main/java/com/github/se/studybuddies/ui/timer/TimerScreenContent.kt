@@ -34,7 +34,7 @@ import com.github.se.studybuddies.viewModels.TimerViewModel
 
 @Composable
 fun TimerScreenContent(timerViewModel: TimerViewModel, navigationActions: NavigationActions) {
-  val timerValue by timerViewModel.timer.collectAsState()
+  val timerValue by timerViewModel.timerValue.collectAsState()
   val timerEnd by timerViewModel.timerEnd.collectAsState()
 
   TimerScreen(
