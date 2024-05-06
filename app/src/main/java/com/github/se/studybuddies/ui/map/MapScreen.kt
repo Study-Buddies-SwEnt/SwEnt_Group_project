@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +36,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.permissions.hasLocationPermission
 import com.github.se.studybuddies.ui.screens.MainScreenScaffold
+import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -49,10 +51,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun MapScreen(
     uid: String, // This will be useful for later versions when we'll store the user location in the
-    // firebase
+    userViewModel: UserViewModel,
     navigationActions: NavigationActions,
     context: Context,
 ) {
+    if (uid.isEmpty()) return
+    userViewModel.fetchUserData(uid)
+    val userData by userViewModel.userData.observeAsState()
+
   var location by remember { mutableStateOf<Location?>(null) }
 
   var isTrackingOn by remember { mutableStateOf(false) }
@@ -77,6 +83,7 @@ fun MapScreen(
           // Use the location here
           location?.let {
             positionClient = LatLng(it.latitude, it.longitude)
+              userViewModel.updateLocation(uid, "${it.latitude},${it.longitude}")
             if (isZooming) {
               cameraPositionState.position = CameraPosition.fromLatLngZoom(positionClient, 15f)
               isZooming = false

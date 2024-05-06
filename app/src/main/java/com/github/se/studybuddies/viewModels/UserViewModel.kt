@@ -41,12 +41,16 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
     return withContext(Dispatchers.IO) { db.getDefaultProfilePicture() }
   }
 
-  fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    viewModelScope.launch { db.createUser(uid, email, username, profilePictureUri) }
+  fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri, location: String = "") {
+    viewModelScope.launch { db.createUser(uid, email, username, profilePictureUri,location) }
   }
 
   fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    db.updateUserData(uid, email, username, profilePictureUri)
+    db.updateUserData(uid, email, username, profilePictureUri,userData.value?.location ?: "")
+  }
+
+  fun updateLocation(uid: String, location: String) {
+    db.updateUserData(uid, userData.value?.email ?: "", userData.value?.username ?: "", userData.value?.photoUrl ?: Uri.EMPTY, location)
   }
 
   fun signOut() {

@@ -19,6 +19,7 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -61,7 +62,8 @@ class DatabaseConnection {
       val email = document.getString("email") ?: ""
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-      User(uid, email, username, photoUrl)
+        val location = document.getString("location") ?: ""
+      User(uid, email, username, photoUrl,location)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
@@ -109,13 +111,13 @@ class DatabaseConnection {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  suspend fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+  suspend fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri,location:String = "") {
     Log.d(
         "MyPrint",
         "Creating new user with uid $uid, email $email, username $username and picture link ${profilePictureUri.toString()}")
-    val user =
+      val user =
         hashMapOf(
-            "email" to email, "username" to username, "photoUrl" to profilePictureUri.toString())
+            "email" to email, "username" to username, "photoUrl" to profilePictureUri.toString(), "location" to location)
     if (profilePictureUri != getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)
@@ -189,8 +191,8 @@ class DatabaseConnection {
         }
   }
 
-  fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    val task = hashMapOf("email" to email, "username" to username)
+  fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri,location: String) {
+      val task = hashMapOf("email" to email, "username" to username, "location" to location)
     userDataCollection
         .document(uid)
         .update(task as Map<String, Any>)

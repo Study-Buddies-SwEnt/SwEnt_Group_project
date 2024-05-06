@@ -232,7 +232,7 @@ class MainActivity : ComponentActivity() {
             composable(Route.MAP) {
               val currentUser = auth.currentUser
               if (currentUser != null) {
-                MapScreen(currentUser.uid, navigationActions, applicationContext)
+                MapScreen(currentUser.uid,UserViewModel(), navigationActions, applicationContext)
               }
             }
             composable(Route.TIMER) {
