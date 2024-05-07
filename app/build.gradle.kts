@@ -23,19 +23,16 @@ android {
             useSupportLibrary = true
         }
         //load the values from .properties file
-        val mapsKeyFile = project.rootProject.file("local.properties")
+        val mapsKeyFile = rootProject.file("./local.properties")
         val properties = Properties()
         properties.load(mapsKeyFile.inputStream())
 
         //fetch the map key
         val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
 
-        //fetch STREAM key
-        val streamKey = properties.getProperty("STREAM") ?: ""
-        buildConfigField("String", "STREAM", "\"$streamKey\"")
-
         //inject the key dynamically into the manifest
         manifestPlaceholders["MAPS_API_KEY"]  = apiKey
+        manifestPlaceholders["STREAM"] = properties.getProperty("STREAM", "")
         }
 
     configurations.configureEach {
