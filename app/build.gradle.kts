@@ -30,6 +30,10 @@ android {
         //fetch the map key
         val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
 
+        //fetch STREAM key
+        val streamKey = properties.getProperty("STREAM") ?: ""
+        buildConfigField("String", "STREAM", "\"$streamKey\"")
+
         //inject the key dynamically into the manifest
         manifestPlaceholders["MAPS_API_KEY"]  = apiKey
         }
