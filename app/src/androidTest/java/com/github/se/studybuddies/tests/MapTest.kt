@@ -44,7 +44,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
     val usersVM = UsersViewModel(uid)
 
     composeTestRule.setContent {
-      MapScreen(uid = uid,userVM,usersVM, navigationActions = mockNavActions, context = context)
+      MapScreen(uid = uid, userVM, usersVM, navigationActions = mockNavActions, context = context)
     }
   }
 

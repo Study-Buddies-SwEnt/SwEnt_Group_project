@@ -55,7 +55,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                         "best 1",
                         Uri.parse(
                             "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-                    location = "offline")),
+                        location = "offline")),
             photoUrl = "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
@@ -178,7 +178,8 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     val message =
         Message(
             text = "Hello, World!",
-            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
+            sender =
+                User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(true) }
     val showEditDialog = remember { mutableStateOf(false) }
@@ -238,7 +239,8 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
     val message =
         Message(
             text = "Hello, World!",
-            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
+            sender =
+                User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(true) }
