@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.chat
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -61,6 +61,7 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel

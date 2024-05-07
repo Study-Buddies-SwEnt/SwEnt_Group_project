@@ -54,11 +54,11 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.permissions.checkPermission
-import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.utility.createGroupInviteLink

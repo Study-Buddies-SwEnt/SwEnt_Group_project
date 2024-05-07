@@ -26,10 +26,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
-import com.github.se.studybuddies.ui.settings.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.TopicViewModel
 

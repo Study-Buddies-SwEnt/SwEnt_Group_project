@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.settings
+package com.github.se.studybuddies.ui.shared_elements
 
 import android.net.Uri
 import androidx.compose.foundation.Image
