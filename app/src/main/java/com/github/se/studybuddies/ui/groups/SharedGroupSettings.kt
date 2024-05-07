@@ -48,28 +48,6 @@ fun GroupFields(nameState: MutableState<String>) {
 }
 
 @Composable
-fun SaveButton(nameState: MutableState<String>, save: () -> Unit) {
-  Button(
-      onClick = save,
-      enabled = nameState.value.isNotBlank(),
-      modifier =
-          Modifier.padding(20.dp)
-              .width(300.dp)
-              .height(50.dp)
-              .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
-              .testTag("save_button"),
-      colors =
-          ButtonDefaults.buttonColors(
-              containerColor = Blue,
-          )) {
-        Text(
-            stringResource(R.string.save),
-            color = White,
-            modifier = Modifier.testTag("save_button_text"))
-      }
-}
-
-@Composable
 fun GroupTitle(title: String) {
   Text(title, modifier = Modifier.padding(0.dp).testTag("todoTitle"), color = Red)
 }

@@ -32,6 +32,7 @@ import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.settings.SaveButton
 import com.github.se.studybuddies.ui.settings.SetProfilePicture
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -82,7 +83,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxWidth().background(White).testTag("create_group_column"),
+            modifier = Modifier.fillMaxSize().background(White).testTag("create_group_column"),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.padding(20.dp))

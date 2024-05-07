@@ -69,6 +69,6 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
           ButtonDefaults.buttonColors(
               containerColor = Blue,
           )) {
-        Text(stringResource(R.string.save), color = White)
+        Text(stringResource(R.string.save), color = White, modifier = Modifier.testTag("save_button_text"))
       }
 }

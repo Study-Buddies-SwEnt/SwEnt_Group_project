@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.groups.SaveButton
+import com.github.se.studybuddies.ui.settings.SaveButton
 import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
@@ -54,11 +54,11 @@ fun TopicCreation(
       }) {
         Column(
             modifier =
-                Modifier.fillMaxWidth()
+                Modifier.fillMaxSize()
                     .background(Color.White)
                     .padding(20.dp)
                     .testTag("create_topic_column"),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Text("Enter Topic Name")
 
