@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.FileInputStream
 import java.util.Properties
@@ -31,12 +32,13 @@ android {
         val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
 
         //inject the key dynamically into the manifest
-        manifestPlaceholders["MAPS_API_KEY"]  = apiKey
-        manifestPlaceholders["STREAM"] = properties.getProperty("STREAM", "")
-        }
+        manifestPlaceholders["MAPS_API_KEY"] = apiKey
+
+        //buildConfigField("string", "STREAM", "\"${properties.getProperty("STREAM", "")}\"")
+    }
 
     configurations.configureEach {
-        exclude(group= "com.google.protobuf", module= "protobuf-lite")
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
     }
 
     signingConfigs {
@@ -96,7 +98,21 @@ android {
         }
         unitTests.isReturnDefaultValues = true
     }
+
+    androidComponents {
+        onVariants {
+            val mapsKeyFile = rootProject.file("./local.properties")
+            val properties = Properties()
+            properties.load(mapsKeyFile.inputStream())
+            it.buildConfigFields.put(
+                "STREAM", BuildConfigField(
+                    "String", "\"${properties.getProperty("STREAM", "")}\"", ""
+                )
+            )
+        }
+    }
 }
+
 
 
 dependencies {

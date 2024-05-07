@@ -21,5 +21,5 @@ val BOTTOM_NAVIGATION_DESTINATIONS =
 
 val GROUPS_BOTTOM_NAVIGATION_DESTINATIONS =
     listOf(
-        Destination(route = Route.VIDEOCALL, icon = R.drawable.video_call, textId = "Video Call"),
+        Destination(route = Route.CALLLOBBY, icon = R.drawable.video_call, textId = "Call Lobby"),
         Destination(route = Route.TIMER, icon = R.drawable.messages, textId = "Timer"))
