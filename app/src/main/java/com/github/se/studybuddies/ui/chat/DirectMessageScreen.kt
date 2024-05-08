@@ -42,7 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.User
@@ -95,14 +95,12 @@ fun DirectMessageScreen(
           Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
+        } else if (showAddPrivateMessageList.value) {
+          ListAllUsers(showAddPrivateMessageList, usersViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
-            if (showAddPrivateMessageList.value) {
-              ListAllUsers(showAddPrivateMessageList, usersViewModel)
-            } else {
-              Text(text = stringResource(R.string.direct_messages_empty))
-            }
+            Text(text = stringResource(R.string.direct_messages_empty))
           } else {
             Log.d("MyPrint", "DirectMessageScreen: chats is not empty")
             Column(
@@ -110,32 +108,23 @@ fun DirectMessageScreen(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
             ) {
-              if (showAddPrivateMessageList.value) {
-                ListAllUsers(showAddPrivateMessageList, usersViewModel)
-              } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth().padding(innerPadding)) {
-                  items(chats) { chat ->
-                    DirectMessageItem(chat) {
-                      chatViewModel.setChat(chat)
-                      navigationActions.navigateTo(Route.CHAT)
-                    }
+              LazyColumn(modifier = Modifier.fillMaxWidth().padding(innerPadding)) {
+                items(chats) { chat ->
+                  DirectMessageItem(chat) {
+                    chatViewModel.setChat(chat)
+                    navigationActions.navigateTo(Route.CHAT)
                   }
                 }
               }
             }
           }
-          Box(
-              contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
-              modifier =
-                  Modifier.fillMaxSize() // Fills the parent size
-                      .padding(
-                          bottom =
-                              innerPadding.calculateBottomPadding()) // Adds padding around the box
-              ) {
-                Log.d("MyPrint", "Displaying AddNewPrivateMessage")
-                AddNewPrivateMessage(showAddPrivateMessageList)
-              }
         }
+        Box(
+            contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              AddNewPrivateMessage(showAddPrivateMessageList)
+            }
       },
       title =
           if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
@@ -174,8 +163,8 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
         Image(
-            painter = rememberImagePainter(chat.photoUrl),
-            contentDescription = "User profile picture",
+            painter = rememberAsyncImagePainter(chat.picture),
+            contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
                 Modifier.padding(8.dp)
                     .size(40.dp)
@@ -245,7 +234,7 @@ fun UserItem(user: User, showAddPrivateMessageList: MutableState<Boolean>) {
                     showAddPrivateMessageList.value = false
                   })) {
         Image(
-            painter = rememberImagePainter(user.photoUrl),
+            painter = rememberAsyncImagePainter(user.photoUrl),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
                 Modifier.padding(8.dp)

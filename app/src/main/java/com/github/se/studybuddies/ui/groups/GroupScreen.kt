@@ -141,7 +141,7 @@ fun GroupScreen(
                               Chat(
                                   it.uid,
                                   it.name,
-                                  it.picture.toString(),
+                                  it.picture,
                                   ChatType.GROUP,
                                   groupViewModel.members.value!!.toList())
                             })

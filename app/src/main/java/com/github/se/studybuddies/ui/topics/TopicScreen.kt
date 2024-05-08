@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +54,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -62,17 +65,22 @@ import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
+import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @Composable
 fun TopicScreen(
     groupUID: String,
     topicUID: String,
+    groupViewModel: GroupViewModel,
     topicViewModel: TopicViewModel,
+    chatViewModel: ChatViewModel,
     navigationActions: NavigationActions
 ) {
   topicViewModel.fetchTopicData(topicUID)
   val topicData by topicViewModel.topic.collectAsState()
+  val group by groupViewModel.group.observeAsState()
 
   val nameState = remember { mutableStateOf(topicData.name) }
   var exercisesState by remember { mutableStateOf(topicData.exercises) }
@@ -169,7 +177,21 @@ fun TopicScreen(
                   modifier =
                       Modifier.fillMaxWidth()
                           .background(Color.White)
-                          .clickable { navigationActions.navigateTo(Route.CHAT) }
+                          .clickable {
+                            chatViewModel.setChat(
+                                topicData.let {
+                                  group?.let { grp ->
+                                    Chat(
+                                        it.uid,
+                                        it.name,
+                                        grp.picture,
+                                        ChatType.TOPIC,
+                                        groupViewModel.members.value!!.toList(),
+                                        grp.uid)
+                                  }
+                                })
+                            navigationActions.navigateTo(Route.CHAT)
+                          }
                           .drawBehind {
                             val strokeWidth = 1f
                             val y = size.height - strokeWidth / 2
