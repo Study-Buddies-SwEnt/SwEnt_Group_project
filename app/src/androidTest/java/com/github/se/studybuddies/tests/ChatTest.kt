@@ -55,7 +55,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                         "best 1",
                         Uri.parse(
                             "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-                        location = "offline")),
+                        "offline")),
             photoUrl = "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
