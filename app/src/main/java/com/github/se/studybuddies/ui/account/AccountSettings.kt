@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,17 +99,17 @@ fun AccountSettings(
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             },
             actions = {})
-      }) {
+      }) { paddingValue ->
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
+            verticalArrangement = Arrangement.Top) {
               LazyColumn(
-                  modifier = Modifier.fillMaxSize(),
-                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.Start,
+                  modifier = Modifier.fillMaxSize().padding(paddingValue),
+                  verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.CenterHorizontally,
               ) {
-                item { Spacer(modifier = Modifier.size(40.dp)) }
+                item { Spacer(modifier = Modifier.size(20.dp)) }
                 item { AccountFields(usernameState) }
                 item { Spacer(modifier = Modifier.size(10.dp)) }
                 item {
@@ -126,7 +127,6 @@ fun AccountSettings(
                     navigationActions.navigateTo(Route.SOLOSTUDYHOME)
                   }
                 }
-                item { Spacer(modifier = Modifier.size(10.dp)) }
                 item { SignOutButton(navigationActions, userViewModel) }
               }
             }

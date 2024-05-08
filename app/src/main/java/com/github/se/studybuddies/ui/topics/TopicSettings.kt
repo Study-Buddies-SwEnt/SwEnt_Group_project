@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -35,10 +30,10 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -90,26 +85,10 @@ fun TopicSettings(
               Spacer(Modifier.height(20.dp))
 
               Spacer(modifier = Modifier.padding(20.dp))
-              Button(
-                  onClick = {
-                    topicViewModel.updateTopicName(nameState.value)
-                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                  },
-                  modifier =
-                      Modifier.padding(20.dp)
-                          .width(300.dp)
-                          .height(50.dp)
-                          .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
-                          .testTag("save_button"),
-                  colors =
-                      ButtonDefaults.buttonColors(
-                          containerColor = Blue,
-                      )) {
-                    Text(
-                        stringResource(R.string.save),
-                        color = White,
-                        modifier = Modifier.testTag("save_button_text"))
-                  }
+              SaveButton(nameState) {
+                topicViewModel.updateTopicName(nameState.value)
+                navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+              }
             }
       }
 }

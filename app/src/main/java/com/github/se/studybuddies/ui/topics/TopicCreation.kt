@@ -52,11 +52,7 @@ fun TopicCreation(
             actions = {})
       }) {
         Column(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(Color.White)
-                    .padding(20.dp)
-                    .testTag("create_topic_column"),
+            modifier = Modifier.fillMaxSize().padding(20.dp).testTag("create_topic_column"),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Text("Enter Topic Name")

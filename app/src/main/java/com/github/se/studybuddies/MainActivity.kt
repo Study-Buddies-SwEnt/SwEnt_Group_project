@@ -189,7 +189,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    GroupSetting(groupUID, navigationActions)
+                    GroupSetting(groupUID, GroupViewModel(groupUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }

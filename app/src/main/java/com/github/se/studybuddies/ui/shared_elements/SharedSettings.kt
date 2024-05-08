@@ -32,8 +32,6 @@ import com.github.se.studybuddies.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountFields(usernameState: MutableState<String>) {
-  Text(stringResource(R.string.msg_usename_user_will_see), modifier = Modifier.width(300.dp))
-  Spacer(Modifier.height(20.dp))
   OutlinedTextField(
       value = usernameState.value,
       onValueChange = { usernameState.value = it },
@@ -44,6 +42,8 @@ fun AccountFields(usernameState: MutableState<String>) {
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
               focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))
+  Spacer(Modifier.height(10.dp))
+  Text(stringResource(R.string.msg_usename_user_will_see), modifier = Modifier.width(300.dp))
 }
 
 @Composable
