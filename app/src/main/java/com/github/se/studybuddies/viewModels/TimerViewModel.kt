@@ -56,7 +56,7 @@ class TimerViewModel private constructor() : ViewModel() {
   fun resetTimer() {
     isRunning = false
     countDownTimer?.cancel()
-    _timerValue.value = 0 // Reset to full duration
+    _timerValue.value = 0
     _timerEnd.value = false
   }
 

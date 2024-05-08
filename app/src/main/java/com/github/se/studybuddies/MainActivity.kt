@@ -34,7 +34,6 @@ import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
-import com.github.se.studybuddies.ui.timer.DataHelper
 import com.github.se.studybuddies.ui.timer.SharedTimerScreen
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.ui.todo.CreateToDo
@@ -238,9 +237,9 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.TIMER) {
               if (auth.currentUser != null) {
-                val dataHelper = DataHelper(applicationContext)
+
                 val viewModel = TimerViewModel.getInstance()
-                Log.d("timerState", "${viewModel.timerValue.value}")
+
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
