@@ -50,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
@@ -62,10 +61,7 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private val db = DatabaseConnection()
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -81,7 +77,6 @@ fun GroupSetting(
 
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val photoState = remember { mutableStateOf(groupData?.picture ?: Uri.EMPTY) }
-
   val groupLink = remember { mutableStateOf("") }
 
   val context = LocalContext.current
@@ -89,6 +84,7 @@ fun GroupSetting(
   groupData?.let {
     nameState.value = it.name
     photoState.value = it.picture
+    groupLink.value = groupViewModel.createGroupInviteLink(groupUID, nameState.value)
   }
 
   val getContent =
@@ -139,13 +135,13 @@ fun GroupSetting(
                       }
                     }
                     item { Spacer(modifier = Modifier.padding(20.dp)) }
-                    item { AddMemberButton(groupUID, db) }
+                    item { AddMemberButton(groupUID, groupViewModel) }
                     item { Spacer(modifier = Modifier.padding(0.dp)) }
                     item { ShareLinkButton(groupLink.value) }
                     item { Spacer(modifier = Modifier.padding(10.dp)) }
                     item {
                       SaveButton(nameState) {
-                        db.updateGroup(groupUID, nameState.value, photoState.value)
+                        groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
                         navigationActions.navigateTo(Route.GROUPSHOME)
                       }
                     }
@@ -186,7 +182,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
+fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
@@ -223,21 +219,7 @@ fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
                 onDone = {
                   // add the user to the database
                   isTextFieldVisible = false
-                  scope.launch {
-                    if (text != "") {
-
-                      val error = db.addUserToGroup(groupUID, text)
-                      if (error == -1) {
-                        showError = true
-                        delay(3000L) // delay for 3 seconds
-                        showError = false
-                      } else {
-                        showSucces = true
-                        delay(3000L) // delay for 3 seconds
-                        showSucces = false
-                      }
-                    }
-                  }
+                  groupViewModel.addUserToGroup(groupUID, text)
                 }))
   }
   if (showError) {
