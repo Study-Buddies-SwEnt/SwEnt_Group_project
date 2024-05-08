@@ -169,7 +169,7 @@ fun MapScreen(
       title = "Map",
       iconOptions = {
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.padding(8.dp)) {
-          FriendsLocationButton(context, uid, usersViewModel, friendsData)
+          FriendsLocationButton(context, isTrackingOn, usersViewModel, friendsData)
           UserLocationButton(uid, context, locationManager, isTrackingOn, isZooming)
         }
       })
@@ -237,7 +237,7 @@ fun UserLocationButton(
 @Composable
 fun FriendsLocationButton(
     context: Context,
-    uid: String,
+    isTrackingOn: MutableState<Boolean>,
     usersViewModel: UsersViewModel,
     friendsData: MutableState<List<User>>,
 ) {
@@ -268,13 +268,17 @@ fun FriendsLocationButton(
         10000)
   }
   if (isLoading.value) {
-    CircularProgressIndicator(modifier = Modifier.padding(24.dp).size(30.dp))
+    CircularProgressIndicator(modifier = Modifier.padding(24.dp).size(30.dp).testTag("loading"))
   } else {
     if (friends.isEmpty()) {
       Text(
           text = stringResource(id = R.string.no_friends_found),
           modifier = Modifier.width(250.dp).height(80.dp).padding(25.dp).size(20.dp),
           color = Red)
+      // When the location tracking is on, we shouldn't show this toast as the "screen" is
+      // refreshing every 10 sec
+    } else if (!isTrackingOn.value) {
+      Toast.makeText(context, R.string.friends_location_found, Toast.LENGTH_SHORT).show()
     }
   }
 }
