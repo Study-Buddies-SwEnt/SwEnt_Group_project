@@ -42,6 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -174,7 +175,7 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
         Image(
-            painter = rememberImagePainter(chat.photoUrl),
+            painter = rememberAsyncImagePainter(chat.picture),
             contentDescription = "User profile picture",
             modifier =
                 Modifier.padding(8.dp)
