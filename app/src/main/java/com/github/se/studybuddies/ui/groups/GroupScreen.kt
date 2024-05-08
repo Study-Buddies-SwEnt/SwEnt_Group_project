@@ -35,7 +35,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -142,7 +141,7 @@ fun GroupScreen(
                               Chat(
                                   it.uid,
                                   it.name,
-                                  it.picture.toString(),
+                                  it.picture,
                                   ChatType.GROUP,
                                   groupViewModel.members.value!!.toList())
                             })
