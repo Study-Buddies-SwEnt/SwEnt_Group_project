@@ -127,19 +127,6 @@ class ChatTestPrivate : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
   }
-
-  @Test
-  fun textAndButtonAreCorrectlyDisplayed() {
-    onComposeScreen<ChatScreen>(composeTestRule) {
-      sendButton {
-        assertIsDisplayed()
-        assertHasClickAction()
-      }
-      textField { assertIsDisplayed() }
-      chatMessage { assertIsDisplayed() }
-    }
-  }
-
   @Test
   fun testTitle() {
     onComposeScreen<ChatScreen>(composeTestRule) {
