@@ -95,14 +95,13 @@ fun DirectMessageScreen(
           Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
+        }
+        if (showAddPrivateMessageList.value) {
+          ListAllUsers(showAddPrivateMessageList, usersViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
-            if (showAddPrivateMessageList.value) {
-              ListAllUsers(showAddPrivateMessageList, usersViewModel)
-            } else {
-              Text(text = stringResource(R.string.direct_messages_empty))
-            }
+            Text(text = stringResource(R.string.direct_messages_empty))
           } else {
             Log.d("MyPrint", "DirectMessageScreen: chats is not empty")
             Column(
@@ -110,27 +109,23 @@ fun DirectMessageScreen(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
             ) {
-              if (showAddPrivateMessageList.value) {
-                ListAllUsers(showAddPrivateMessageList, usersViewModel)
-              } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth().padding(innerPadding)) {
-                  items(chats) { chat ->
-                    DirectMessageItem(chat) {
-                      chatViewModel.setChat(chat)
-                      navigationActions.navigateTo(Route.CHAT)
-                    }
+              LazyColumn(modifier = Modifier.fillMaxWidth().padding(innerPadding)) {
+                items(chats) { chat ->
+                  DirectMessageItem(chat) {
+                    chatViewModel.setChat(chat)
+                    navigationActions.navigateTo(Route.CHAT)
                   }
                 }
               }
             }
           }
-          Box(
-              contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
-              modifier =
-                  Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
-                AddNewPrivateMessage(showAddPrivateMessageList)
-              }
         }
+        Box(
+            contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              AddNewPrivateMessage(showAddPrivateMessageList)
+            }
       },
       title =
           if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
