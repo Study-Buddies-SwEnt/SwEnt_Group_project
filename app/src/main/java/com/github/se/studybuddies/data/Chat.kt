@@ -1,11 +1,14 @@
 package com.github.se.studybuddies.data
 
+import android.net.Uri
+
 data class Chat(
     val uid: String,
     var name: String,
-    var photoUrl: String,
+    var picture: Uri,
     val type: ChatType,
     var members: List<User>,
+    val additionalUID: String = ""
     //    var messages: List<Message>
 ) {
   companion object {
@@ -13,19 +16,8 @@ data class Chat(
       return Chat(
           uid = "",
           name = "",
-          photoUrl = "",
+          picture = Uri.EMPTY,
           type = ChatType.GROUP,
-          members = emptyList(),
-          //          messages = emptyList()
-      )
-    }
-
-    fun withId(uid: String, type: ChatType): Chat {
-      return Chat(
-          uid = uid,
-          name = "",
-          photoUrl = "",
-          type = type,
           members = emptyList(),
           //          messages = emptyList()
       )
