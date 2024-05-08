@@ -70,4 +70,12 @@
     <string name="new_private_message_icon">New Private Message</string>
     <string name="edit_topic_name">Edit Topic Name</string>
     <string name="friends_location_found">Friends location found</string>
+    <string name="offline">Offline</string>
+    <string name="location_service_started">Location service started</string>
+    <string name="location_service_stopped">Location service stopped</string>
+    <string name="location_permission_not_granted">Location permission not granted or waiting for them</string>
+    <string name="network_not_enabled">Network not enabled</string>
+    <string name="gps_not_enabled">GPS not enabled</string>
+    <string name="your_location">"Your Location"</string>
+    <string name="this_is_your_current_location">This is your current location</string>
 </resources>

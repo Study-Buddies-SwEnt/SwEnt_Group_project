@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
@@ -46,14 +47,18 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
       email: String,
       username: String,
       profilePictureUri: Uri,
-      location: String = "offline"
+      location: String = R.string.offline.toString()
   ) {
     viewModelScope.launch { db.createUser(uid, email, username, profilePictureUri, location) }
   }
 
   fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
     db.updateUserData(
-        uid, email, username, profilePictureUri, userData.value?.location ?: "offline")
+        uid,
+        email,
+        username,
+        profilePictureUri,
+        userData.value?.location ?: R.string.offline.toString())
   }
 
   fun updateLocation(uid: String, location: String) {

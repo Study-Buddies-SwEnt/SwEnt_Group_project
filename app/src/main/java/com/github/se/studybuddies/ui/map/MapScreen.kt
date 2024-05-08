@@ -46,16 +46,14 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.mapService.LocationService
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.permissions.hasLocationPermission
-import com.github.se.studybuddies.ui.screens.MainScreenScaffold
+import com.github.se.studybuddies.permissions.hasLocationPermission
+import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.Red
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.github.se.studybuddies.permissions.hasLocationPermission
-import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -150,8 +148,8 @@ fun MapScreen(
                   val position = LatLng(it.latitude, it.longitude)
                   Marker(
                       state = rememberMarkerState(position = position),
-                      title = "Your Location",
-                      snippet = "This is your current location")
+                      title = R.string.your_location.toString(),
+                      snippet = R.string.this_is_your_current_location.toString())
                 }
               }
               friendsData.value.forEach { friend ->
@@ -190,9 +188,10 @@ fun UserLocationButton(
           contract = ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-              Log.d("MapScreen", "Permission granted")
+              Log.d("MapScreen", R.string.permission_granted.toString())
             } else {
-              Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, R.string.location_permission_not_granted, Toast.LENGTH_SHORT)
+                  .show()
             }
           }
 
@@ -212,15 +211,15 @@ fun UserLocationButton(
             } else if (!isNetworkEnabled) {
               Toast.makeText(context, "Network not enabled", Toast.LENGTH_SHORT).show()
             } else if (!context.hasLocationPermission()) {
-              Log.d("MapScreen", "Location permission not granted or waiting for them")
+              Log.d("MapScreen", R.string.location_permission_not_granted.toString())
             } else if (isTrackingOn.value) {
               Intent(context, LocationService::class.java).apply {
                 action = LocationService.ACTION_STOP
                 context.startService(this)
               }
               isTrackingOn.value = false
-              Toast.makeText(context, "Location service stopped", Toast.LENGTH_SHORT).show()
-              UserViewModel().updateLocation(uid, "offline")
+              Toast.makeText(context, R.string.location_service_stopped, Toast.LENGTH_SHORT).show()
+              UserViewModel().updateLocation(uid, R.string.offline.toString())
               // In the case where nothing is wrong, we start the LocationService
             } else {
               Intent(context, LocationService::class.java).apply {
@@ -229,7 +228,7 @@ fun UserLocationButton(
               }
               isTrackingOn.value = true
               isZooming.value = true
-              Toast.makeText(context, "Location service started", Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, R.string.location_service_started, Toast.LENGTH_SHORT).show()
             }
           },
       tint = if (isTrackingOn.value) Color.Red else Color.Gray,
