@@ -62,4 +62,8 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
       }
     }
   }
+
+  fun leaveGroup(groupUID: String, userUID: String = "") {
+    viewModelScope.launch { db.removeUserFromGroup(groupUID, userUID) }
+  }
 }

@@ -73,6 +73,7 @@ import com.github.se.studybuddies.ui.screens.MainScreenScaffold
 import com.github.se.studybuddies.ui.screens.SearchIcon
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
+import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -152,6 +153,7 @@ fun GroupsHome(
 fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions) {
     var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
+    val groupViewModel = GroupViewModel(groupUID)
   IconButton(
       onClick = { expandedState.value = true },
   ) {
@@ -194,8 +196,8 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                     ) {
                         Button(
                             onClick = {
-                                //db.leaveGroup(groupUID)
-                                //navigationActions.navigateTo(Route.GROUPSHOME)
+                                groupViewModel.leaveGroup(groupUID)
+                                navigationActions.navigateTo(Route.GROUPSHOME)
                                 isLeaveGroupDialogVisible = false
                             },
                             modifier = Modifier

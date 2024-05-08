@@ -484,6 +484,8 @@ class DatabaseConnection {
             userUID
         }
 
+        //todo why no succefully remove user in group, userMemberShip work
+        //todo if a group don't have any member anymore, delete the group.
     groupDataCollection
         .document(groupUID)
         .update("members", FieldValue.arrayRemove(userUID))
