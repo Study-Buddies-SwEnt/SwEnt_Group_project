@@ -66,7 +66,7 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
       }
       subTitle {
         assertIsDisplayed()
-        assertTextEquals("Profile setting")
+        assertTextEquals("Profile settings")
       }
       goBackButton {
         // arrange: verify pre-conditions
