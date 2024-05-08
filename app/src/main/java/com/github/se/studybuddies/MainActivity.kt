@@ -277,7 +277,13 @@ class MainActivity : ComponentActivity() {
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (topicUID != null && groupUID != null) {
-                    TopicScreen(groupUID, topicUID, TopicViewModel(topicUID), navigationActions)
+                    TopicScreen(
+                        groupUID,
+                        topicUID,
+                        GroupViewModel(groupUID),
+                        TopicViewModel(topicUID),
+                        chatViewModel,
+                        navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicScreen")
                   }
                 }
@@ -288,9 +294,9 @@ class MainActivity : ComponentActivity() {
                         navArgument("groupUID") { type = NavType.StringType },
                         navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
-                  val groupUid = backStackEntry.arguments?.getString("groupUID")
-                  if (topicUID != null && groupUid != null) {
-                    TopicSettings(topicUID, groupUid, TopicViewModel(topicUID), navigationActions)
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUID != null) {
+                    TopicSettings(topicUID, groupUID, TopicViewModel(topicUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
