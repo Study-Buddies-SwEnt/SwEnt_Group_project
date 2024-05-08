@@ -34,7 +34,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     viewModelScope.launch { _currentUser.value = db.getCurrentUser() }
   }
 
-  fun sendMessage(text: String) {
+  fun sendTextMessage(text: String) {
     val message =
         _currentUser.value?.let {
           Message.TextMessage(text = text, sender = it, timestamp = System.currentTimeMillis())

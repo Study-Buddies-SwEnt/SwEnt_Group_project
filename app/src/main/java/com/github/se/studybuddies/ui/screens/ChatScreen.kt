@@ -126,7 +126,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                 }
           }
         }
-        MessageTextFields(onSend = { viewModel.sendMessage(it) })
+        MessageTextFields(onSend = { viewModel.sendTextMessage(it) })
       }
 }
 
