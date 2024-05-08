@@ -27,8 +27,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.groups.SaveButton
 import com.github.se.studybuddies.ui.screens.GoBackRouteButton
+import com.github.se.studybuddies.ui.screens.SaveButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
@@ -82,7 +82,7 @@ fun TopicCreation(
                           cursorColor = Blue))
               Spacer(modifier = Modifier.height(20.dp))
 
-              SaveButton(nameState) {
+              SaveButton(nameState.value.isNotBlank()) {
                 topicViewModel.createTopic(nameState.value, groupUID)
                 navigationActions.navigateTo("${Route.GROUP}/$groupUID")
               }

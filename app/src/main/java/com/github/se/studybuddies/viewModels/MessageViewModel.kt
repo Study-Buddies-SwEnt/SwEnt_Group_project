@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -38,6 +39,20 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     val message =
         _currentUser.value?.let {
           Message.TextMessage(text = text, sender = it, timestamp = System.currentTimeMillis())
+        }
+
+    if (message != null) {
+      if (chat.type == ChatType.TOPIC)
+          db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
+      else db.sendMessage(chat.uid, message, chat.type)
+    } else Log.d("MyPrint", "message is null, could not retrieve")
+  }
+
+  fun sendPhotoMessage(photoUri: Uri) {
+    val message =
+        _currentUser.value?.let {
+          Message.PhotoMessage(
+              photoUri = photoUri, sender = it, timestamp = System.currentTimeMillis())
         }
 
     if (message != null) {

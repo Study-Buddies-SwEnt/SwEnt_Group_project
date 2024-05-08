@@ -492,29 +492,63 @@ class DatabaseConnection {
       is Message.TextMessage -> {
         messageData[MessageVal.TEXT] = message.text
         messageData[MessageVal.TYPE] = MessageVal.TEXT
+        saveMessage(messagePath, messageData)
       }
       is Message.PhotoMessage -> {
-        messageData[MessageVal.PHOTO] = message.photoUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.PHOTO
+
+        uploadChatImage(message.uid, UID, message.photoUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
+            messageData[MessageVal.PHOTO] = uri.toString()
+            messageData[MessageVal.TYPE] = MessageVal.PHOTO
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload photo")
+          }
+        }
       }
       is Message.FileMessage -> {
         messageData[MessageVal.PHOTO] = message.fileUri.toString()
         messageData[MessageVal.TYPE] = MessageVal.FILE
+        saveMessage(messagePath, messageData)
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
         messageData[MessageVal.TYPE] = MessageVal.LINK
+        saveMessage(messagePath, messageData)
       }
       else -> {
         Log.d("MyPrint", "Message type not recognized")
       }
     }
+  }
 
+  private fun saveMessage(path: String, data: Map<String, Any>) {
     rt_db
-        .getReference(messagePath)
-        .updateChildren(messageData as Map<String, Any>)
+        .getReference(path)
+        .updateChildren(data)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
-        .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
+        .addOnFailureListener { e -> Log.w("MessageSend", "Failed to write message.", e) }
+  }
+
+  private fun uploadChatImage(
+      uid: String,
+      chatUID: String,
+      imageUri: Uri,
+      callback: (Uri?) -> Unit
+  ) {
+    val storagePath = "chatData/$chatUID/$uid.jpg"
+    val pictureRef = storage.child(storagePath)
+
+    pictureRef
+        .putFile(imageUri)
+        .addOnSuccessListener {
+          pictureRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) }
+        }
+        .addOnFailureListener { e ->
+          Log.e("UploadChatImage", "Failed to upload image: ", e)
+          callback(null)
+        }
   }
 
   fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {

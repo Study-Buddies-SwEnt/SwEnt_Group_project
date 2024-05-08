@@ -28,6 +28,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.screens.SaveButton
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -86,7 +87,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                       getContent.launch(imageInput)
                     }
                   }
-                  SaveButton(usernameState) {
+                  SaveButton(usernameState.value.isNotEmpty()) {
                     userViewModel.createUser(uid, email, usernameState.value, photoState.value)
                     navigationActions.navigateTo(Route.SOLOSTUDYHOME)
                   }

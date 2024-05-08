@@ -147,7 +147,7 @@ class ChatTestBubble : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Before
   fun testSetup() {
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
@@ -177,7 +177,7 @@ class ChatTestBubbleNotUser : TestCase(kaspressoBuilder = Kaspresso.Builder.with
   @Before
   fun testSetup() {
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
@@ -218,7 +218,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
             picture = Uri.EMPTY)
     val vm = MessageViewModel(chat)
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
@@ -230,7 +230,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Before
   fun testSetup() {
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
@@ -279,7 +279,7 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
             picture = Uri.EMPTY)
     val vm = MessageViewModel(chat)
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User("blabalUID", "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
@@ -291,7 +291,7 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @Before
   fun testSetup() {
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
@@ -334,7 +334,7 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
   fun testTrySetup() {
     val vm = MessageViewModel(chat)
     val message =
-        Message(
+        Message.TextMessage(
             text = "Hello, World!",
             sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
             timestamp = System.currentTimeMillis())
