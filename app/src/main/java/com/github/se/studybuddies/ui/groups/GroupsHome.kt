@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenuItem
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -58,6 +60,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.wear.compose.material.dialog.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
@@ -171,38 +175,59 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
     }
   }
     if (isLeaveGroupDialogVisible) {
-        OutlinedTextField(
-            value = "Are you sure you want to leave the group?",
-            onValueChange = {},
-            readOnly = true,
-            modifier = Modifier.padding(16.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = White,
-                unfocusedContainerColor = White,
-                unfocusedLabelColor = Blue,
-                unfocusedIndicatorColor = Blue,
-            )
-        )
+        Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
+            Box(modifier = Modifier
+                .width(280.dp)
+                .height(140.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White)) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Are you sure you want to leave the group ?")
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                //db.leaveGroup(groupUID)
+                                //navigationActions.navigateTo(Route.GROUPSHOME)
+                                isLeaveGroupDialogVisible = false
+                            },
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp),
+                            colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Blue,
+                                contentColor = Color.Red
+                            )     )                 {
+                            Text(text = "Yes")
+                        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Text(
-                text = "Yes",
-                color = Color.Red,
-                modifier = Modifier.clickable {
-                    //db.leaveGroup(groupUID)
-                    //navigationActions.navigateTo(Route.GROUPSHOME)
-                    isLeaveGroupDialogVisible = false
+                        Button(
+                            onClick = {
+                                isLeaveGroupDialogVisible = false
+                            },
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp),
+                            colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Blue,
+                                contentColor = Color.White
+                            )    )                   {
+                            Text(text = "No")
+                        }
+                    }
                 }
-            )
-            Text(
-                text = "No",
-                modifier = Modifier.clickable {
-                    isLeaveGroupDialogVisible = false
-                }
-            )
+            }
         }
     }
 }
