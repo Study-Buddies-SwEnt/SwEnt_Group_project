@@ -1,14 +1,30 @@
 package com.github.se.studybuddies.data
 
+import android.util.Log
+
 data class Topic(
     val uid: String,
     val name: String,
-    val exercises: List<TopicItem>,
-    val theory: List<TopicItem>
+    var exercises: List<TopicItem>,
+    var theory: List<TopicItem>
 ) {
-  companion object {
+    fun sortItems() {
+        Log.d("MyPrint", "sorting")
+        exercises = sortItemsList(exercises.toMutableList())
+        theory = sortItemsList(theory.toMutableList())
+    }
+
+    private fun sortItemsList(items: MutableList<TopicItem>): MutableList<TopicItem> {
+        return items.sortedWith(compareByDescending<TopicItem> { it is TopicFile }.thenByDescending { it.name }).toMutableList().also { sortedItems ->
+            sortedItems.filterIsInstance<TopicFolder>().forEach { folder ->
+                folder.items = sortItemsList(folder.items.toMutableList())
+            }
+        }
+    }
+
+    companion object {
     fun empty(): Topic {
-      return Topic(uid = "", name = "", exercises = emptyList(), theory = emptyList())
+      return Topic(uid = "", name = "", exercises = mutableListOf(), theory = mutableListOf())
     }
   }
 }

@@ -11,7 +11,7 @@ data class TopicFile(
 data class TopicFolder(
     override val uid: String,
     val folderName: String,
-    val items: List<TopicItem>
+    var items: List<TopicItem>
 ) : TopicItem(uid, folderName)
 
 enum class ItemType {

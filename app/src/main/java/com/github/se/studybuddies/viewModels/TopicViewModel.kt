@@ -38,7 +38,9 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
 
   fun fetchTopicData(uid: String) {
     viewModelScope.launch {
-      _topic.value = db.getTopic(uid)
+      val task = db.getTopic(uid)
+      task.sortItems()
+      _topic.value = task
       Log.d("MyPrint", "Topic data fetched")
     }
   }
