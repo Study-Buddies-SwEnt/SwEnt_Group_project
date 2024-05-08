@@ -56,7 +56,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                         Uri.parse(
                             "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
                         "offline")),
-            photoUrl = "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
+            picture =
+                Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
   }
@@ -121,7 +122,8 @@ class ChatTestPrivate : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
                         "e@a",
                         "best 1",
                         Uri.parse(
-                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))),
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+                        "offline")),
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
@@ -282,7 +284,7 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("blabalUID", "testUser", "testUser", Uri.EMPTY),
+            sender = User("blabalUID", "testUser", "testUser", Uri.EMPTY, "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(true) }
     val showEditDialog = remember { mutableStateOf(false) }
@@ -294,7 +296,7 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { testTrySetup() }
   }
