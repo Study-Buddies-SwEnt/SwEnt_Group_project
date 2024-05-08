@@ -478,8 +478,13 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendMessage(UID: String, message: Message, chatType: ChatType) {
-    val messagePath = getMessagePath(UID, chatType) + "/${message.uid}"
+  fun sendMessage(UID: String, message: Message, chatType: ChatType, additionalUID: String = "") {
+    val messagePath =
+        if (chatType == ChatType.TOPIC) {
+          getMessagePath(UID, chatType, additionalUID) + "/${message.uid}"
+        } else {
+          getMessagePath(UID, chatType) + "/${message.uid}"
+        }
     val messageData =
         mapOf(
             MessageVal.TEXT to message.text,
@@ -520,7 +525,7 @@ class DatabaseConnection {
   }
 
   private fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.TOPICS + "/$topicUID/" + ChatVal.MESSAGES
+    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
   private fun getPrivateMessagesPath(chatUID: String): String {
@@ -554,16 +559,13 @@ class DatabaseConnection {
 
                     if (otherUserId != null) {
                       getUser(otherUserId).let { otherUser ->
-                        val otherUserName = otherUser.username
-                        val otherUserPhotoUrl = otherUser.photoUrl.toString()
-
                         val messages = MutableStateFlow<List<Message>>(emptyList())
                         getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
                         val newChat =
                             Chat(
                                 uid = chat.key ?: "",
-                                name = otherUserName,
-                                photoUrl = otherUserPhotoUrl,
+                                name = otherUser.username,
+                                picture = otherUser.photoUrl,
                                 type = ChatType.PRIVATE,
                                 members = listOf(otherUser, getUser(userUID)))
                         chatList.add(newChat)
