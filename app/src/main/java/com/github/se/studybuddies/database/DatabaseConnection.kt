@@ -377,12 +377,11 @@ class DatabaseConnection {
     }
 
     // only look if userUID exist, can't find user by username
-    val userToAdd: String
-    if (user == "") {
-      userToAdd = getCurrentUserUID()
-    } else {
-      userToAdd = user
-    }
+      val userToAdd = if (user == "") {
+          getCurrentUserUID()
+      } else {
+          user
+      }
 
     if (getUser(userToAdd) == User.empty()) {
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
@@ -476,6 +475,31 @@ class DatabaseConnection {
           Log.d("UpdateGroup", "Failed to upload photo with error: ", e)
         }
   }
+
+    fun removeUserFromGroup(groupUID: String, userUID: String = "") {
+
+        val userToAdd = if (userUID == "") {
+            getCurrentUserUID()
+        } else {
+            userUID
+        }
+
+    groupDataCollection
+        .document(groupUID)
+        .update("members", FieldValue.arrayRemove(userUID))
+        .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to remove user from group with error: ", e)
+        }
+
+    userMembershipsCollection
+        .document(userToAdd)
+        .update("groups", FieldValue.arrayRemove(groupUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Remove group from user successfully") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to remove group from user with error: ", e)
+        }
+    }
 
   // using the Realtime Database for messages
   fun sendMessage(UID: String, message: Message, chatType: ChatType) {
