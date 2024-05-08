@@ -127,6 +127,7 @@ class ChatTestPrivate : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
   }
+
   @Test
   fun testTitle() {
     onComposeScreen<ChatScreen>(composeTestRule) {
