@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.permissions
+package com.github.se.studybuddies.permissions
 
 import android.Manifest
 import android.content.Context

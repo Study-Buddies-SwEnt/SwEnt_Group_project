@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.account
 
 import android.app.Activity
 import android.util.Log
