@@ -108,14 +108,15 @@ fun GroupsHome(
           Column(
               modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
               horizontalAlignment = Alignment.Start,
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-          ) {
-            Spacer(modifier = Modifier.height(80.dp))
-            Text(stringResource(R.string.join_or_create_a_new_group), textAlign = TextAlign.Center)
-            Spacer(modifier = Modifier.height(80.dp))
-            AddGroupButton(navigationActions = navigationActions)
-            AddLinkButton(navigationActions = navigationActions)
-          }
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
+                Spacer(modifier = Modifier.height(80.dp))
+                Text(
+                    stringResource(R.string.join_or_create_a_new_group),
+                    textAlign = TextAlign.Center)
+                Spacer(modifier = Modifier.height(80.dp))
+                AddGroupButton(navigationActions = navigationActions)
+                AddLinkButton(navigationActions = navigationActions)
+              }
         } else {
           Column(
               modifier = Modifier.fillMaxSize().testTag("GroupsHome"),

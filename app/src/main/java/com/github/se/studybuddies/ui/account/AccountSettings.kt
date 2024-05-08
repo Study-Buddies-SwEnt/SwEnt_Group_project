@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,10 +38,13 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.AccountFields
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SetProfilePicture
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.UserViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -85,7 +90,7 @@ fun AccountSettings(
   val permission = imagePermissionVersion()
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().testTag("account_settings"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("account_settings"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.profile_setting)) },
@@ -96,16 +101,34 @@ fun AccountSettings(
       }) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top) {
-              Spacer(Modifier.height(150.dp))
-              SetProfilePicture(photoState) {
-                checkPermission(context, permission, requestPermissionLauncher) {
-                  getContent.launch(imageInput)
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
+              LazyColumn(
+                  modifier = Modifier.fillMaxSize(),
+                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.Start,
+              ) {
+                item { Spacer(modifier = Modifier.size(40.dp)) }
+                item { AccountFields(usernameState) }
+                item { Spacer(modifier = Modifier.size(10.dp)) }
+                item {
+                  SetProfilePicture(photoState) {
+                    checkPermission(context, permission, requestPermissionLauncher) {
+                      getContent.launch(imageInput)
+                    }
+                  }
                 }
+                item { Spacer(modifier = Modifier.size(10.dp)) }
+                item {
+                  SaveButton(usernameState) {
+                    userViewModel.updateUserData(
+                        uid, emailState.value, usernameState.value, photoState.value)
+                    navigationActions.navigateTo(Route.SOLOSTUDYHOME)
+                  }
+                }
+                item { Spacer(modifier = Modifier.size(10.dp)) }
+                item { SignOutButton(navigationActions, userViewModel) }
               }
-              Spacer(Modifier.height(60.dp))
-              SignOutButton(navigationActions, userViewModel)
             }
       }
 }

@@ -121,7 +121,7 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
             actions = {})
       }) {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().background(White).testTag("modify_group_column"),
+            modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_column"),
             verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               item { Spacer(modifier = Modifier.padding(20.dp)) }
