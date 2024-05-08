@@ -64,6 +64,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
+import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -81,8 +82,10 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
     }
   }
 
-  OptionsDialog(viewModel, selectedMessage, showOptionsDialog, showEditDialog, navigationActions)
-  EditDialog(viewModel, selectedMessage, showEditDialog)
+  selectedMessage?.let {
+    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
+  }
+  selectedMessage?.let { EditDialog(viewModel, it, showEditDialog) }
 
   Column(
       modifier =
@@ -158,10 +161,12 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
                   style = TextStyle(color = Black),
                   modifier = Modifier.testTag("chat_message_sender_name"))
             }
-            Text(
-                text = message.text,
-                style = TextStyle(color = Black),
-                modifier = Modifier.testTag("chat_message_text"))
+            if (message is Message.TextMessage) {
+              Text(
+                  text = message.text,
+                  style = TextStyle(color = Black),
+                  modifier = Modifier.testTag("chat_message_text"))
+            }
             Text(
                 text = message.getTime(),
                 style = TextStyle(color = Gray),
@@ -224,7 +229,7 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
 @Composable
 fun OptionsDialog(
     viewModel: MessageViewModel,
-    selectedMessage: Message?,
+    selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions
@@ -235,21 +240,23 @@ fun OptionsDialog(
         title = { Text(text = stringResource(R.string.options)) },
         text = {
           Column(modifier = Modifier.testTag("option_dialog")) {
-            selectedMessage?.let { Text(text = it.getDate()) }
-            if (viewModel.isUserMessageSender(selectedMessage!!)) {
+            Text(text = selectedMessage.getDate())
+            if (viewModel.isUserMessageSender(selectedMessage)) {
               Spacer(modifier = Modifier.height(8.dp))
-              Button(
-                  modifier = Modifier.testTag("option_dialog_edit"),
-                  onClick = {
-                    showEditDialog.value = true
-                    showOptionsDialog.value = false
-                  }) {
-                    Text(
-                        text = stringResource(R.string.edit),
-                        style = TextStyle(color = White),
-                    )
-                  }
-              Spacer(modifier = Modifier.height(8.dp))
+              if (selectedMessage is Message.TextMessage) {
+                Button(
+                    modifier = Modifier.testTag("option_dialog_edit"),
+                    onClick = {
+                      showEditDialog.value = true
+                      showOptionsDialog.value = false
+                    }) {
+                      Text(
+                          text = stringResource(R.string.edit),
+                          style = TextStyle(color = White),
+                      )
+                    }
+                Spacer(modifier = Modifier.height(8.dp))
+              }
               Button(
                   modifier = Modifier.testTag("option_dialog_delete"),
                   onClick = {
@@ -268,7 +275,9 @@ fun OptionsDialog(
                     modifier = Modifier.testTag("option_dialog_start_direct_message"),
                     onClick = {
                       showOptionsDialog.value = false
-                      viewModel.startDirectMessage(selectedMessage.sender.uid)
+                      viewModel.currentUser.value
+                          ?.let { DirectMessageViewModel(it.uid) }
+                          ?.startDirectMessage(selectedMessage.sender.uid)
                       navigationActions.navigateTo(Route.DIRECT_MESSAGE)
                     }) {
                       Text(
@@ -293,7 +302,7 @@ fun OptionsDialog(
 @Composable
 fun EditDialog(
     viewModel: MessageViewModel,
-    selectedMessage: Message?,
+    selectedMessage: Message,
     showEditDialog: MutableState<Boolean>
 ) {
   if (showEditDialog.value) {
@@ -301,13 +310,15 @@ fun EditDialog(
         onDismissRequest = { showEditDialog.value = false },
         title = { Text(text = stringResource(R.string.edit)) },
         text = {
-          Column(modifier = Modifier.testTag("edit_dialog")) {
-            MessageTextFields(
-                onSend = {
-                  viewModel.editMessage(selectedMessage!!, it)
-                  showEditDialog.value = false
-                },
-                defaultText = selectedMessage!!.text)
+          if (selectedMessage is Message.TextMessage) {
+            Column(modifier = Modifier.testTag("edit_dialog")) {
+              MessageTextFields(
+                  onSend = {
+                    viewModel.editMessage(selectedMessage, it)
+                    showEditDialog.value = false
+                  },
+                  defaultText = selectedMessage.text)
+            }
           }
         },
         confirmButton = {

@@ -28,13 +28,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -486,13 +486,14 @@ class DatabaseConnection {
           getMessagePath(UID, chatType) + "/${message.uid}"
         }
     val messageData =
-        mapOf(
-            MessageVal.TEXT to message.text,
-            MessageVal.SENDER_UID to message.sender.uid,
-            MessageVal.TIMESTAMP to message.timestamp)
+        mutableMapOf(
+            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
+    if (message is Message.TextMessage) {
+      messageData[MessageVal.TEXT] = message.text
+    }
     rt_db
         .getReference(messagePath)
-        .updateChildren(messageData)
+        .updateChildren(messageData as Map<String, Any>)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
         .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
   }
@@ -507,7 +508,12 @@ class DatabaseConnection {
     rt_db.getReference(topic.toString()).removeValue()
   }
 
-  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+  fun editMessage(
+      groupUID: String,
+      message: Message.TextMessage,
+      chatType: ChatType,
+      newText: String
+  ) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
@@ -612,7 +618,8 @@ class DatabaseConnection {
                   // Assuming db.getUser is adapted to fetch user details without being suspending
                   val user = getUser(senderUID)
 
-                  val message = Message(postSnapshot.key.toString(), text, user, timestamp)
+                  val message =
+                      Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
                   newMessages.add(message)
                 }
 

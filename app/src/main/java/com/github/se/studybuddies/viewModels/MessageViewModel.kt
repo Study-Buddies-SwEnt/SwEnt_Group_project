@@ -37,7 +37,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   fun sendMessage(text: String) {
     val message =
         _currentUser.value?.let {
-          Message(text = text, sender = it, timestamp = System.currentTimeMillis())
+          Message.TextMessage(text = text, sender = it, timestamp = System.currentTimeMillis())
         }
 
     if (message != null) {
@@ -45,10 +45,6 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
           db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
       else db.sendMessage(chat.uid, message, chat.type)
     } else Log.d("MyPrint", "message is null, could not retrieve")
-  }
-
-  fun startDirectMessage(messageUserUID: String) {
-    db.startDirectMessage(messageUserUID)
   }
 
   fun deleteMessage(message: Message) {
@@ -59,19 +55,20 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     }
   }
 
-  fun editMessage(message: Message, newText: String) {
+  fun editMessage(message: Message.TextMessage, newText: String) {
     if (!isUserMessageSender(message)) return
-    else {
-      db.editMessage(chat.uid, message, chat.type, newText)
-      _messages.value =
-          _messages.value.map {
-            if (it.uid == message.uid) {
-              it.copy(text = newText)
-            } else {
-              it
-            }
-          }
-    }
+    // Check if the message UID exists in the list before proceeding.
+    val messageExists = _messages.value.any { it.uid == message.uid }
+    if (!messageExists) return
+
+    // Update the message in the database
+    db.editMessage(chat.uid, message, chat.type, newText)
+
+    // Update the message in the local state
+    _messages.value =
+        _messages.value.map {
+          if (it.uid == message.uid) (it as Message.TextMessage).copy(text = newText) else it
+        }
   }
 
   fun isUserMessageSender(message: Message): Boolean {

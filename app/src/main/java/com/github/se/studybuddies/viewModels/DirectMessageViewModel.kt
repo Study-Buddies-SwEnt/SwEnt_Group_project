@@ -17,4 +17,8 @@ class DirectMessageViewModel(val userUid: String) {
   private fun getDirectMessagesList() {
     db.getPrivateChatsList(userUid, _directMessages)
   }
+
+  fun startDirectMessage(messageUserUID: String) {
+    db.startDirectMessage(messageUserUID)
+  }
 }
