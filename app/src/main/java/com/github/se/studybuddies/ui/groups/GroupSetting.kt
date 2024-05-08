@@ -3,7 +3,6 @@ package com.github.se.studybuddies.ui.groups
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -157,10 +156,7 @@ fun ModifyName(nameState: MutableState<String>) {
   Spacer(Modifier.height(20.dp))
   OutlinedTextField(
       value = nameState.value,
-      onValueChange = {
-        nameState.value = it
-        Log.d("MyPrint", "new name is ${nameState.value} and 'it' is $it")
-      },
+      onValueChange = { nameState.value = it },
       singleLine = true,
       modifier =
           Modifier.padding(0.dp).clip(MaterialTheme.shapes.small).testTag("group_name_field"),
