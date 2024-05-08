@@ -31,10 +31,10 @@ class GroupInvitationTest {
 
   @Test
   fun generateLinkWrongArgumentTest() = runBlocking {
-    val groupUID = ""
+    var groupUID = "xtheb45SJUEHD"
     val groupName = "Test28"
     val groupVM = GroupViewModel(groupUID)
-    val inviteLink = groupVM.createGroupInviteLink(groupUID, groupName)
+    val inviteLink = groupVM.createGroupInviteLink("", groupName)
     assertEquals(("Current group not found"), inviteLink)
   }
 }
