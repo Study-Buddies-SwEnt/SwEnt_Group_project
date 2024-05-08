@@ -54,6 +54,8 @@ import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.github.se.studybuddies.permissions.hasLocationPermission
+import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap

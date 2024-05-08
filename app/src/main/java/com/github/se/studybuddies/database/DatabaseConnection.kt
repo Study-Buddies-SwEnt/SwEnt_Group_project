@@ -395,30 +395,30 @@ class DatabaseConnection {
    *
    * return -1 in case of invalid entries
    */
-  suspend fun addUserToGroup(groupUID: String, user: String = ""): Int {
+  suspend fun addUserToGroup(groupUID: String, user: String = "") {
 
     if (groupUID == "") {
       Log.d("MyPrint", "Group UID is empty")
-      return -1
+      return
     }
 
     // only look if userUID exist, can't find user by username
-    val userToAdd: String
-    if (user == "") {
-      userToAdd = getCurrentUserUID()
-    } else {
-      userToAdd = user
-    }
+    val userToAdd: String =
+        if (user == "") {
+          getCurrentUserUID()
+        } else {
+          user
+        }
 
     if (getUser(userToAdd) == User.empty()) {
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
-      return -1
+      return
     }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
-      return -1
+      return
     }
     // add user to group
     groupDataCollection
@@ -437,7 +437,6 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
-    return 0
   }
 
   suspend fun updateGroupTimer(groupUID: String, newTimerValue: Long): Int {
