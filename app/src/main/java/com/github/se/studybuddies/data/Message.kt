@@ -40,7 +40,7 @@ sealed class Message {
 
   data class LinkMessage(
       override val uid: String = UUID.randomUUID().toString(),
-      val link: Uri,
+      val linkUri: Uri,
       override val sender: User,
       override val timestamp: Long,
   ) : Message()
@@ -106,21 +106,11 @@ sealed class Message {
 
 object MessageVal {
   // name of the fields in the database
-  const val TIMESTAMP = "timestamp"
-  const val TEXT = "text"
   const val SENDER_UID = "senderId"
-}
-
-enum class MessageType {
-  TEXT,
-  PHOTO,
-  LINK,
-  FILE,
-  AUDIO,
-  VIDEO,
-  LOCATION,
-  CONTACT,
-  POLL,
-  STICKER,
-  GIF
+  const val TIMESTAMP = "timestamp"
+  const val TYPE = "type"
+  const val TEXT = "text"
+  const val PHOTO = "photoUri"
+  const val LINK = "linkUri"
+  const val FILE = "fileUri"
 }

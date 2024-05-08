@@ -488,9 +488,28 @@ class DatabaseConnection {
     val messageData =
         mutableMapOf(
             MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
-    if (message is Message.TextMessage) {
-      messageData[MessageVal.TEXT] = message.text
+    when (message) {
+      is Message.TextMessage -> {
+        messageData[MessageVal.TEXT] = message.text
+        messageData[MessageVal.TYPE] = MessageVal.TEXT
+      }
+      is Message.PhotoMessage -> {
+        messageData[MessageVal.PHOTO] = message.photoUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.PHOTO
+      }
+      is Message.FileMessage -> {
+        messageData[MessageVal.PHOTO] = message.fileUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.FILE
+      }
+      is Message.LinkMessage -> {
+        messageData[MessageVal.LINK] = message.linkUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.LINK
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
     }
+
     rt_db
         .getReference(messagePath)
         .updateChildren(messageData as Map<String, Any>)
@@ -611,16 +630,42 @@ class DatabaseConnection {
 
                 // Process snapshot data to fetch user details and create message objects
                 for (postSnapshot in snapshot.children) {
-                  val text = postSnapshot.child(MessageVal.TEXT).value.toString()
                   val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
                   val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
 
-                  // Assuming db.getUser is adapted to fetch user details without being suspending
                   val user = getUser(senderUID)
-
-                  val message =
-                      Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
-                  newMessages.add(message)
+                  val type = postSnapshot.child(MessageVal.TYPE).value.toString()
+                  when (type) {
+                    MessageVal.TEXT -> {
+                      val text = postSnapshot.child(MessageVal.TEXT).value.toString()
+                      val message =
+                          Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    MessageVal.PHOTO -> {
+                      val photoUri =
+                          Uri.parse(postSnapshot.child(MessageVal.PHOTO).value.toString())
+                      val message =
+                          Message.PhotoMessage(
+                              postSnapshot.key.toString(), photoUri, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    MessageVal.FILE -> {
+                      val fileUri = Uri.parse(postSnapshot.child(MessageVal.FILE).value.toString())
+                      val message =
+                          Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    MessageVal.LINK -> {
+                      val linkUri = Uri.parse(postSnapshot.child(MessageVal.LINK).value.toString())
+                      val message =
+                          Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    else -> {
+                      Log.d("MyPrint", "Message type not recognized")
+                    }
+                  }
                 }
 
                 // Post new message list to the main thread to update the UI
