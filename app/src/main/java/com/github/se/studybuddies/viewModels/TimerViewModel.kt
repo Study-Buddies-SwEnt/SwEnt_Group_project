@@ -38,6 +38,7 @@ class TimerViewModel private constructor() : ViewModel() {
           override fun onFinish() {
             _timerValue.value = 0
             _timerEnd.value = true
+            resetTimer()
           }
         }
   }
