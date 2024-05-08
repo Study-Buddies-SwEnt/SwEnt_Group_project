@@ -22,17 +22,6 @@ data class Chat(
           //          messages = emptyList()
       )
     }
-
-    fun withId(uid: String, type: ChatType): Chat {
-      return Chat(
-          uid = uid,
-          name = "",
-          picture = Uri.EMPTY,
-          type = type,
-          members = emptyList(),
-          //          messages = emptyList()
-      )
-    }
   }
 }
 

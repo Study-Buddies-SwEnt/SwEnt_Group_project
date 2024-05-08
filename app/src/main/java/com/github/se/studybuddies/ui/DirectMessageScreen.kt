@@ -95,8 +95,7 @@ fun DirectMessageScreen(
           Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
-        }
-        else if (showAddPrivateMessageList.value) {
+        } else if (showAddPrivateMessageList.value) {
           ListAllUsers(showAddPrivateMessageList, usersViewModel)
         } else {
           if (chats.isEmpty()) {
