@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.User
@@ -128,12 +127,7 @@ fun DirectMessageScreen(
           Box(
               contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
               modifier =
-                  Modifier.fillMaxSize() // Fills the parent size
-                      .padding(
-                          bottom =
-                              innerPadding.calculateBottomPadding()) // Adds padding around the box
-              ) {
-                Log.d("MyPrint", "Displaying AddNewPrivateMessage")
+                  Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
                 AddNewPrivateMessage(showAddPrivateMessageList)
               }
         }
@@ -176,7 +170,7 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
         Image(
             painter = rememberAsyncImagePainter(chat.picture),
-            contentDescription = "User profile picture",
+            contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
                 Modifier.padding(8.dp)
                     .size(40.dp)
@@ -246,7 +240,7 @@ fun UserItem(user: User, showAddPrivateMessageList: MutableState<Boolean>) {
                     showAddPrivateMessageList.value = false
                   })) {
         Image(
-            painter = rememberImagePainter(user.photoUrl),
+            painter = rememberAsyncImagePainter(user.photoUrl),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
                 Modifier.padding(8.dp)
