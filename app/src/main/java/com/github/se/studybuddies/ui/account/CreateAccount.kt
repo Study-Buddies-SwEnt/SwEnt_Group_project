@@ -83,7 +83,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
   val permission = imagePermissionVersion()
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("account_creation"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("create_account"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.create_account)) },
@@ -105,7 +105,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top) {
               LazyColumn(
-                  modifier = Modifier.fillMaxWidth().padding(paddingValue),
+                  modifier = Modifier.fillMaxWidth().padding(paddingValue).testTag("content"),
                   verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
                   horizontalAlignment = Alignment.CenterHorizontally) {
                     item { Spacer(modifier = Modifier.size(20.dp)) }
