@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.database
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -745,13 +744,13 @@ class DatabaseConnection {
         val type = ItemType.valueOf(document.getString("type") ?: ItemType.FILE.toString())
         when (type) {
           ItemType.FOLDER -> {
-              Log.d("MyPrint", "is a folder")
+            Log.d("MyPrint", "is a folder")
             val folderItemsList = document.get("items") as List<String> ?: emptyList()
             val folderItems = fetchTopicItems(folderItemsList)
             items.add(TopicFolder(itemUID, name, folderItems, parentUID))
           }
           ItemType.FILE -> {
-              Log.d("MyPrint", "is a file")
+            Log.d("MyPrint", "is a file")
             val strongUsers = document.get("strongUsers") as List<String> ?: emptyList()
             items.add(TopicFile(itemUID, name, strongUsers, parentUID))
           }
@@ -795,26 +794,26 @@ class DatabaseConnection {
 
   fun addExercise(uid: String, exercise: TopicItem) {
     val exerciseUID = exercise.uid
-      topicDataCollection
-          .document(uid)
-          .update("exercises", FieldValue.arrayUnion(exerciseUID))
-          .addOnSuccessListener {
-            Log.d("MyPrint", "topic data successfully updated")
-            updateTopicItem(exercise)
-          }
-          .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
+    topicDataCollection
+        .document(uid)
+        .update("exercises", FieldValue.arrayUnion(exerciseUID))
+        .addOnSuccessListener {
+          Log.d("MyPrint", "topic data successfully updated")
+          updateTopicItem(exercise)
+        }
+        .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
   fun addTheory(uid: String, theory: TopicItem) {
     val theoryUID = theory.uid
-      topicDataCollection
-          .document(uid)
-          .update("theory", FieldValue.arrayUnion(theoryUID))
-          .addOnSuccessListener {
-            Log.d("MyPrint", "topic data successfully updated")
-            updateTopicItem(theory)
-          }
-          .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
+    topicDataCollection
+        .document(uid)
+        .update("theory", FieldValue.arrayUnion(theoryUID))
+        .addOnSuccessListener {
+          Log.d("MyPrint", "topic data successfully updated")
+          updateTopicItem(theory)
+        }
+        .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
   suspend fun deleteTopic(topicId: String) {
@@ -839,17 +838,18 @@ class DatabaseConnection {
   fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
     val folder =
         hashMapOf(
-            "name" to name, "type" to ItemType.FOLDER.toString(), "items" to emptyList<String>(), "parent" to parentUID)
+            "name" to name,
+            "type" to ItemType.FOLDER.toString(),
+            "items" to emptyList<String>(),
+            "parent" to parentUID)
     var uid = ""
     topicItemCollection
         .add(folder)
         .addOnSuccessListener { document ->
           uid = document.id
-            if (parentUID.isNotBlank()) {
-                topicItemCollection
-                    .document(parentUID)
-                    .update("items", FieldValue.arrayUnion(uid))
-            }
+          if (parentUID.isNotBlank()) {
+            topicItemCollection.document(parentUID).update("items", FieldValue.arrayUnion(uid))
+          }
           Log.d("MyPrint", "New topic folder successfully created")
           callBack(TopicFolder(uid, name, emptyList(), parentUID))
         }
@@ -871,11 +871,9 @@ class DatabaseConnection {
         .add(file)
         .addOnSuccessListener { document ->
           uid = document.id
-        if (parentUID.isNotBlank()) {
-            topicItemCollection
-                .document(parentUID)
-                .update("items", FieldValue.arrayUnion(uid))
-        }
+          if (parentUID.isNotBlank()) {
+            topicItemCollection.document(parentUID).update("items", FieldValue.arrayUnion(uid))
+          }
           Log.d("MyPrint", "New topic file successfully created with uid ${document.id}")
           callBack(TopicFile(uid, name, emptyList(), parentUID))
         }
@@ -886,7 +884,7 @@ class DatabaseConnection {
   }
 
   private fun updateTopicItem(item: TopicItem) {
-      var task = emptyMap<String, Any>()
+    var task = emptyMap<String, Any>()
     var type = ""
     var folderItems = emptyList<String>()
     var strongUsers = emptyList<String>()
@@ -894,20 +892,12 @@ class DatabaseConnection {
       is TopicFolder -> {
         type = ItemType.FOLDER.toString()
         folderItems = item.items.map { it.uid }
-          task = hashMapOf(
-              "name" to item.name,
-              "type" to type,
-              "items" to folderItems
-          )
+        task = hashMapOf("name" to item.name, "type" to type, "items" to folderItems)
       }
       is TopicFile -> {
         type = ItemType.FILE.toString()
         strongUsers = item.strongUsers
-          task = hashMapOf(
-              "name" to item.name,
-              "type" to type,
-              "strongUsers" to strongUsers
-          )
+        task = hashMapOf("name" to item.name, "type" to type, "strongUsers" to strongUsers)
       }
     }
     topicItemCollection

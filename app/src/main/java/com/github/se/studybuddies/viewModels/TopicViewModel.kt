@@ -55,8 +55,7 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun createTopicFolder(name: String, area: ItemArea, parentUID: String) {
-    if (uid == null)
-      return
+    if (uid == null) return
     db.createTopicFolder(name, parentUID) { folder ->
       when (area) {
         ItemArea.EXERCISES -> {
