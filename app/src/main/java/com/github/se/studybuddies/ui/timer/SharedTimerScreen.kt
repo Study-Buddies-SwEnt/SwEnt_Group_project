@@ -13,7 +13,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +22,8 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import kotlin.text.*
 
@@ -54,12 +55,12 @@ fun SharedTimerScreen(
           Card(
               shape = RoundedCornerShape(30.dp),
               modifier = Modifier.padding(20.dp).fillMaxWidth().height(160.dp),
-              colors = CardDefaults.cardColors(containerColor = Color.White)) {
+              colors = CardDefaults.cardColors(containerColor = White)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                   Text(
                       text = formatDuration(timerData),
                       fontSize = 40.sp,
-                      color = Color.Blue,
+                      color = Blue,
                       textAlign = TextAlign.Center)
                 }
               }
@@ -83,7 +84,6 @@ fun SharedTimerScreen(
               horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, sharedTimerViewModel::addHours)
                 TimeAdjustSection("Minutes", 1, sharedTimerViewModel::addMinutes)
-                TimeAdjustSection("Seconds", 1, sharedTimerViewModel::addSeconds)
               }
         }
   }
