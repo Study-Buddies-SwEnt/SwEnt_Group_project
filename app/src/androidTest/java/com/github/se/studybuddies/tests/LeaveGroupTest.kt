@@ -9,19 +9,17 @@ import org.junit.Rule
 import org.junit.Test
 
 class LeaveGroupTest : TestCase() {
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    @get:Rule
-    val intentsTestRule = IntentsTestRule(MainActivity::class.java)
+  @get:Rule val intentsTestRule = IntentsTestRule(MainActivity::class.java)
 
-    @Test
-    fun testTextDisplay() {
-        ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.GroupsHomeScreen>(
-            composeTestRule) {
-            textDialogues { assertIsDisplayed() }
-            textDialoguesYes { assertIsDisplayed() }
-            textDialoguesNo { assertIsDisplayed() }
+  @Test
+  fun testTextDisplay() {
+    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.GroupsHomeScreen>(
+        composeTestRule) {
+          textDialogues { assertIsDisplayed() }
+          textDialoguesYes { assertIsDisplayed() }
+          textDialoguesNo { assertIsDisplayed() }
         }
-    }
+  }
 }
