@@ -12,4 +12,9 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   // Structural elements of the UI
   val loginTitle: KNode = child { hasTestTag("LoginTitle") }
   val loginButton: KNode = child { hasTestTag("LoginButton") }
+
+    val textDialogues: KNode = onNode { hasTestTag("LeaveGroupDialogText") }
+    val textDialoguesYes: KNode = onNode { hasTestTag("LeaveGroupDialogYesButton") }
+    val textDialoguesNo: KNode = onNode { hasTestTag("LeaveGroupDialogNoButton") }
+
 }

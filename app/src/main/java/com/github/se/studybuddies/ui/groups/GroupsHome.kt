@@ -183,7 +183,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text(text = "Are you sure you want to leave the group ?")
+                  Text(text = "Are you sure you want to leave the group ?", modifier = Modifier.testTag("LeaveGroupDialogText"))
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
                       modifier = Modifier.fillMaxWidth(),
@@ -195,7 +195,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                               isLeaveGroupDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp).testTag("LeaveGroupDialogYesButton"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = Color.Red)) {
@@ -205,7 +205,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                         Button(
                             onClick = { isLeaveGroupDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp).testTag("LeaveGroupDialogNoButton"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = Color.White)) {
