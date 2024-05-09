@@ -708,13 +708,13 @@ class DatabaseConnection {
     }
   }
 
-  // using the topicData collection
+  // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String): Topic {
     val document = topicDataCollection.document(uid).get().await()
     return if (document.exists()) {
-      val name = document.getString("name") ?: ""
-      val exercisesList = document.get("exercises") as List<String>
-      val theoryList = document.get("theory") as List<String>
+      val name = document.getString(Companion.topic_name) ?: ""
+      val exercisesList = document.get(topic_exercises) as List<String>
+      val theoryList = document.get(topic_theory) as List<String>
       val exercises =
           if (exercisesList.isNotEmpty()) {
             fetchTopicItems(exercisesList)
@@ -739,19 +739,17 @@ class DatabaseConnection {
     for (itemUID in uids) {
       val document = topicItemCollection.document(itemUID).get().await()
       if (document.exists()) {
-        val name = document.getString("name") ?: ""
-        val parentUID = document.getString("parent") ?: ""
-        val type = ItemType.valueOf(document.getString("type") ?: ItemType.FILE.toString())
+        val name = document.getString(Companion.topic_name) ?: ""
+        val parentUID = document.getString(item_parent) ?: ""
+        val type = ItemType.valueOf(document.getString(item_type) ?: ItemType.FILE.toString())
         when (type) {
           ItemType.FOLDER -> {
-            Log.d("MyPrint", "is a folder")
-            val folderItemsList = document.get("items") as List<String> ?: emptyList()
+            val folderItemsList = document.get(item_items) as List<String> ?: emptyList()
             val folderItems = fetchTopicItems(folderItemsList)
             items.add(TopicFolder(itemUID, name, folderItems, parentUID))
           }
           ItemType.FILE -> {
-            Log.d("MyPrint", "is a file")
-            val strongUsers = document.get("strongUsers") as List<String> ?: emptyList()
+            val strongUsers = document.get(item_strongUsers) as List<String> ?: emptyList()
             items.add(TopicFile(itemUID, name, strongUsers, parentUID))
           }
         }
@@ -763,7 +761,9 @@ class DatabaseConnection {
   suspend fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
-            "name" to name, "exercises" to emptyList<String>(), "theory" to emptyList<String>())
+            topic_name to name,
+            topic_exercises to emptyList<String>(),
+            topic_theory to emptyList<String>())
     topicDataCollection
         .add(topic)
         .addOnSuccessListener { document ->
@@ -796,7 +796,7 @@ class DatabaseConnection {
     val exerciseUID = exercise.uid
     topicDataCollection
         .document(uid)
-        .update("exercises", FieldValue.arrayUnion(exerciseUID))
+        .update(topic_exercises, FieldValue.arrayUnion(exerciseUID))
         .addOnSuccessListener {
           Log.d("MyPrint", "topic data successfully updated")
           updateTopicItem(exercise)
@@ -808,7 +808,7 @@ class DatabaseConnection {
     val theoryUID = theory.uid
     topicDataCollection
         .document(uid)
-        .update("theory", FieldValue.arrayUnion(theoryUID))
+        .update(topic_theory, FieldValue.arrayUnion(theoryUID))
         .addOnSuccessListener {
           Log.d("MyPrint", "topic data successfully updated")
           updateTopicItem(theory)
@@ -830,7 +830,7 @@ class DatabaseConnection {
   fun updateTopicName(uid: String, name: String) {
     topicDataCollection
         .document(uid)
-        .update("name", name)
+        .update(topic_name, name)
         .addOnSuccessListener { Log.d("MyPrint", "topic data successfully updated") }
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
@@ -838,17 +838,17 @@ class DatabaseConnection {
   fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
     val folder =
         hashMapOf(
-            "name" to name,
-            "type" to ItemType.FOLDER.toString(),
-            "items" to emptyList<String>(),
-            "parent" to parentUID)
+            topic_name to name,
+            item_type to ItemType.FOLDER.toString(),
+            item_items to emptyList<String>(),
+            item_parent to parentUID)
     var uid = ""
     topicItemCollection
         .add(folder)
         .addOnSuccessListener { document ->
           uid = document.id
           if (parentUID.isNotBlank()) {
-            topicItemCollection.document(parentUID).update("items", FieldValue.arrayUnion(uid))
+            topicItemCollection.document(parentUID).update(item_items, FieldValue.arrayUnion(uid))
           }
           Log.d("MyPrint", "New topic folder successfully created")
           callBack(TopicFolder(uid, name, emptyList(), parentUID))
@@ -862,17 +862,17 @@ class DatabaseConnection {
   fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit) {
     val file =
         hashMapOf(
-            "name" to name,
-            "type" to ItemType.FILE.toString(),
-            "strongUsers" to emptyList<String>(),
-            "parent" to parentUID)
+            topic_name to name,
+            item_type to ItemType.FILE.toString(),
+            item_strongUsers to emptyList<String>(),
+            item_parent to parentUID)
     var uid = ""
     topicItemCollection
         .add(file)
         .addOnSuccessListener { document ->
           uid = document.id
           if (parentUID.isNotBlank()) {
-            topicItemCollection.document(parentUID).update("items", FieldValue.arrayUnion(uid))
+            topicItemCollection.document(parentUID).update(item_items, FieldValue.arrayUnion(uid))
           }
           Log.d("MyPrint", "New topic file successfully created with uid ${document.id}")
           callBack(TopicFile(uid, name, emptyList(), parentUID))
@@ -892,12 +892,13 @@ class DatabaseConnection {
       is TopicFolder -> {
         type = ItemType.FOLDER.toString()
         folderItems = item.items.map { it.uid }
-        task = hashMapOf("name" to item.name, "type" to type, "items" to folderItems)
+        task = hashMapOf(topic_name to item.name, item_type to type, item_items to folderItems)
       }
       is TopicFile -> {
         type = ItemType.FILE.toString()
         strongUsers = item.strongUsers
-        task = hashMapOf("name" to item.name, "type" to type, "strongUsers" to strongUsers)
+        task =
+            hashMapOf(topic_name to item.name, item_type to type, item_strongUsers to strongUsers)
       }
     }
     topicItemCollection
@@ -939,5 +940,15 @@ class DatabaseConnection {
       Log.d("MyPrint", "Could not fetch topics with error ", e)
     }
     return TopicList(emptyList())
+  }
+
+  companion object {
+    const val topic_name = "name"
+    const val topic_exercises = "exercises"
+    const val topic_theory = "theory"
+    const val item_parent = "parent"
+    const val item_type = "type"
+    const val item_items = "items"
+    const val item_strongUsers = "strongUsers"
   }
 }

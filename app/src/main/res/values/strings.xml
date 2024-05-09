@@ -80,4 +80,5 @@
     <string name="gps_not_enabled">GPS not enabled</string>
     <string name="your_location">"Your Location"</string>
     <string name="this_is_your_current_location">This is your current location</string>
+    <string name="topic_name">name</string>
 </resources>

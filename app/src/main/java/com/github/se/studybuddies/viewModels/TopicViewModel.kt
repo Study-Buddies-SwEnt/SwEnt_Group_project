@@ -61,13 +61,11 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
         ItemArea.EXERCISES -> {
           if (parentUID.isBlank()) {
             db.addExercise(uid, folder)
-            fetchTopicData(uid)
           }
         }
         ItemArea.THEORY -> {
           if (parentUID.isBlank()) {
             db.addTheory(uid, folder)
-            fetchTopicData(uid)
           }
         }
       }
@@ -76,21 +74,21 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun createTopicFile(name: String, area: ItemArea, parentUID: String) {
+    if (uid == null) return
     db.createTopicFile(name, parentUID) { file ->
       when (area) {
         ItemArea.EXERCISES -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addExercise(uid, file)
-            fetchTopicData(uid)
           }
         }
         ItemArea.THEORY -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addTheory(uid, file)
-            fetchTopicData(uid)
           }
         }
       }
+      fetchTopicData(uid)
     }
   }
 

@@ -22,16 +22,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -432,13 +432,14 @@ fun AddInFolderButton(
               if (folderFieldVisible.value) {
                 parentUID.value = uid
               }
-            }) {
-              Spacer(modifier = Modifier.size(16.dp))
+            },
+            text = {
               Text(
+                  modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
                   text = stringResource(R.string.folder),
                   color = White,
                   style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
-            }
+            })
         DropdownMenuItem(
             modifier = Modifier.fillMaxSize().padding(0.dp),
             onClick = {
@@ -448,13 +449,14 @@ fun AddInFolderButton(
               if (fileFieldVisible.value) {
                 parentUID.value = uid
               }
-            }) {
-              Spacer(modifier = Modifier.size(16.dp))
+            },
+            text = {
               Text(
+                  modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
                   text = stringResource(R.string.file),
                   color = White,
                   style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
-            }
+            })
       }
 }
 
