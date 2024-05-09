@@ -8,7 +8,7 @@ data class Group(
     val picture: Uri,
     val members: List<String>,
     val topics: List<String>,
-    val timer: Long
+    val timerState: TimerState
 ) {
   companion object {
     fun empty(): Group {
@@ -18,7 +18,7 @@ data class Group(
           picture = Uri.EMPTY,
           members = emptyList(),
           topics = emptyList(),
-          timer = 0L)
+          timerState = TimerState(0L, false))
     }
   }
 }
