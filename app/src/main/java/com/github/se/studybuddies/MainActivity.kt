@@ -26,6 +26,8 @@ import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.map.MapScreen
+import com.github.se.studybuddies.ui.screens.CallJoinScreen
+import com.github.se.studybuddies.ui.screens.CallLobbyScreen
 import com.github.se.studybuddies.ui.screens.ChatScreen
 import com.github.se.studybuddies.ui.screens.LoginScreen
 import com.github.se.studybuddies.ui.screens.VideoCallScreen
@@ -42,6 +44,7 @@ import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
+import com.github.se.studybuddies.viewModels.CallJoinViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -56,7 +59,6 @@ import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.log.Priority
-import io.getstream.video.android.core.BuildConfig
 import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.StreamVideoBuilder
@@ -87,20 +89,7 @@ class MainActivity : ComponentActivity() {
           // val groupUID = "vMsJ8zIUDzwh" // test
           val test_token =
               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
-          LaunchedEffect(key1 = Unit) {
-            if (auth.currentUser != null && !StreamVideo.isInstalled) {
-              StreamVideoBuilder(
-                      context = context,
-                      apiKey = apiKey, // demo API key
-                      geo = GEO.GlobalEdgeNetwork,
-                      user = User(id = db.getCurrentUser().username),
-                  loggingLevel = LoggingLevel(priority = Priority.DEBUG),
-                  ensureSingleInstance = true,
-                      // token = StreamVideo.devToken(currentUser.uid))
-                      token = test_token)
-                  .build()
-            }
-          }
+
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (auth.currentUser != null) {
@@ -247,44 +236,32 @@ class MainActivity : ComponentActivity() {
               }
             }
 
-              composable(
-                  route = "${Route.CALLLOBBY}/{groupUID}",
-                    arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
-                        backStackEntry ->
-                        val groupUID = backStackEntry.arguments?.getString("groupUID")
-                        if (groupUID != null) {
-                        val currentUser = auth.currentUser
-                        if (StreamVideo.isInstalled && currentUser != null) {
-                            val call = StreamVideo.instance().call("development", groupUID)
-                            VideoCallScreen(
-                                VideoCallViewModel(call, currentUser.uid),
-                                navigationActions
-                            )
-                            Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
-                        } else {
-                            navigationActions.goBack()
-                        }
-                        }
-                    }
+            composable(Route.CALLLOBBY) {
+                    CallLobbyScreen(
+                        callJoinViewModel = CallJoinViewModel(),
+                        navigateToCallLobby = { groupUID ->
+                          navController.navigate("${Route.CALLLOBBY}/$groupUID")
+                        },
+
+                    )
+                }
 
             composable(
                 route = "${Route.VIDEOCALL}/{groupUID}",
-                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) { backStackEntry ->
-                val groupUID = backStackEntry.arguments?.getString("groupUID")
-                if (groupUID != null) {
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (groupUID != null) {
                     val currentUser = auth.currentUser
                     if (StreamVideo.isInstalled && currentUser != null) {
-                        val call = StreamVideo.instance().call("development", groupUID)
-                        VideoCallScreen(
-                            VideoCallViewModel(call, currentUser.uid),
-                            navigationActions
-                        )
-                        Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
+                      val call = StreamVideo.instance().call("development", groupUID)
+                      VideoCallScreen(VideoCallViewModel(call, currentUser.uid), navigationActions)
+                      Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
                     } else {
-                        navigationActions.goBack()
+                      navigationActions.goBack()
                     }
+                  }
                 }
-            }
 
             composable(
                 route = "${Route.SHAREDTIMER}/{groupUID}",
