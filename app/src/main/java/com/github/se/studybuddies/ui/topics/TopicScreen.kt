@@ -26,10 +26,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -221,7 +221,7 @@ fun TopicScreen(
                           style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
                     }
                   }
-              Divider(color = Blue, thickness = 2.dp)
+              HorizontalDivider(color = Blue, thickness = 2.dp)
               Box(
                   modifier =
                       Modifier.fillMaxWidth()
@@ -256,7 +256,7 @@ fun TopicScreen(
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                           }
-                      Divider(
+                      HorizontalDivider(
                           modifier =
                               Modifier.align(
                                       if (areaState.value == ItemArea.EXERCISES) Alignment.Start

@@ -712,7 +712,7 @@ class DatabaseConnection {
   suspend fun getTopic(uid: String): Topic {
     val document = topicDataCollection.document(uid).get().await()
     return if (document.exists()) {
-      val name = document.getString(Companion.topic_name) ?: ""
+      val name = document.getString(topic_name) ?: ""
       val exercisesList = document.get(topic_exercises) as List<String>
       val theoryList = document.get(topic_theory) as List<String>
       val exercises =
@@ -739,7 +739,7 @@ class DatabaseConnection {
     for (itemUID in uids) {
       val document = topicItemCollection.document(itemUID).get().await()
       if (document.exists()) {
-        val name = document.getString(Companion.topic_name) ?: ""
+        val name = document.getString(topic_name) ?: ""
         val parentUID = document.getString(item_parent) ?: ""
         val type = ItemType.valueOf(document.getString(item_type) ?: ItemType.FILE.toString())
         when (type) {
