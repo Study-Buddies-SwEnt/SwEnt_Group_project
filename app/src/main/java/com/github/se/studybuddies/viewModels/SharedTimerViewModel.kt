@@ -72,6 +72,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
         }
 
     if (isRunning) {
+
       countDownTimer?.start()
     }
   }

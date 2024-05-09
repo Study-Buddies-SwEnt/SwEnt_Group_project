@@ -935,9 +935,6 @@ class DatabaseConnection {
         }
   }
 
-
-
-
   suspend fun getALlTopics(groupUID: String): TopicList {
     try {
       val snapshot = groupDataCollection.document(groupUID).get().await()
