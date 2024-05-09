@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                       context = context,
                       apiKey = apiKey, // demo API key
                       geo = GEO.GlobalEdgeNetwork,
-                      user = User(id = db.getCurrentUser().username),
+                      user = User(id = "Test"),
                       // token = StreamVideo.devToken(currentUser.uid))
                       token = test_token)
                   .build()
@@ -99,7 +99,17 @@ class MainActivity : ComponentActivity() {
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (auth.currentUser != null) {
-                navController.navigate(Route.SOLOSTUDYHOME)
+
+                db.userExists(
+                    uid = db.getCurrentUserUID(),
+                    onSuccess = { userExists ->
+                      if (userExists) {
+                        navController.navigate(Route.SOLOSTUDYHOME)
+                      } else {
+                        navController.navigate(Route.CREATEACCOUNT)
+                      }
+                    },
+                    onFailure = { Log.d("MyPrint", "Failed to check user existence") })
               } else {
                 navController.navigate(Route.LOGIN)
               }

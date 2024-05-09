@@ -3,13 +3,21 @@ package com.github.se.studybuddies.ui.account
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +39,9 @@ import com.github.se.studybuddies.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.shared_elements.AccountFields
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SetProfilePicture
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -71,30 +82,56 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
       }
   val permission = imagePermissionVersion()
 
-  Column(modifier = Modifier.fillMaxSize().testTag("create_account")) {
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-          item {
-            Column(
-                modifier = Modifier.fillMaxWidth().testTag("content"),
-                verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                  Text(stringResource(R.string.you_have_signed_in_with_email, email))
-                  Spacer(modifier = Modifier.padding(20.dp))
-                  AccountFields(usernameState)
-                  Spacer(modifier = Modifier.padding(20.dp))
-                  SetProfilePicture(photoState) {
-                    checkPermission(context, permission, requestPermissionLauncher) {
-                      getContent.launch(imageInput)
+  Scaffold(
+      modifier = Modifier.fillMaxSize().background(White).testTag("account_creation"),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title = stringResource(R.string.create_account)) },
+            navigationIcon = {
+              Icon(
+                  imageVector = Icons.Default.ArrowBack,
+                  contentDescription = "Go back",
+                  modifier =
+                      Modifier.clickable {
+                            FirebaseAuth.getInstance().signOut()
+                            navigationActions.navigateTo(Route.LOGIN)
+                          }
+                          .testTag("go_back_button"))
+            },
+            actions = {})
+      }) { paddingValue ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top) {
+              LazyColumn(
+                  modifier = Modifier.fillMaxWidth().padding(paddingValue),
+                  verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.CenterHorizontally) {
+                    item { Spacer(modifier = Modifier.size(20.dp)) }
+                    item {
+                      Text(
+                          stringResource(R.string.you_have_signed_in_with_email, email),
+                          modifier = Modifier.width(300.dp))
+                    }
+                    item { Spacer(modifier = Modifier.padding(5.dp)) }
+                    item { AccountFields(usernameState) }
+                    item { Spacer(modifier = Modifier.padding(5.dp)) }
+                    item {
+                      SetProfilePicture(photoState) {
+                        checkPermission(context, permission, requestPermissionLauncher) {
+                          getContent.launch(imageInput)
+                        }
+                      }
+                    }
+                    item { Spacer(modifier = Modifier.size(10.dp)) }
+                    item {
+                      SaveButton(usernameState) {
+                        userViewModel.createUser(uid, email, usernameState.value, photoState.value)
+                        navigationActions.navigateTo(Route.SOLOSTUDYHOME)
+                      }
                     }
                   }
-                  SaveButton(usernameState) {
-                    userViewModel.createUser(uid, email, usernameState.value, photoState.value)
-                    navigationActions.navigateTo(Route.SOLOSTUDYHOME)
-                  }
-                }
-          }
-        }
-  }
+            }
+      }
 }
