@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,6 +54,7 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DirectMessageScreen(
@@ -65,25 +67,19 @@ fun DirectMessageScreen(
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
   var isLoading by remember { mutableStateOf(true) }
 
-  if (isLoading) {
-    val handler = android.os.Handler()
-    val runnable =
-        object : Runnable {
-          override fun run() {
-            if (chats.isNotEmpty()) {
-              isLoading = false // Stop loading as chats are not empty
-            } else {
-              handler.postDelayed(this, 1000) // Continue checking every second
-            }
-          }
+  LaunchedEffect(chats) {
+    if (chats.isNotEmpty()) {
+      isLoading = false
+    } else {
+      repeat(10) {
+        delay(500)
+        if (chats.isNotEmpty()) {
+          isLoading = false
+          return@repeat
         }
-    handler.post(runnable) // Start the checking process
-    handler.postDelayed(
-        {
-          isLoading = false // Ensure isLoading is set to false after the original delay
-          handler.removeCallbacks(runnable) // Stop any further checks if time expires
-        },
-        5000)
+      }
+      isLoading = false
+    }
   }
 
   MainScreenScaffold(
@@ -186,25 +182,19 @@ fun ListAllUsers(
   val friendsData by usersViewModel.friends.collectAsState()
   var isLoading by remember { mutableStateOf(true) }
 
-  if (isLoading) {
-    val handler = android.os.Handler()
-    val runnable =
-        object : Runnable {
-          override fun run() {
-            if (friendsData.isNotEmpty()) {
-              isLoading = false // Stop loading as chats are not empty
-            } else {
-              handler.postDelayed(this, 1000) // Continue checking every second
-            }
-          }
+  LaunchedEffect(friendsData) {
+    if (friendsData.isNotEmpty()) {
+      isLoading = false
+    } else {
+      repeat(10) {
+        delay(500)
+        if (friendsData.isNotEmpty()) {
+          isLoading = false
+          return@repeat
         }
-    handler.post(runnable) // Start the checking process
-    handler.postDelayed(
-        {
-          isLoading = false // Ensure isLoading is set to false after the original delay
-          handler.removeCallbacks(runnable) // Stop any further checks if time expires
-        },
-        4000)
+      }
+      isLoading = false
+    }
   }
 
   if (isLoading) {
@@ -216,7 +206,7 @@ fun ListAllUsers(
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(friendsData) { UserItem(it, viewModel, showAddPrivateMessageList) }
+        items(friendsData) { friend -> UserItem(friend, viewModel, showAddPrivateMessageList) }
       }
     }
   }

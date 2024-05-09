@@ -40,7 +40,7 @@ class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
 
-  val rt_db =
+  private val rtDb =
       Firebase.database(
           "https://study-buddies-e655a-default-rtdb.europe-west1.firebasedatabase.app/")
 
@@ -119,7 +119,7 @@ class DatabaseConnection {
   ) {
     Log.d(
         "MyPrint",
-        "Creating new user with uid $uid, email $email, username $username and picture link ${profilePictureUri.toString()}")
+        "Creating new user with uid $uid, email $email, username $username and picture link $profilePictureUri")
     val user =
         hashMapOf(
             "email" to email,
@@ -310,7 +310,7 @@ class DatabaseConnection {
 
   suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
-    Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
+    Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
     val group =
         hashMapOf(
             "name" to name,
@@ -503,12 +503,17 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendMessage(UID: String, message: Message, chatType: ChatType, additionalUID: String = "") {
+  fun sendMessage(
+      chatUID: String,
+      message: Message,
+      chatType: ChatType,
+      additionalUID: String = ""
+  ) {
     val messagePath =
         if (chatType == ChatType.TOPIC) {
-          getMessagePath(UID, chatType, additionalUID) + "/${message.uid}"
+          getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
         } else {
-          getMessagePath(UID, chatType) + "/${message.uid}"
+          getMessagePath(chatUID, chatType) + "/${message.uid}"
         }
     val messageData =
         mutableMapOf(
@@ -521,7 +526,7 @@ class DatabaseConnection {
       }
       is Message.PhotoMessage -> {
 
-        uploadChatImage(message.uid, UID, message.photoUri) { uri ->
+        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
           if (uri != null) {
             Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
             messageData[MessageVal.PHOTO] = uri.toString()
@@ -549,7 +554,7 @@ class DatabaseConnection {
   }
 
   private fun saveMessage(path: String, data: Map<String, Any>) {
-    rt_db
+    rtDb
         .getReference(path)
         .updateChildren(data)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
@@ -578,12 +583,12 @@ class DatabaseConnection {
 
   fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rt_db.getReference(messagePath).removeValue()
+    rtDb.getReference(messagePath).removeValue()
   }
 
-  suspend fun removeTopic(groupUID: String, uid: String) {
+  suspend fun removeTopic(uid: String) {
     val topic = getTopic(uid)
-    rt_db.getReference(topic.toString()).removeValue()
+    rtDb.getReference(topic.toString()).removeValue()
   }
 
   fun editMessage(
@@ -593,14 +598,18 @@ class DatabaseConnection {
       newText: String
   ) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+    rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
-  private fun getMessagePath(UID: String, chatType: ChatType, additionalUID: String = ""): String {
+  private fun getMessagePath(
+      chatUID: String,
+      chatType: ChatType,
+      additionalUID: String = ""
+  ): String {
     return when (chatType) {
-      ChatType.PRIVATE -> getPrivateMessagesPath(UID)
-      ChatType.GROUP -> getGroupMessagesPath(UID)
-      ChatType.TOPIC -> getTopicMessagesPath(UID, additionalUID)
+      ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
+      ChatType.GROUP -> getGroupMessagesPath(chatUID)
+      ChatType.TOPIC -> getTopicMessagesPath(chatUID, additionalUID)
     }
   }
 
@@ -621,7 +630,7 @@ class DatabaseConnection {
   }
 
   fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
-    val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
+    val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
 
     ref.addValueEventListener(
         object : ValueEventListener {
@@ -674,7 +683,7 @@ class DatabaseConnection {
   }
 
   fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
-    val ref = rt_db.getReference(getMessagePath(uid, chatType))
+    val ref = rtDb.getReference(getMessagePath(uid, chatType))
 
     ref.addValueEventListener(
         object : ValueEventListener {
@@ -747,7 +756,7 @@ class DatabaseConnection {
       onResult: (Boolean, String?) -> Unit
   ) {
     val query =
-        rt_db
+        rtDb
             .getReference(ChatVal.DIRECT_MESSAGES)
             .orderByChild("${ChatVal.MEMBERS}/$currentUserUID")
             .equalTo(true)
@@ -782,7 +791,7 @@ class DatabaseConnection {
         val newChatId = UUID.randomUUID().toString()
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
-        rt_db
+        rtDb
             .getReference(memberPath)
             .updateChildren(members)
             .addOnSuccessListener {
@@ -821,21 +830,21 @@ class DatabaseConnection {
     }
   }
 
-  private suspend fun fetchTopicItems(uids: List<String>): List<TopicItem> {
+  private suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
-    for (itemUID in uids) {
+    for (itemUID in listUID) {
       val document = topicItemCollection.document(itemUID).get().await()
       if (document.exists()) {
         val name = document.getString("name") ?: ""
         val type = ItemType.valueOf(document.getString("type") ?: ItemType.FILE.toString())
         when (type) {
           ItemType.FOLDER -> {
-            val folderItemsList = document.get("items") as List<String> ?: emptyList()
+            val folderItemsList = document.get("items") as List<String>
             val folderItems = fetchTopicItems(folderItemsList)
             items.add(TopicFolder(itemUID, name, folderItems))
           }
           ItemType.FILE -> {
-            val strongUsers = document.get("strongUsers") as List<String> ?: emptyList()
+            val strongUsers = document.get("strongUsers") as List<String>
             items.add(TopicFile(itemUID, name, strongUsers))
           }
         }
@@ -844,7 +853,7 @@ class DatabaseConnection {
     return items
   }
 
-  suspend fun createTopic(name: String, callBack: (String) -> Unit) {
+  fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
             "name" to name, "exercises" to emptyList<String>(), "theory" to emptyList<String>())
@@ -923,7 +932,7 @@ class DatabaseConnection {
     val folder =
         hashMapOf(
             "name" to name, "type" to ItemType.FOLDER.toString(), "items" to emptyList<String>())
-    var uid = ""
+    var uid: String
     topicItemCollection
         .add(folder)
         .addOnSuccessListener { document ->
@@ -990,7 +999,7 @@ class DatabaseConnection {
         }
   }
 
-  fun getTimerReference(groupId: String) = rt_db.getReference("timer/$groupId")
+  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
 
   @SuppressLint("SuspiciousIndentation")
   suspend fun getALlTopics(groupUID: String): TopicList {

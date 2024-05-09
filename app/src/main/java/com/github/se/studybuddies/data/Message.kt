@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.data
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import java.util.UUID
 
@@ -8,12 +9,14 @@ sealed class Message {
   abstract val sender: User
   abstract val timestamp: Long
 
+  @SuppressLint("SimpleDateFormat")
   fun getTime(): String {
     val date = java.util.Date(timestamp)
     val time = java.text.SimpleDateFormat("HH:mm").format(date)
     return time
   }
 
+  @SuppressLint("SimpleDateFormat")
   fun getDate(): String {
     val date = java.util.Date(timestamp)
     val time = java.text.SimpleDateFormat("dd MMMM").format(date)

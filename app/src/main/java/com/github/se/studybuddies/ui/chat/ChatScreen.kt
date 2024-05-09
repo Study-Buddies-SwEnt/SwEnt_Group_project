@@ -31,8 +31,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -260,7 +260,7 @@ fun MessageTextFields(
               }
             }) {
               Icon(
-                  Icons.Outlined.Send,
+                  imageVector = Icons.AutoMirrored.Outlined.Send,
                   contentDescription = stringResource(R.string.contentDescription_icon_send),
                   tint = Blue)
             }

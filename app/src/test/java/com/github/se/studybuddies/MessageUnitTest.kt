@@ -3,11 +3,11 @@ package com.github.se.studybuddies
 import android.net.Uri
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
-import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Calendar
 
 @RunWith(RobolectricTestRunner::class)
 class MessageUnitTest {
@@ -27,7 +27,7 @@ class MessageUnitTest {
           set(2022, Calendar.JANUARY, 1, 15, 30) // 1st Jan 2022, 15:30
         }
     val timestamp = calendar.timeInMillis
-    val message = Message("test-uid", "Hello, World!", testUser, timestamp)
+    val message = Message.TextMessage("test-uid", "Hello, World!", testUser, timestamp)
 
     // Act
     val time = message.getTime()
@@ -45,7 +45,7 @@ class MessageUnitTest {
         }
     val timestamp = calendar.timeInMillis
 
-    val message = Message("test-uid", "Hello, World!", testUser, timestamp)
+    val message = Message.TextMessage("test-uid", "Hello, World!", testUser, timestamp)
 
     // Act
     val date = message.getDate()
@@ -58,10 +58,49 @@ class MessageUnitTest {
   fun testEmptyMessage() {
     // Act
     val emptyMessage = Message.empty()
-
     // Assert
     assertEquals("", emptyMessage.text)
     assertEquals(0, emptyMessage.timestamp)
     assertEquals(User.empty(), emptyMessage.sender)
+  }
+
+  @Test
+  fun testTextMessage() {
+    // Arrange
+    val textMessage = Message.TextMessage("test-uid", "Hello, World!", testUser, 0)
+    // Act
+    val text = textMessage.text
+    // Assert
+    assertEquals("Hello, World!", text)
+  }
+
+  @Test
+  fun testPhotoMessage() {
+    // Arrange
+    val photoMessage = Message.PhotoMessage("test-uid", Uri.EMPTY, testUser, 0)
+    // Act
+    val photoUri = photoMessage.photoUri
+    // Assert
+    assertEquals(Uri.EMPTY, photoUri)
+  }
+
+  @Test
+  fun testLinkMessage() {
+    // Arrange
+    val linkMessage = Message.LinkMessage("test-uid", Uri.EMPTY, testUser, 0)
+    // Act
+    val linkUri = linkMessage.linkUri
+    // Assert
+    assertEquals(Uri.EMPTY, linkUri)
+  }
+
+  @Test
+  fun testFileMessage() {
+    // Arrange
+    val fileMessage = Message.FileMessage("test-uid", Uri.EMPTY, testUser, 0)
+    // Act
+    val fileUri = fileMessage.fileUri
+    // Assert
+    assertEquals(Uri.EMPTY, fileUri)
   }
 }
