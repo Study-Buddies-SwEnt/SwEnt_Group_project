@@ -28,7 +28,7 @@ class TimerViewModel private constructor() : ViewModel() {
 
   private var countDownTimer: CountDownTimer? = null
 
-  private fun setupTimer(duration: StateFlow<Long>) {
+  private fun setupTimer() {
     countDownTimer =
         object : CountDownTimer(_timerValue.value, 1000) {
           override fun onTick(millisUntilFinished: Long) {
@@ -52,7 +52,7 @@ class TimerViewModel private constructor() : ViewModel() {
   fun pauseTimer() {
     isRunning = false
     countDownTimer?.cancel()
-    setupTimer(_timerValue)
+    setupTimer()
   }
 
   fun resetTimer() {
@@ -82,7 +82,7 @@ class TimerViewModel private constructor() : ViewModel() {
     val newTime = _timerValue.value + additionalTime
     if (newTime >= 0) {
       _timerValue.value = newTime
-      setupTimer(_timerValue)
+      setupTimer()
       if (isRunning) {
         countDownTimer?.start()
       }

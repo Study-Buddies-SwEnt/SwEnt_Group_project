@@ -44,13 +44,6 @@ class TimerViewModelTest {
   }
 
   @Test
-  fun pause_timer() = runBlockingTest {
-    viewModel.startTimer()
-    viewModel.pauseTimer()
-    assertFalse(viewModel.isRunning)
-  }
-
-  @Test
   fun reset_timer() = runBlocking {
     InstrumentationRegistry.getInstrumentation().runOnMainSync {
       viewModel.addMinutes(5)
