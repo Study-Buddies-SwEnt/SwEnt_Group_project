@@ -28,8 +28,13 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
     private val instances = mutableMapOf<String, SharedTimerViewModel>()
 
     fun getInstance(groupUID: String): SharedTimerViewModel {
+
       return instances.getOrPut(groupUID) { SharedTimerViewModel(groupUID) }
     }
+  }
+
+  init {
+    subscribeToTimerUpdates()
   }
 
   private fun subscribeToTimerUpdates() {
