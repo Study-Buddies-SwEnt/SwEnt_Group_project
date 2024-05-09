@@ -84,7 +84,7 @@ fun GroupSetting(
   groupData?.let {
     nameState.value = it.name
     photoState.value = it.picture
-    groupLink.value = groupViewModel.createGroupInviteLink(groupUID, nameState.value)
+    groupLink.value = groupViewModel.createGroupInviteLink(groupUID, it.name)
   }
 
   val getContent =

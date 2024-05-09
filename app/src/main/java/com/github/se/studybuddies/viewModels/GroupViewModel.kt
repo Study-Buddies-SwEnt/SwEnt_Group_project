@@ -67,9 +67,9 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
     viewModelScope.launch { db.addUserToGroup(groupUID, text) }
   }
 
-  fun updateGroup(groupUID: String, value: String, value1: Uri?) {
-    if (value1 != null) {
-      db.updateGroup(groupUID, value, value1)
+  fun updateGroup(groupUID: String, name: String, photoURI: Uri?) {
+    if (photoURI != null) {
+      db.updateGroup(groupUID, name, photoURI)
     }
   }
 
