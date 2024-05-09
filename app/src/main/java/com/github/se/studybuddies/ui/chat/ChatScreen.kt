@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -69,6 +69,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.permissions.checkPermission
 import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel

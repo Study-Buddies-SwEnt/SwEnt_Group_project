@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -31,6 +30,10 @@ import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.SaveButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
@@ -53,12 +56,8 @@ fun TopicCreation(
             actions = {})
       }) {
         Column(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .background(Color.White)
-                    .padding(20.dp)
-                    .testTag("create_topic_column"),
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize().padding(20.dp).testTag("create_topic_column"),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Text("Enter Topic Name")
 

@@ -87,8 +87,6 @@ class LocationService : Service() {
   }
 
   companion object {
-    const val ACTION_LOCATION_UPDATES = "com.github.se.studybuddies.LOCATION_UPDATES"
-
     const val ACTION_START = "ACTION_START"
     const val ACTION_STOP = "ACTION_STOP"
   }
