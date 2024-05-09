@@ -274,7 +274,9 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
+                    val viewModel2 = SharedTimerViewModel.getInstance(groupUID)
+
+                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }
