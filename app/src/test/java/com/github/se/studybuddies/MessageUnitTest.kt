@@ -16,7 +16,8 @@ class MessageUnitTest {
           "test",
           "test@email.ch",
           "test",
-          Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
+          Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+          "offline")
 
   @Test
   fun testGetTime() {

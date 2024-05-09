@@ -60,9 +60,9 @@ import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel

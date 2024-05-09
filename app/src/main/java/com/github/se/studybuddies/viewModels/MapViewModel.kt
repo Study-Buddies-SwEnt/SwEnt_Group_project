@@ -7,7 +7,7 @@ import android.location.LocationManager
 import com.github.se.studybuddies.mapService.DefaultLocationClient
 import com.github.se.studybuddies.mapService.LocationClient
 import com.github.se.studybuddies.mapService.LocationService
-import com.github.se.studybuddies.ui.permissions.hasLocationPermission
+import com.github.se.studybuddies.permissions.hasLocationPermission
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

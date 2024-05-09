@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.core.content.ContextCompat
-import com.github.se.studybuddies.ui.permissions.checkPermission
+import com.github.se.studybuddies.permissions.checkPermission
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.mockk
 import io.mockk.verify

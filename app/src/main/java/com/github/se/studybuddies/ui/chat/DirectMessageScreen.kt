@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.chat
 
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -48,7 +48,7 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.MainScreenScaffold
+import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
