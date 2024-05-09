@@ -9,6 +9,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -24,25 +25,26 @@ import com.github.se.studybuddies.ui.screens.GoBackRouteButton
 import com.github.se.studybuddies.ui.screens.Sub_title
 import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
-import com.github.se.studybuddies.viewModels.TimerData
+
 import kotlin.text.*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SharedTimerScreen(
     navigationActions: NavigationActions,
-    sharedTimerViewModel: SharedTimerViewModel
+    sharedTimerViewModel: SharedTimerViewModel,
+    groupUID: String
 ) {
-  val timerData by sharedTimerViewModel.timerData.observeAsState(TimerData())
-  val remainingTime by sharedTimerViewModel.remainingTime.observeAsState(0L)
+  val timerData by sharedTimerViewModel.timerValue.collectAsState()
+  val remainingTime by sharedTimerViewModel.timerEnd.collectAsState()
 
   Scaffold(
       modifier = Modifier.fillMaxSize().testTag("sharedtimer_scaffold"),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title(title = "Timer") },
+            title = { Sub_title(title = "Shared Timer") },
             navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+              GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/$groupUID")
             },
             actions = {})
       },
@@ -57,7 +59,7 @@ fun SharedTimerScreen(
               colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                   Text(
-                      text = formatDuration(remainingTime),
+                      text = formatDuration(timerData),
                       fontSize = 40.sp,
                       color = Color.Blue,
                       textAlign = TextAlign.Center)
@@ -83,7 +85,7 @@ fun SharedTimerScreen(
               horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, sharedTimerViewModel::addHours)
                 TimeAdjustSection("Minutes", 1, sharedTimerViewModel::addMinutes)
-                TimeAdjustSection("Seconds", 10, sharedTimerViewModel::addSeconds)
+                TimeAdjustSection("Seconds", 1, sharedTimerViewModel::addSeconds)
               }
         }
   }
