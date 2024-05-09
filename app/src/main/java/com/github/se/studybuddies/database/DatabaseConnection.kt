@@ -478,7 +478,7 @@ class DatabaseConnection {
 
     fun removeUserFromGroup(groupUID: String, userUID: String = "") {
 
-        val userToAdd = if (userUID == "") {
+        val user = if (userUID == "") {
             getCurrentUserUID()
         } else {
             userUID
@@ -495,7 +495,7 @@ class DatabaseConnection {
         }
 
     userMembershipsCollection
-        .document(userToAdd)
+        .document(user)
         .update("groups", FieldValue.arrayRemove(groupUID))
         .addOnSuccessListener { Log.d("MyPrint", "Remove group from user successfully") }
         .addOnFailureListener { e ->
