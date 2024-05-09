@@ -61,7 +61,8 @@ class DatabaseConnection {
       val email = document.getString("email") ?: ""
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-      User(uid, email, username, photoUrl)
+      val location = document.getString("location") ?: "offline"
+      User(uid, email, username, photoUrl, location)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
@@ -109,13 +110,22 @@ class DatabaseConnection {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  suspend fun createUser(uid: String, email: String, username: String, profilePictureUri: Uri) {
+  suspend fun createUser(
+      uid: String,
+      email: String,
+      username: String,
+      profilePictureUri: Uri,
+      location: String = "offline"
+  ) {
     Log.d(
         "MyPrint",
         "Creating new user with uid $uid, email $email, username $username and picture link ${profilePictureUri.toString()}")
     val user =
         hashMapOf(
-            "email" to email, "username" to username, "photoUrl" to profilePictureUri.toString())
+            "email" to email,
+            "username" to username,
+            "photoUrl" to profilePictureUri.toString(),
+            "location" to location)
     if (profilePictureUri != getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)
@@ -189,8 +199,14 @@ class DatabaseConnection {
         }
   }
 
-  fun updateUserData(uid: String, email: String, username: String, profilePictureUri: Uri) {
-    val task = hashMapOf("email" to email, "username" to username)
+  fun updateUserData(
+      uid: String,
+      email: String,
+      username: String,
+      profilePictureUri: Uri,
+      location: String
+  ) {
+    val task = hashMapOf("email" to email, "username" to username, "location" to location)
     userDataCollection
         .document(uid)
         .update(task as Map<String, Any>)
@@ -208,6 +224,16 @@ class DatabaseConnection {
               }
           Log.d("MyPrint", "User data successfully updated")
         }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to update user data with error: ", e)
+        }
+  }
+
+  fun updateLocation(uid: String, location: String) {
+    userDataCollection
+        .document(uid)
+        .update("location", location)
+        .addOnSuccessListener { Log.d("MyPrint", "User data successfully updated") }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to update user data with error: ", e)
         }
