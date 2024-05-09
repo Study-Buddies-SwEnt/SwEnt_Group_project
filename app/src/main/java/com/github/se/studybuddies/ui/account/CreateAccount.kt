@@ -31,9 +31,6 @@ import com.github.se.studybuddies.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.shared_elements.AccountFields
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SetProfilePicture
-import com.github.se.studybuddies.ui.permissions.checkPermission
-import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.screens.SaveButton
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
