@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -33,9 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,46 +50,42 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.permissions.checkPermission
-import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
-import com.github.se.studybuddies.utility.createGroupInviteLink
-import kotlinx.coroutines.delay
+import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.launch
-
-private val db = DatabaseConnection()
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
+fun GroupSetting(
+    groupUID: String,
+    groupViewModel: GroupViewModel,
+    navigationActions: NavigationActions
+) {
 
-  val scope = rememberCoroutineScope()
-  val nameState = remember { mutableStateOf("") }
-  val photoState = remember { mutableStateOf(Uri.EMPTY) }
-  val context = LocalContext.current
+  if (groupUID.isEmpty()) return
+  groupViewModel.fetchGroupData(groupUID)
+  val groupData by groupViewModel.group.observeAsState()
 
-  val picture = remember { mutableStateOf(Uri.EMPTY) }
-  val name = remember { mutableStateOf("") }
+  val nameState = remember { mutableStateOf(groupData?.name ?: "") }
+  val photoState = remember { mutableStateOf(groupData?.picture ?: Uri.EMPTY) }
   val groupLink = remember { mutableStateOf("") }
 
-  LaunchedEffect(key1 = true) {
-    scope.launch {
-      val group = db.getGroup(groupUID)
+  val context = LocalContext.current
 
-      picture.value = group.picture
-      name.value = group.name
-
-      groupLink.value = createGroupInviteLink(groupUID, name.value)
-    }
+  groupData?.let {
+    nameState.value = it.name
+    photoState.value = it.picture
+    groupLink.value = groupViewModel.createGroupInviteLink(groupUID, it.name)
   }
-  photoState.value = picture.value
 
   val getContent =
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -119,56 +114,52 @@ fun GroupSetting(groupUID: String, navigationActions: NavigationActions) {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
             actions = {})
-      }) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().background(White).testTag("modify_group_column"),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-              item { Spacer(modifier = Modifier.padding(20.dp)) }
-              item { ModifyName(name.value, nameState) }
-              item { Spacer(modifier = Modifier.padding(10.dp)) }
-              item {
-                ModifyProfilePicture(photoState) {
-                  checkPermission(context, permission, requestPermissionLauncher) {
-                    getContent.launch(imageInput)
+      }) { paddingValues ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top) {
+              LazyColumn(
+                  modifier =
+                      Modifier.fillMaxSize().padding(paddingValues).testTag("modify_group_column"),
+                  verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.CenterHorizontally) {
+                    item { Spacer(modifier = Modifier.padding(10.dp)) }
+                    item { ModifyName(nameState) }
+                    item { Spacer(modifier = Modifier.padding(10.dp)) }
+                    item {
+                      ModifyProfilePicture(photoState) {
+                        checkPermission(context, permission, requestPermissionLauncher) {
+                          getContent.launch(imageInput)
+                        }
+                      }
+                    }
+                    item { Spacer(modifier = Modifier.padding(20.dp)) }
+                    item { AddMemberButton(groupUID, groupViewModel) }
+                    item { Spacer(modifier = Modifier.padding(0.dp)) }
+                    item { ShareLinkButton(groupLink.value) }
+                    item { Spacer(modifier = Modifier.padding(10.dp)) }
+                    item {
+                      SaveButton(nameState) {
+                        groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
+                        navigationActions.navigateTo(Route.GROUPSHOME)
+                      }
+                    }
                   }
-                }
-              }
-              item { Spacer(modifier = Modifier.padding(20.dp)) }
-              item { AddMemberButton(groupUID, db) }
-              item { Spacer(modifier = Modifier.padding(0.dp)) }
-              item { ShareLinkButton(groupLink.value) }
-              item { Spacer(modifier = Modifier.padding(10.dp)) }
-              item {
-                SaveGroupButton {
-                  if (nameState.value == "") {
-                    db.updateGroup(groupUID, name.value, photoState.value)
-                  } else {
-                    db.updateGroup(groupUID, nameState.value, photoState.value)
-                  }
-                  navigationActions.navigateTo(Route.GROUPSHOME)
-                }
-              }
             }
       }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ModifyName(name: String, nameState: MutableState<String>) {
+fun ModifyName(nameState: MutableState<String>) {
   Spacer(Modifier.height(20.dp))
   OutlinedTextField(
       value = nameState.value,
       onValueChange = { nameState.value = it },
-      label = { Text(name, color = Blue) },
-      placeholder = { Text(stringResource(R.string.enter_a_new_group_name), color = Blue) },
       singleLine = true,
       modifier =
-          Modifier.padding(0.dp)
-              .width(300.dp)
-              .height(65.dp)
-              .clip(MaterialTheme.shapes.small)
-              .testTag("group_name_field"),
+          Modifier.padding(0.dp).clip(MaterialTheme.shapes.small).testTag("group_name_field"),
       colors =
           OutlinedTextFieldDefaults.colors(
               cursorColor = Blue,
@@ -191,7 +182,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
+fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
@@ -228,21 +219,7 @@ fun AddMemberButton(groupUID: String, db: DatabaseConnection) {
                 onDone = {
                   // add the user to the database
                   isTextFieldVisible = false
-                  scope.launch {
-                    if (text != "") {
-
-                      val error = db.addUserToGroup(groupUID, text)
-                      if (error == -1) {
-                        showError = true
-                        delay(3000L) // delay for 3 seconds
-                        showError = false
-                      } else {
-                        showSucces = true
-                        delay(3000L) // delay for 3 seconds
-                        showSucces = false
-                      }
-                    }
-                  }
+                  groupViewModel.addUserToGroup(groupUID, text)
                 }))
   }
   if (showError) {
@@ -295,25 +272,4 @@ fun ShareLinkButton(groupLink: String) {
                 unfocusedIndicatorColor = Blue,
             ))
   }
-}
-
-@Composable
-fun SaveGroupButton(save: () -> Unit) {
-  Button(
-      onClick = save,
-      modifier =
-          Modifier.padding(20.dp)
-              .width(300.dp)
-              .height(50.dp)
-              .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
-              .testTag("save_group_button"),
-      colors =
-          ButtonDefaults.buttonColors(
-              containerColor = Blue,
-          )) {
-        Text(
-            stringResource(R.string.save),
-            color = White,
-            modifier = Modifier.testTag("save_group_button_text"))
-      }
 }

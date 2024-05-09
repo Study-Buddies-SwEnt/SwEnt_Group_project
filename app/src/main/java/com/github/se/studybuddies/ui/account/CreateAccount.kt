@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.settings
+package com.github.se.studybuddies.ui.account
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,8 +26,11 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.permissions.checkPermission
-import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
+import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.AccountFields
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.SetProfilePicture
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch

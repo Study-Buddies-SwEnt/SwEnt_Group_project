@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.chat
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -54,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -61,6 +62,7 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel
@@ -322,7 +324,7 @@ fun EditDialog(
 @Composable
 fun ChatGroupTitle(chat: Chat) {
   Image(
-      painter = rememberImagePainter(chat.photoUrl),
+      painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
       modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
@@ -346,7 +348,7 @@ fun ChatGroupTitle(chat: Chat) {
 @Composable
 fun PrivateChatTitle(chat: Chat) {
   Image(
-      painter = rememberImagePainter(chat.photoUrl),
+      painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = "User profile picture",
       modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
       contentScale = ContentScale.Crop)
