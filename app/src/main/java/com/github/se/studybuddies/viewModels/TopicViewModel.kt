@@ -54,27 +54,30 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     fetchTopicData(name)
   }
 
-  fun createTopicFolder(name: String, area: ItemArea) {
-    db.createTopicFolder(name) { folder ->
+  fun createTopicFolder(name: String, area: ItemArea, parentUID: String) {
+    if (uid == null)
+      return
+    db.createTopicFolder(name, parentUID) { folder ->
       when (area) {
         ItemArea.EXERCISES -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addExercise(uid, folder)
             fetchTopicData(uid)
           }
         }
         ItemArea.THEORY -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addTheory(uid, folder)
             fetchTopicData(uid)
           }
         }
       }
+      fetchTopicData(uid)
     }
   }
 
-  fun createTopicFile(name: String, area: ItemArea) {
-    db.createTopicFile(name) { file ->
+  fun createTopicFile(name: String, area: ItemArea, parentUID: String) {
+    db.createTopicFile(name, parentUID) { file ->
       when (area) {
         ItemArea.EXERCISES -> {
           if (uid != null) {
@@ -83,7 +86,6 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
           }
         }
         ItemArea.THEORY -> {
-          val updatedTheory = _topic.value.theory.toMutableList().apply { add(file) }
           if (uid != null) {
             db.addTheory(uid, file)
             fetchTopicData(uid)

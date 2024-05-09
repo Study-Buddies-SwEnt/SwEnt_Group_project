@@ -1,9 +1,11 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
@@ -105,6 +108,7 @@ fun TopicScreen(
   val folderFieldVisible = remember { mutableStateOf(false) }
   val fileFieldVisible = remember { mutableStateOf(false) }
   val enteredName = remember { mutableStateOf("") }
+  val parentUID = remember { mutableStateOf("") }
 
   Scaffold(
       modifier = Modifier.fillMaxSize(),
@@ -129,9 +133,7 @@ fun TopicScreen(
         Column(horizontalAlignment = Alignment.End) {
           if (floatingButtonsVisible.value) {
             Button(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(45.dp),
+                modifier = Modifier.width(100.dp).height(45.dp),
                 shape = RoundedCornerShape(50),
                 onClick = {
                   folderFieldVisible.value = !folderFieldVisible.value
@@ -146,9 +148,7 @@ fun TopicScreen(
                 }
             Spacer(modifier = Modifier.size(7.dp))
             Button(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(45.dp),
+                modifier = Modifier.width(100.dp).height(45.dp),
                 shape = RoundedCornerShape(50),
                 onClick = {
                   fileFieldVisible.value = !fileFieldVisible.value
@@ -164,18 +164,17 @@ fun TopicScreen(
           }
           Spacer(modifier = Modifier.size(10.dp))
           Row(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(16.dp),
+              modifier = Modifier.fillMaxWidth().padding(16.dp),
               verticalAlignment = Alignment.Bottom,
               horizontalArrangement = Arrangement.End) {
                 Button(
-                    onClick = { floatingButtonsVisible.value = !floatingButtonsVisible.value },
+                    onClick = {
+                      floatingButtonsVisible.value = !floatingButtonsVisible.value
+                      folderFieldVisible.value = false
+                      fileFieldVisible.value = false
+                    },
                     modifier =
-                    Modifier
-                        .width(64.dp)
-                        .height(64.dp)
-                        .clip(MaterialTheme.shapes.medium)) {
+                        Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
                       Icon(
                           imageVector = Icons.Default.Add,
                           contentDescription = stringResource(R.string.create_a_topic_item),
@@ -186,42 +185,35 @@ fun TopicScreen(
       },
       floatingActionButtonPosition = FabPosition.End) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
+            modifier = Modifier.fillMaxSize().padding(it),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
               Box(
                   modifier =
-                  Modifier
-                      .fillMaxWidth()
-                      .background(Color.White)
-                      .clickable {
-                          chatViewModel.setChat(
-                              topicData.let {
+                      Modifier.fillMaxWidth()
+                          .background(Color.White)
+                          .clickable {
+                            chatViewModel.setChat(
+                                topicData.let {
                                   group?.let { grp ->
-                                      Chat(
-                                          it.uid,
-                                          it.name,
-                                          grp.picture,
-                                          ChatType.TOPIC,
-                                          groupViewModel.members.value!!.toList(),
-                                          grp.uid
-                                      )
+                                    Chat(
+                                        it.uid,
+                                        it.name,
+                                        grp.picture,
+                                        ChatType.TOPIC,
+                                        groupViewModel.members.value!!.toList(),
+                                        grp.uid)
                                   }
-                              })
-                          navigationActions.navigateTo(Route.CHAT)
-                      }
-                      .drawBehind {
-                          val strokeWidth = 1f
-                          val y = size.height - strokeWidth / 2
-                          drawLine(
-                              Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth
-                          )
-                      }) {
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)) {
+                                })
+                            navigationActions.navigateTo(Route.CHAT)
+                          }
+                          .drawBehind {
+                            val strokeWidth = 1f
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                          }) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                       Spacer(modifier = Modifier.size(16.dp))
                       Text(
                           text = stringResource(R.string.chat),
@@ -232,17 +224,15 @@ fun TopicScreen(
               Divider(color = Blue, thickness = 2.dp)
               Box(
                   modifier =
-                  Modifier
-                      .fillMaxWidth()
-                      .background(Color.White)
-                      .clickable { navigationActions.navigateTo(Route.CHAT) }
-                      .drawBehind {
-                          val strokeWidth = 1f
-                          val y = size.height - strokeWidth / 2
-                          drawLine(
-                              Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth
-                          )
-                      }) {
+                      Modifier.fillMaxWidth()
+                          .background(Color.White)
+                          .clickable { navigationActions.navigateTo(Route.CHAT) }
+                          .drawBehind {
+                            val strokeWidth = 1f
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                          }) {
                     Column {
                       Row(
                           horizontalArrangement = Arrangement.SpaceBetween,
@@ -250,32 +240,28 @@ fun TopicScreen(
                             Text(
                                 text = "Practice",
                                 modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .clickable { areaState.value = ItemArea.EXERCISES }
-                                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                                    .align(Alignment.CenterVertically),
+                                    Modifier.weight(1f)
+                                        .clickable { areaState.value = ItemArea.EXERCISES }
+                                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                                        .align(Alignment.CenterVertically),
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                             Text(
                                 text = "Theory",
                                 modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .clickable { areaState.value = ItemArea.THEORY }
-                                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                                    .align(Alignment.CenterVertically),
+                                    Modifier.weight(1f)
+                                        .clickable { areaState.value = ItemArea.THEORY }
+                                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                                        .align(Alignment.CenterVertically),
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                           }
                       Divider(
                           modifier =
-                          Modifier
-                              .align(
-                                  if (areaState.value == ItemArea.EXERCISES) Alignment.Start
-                                  else Alignment.End
-                              )
-                              .fillMaxWidth(0.5f),
+                              Modifier.align(
+                                      if (areaState.value == ItemArea.EXERCISES) Alignment.Start
+                                      else Alignment.End)
+                                  .fillMaxWidth(0.5f),
                           color = Blue,
                           thickness = 4.dp)
                     }
@@ -286,9 +272,13 @@ fun TopicScreen(
                   horizontalAlignment = Alignment.Start,
                   content = {
                     if (areaState.value == ItemArea.EXERCISES) {
-                      items(exercisesState) { topicItem -> TopicContentItem(topicItem) }
+                      items(exercisesState) { topicItem ->
+                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+                      }
                     } else if (areaState.value == ItemArea.THEORY) {
-                      items(theoryState.value) { topicItem -> TopicContentItem(topicItem) }
+                      items(theoryState.value) { topicItem ->
+                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+                      }
                     }
                   })
             }
@@ -296,149 +286,176 @@ fun TopicScreen(
           TopicItemField(
               enteredName = enteredName, label = stringResource(R.string.enter_a_folder_name)) {
                 folderFieldVisible.value = false
-                topicViewModel.createTopicFolder(enteredName.value, areaState.value)
+                if (enteredName.value.isNotBlank()) {
+                  topicViewModel.createTopicFolder(
+                      enteredName.value, areaState.value, parentUID.value)
+                }
                 enteredName.value = ""
+                parentUID.value = ""
               }
         }
         if (fileFieldVisible.value) {
           TopicItemField(
               enteredName = enteredName, label = stringResource(R.string.enter_a_file_name)) {
                 fileFieldVisible.value = false
-                topicViewModel.createTopicFile(enteredName.value, areaState.value)
+                if (enteredName.value.isNotBlank()) {
+                  topicViewModel.createTopicFile(
+                      enteredName.value, areaState.value, parentUID.value)
+                }
                 enteredName.value = ""
+                parentUID.value = ""
               }
         }
       }
 }
 
 @Composable
-fun TopicContentItem(topicItem: TopicItem) {
-    when (topicItem) {
-        is TopicFolder -> {
-            FolderItem(topicItem)
-        }
-        is TopicFile -> {
-            FileItem(topicItem)
-        }
+fun TopicContentItem(
+    topicItem: TopicItem,
+    folderFieldVisible: MutableState<Boolean>,
+    fileFieldVisible: MutableState<Boolean>,
+    parentUID: MutableState<String>
+) {
+  when (topicItem) {
+    is TopicFolder -> {
+      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
     }
+    is TopicFile -> {
+      FileItem(topicItem)
+    }
+  }
 }
 
 @Composable
 fun FileItem(fileItem: TopicFile) {
-    Box(
-        modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(start = 48.dp)
-            .background(Color.White)
-            .drawBehind {
+  Box(
+      modifier =
+          Modifier.fillMaxWidth()
+              .padding(start = 48.dp)
+              .background(Color.White)
+              .drawBehind {
                 val strokeWidth = 1f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-            }
-            .clickable {
+              }
+              .clickable {
                 // TODO: implement strong users
-            }
-    ) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-            Spacer(modifier = Modifier.size(20.dp))
-            Text(
-                text = fileItem.name,
-                modifier = Modifier.align(Alignment.CenterVertically),
-                style = TextStyle(fontSize = 20.sp),
-                lineHeight = 28.sp)
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Spacer(modifier = Modifier.size(20.dp))
+          Text(
+              text = fileItem.name,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
         }
-    }
+      }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FolderItem(folderItem: TopicFolder) {
-    var isExpanded by remember { mutableStateOf(false) }
+fun FolderItem(
+    folderItem: TopicFolder,
+    folderFieldVisible: MutableState<Boolean>,
+    fileFieldVisible: MutableState<Boolean>,
+    parentUID: MutableState<String>
+) {
+  var isExpanded by remember { mutableStateOf(false) }
 
-    Column {
-        Box(
-            modifier =
-            Modifier
-                .fillMaxWidth()
+  Column {
+    Box(
+        modifier =
+            Modifier.fillMaxWidth()
                 .background(Color.White)
                 .drawBehind {
-                    val strokeWidth = 1f
-                    val y = size.height - strokeWidth / 2
-                    drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                  val strokeWidth = 1f
+                  val y = size.height - strokeWidth / 2
+                  drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
                 }
-                .clickable {
-                    isExpanded = !isExpanded
-                }
-        ) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp),
-                verticalAlignment = Alignment.CenterVertically) {
+                .combinedClickable(
+                    onClick = { isExpanded = !isExpanded },
+                    onLongClick = { Log.d("MyPrint", "long pressed") })) {
+          Row(
+              modifier = Modifier.fillMaxWidth().padding(6.dp),
+              verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.size(10.dp))
                 Icon(
                     painter = painterResource(R.drawable.arrow_right_24px),
                     contentDescription = stringResource(R.string.arrow_icon),
-                    modifier = Modifier
-                        .size(28.dp)
-                        .rotate(if (isExpanded) 90f else 0f)
-                )
+                    modifier = Modifier.size(28.dp).rotate(if (isExpanded) 90f else 0f))
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
                     text = folderItem.name,
                     modifier = Modifier.align(Alignment.CenterVertically),
                     style = TextStyle(fontSize = 20.sp),
                     lineHeight = 28.sp)
-                AddInFolderButton()
-            }
+                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, parentUID)
+              }
         }
-        if (isExpanded) {
-            Log.d("MyPrint", "isExpanded")
-            folderItem.items.forEach {child ->
-                TopicContentItem(child)
-            }
-        }
+    if (isExpanded) {
+      Log.d("MyPrint", "isExpanded")
+      folderItem.items.forEach { child ->
+        TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID)
+      }
     }
+  }
 }
 
 @Composable
-fun AddInFolderButton(folderFieldVisible: MutableState<Boolean>, fieldFieldVisible: MutableState<Boolean>) {
-    val expandedState = remember { mutableStateOf(false) }
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ){
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd),
-            onClick = {
-                expandedState.value = true
-            }
-        ) {
-            Icon(
-                modifier = Modifier.size(32.dp),
-                painter = painterResource(R.drawable.add_square),
-                contentDescription = stringResource(R.string.square_add_icon)
-            )
+fun AddInFolderButton(
+    uid: String,
+    folderFieldVisible: MutableState<Boolean>,
+    fileFieldVisible: MutableState<Boolean>,
+    parentUID: MutableState<String>
+) {
+  val expandedState = remember { mutableStateOf(false) }
+  Box(modifier = Modifier.fillMaxWidth()) {
+    IconButton(
+        modifier = Modifier.align(Alignment.CenterEnd), onClick = { expandedState.value = true }) {
+          Icon(
+              modifier = Modifier.size(32.dp),
+              painter = painterResource(R.drawable.add_square),
+              contentDescription = stringResource(R.string.square_add_icon))
         }
-    }
-    DropdownMenu(
-        expanded = expandedState.value,
-        onDismissRequest = { expandedState.value = false }
-    ) {
+  }
+  DropdownMenu(
+      modifier = Modifier.background(Blue).padding(0.dp),
+      expanded = expandedState.value,
+      onDismissRequest = { expandedState.value = false },
+      offset = DpOffset(x = (-16).dp, y = 0.dp)) {
         DropdownMenuItem(
+            modifier = Modifier.fillMaxSize().padding(0.dp),
             onClick = {
-                expandedState.value = false
-                folderFieldVisible.value = !folderFieldVisible.value
+              expandedState.value = false
+              folderFieldVisible.value = !folderFieldVisible.value
+              fileFieldVisible.value = false
+              if (folderFieldVisible.value) {
+                parentUID.value = uid
+              }
             }) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = stringResource(R.string.folder),
-                color = White,
-                style = TextStyle(fontSize = 16.sp)
-            )
-        }
-    }
+              Spacer(modifier = Modifier.size(16.dp))
+              Text(
+                  text = stringResource(R.string.folder),
+                  color = White,
+                  style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+            }
+        DropdownMenuItem(
+            modifier = Modifier.fillMaxSize().padding(0.dp),
+            onClick = {
+              expandedState.value = false
+              fileFieldVisible.value = !fileFieldVisible.value
+              folderFieldVisible.value = false
+              if (fileFieldVisible.value) {
+                parentUID.value = uid
+              }
+            }) {
+              Spacer(modifier = Modifier.size(16.dp))
+              Text(
+                  text = stringResource(R.string.file),
+                  color = White,
+                  style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+            }
+      }
 }
 
 @Composable
@@ -458,10 +475,9 @@ fun TopicItemField(enteredName: MutableState<String>, label: String, onDone: () 
                     unfocusedLabelColor = Blue,
                     unfocusedIndicatorColor = Blue),
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(38.dp)
-                .border(width = 1.dp, color = Blue, shape = RoundedCornerShape(4.dp)),
+                Modifier.fillMaxWidth()
+                    .padding(38.dp)
+                    .border(width = 1.dp, color = Blue, shape = RoundedCornerShape(4.dp)),
             keyboardActions = KeyboardActions(onDone = { onDone() }),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             singleLine = true)
