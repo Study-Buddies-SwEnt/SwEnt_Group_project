@@ -84,6 +84,7 @@ fun SharedTimerScreen(
               horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, sharedTimerViewModel::addHours)
                 TimeAdjustSection("Minutes", 1, sharedTimerViewModel::addMinutes)
+                TimeAdjustSection("Secondes", 1, sharedTimerViewModel::addSeconds)
               }
         }
   }
