@@ -111,9 +111,7 @@ fun GroupsHome(
           }
         } else if (groupList.value.isEmpty()) {
           Column(
-              modifier = Modifier
-                  .fillMaxSize()
-                  .testTag("GroupsHome"),
+              modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
@@ -125,16 +123,12 @@ fun GroupsHome(
           }
         } else {
           Column(
-              modifier = Modifier
-                  .fillMaxSize()
-                  .testTag("GroupsHome"),
+              modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
             LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
+                modifier = Modifier.padding(innerPadding).fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
@@ -151,9 +145,9 @@ fun GroupsHome(
 
 @Composable
 fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions) {
-    var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
+  var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
-    val groupViewModel = GroupViewModel(groupUID)
+  val groupViewModel = GroupViewModel(groupUID)
   IconButton(
       onClick = { expandedState.value = true },
   ) {
@@ -166,98 +160,82 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
       DropdownMenuItem(
           onClick = {
             expandedState.value = false
-              if (item.route == Route.LEAVEGROUP) {
-                  isLeaveGroupDialogVisible = true
-              } else {
-            navigationActions.navigateTo("${item.route}/$groupUID") }
+            if (item.route == Route.LEAVEGROUP) {
+              isLeaveGroupDialogVisible = true
+            } else {
+              navigationActions.navigateTo("${item.route}/$groupUID")
+            }
           }) {
             Spacer(modifier = Modifier.size(16.dp))
             Text(item.textId)
           }
     }
   }
-    if (isLeaveGroupDialogVisible) {
-        Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
-            Box(modifier = Modifier
-                .width(280.dp)
-                .height(140.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color.White)) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = "Are you sure you want to leave the group ?")
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
+  if (isLeaveGroupDialogVisible) {
+    Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
+      Box(
+          modifier =
+              Modifier.width(280.dp)
+                  .height(140.dp)
+                  .clip(RoundedCornerShape(10.dp))
+                  .background(Color.White)) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                  Text(text = "Are you sure you want to leave the group ?")
+                  Spacer(modifier = Modifier.height(20.dp))
+                  Row(
+                      modifier = Modifier.fillMaxWidth(),
+                      horizontalArrangement = Arrangement.SpaceEvenly) {
                         Button(
                             onClick = {
-                                groupViewModel.leaveGroup(groupUID)
-                                navigationActions.navigateTo(Route.GROUPSHOME)
-                                isLeaveGroupDialogVisible = false
+                              groupViewModel.leaveGroup(groupUID)
+                              navigationActions.navigateTo(Route.GROUPSHOME)
+                              isLeaveGroupDialogVisible = false
                             },
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .width(80.dp)
-                                .height(40.dp),
+                            modifier =
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = Blue,
-                                contentColor = Color.Red
-                            )     )                 {
-                            Text(text = "Yes")
-                        }
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Blue, contentColor = Color.Red)) {
+                              Text(text = "Yes")
+                            }
 
                         Button(
-                            onClick = {
-                                isLeaveGroupDialogVisible = false
-                            },
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .width(80.dp)
-                                .height(40.dp),
+                            onClick = { isLeaveGroupDialogVisible = false },
+                            modifier =
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = Blue,
-                                contentColor = Color.White
-                            )    )                   {
-                            Text(text = "No")
-                        }
-                    }
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Blue, contentColor = Color.White)) {
+                              Text(text = "No")
+                            }
+                      }
                 }
-            }
-        }
+          }
     }
+  }
 }
 
 @Composable
 fun GroupItem(group: Group, navigationActions: NavigationActions) {
   Box(
       modifier =
-      Modifier
-          .fillMaxWidth()
-          .background(Color.White)
-          .clickable {
-              val groupUid = group.uid
-              Log.d("GROUPEDITCLICK", "Tapped on group")
-              navigationActions.navigateTo("${Route.GROUP}/$groupUid")
-          }
-          .drawBehind {
-              val strokeWidth = 1f
-              val y = size.height - strokeWidth / 2
-              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-          }) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-          Box(modifier = Modifier
-              .size(52.dp)
-              .clip(CircleShape)
-              .background(Color.Transparent)) {
+          Modifier.fillMaxWidth()
+              .background(Color.White)
+              .clickable {
+                val groupUid = group.uid
+                Log.d("GROUPEDITCLICK", "Tapped on group")
+                navigationActions.navigateTo("${Route.GROUP}/$groupUid")
+              }
+              .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
                 painter = rememberImagePainter(group.picture),
                 contentDescription = stringResource(id = R.string.group_picture),
@@ -279,17 +257,12 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 @Composable
 fun AddGroupButton(navigationActions: NavigationActions) {
   Row(
-      modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-            modifier = Modifier
-                .width(64.dp)
-                .height(64.dp)
-                .clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Add,
                   contentDescription = stringResource(R.string.create_a_task),
@@ -307,17 +280,12 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var showSucces by remember { mutableStateOf(false) }
 
   Row(
-      modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = !isTextFieldVisible },
-            modifier = Modifier
-                .width(64.dp)
-                .height(64.dp)
-                .clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
               Icon(
                   imageVector = Icons.Default.Share,
                   contentDescription = stringResource(R.string.link_button),
@@ -329,9 +297,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         singleLine = true,
         colors =
             TextFieldDefaults.colors(
@@ -365,18 +331,14 @@ fun AddLinkButton(navigationActions: NavigationActions) {
 
   if (showError) {
     Snackbar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = { TextButton(onClick = { showError = false }) {} }) {
           Text(stringResource(R.string.the_link_entered_is_invalid))
         }
   }
   if (showSucces) {
     Snackbar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = { TextButton(onClick = { showSucces = false }) {} }) {
           Text(stringResource(R.string.you_have_been_successfully_added_to_the_group))
         }
@@ -387,10 +349,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
 fun AddGroup(navigationActions: NavigationActions) {
   Button(
       onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-      modifier = Modifier
-          .width(64.dp)
-          .height(64.dp)
-          .clip(MaterialTheme.shapes.medium)) {
+      modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = stringResource(id = R.string.create_a_task),

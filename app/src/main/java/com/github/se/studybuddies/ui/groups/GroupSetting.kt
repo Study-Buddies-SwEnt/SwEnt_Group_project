@@ -62,7 +62,6 @@ import com.github.se.studybuddies.ui.screens.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.utility.createGroupInviteLink
-import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

@@ -377,11 +377,12 @@ class DatabaseConnection {
     }
 
     // only look if userUID exist, can't find user by username
-      val userToAdd = if (user == "") {
+    val userToAdd =
+        if (user == "") {
           getCurrentUserUID()
-      } else {
+        } else {
           user
-      }
+        }
 
     if (getUser(userToAdd) == User.empty()) {
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
@@ -476,23 +477,35 @@ class DatabaseConnection {
         }
   }
 
-    fun removeUserFromGroup(groupUID: String, userUID: String = "") {
+  suspend fun removeUserFromGroup(groupUID: String, userUID: String = "") {
 
-        val user = if (userUID == "") {
-            getCurrentUserUID()
+    val user =
+        if (userUID == "") {
+          getCurrentUserUID()
         } else {
-            userUID
+          userUID
         }
 
-        //todo why no succefully remove user in group, userMemberShip work
-        //todo if a group don't have any member anymore, delete the group.
     groupDataCollection
         .document(groupUID)
-        .update("members", FieldValue.arrayRemove(userUID))
+        .update("members", FieldValue.arrayRemove(user))
         .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to remove user from group with error: ", e)
         }
+
+    val document = groupDataCollection.document(groupUID).get().await()
+    val members = document.get("members") as? List<String> ?: emptyList()
+
+    if (members.isEmpty()) {
+      groupDataCollection
+          .document(groupUID)
+          .delete()
+          .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to remove user from group with error: ", e)
+          }
+    }
 
     userMembershipsCollection
         .document(user)
@@ -501,7 +514,7 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to remove group from user with error: ", e)
         }
-    }
+  }
 
   // using the Realtime Database for messages
   fun sendMessage(UID: String, message: Message, chatType: ChatType) {
