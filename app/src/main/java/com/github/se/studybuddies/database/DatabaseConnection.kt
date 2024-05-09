@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.database
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -804,13 +803,13 @@ class DatabaseConnection {
     }
   }
 
-  // using the topicData collection
+  // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String): Topic {
     val document = topicDataCollection.document(uid).get().await()
     return if (document.exists()) {
-      val name = document.getString("name") ?: ""
-      val exercisesList = document.get("exercises") as List<String>
-      val theoryList = document.get("theory") as List<String>
+      val name = document.getString(topic_name) ?: ""
+      val exercisesList = document.get(topic_exercises) as List<String>
+      val theoryList = document.get(topic_theory) as List<String>
       val exercises =
           if (exercisesList.isNotEmpty()) {
             fetchTopicItems(exercisesList)
@@ -835,17 +834,18 @@ class DatabaseConnection {
     for (itemUID in listUID) {
       val document = topicItemCollection.document(itemUID).get().await()
       if (document.exists()) {
-        val name = document.getString("name") ?: ""
-        val type = ItemType.valueOf(document.getString("type") ?: ItemType.FILE.toString())
+        val name = document.getString(topic_name) ?: ""
+        val parentUID = document.getString(item_parent) ?: ""
+        val type = ItemType.valueOf(document.getString(item_type) ?: ItemType.FILE.toString())
         when (type) {
           ItemType.FOLDER -> {
-            val folderItemsList = document.get("items") as List<String>
+            val folderItemsList = document.get(item_items) as List<String>
             val folderItems = fetchTopicItems(folderItemsList)
-            items.add(TopicFolder(itemUID, name, folderItems))
+            items.add(TopicFolder(itemUID, name, folderItems, parentUID))
           }
           ItemType.FILE -> {
-            val strongUsers = document.get("strongUsers") as List<String>
-            items.add(TopicFile(itemUID, name, strongUsers))
+            val strongUsers = document.get(item_strongUsers) as List<String>
+            items.add(TopicFile(itemUID, name, strongUsers, parentUID))
           }
         }
       }
@@ -856,7 +856,9 @@ class DatabaseConnection {
   fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
-            "name" to name, "exercises" to emptyList<String>(), "theory" to emptyList<String>())
+            topic_name to name,
+            topic_exercises to emptyList<String>(),
+            topic_theory to emptyList<String>())
     topicDataCollection
         .add(topic)
         .addOnSuccessListener { document ->
@@ -889,7 +891,7 @@ class DatabaseConnection {
     val exerciseUID = exercise.uid
     topicDataCollection
         .document(uid)
-        .update("exercises", FieldValue.arrayUnion(exerciseUID))
+        .update(topic_exercises, FieldValue.arrayUnion(exerciseUID))
         .addOnSuccessListener {
           Log.d("MyPrint", "topic data successfully updated")
           updateTopicItem(exercise)
@@ -901,7 +903,7 @@ class DatabaseConnection {
     val theoryUID = theory.uid
     topicDataCollection
         .document(uid)
-        .update("theory", FieldValue.arrayUnion(theoryUID))
+        .update(topic_theory, FieldValue.arrayUnion(theoryUID))
         .addOnSuccessListener {
           Log.d("MyPrint", "topic data successfully updated")
           updateTopicItem(theory)
@@ -923,51 +925,61 @@ class DatabaseConnection {
   fun updateTopicName(uid: String, name: String) {
     topicDataCollection
         .document(uid)
-        .update("name", name)
+        .update(topic_name, name)
         .addOnSuccessListener { Log.d("MyPrint", "topic data successfully updated") }
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  fun createTopicFolder(name: String, callBack: (TopicFolder) -> Unit) {
+  fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
     val folder =
         hashMapOf(
-            "name" to name, "type" to ItemType.FOLDER.toString(), "items" to emptyList<String>())
+            topic_name to name,
+            item_type to ItemType.FOLDER.toString(),
+            item_items to emptyList<String>(),
+            item_parent to parentUID)
     var uid: String
     topicItemCollection
         .add(folder)
         .addOnSuccessListener { document ->
           uid = document.id
+          if (parentUID.isNotBlank()) {
+            topicItemCollection.document(parentUID).update(item_items, FieldValue.arrayUnion(uid))
+          }
           Log.d("MyPrint", "New topic folder successfully created")
-          callBack(TopicFolder(uid, name, emptyList()))
+          callBack(TopicFolder(uid, name, emptyList(), parentUID))
         }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create new topic folder with error ", e)
-          callBack(TopicFolder("", "", emptyList()))
+          callBack(TopicFolder("", "", emptyList(), parentUID))
         }
   }
 
-  fun createTopicFile(name: String, callBack: (TopicFile) -> Unit) {
+  fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit) {
     val file =
         hashMapOf(
-            "name" to name,
-            "type" to ItemType.FILE.toString(),
-            "strongUsers" to emptyList<String>())
+            topic_name to name,
+            item_type to ItemType.FILE.toString(),
+            item_strongUsers to emptyList<String>(),
+            item_parent to parentUID)
     var uid = ""
     topicItemCollection
         .add(file)
         .addOnSuccessListener { document ->
           uid = document.id
+          if (parentUID.isNotBlank()) {
+            topicItemCollection.document(parentUID).update(item_items, FieldValue.arrayUnion(uid))
+          }
           Log.d("MyPrint", "New topic file successfully created with uid ${document.id}")
-          callBack(TopicFile(uid, name, emptyList()))
+          callBack(TopicFile(uid, name, emptyList(), parentUID))
         }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create new topic file with error ", e)
-          callBack(TopicFile("", "", emptyList()))
+          callBack(TopicFile("", "", emptyList(), parentUID))
         }
-    Log.d("MyPrint", "file uid returned is $uid")
   }
 
   private fun updateTopicItem(item: TopicItem) {
+    var task = emptyMap<String, Any>()
     var type = ""
     var folderItems = emptyList<String>()
     var strongUsers = emptyList<String>()
@@ -975,21 +987,15 @@ class DatabaseConnection {
       is TopicFolder -> {
         type = ItemType.FOLDER.toString()
         folderItems = item.items.map { it.uid }
+        task = hashMapOf(topic_name to item.name, item_type to type, item_items to folderItems)
       }
       is TopicFile -> {
         type = ItemType.FILE.toString()
         strongUsers = item.strongUsers
+        task =
+            hashMapOf(topic_name to item.name, item_type to type, item_strongUsers to strongUsers)
       }
     }
-
-    val task =
-        hashMapOf(
-            "name" to item.name,
-            "type" to type,
-            "items" to folderItems,
-            "strongUsers" to strongUsers,
-        )
-
     topicItemCollection
         .document(item.uid)
         .update(task as Map<String, Any>)
@@ -1001,7 +1007,6 @@ class DatabaseConnection {
 
   fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
 
-  @SuppressLint("SuspiciousIndentation")
   suspend fun getALlTopics(groupUID: String): TopicList {
     try {
       val snapshot = groupDataCollection.document(groupUID).get().await()
@@ -1030,5 +1035,15 @@ class DatabaseConnection {
       Log.d("MyPrint", "Could not fetch topics with error ", e)
     }
     return TopicList(emptyList())
+  }
+
+  companion object {
+    const val topic_name = "name"
+    const val topic_exercises = "exercises"
+    const val topic_theory = "theory"
+    const val item_parent = "parent"
+    const val item_type = "type"
+    const val item_items = "items"
+    const val item_strongUsers = "strongUsers"
   }
 }

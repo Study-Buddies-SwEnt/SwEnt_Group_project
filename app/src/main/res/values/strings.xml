@@ -73,6 +73,8 @@
     <string name="edit_topic_name">Edit Topic Name</string>
     <string name="contentDescription_photo">Photo</string>
     <string name="unsupported_messageType">Photo</string>
+    <string name="square_add_icon">square_add_icon</string>
+    <string name="arrow_icon">arrow_icon</string>
     <string name="friends_location_found">Friends location found</string>
     <string name="offline">Offline</string>
     <string name="location_service_started">Location service started</string>
@@ -82,4 +84,5 @@
     <string name="gps_not_enabled">GPS not enabled</string>
     <string name="your_location">"Your Location"</string>
     <string name="this_is_your_current_location">This is your current location</string>
+    <string name="topic_name">name</string>
 </resources>
