@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
                         navController.navigate(Route.CREATEACCOUNT)
                       }
                     },
-                    onFailure = { Log.d("MyPrint", "Failed to check user existence") })
+                    onFailure = { navController.navigate(Route.SOLOSTUDYHOME) })
               } else {
                 navController.navigate(Route.LOGIN)
               }
