@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,12 +34,10 @@ import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
   val nameState = remember { mutableStateOf("") }
@@ -95,7 +92,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
               }
 
               Spacer(modifier = Modifier.padding(20.dp))
-              SaveButton(nameState) {
+              SaveButton(nameState.value.isNotBlank()) {
                 groupViewModel.createGroup(nameState.value, photoState.value)
                 navigationActions.navigateTo(Route.GROUPSHOME)
               }

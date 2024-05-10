@@ -40,7 +40,9 @@
     <string name="username">Username</string>
     <string name="enter_a_username">Enter a username</string>
     <string name="profile_picture">Profile Picture</string>
+    <string name="picture">Picture</string>
     <string name="select_a_profile_picture">Select a profile picture</string>
+    <string name="select_a_picture">Select a picture</string>
     <string name="flash_card">Flash Card</string>
     <string name="todo_list">Todo List</string>
     <string name="focus_mode">Focus Mode</string>
@@ -69,6 +71,8 @@
     <string name="start_direct_message_title">New Private Messages Chats</string>
     <string name="new_private_message_icon">New Private Message</string>
     <string name="edit_topic_name">Edit Topic Name</string>
+    <string name="contentDescription_photo">Photo</string>
+    <string name="unsupported_messageType">Photo</string>
     <string name="square_add_icon">square_add_icon</string>
     <string name="arrow_icon">arrow_icon</string>
     <string name="friends_location_found">Friends location found</string>

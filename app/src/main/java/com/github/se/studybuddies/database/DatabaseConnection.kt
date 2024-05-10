@@ -22,7 +22,6 @@ import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
@@ -41,7 +40,7 @@ class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
 
-  val rt_db =
+  private val rtDb =
       Firebase.database(
           "https://study-buddies-e655a-default-rtdb.europe-west1.firebasedatabase.app/")
 
@@ -120,7 +119,7 @@ class DatabaseConnection {
   ) {
     Log.d(
         "MyPrint",
-        "Creating new user with uid $uid, email $email, username $username and picture link ${profilePictureUri.toString()}")
+        "Creating new user with uid $uid, email $email, username $username and picture link $profilePictureUri")
     val user =
         hashMapOf(
             "email" to email,
@@ -282,10 +281,6 @@ class DatabaseConnection {
     return GroupList(emptyList())
   }
 
-  fun getTimerReference(groupUID: String): DatabaseReference {
-    return rt_db.getReference("groups/$groupUID/timerState")
-  }
-
   suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int {
     if (groupUID.isEmpty()) {
       Log.d("MyPrint", "Group UID is empty")
@@ -358,6 +353,7 @@ class DatabaseConnection {
 
   suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
+    Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
     Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
     val timerState =
         mapOf(
@@ -527,45 +523,113 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendMessage(UID: String, message: Message, chatType: ChatType, additionalUID: String = "") {
+  fun sendMessage(
+      chatUID: String,
+      message: Message,
+      chatType: ChatType,
+      additionalUID: String = ""
+  ) {
     val messagePath =
         if (chatType == ChatType.TOPIC) {
-          getMessagePath(UID, chatType, additionalUID) + "/${message.uid}"
+          getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
         } else {
-          getMessagePath(UID, chatType) + "/${message.uid}"
+          getMessagePath(chatUID, chatType) + "/${message.uid}"
         }
     val messageData =
-        mapOf(
-            MessageVal.TEXT to message.text,
-            MessageVal.SENDER_UID to message.sender.uid,
-            MessageVal.TIMESTAMP to message.timestamp)
-    rt_db
-        .getReference(messagePath)
-        .updateChildren(messageData)
+        mutableMapOf(
+            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
+    when (message) {
+      is Message.TextMessage -> {
+        messageData[MessageVal.TEXT] = message.text
+        messageData[MessageVal.TYPE] = MessageVal.TEXT
+        saveMessage(messagePath, messageData)
+      }
+      is Message.PhotoMessage -> {
+
+        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
+            messageData[MessageVal.PHOTO] = uri.toString()
+            messageData[MessageVal.TYPE] = MessageVal.PHOTO
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload photo")
+          }
+        }
+      }
+      is Message.FileMessage -> {
+        messageData[MessageVal.PHOTO] = message.fileUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.FILE
+        saveMessage(messagePath, messageData)
+      }
+      is Message.LinkMessage -> {
+        messageData[MessageVal.LINK] = message.linkUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.LINK
+        saveMessage(messagePath, messageData)
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
+    }
+  }
+
+  private fun saveMessage(path: String, data: Map<String, Any>) {
+    rtDb
+        .getReference(path)
+        .updateChildren(data)
         .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
-        .addOnFailureListener { Log.w("MessageSend", "Failed to write message.", it) }
+        .addOnFailureListener { e -> Log.w("MessageSend", "Failed to write message.", e) }
+  }
+
+  private fun uploadChatImage(
+      uid: String,
+      chatUID: String,
+      imageUri: Uri,
+      callback: (Uri?) -> Unit
+  ) {
+    val storagePath = "chatData/$chatUID/$uid.jpg"
+    val pictureRef = storage.child(storagePath)
+
+    pictureRef
+        .putFile(imageUri)
+        .addOnSuccessListener {
+          pictureRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) }
+        }
+        .addOnFailureListener { e ->
+          Log.e("UploadChatImage", "Failed to upload image: ", e)
+          callback(null)
+        }
   }
 
   fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rt_db.getReference(messagePath).removeValue()
+    rtDb.getReference(messagePath).removeValue()
   }
 
-  suspend fun removeTopic(groupUID: String, uid: String) {
+  suspend fun removeTopic(uid: String) {
     val topic = getTopic(uid)
-    rt_db.getReference(topic.toString()).removeValue()
+    rtDb.getReference(topic.toString()).removeValue()
   }
 
-  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+  fun editMessage(
+      groupUID: String,
+      message: Message.TextMessage,
+      chatType: ChatType,
+      newText: String
+  ) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rt_db.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+    rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
   }
 
-  private fun getMessagePath(UID: String, chatType: ChatType, additionalUID: String = ""): String {
+  private fun getMessagePath(
+      chatUID: String,
+      chatType: ChatType,
+      additionalUID: String = ""
+  ): String {
     return when (chatType) {
-      ChatType.PRIVATE -> getPrivateMessagesPath(UID)
-      ChatType.GROUP -> getGroupMessagesPath(UID)
-      ChatType.TOPIC -> getTopicMessagesPath(UID, additionalUID)
+      ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
+      ChatType.GROUP -> getGroupMessagesPath(chatUID)
+      ChatType.TOPIC -> getTopicMessagesPath(chatUID, additionalUID)
     }
   }
 
@@ -586,7 +650,7 @@ class DatabaseConnection {
   }
 
   fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
-    val ref = rt_db.getReference(ChatVal.DIRECT_MESSAGES)
+    val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
 
     ref.addValueEventListener(
         object : ValueEventListener {
@@ -639,7 +703,7 @@ class DatabaseConnection {
   }
 
   fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
-    val ref = rt_db.getReference(getMessagePath(uid, chatType))
+    val ref = rtDb.getReference(getMessagePath(uid, chatType))
 
     ref.addValueEventListener(
         object : ValueEventListener {
@@ -654,15 +718,42 @@ class DatabaseConnection {
 
                 // Process snapshot data to fetch user details and create message objects
                 for (postSnapshot in snapshot.children) {
-                  val text = postSnapshot.child(MessageVal.TEXT).value.toString()
                   val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
                   val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
 
-                  // Assuming db.getUser is adapted to fetch user details without being suspending
                   val user = getUser(senderUID)
-
-                  val message = Message(postSnapshot.key.toString(), text, user, timestamp)
-                  newMessages.add(message)
+                  val type = postSnapshot.child(MessageVal.TYPE).value.toString()
+                  when (type) {
+                    MessageVal.TEXT -> {
+                      val text = postSnapshot.child(MessageVal.TEXT).value.toString()
+                      val message =
+                          Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    MessageVal.PHOTO -> {
+                      val photoUri =
+                          Uri.parse(postSnapshot.child(MessageVal.PHOTO).value.toString())
+                      val message =
+                          Message.PhotoMessage(
+                              postSnapshot.key.toString(), photoUri, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    MessageVal.FILE -> {
+                      val fileUri = Uri.parse(postSnapshot.child(MessageVal.FILE).value.toString())
+                      val message =
+                          Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    MessageVal.LINK -> {
+                      val linkUri = Uri.parse(postSnapshot.child(MessageVal.LINK).value.toString())
+                      val message =
+                          Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                      newMessages.add(message)
+                    }
+                    else -> {
+                      Log.d("MyPrint", "Message type not recognized")
+                    }
+                  }
                 }
 
                 // Post new message list to the main thread to update the UI
@@ -685,7 +776,7 @@ class DatabaseConnection {
       onResult: (Boolean, String?) -> Unit
   ) {
     val query =
-        rt_db
+        rtDb
             .getReference(ChatVal.DIRECT_MESSAGES)
             .orderByChild("${ChatVal.MEMBERS}/$currentUserUID")
             .equalTo(true)
@@ -720,7 +811,7 @@ class DatabaseConnection {
         val newChatId = UUID.randomUUID().toString()
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
-        rt_db
+        rtDb
             .getReference(memberPath)
             .updateChildren(members)
             .addOnSuccessListener {
@@ -759,9 +850,9 @@ class DatabaseConnection {
     }
   }
 
-  private suspend fun fetchTopicItems(uids: List<String>): List<TopicItem> {
+  private suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
-    for (itemUID in uids) {
+    for (itemUID in listUID) {
       val document = topicItemCollection.document(itemUID).get().await()
       if (document.exists()) {
         val name = document.getString(topic_name) ?: ""
@@ -769,12 +860,12 @@ class DatabaseConnection {
         val type = ItemType.valueOf(document.getString(item_type) ?: ItemType.FILE.toString())
         when (type) {
           ItemType.FOLDER -> {
-            val folderItemsList = document.get(item_items) as List<String> ?: emptyList()
+            val folderItemsList = document.get(item_items) as List<String>
             val folderItems = fetchTopicItems(folderItemsList)
             items.add(TopicFolder(itemUID, name, folderItems, parentUID))
           }
           ItemType.FILE -> {
-            val strongUsers = document.get(item_strongUsers) as List<String> ?: emptyList()
+            val strongUsers = document.get(item_strongUsers) as List<String>
             items.add(TopicFile(itemUID, name, strongUsers, parentUID))
           }
         }
@@ -783,7 +874,7 @@ class DatabaseConnection {
     return items
   }
 
-  suspend fun createTopic(name: String, callBack: (String) -> Unit) {
+  fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
             topic_name to name,
@@ -867,7 +958,7 @@ class DatabaseConnection {
             item_type to ItemType.FOLDER.toString(),
             item_items to emptyList<String>(),
             item_parent to parentUID)
-    var uid = ""
+    var uid: String
     topicItemCollection
         .add(folder)
         .addOnSuccessListener { document ->
@@ -934,6 +1025,8 @@ class DatabaseConnection {
           Log.d("MyPrint", "topic item ${item.uid} failed to update with error ", e)
         }
   }
+
+  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
 
   suspend fun getALlTopics(groupUID: String): TopicList {
     try {

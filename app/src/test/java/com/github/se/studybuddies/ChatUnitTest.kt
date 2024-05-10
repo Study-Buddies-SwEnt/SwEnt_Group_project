@@ -9,13 +9,6 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class ChatUnitTest {
-  private val testChat =
-      Chat(
-          "test-uid",
-          "test",
-          Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-          ChatType.GROUP,
-          emptyList())
 
   @Test
   fun testEmptyChat() {
