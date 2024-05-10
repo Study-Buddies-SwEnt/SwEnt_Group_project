@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.settings
+package com.github.se.studybuddies.ui.account
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,15 +36,18 @@ import com.firebase.ui.auth.AuthUI
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.permissions.checkPermission
-import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.AccountFields
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.SetProfilePicture
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.UserViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSettings(
     uid: String,
@@ -84,7 +89,7 @@ fun AccountSettings(
   val permission = imagePermissionVersion()
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().testTag("account_settings"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("account_settings"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.profile_setting)) },
@@ -92,19 +97,36 @@ fun AccountSettings(
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             },
             actions = {})
-      }) {
+      }) { paddingValue ->
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top) {
-              Spacer(Modifier.height(150.dp))
-              SetProfilePicture(photoState) {
-                checkPermission(context, permission, requestPermissionLauncher) {
-                  getContent.launch(imageInput)
+              LazyColumn(
+                  modifier = Modifier.fillMaxSize().padding(paddingValue),
+                  verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.CenterHorizontally,
+              ) {
+                item { Spacer(modifier = Modifier.size(20.dp)) }
+                item { AccountFields(usernameState) }
+                item { Spacer(modifier = Modifier.size(10.dp)) }
+                item {
+                  SetProfilePicture(photoState) {
+                    checkPermission(context, permission, requestPermissionLauncher) {
+                      getContent.launch(imageInput)
+                    }
+                  }
                 }
+                item { Spacer(modifier = Modifier.size(10.dp)) }
+                item {
+                  SaveButton(usernameState) {
+                    userViewModel.updateUserData(
+                        uid, emailState.value, usernameState.value, photoState.value)
+                    navigationActions.navigateTo(Route.SOLOSTUDYHOME)
+                  }
+                }
+                item { SignOutButton(navigationActions, userViewModel) }
               }
-              Spacer(Modifier.height(60.dp))
-              SignOutButton(navigationActions, userViewModel)
             }
       }
 }

@@ -1,8 +1,10 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.shared_elements
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
@@ -41,6 +45,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -63,8 +68,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.R.string.select_a_picture
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.Destination
@@ -134,7 +141,8 @@ fun MainScreenScaffold(
             bottomBar = {
               BottomNavigationBar(
                   navigationActions = navigationActions,
-                  destinations = BOTTOM_NAVIGATION_DESTINATIONS)
+                  destinations = BOTTOM_NAVIGATION_DESTINATIONS,
+                  currentRoute = backRoute)
             },
             content = content)
       }
@@ -164,7 +172,11 @@ fun TopNavigationBar(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List<Destination>) {
+fun BottomNavigationBar(
+    navigationActions: NavigationActions,
+    destinations: List<Destination>,
+    currentRoute: String = ""
+) {
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
   NavigationBar(
       modifier =
@@ -177,6 +189,7 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
       NavigationBarItem(
           modifier = Modifier.testTag(item.textId + "_item"),
           selected = selectedItemIndex == index,
+          enabled = (currentRoute != item.route),
           onClick = {
             selectedItemIndex = index
             navigationActions.navigateTo(item.route)
@@ -189,7 +202,7 @@ fun BottomNavigationBar(navigationActions: NavigationActions, destinations: List
           },
           colors =
               androidx.compose.material3.NavigationBarItemDefaults.colors(
-                  selectedIconColor = Color.Transparent, indicatorColor = White))
+                  selectedIconColor = Color.Transparent, indicatorColor = Color.Transparent))
     }
   }
 }
@@ -343,4 +356,41 @@ private fun MenuButton(onClick: () -> Unit) {
             modifier = Modifier.size(28.dp),
             tint = Blue)
       }
+}
+
+@Composable
+fun SaveButton(enabled: Boolean, save: () -> Unit) {
+  Button(
+      onClick = save,
+      enabled = enabled,
+      modifier =
+          Modifier.padding(20.dp)
+              .width(300.dp)
+              .height(50.dp)
+              .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
+              .testTag("save_button"),
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = Blue,
+          )) {
+        Text(
+            stringResource(R.string.save),
+            color = White,
+            modifier = Modifier.testTag("save_button_text"))
+      }
+}
+
+@Composable
+fun SetPicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
+  Box(modifier = Modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
+    Image(
+        painter = rememberAsyncImagePainter(photoState.value),
+        contentDescription = stringResource(R.string.picture),
+        modifier = Modifier.size(200.dp),
+        contentScale = ContentScale.Crop)
+    if (photoState.value == Uri.EMPTY) {
+      Spacer(Modifier.height(20.dp))
+      Text(text = stringResource(select_a_picture))
+    }
+  }
 }

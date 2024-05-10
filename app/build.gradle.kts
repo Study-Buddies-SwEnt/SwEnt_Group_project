@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -37,8 +38,20 @@ android {
         exclude(group= "com.google.protobuf", module= "protobuf-lite")
     }
 
+    signingConfigs {
+        create("release") {
+            val properties = Properties()
+            properties.load(FileInputStream("app/keystore.properties"))
+            storeFile = file(properties["storeFile"] as String)
+            storePassword = properties["storePassword"] as String
+            keyAlias = properties["keyAlias"] as String
+            keyPassword = properties["keyPassword"] as String
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

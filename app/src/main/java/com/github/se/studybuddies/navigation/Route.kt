@@ -16,6 +16,9 @@ object Route {
   const val FOCUSMODE = "Focus Mode"
   const val TIMER = "Timer"
   const val CALENDAR = "Calendar"
+
+  const val SHAREDTIMER = "Shared timer"
+
   const val CREATETODO = "CreateToDo"
   const val EDITTODO = "EditToDo"
   const val TOPIC = "Topic"

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.MainScreenScaffold
+import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 
 @Composable
 fun Placeholder(navigationActions: NavigationActions) {
