@@ -36,6 +36,7 @@ import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.SharedTimerScreen
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.ui.todo.CreateToDo
+import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
@@ -233,7 +234,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
                   if (todoUID != null) {
-                    // EditToDoScreen(todoUID, ToDoListViewModel(studyBuddies), navigationActions)
+                    EditToDoScreen(todoUID, ToDoListViewModel(studyBuddies), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
                   }
                 }
