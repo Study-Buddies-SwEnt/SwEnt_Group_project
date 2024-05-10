@@ -147,28 +147,34 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
   val expandedState = remember { mutableStateOf(false) }
   val groupViewModel = GroupViewModel(groupUID)
   IconButton(
+      modifier = Modifier.testTag("GroupsSettingsButton"),
       onClick = { expandedState.value = true },
   ) {
     Icon(
         imageVector = Icons.Default.MoreVert,
         contentDescription = stringResource(R.string.dots_menu))
   }
-  DropdownMenu(expanded = expandedState.value, onDismissRequest = { expandedState.value = false }) {
-    GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
-      DropdownMenuItem(
-          onClick = {
-            expandedState.value = false
-            if (item.route == Route.LEAVEGROUP) {
-              isLeaveGroupDialogVisible = true
-            } else {
-              navigationActions.navigateTo("${item.route}/$groupUID")
-            }
-          }) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(item.textId)
-          }
-    }
-  }
+  DropdownMenu(
+      expanded = expandedState.value,
+      onDismissRequest = { expandedState.value = false },
+      modifier = Modifier.testTag("DropDownMenuText")) {
+        GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
+          DropdownMenuItem(
+              modifier =
+                  Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
+              onClick = {
+                expandedState.value = false
+                if (item.route == Route.LEAVEGROUP) {
+                  isLeaveGroupDialogVisible = true
+                } else {
+                  navigationActions.navigateTo("${item.route}/$groupUID")
+                }
+              }) {
+                Spacer(modifier = Modifier.size(16.dp))
+                Text(item.textId)
+              }
+        }
+      }
   if (isLeaveGroupDialogVisible) {
     Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
       Box(

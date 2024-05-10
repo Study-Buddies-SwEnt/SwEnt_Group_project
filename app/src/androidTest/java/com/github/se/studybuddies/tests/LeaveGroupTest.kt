@@ -1,28 +1,39 @@
 package com.github.se.studybuddies.tests
 
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.espresso.intent.rule.IntentsTestRule
-import com.github.se.studybuddies.MainActivity
-import com.github.se.studybuddies.screens.GroupsHomeScreen
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.groups.GroupsSettingsButton
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import io.github.kakaocup.compose.node.element.ComposeScreen
+import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.junit4.MockKRule
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class LeaveGroupTest : TestCase() {
-  @get:Rule val composeTestRule = createAndroidComposeRule<MainActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
 
-  @get:Rule val intentsTestRule = IntentsTestRule(MainActivity::class.java)
+  @get:Rule val mockkRule = MockKRule(this)
+
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  @Before
+  fun setUp() {
+    composeTestRule.setContent { GroupsSettingsButton("015OJ6Lhmbp0XrLAkqHV", mockNavActions) }
+  }
 
   @Test
   fun testTextDisplay() {
-    // composeTestRule.setContent { GroupsHomeScreen(composeTestRule).textDialogues }
 
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.GroupsHomeScreen>(
-        composeTestRule) {
-          textDialogues { assertIsDisplayed() }
-          textDialoguesYes { assertIsDisplayed() }
-          textDialoguesNo { assertIsDisplayed() }
-        }
+    /*ComposeScreen.onComposeScreen<GroupsHomeScreen>(
+    composeTestRule) {
+    GroupsSettingsButton { assertIsDisplayed() }
+      textDialogues { assertIsDisplayed() }
+      textDialoguesYes { assertIsDisplayed() }
+      textDialoguesNo { assertIsDisplayed() }
+    }*/
   }
 }

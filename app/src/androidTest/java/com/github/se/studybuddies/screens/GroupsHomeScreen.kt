@@ -13,6 +13,9 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val loginTitle: KNode = child { hasTestTag("LoginTitle") }
   val loginButton: KNode = child { hasTestTag("LoginButton") }
 
+  val GroupsSettingsButton: KNode = onNode { hasTestTag("GroupsSettingsButtonText") }
+  val DropDownMenu: KNode = onNode { hasTestTag("DropDownMenuText") }
+  val DropDownMenuItem: KNode = onNode { hasTestTag("DropDownMenuItemText") }
   val textDialogues: KNode = onNode { hasTestTag("LeaveGroupDialogText") }
   val textDialoguesYes: KNode = onNode { hasTestTag("LeaveGroupDialogYesButton") }
   val textDialoguesNo: KNode = onNode { hasTestTag("LeaveGroupDialogNoButton") }
