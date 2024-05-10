@@ -12,6 +12,7 @@ import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
+import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
 import com.github.se.studybuddies.data.TopicFolder
@@ -21,6 +22,7 @@ import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
@@ -260,10 +262,13 @@ class DatabaseConnection {
             val name = document.getString("name") ?: ""
             val photo = Uri.parse(document.getString("picture") ?: "")
             val members = document.get("members") as? List<String> ?: emptyList()
-            val timer = document.getLong("timer") ?: 0L
+            val timerStateMap = document.get("timerState") as? Map<String, Any>
+            val endTime = timerStateMap?.get("endTime") as? Long ?: System.currentTimeMillis()
+            val isRunning = timerStateMap?.get("isRunning") as? Boolean ?: false
+            val timerState = TimerState(endTime, isRunning)
 
             val topics = document.get("topics") as? List<String> ?: emptyList()
-            items.add(Group(groupUID, name, photo, members, topics, timer))
+            items.add(Group(groupUID, name, photo, members, topics, timerState))
           }
         }
         return GroupList(items)
@@ -277,16 +282,60 @@ class DatabaseConnection {
     return GroupList(emptyList())
   }
 
+  fun getTimerReference(groupUID: String): DatabaseReference {
+    return rt_db.getReference("groups/$groupUID/timerState")
+  }
+
+  suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int {
+    if (groupUID.isEmpty()) {
+      Log.d("MyPrint", "Group UID is empty")
+      return -1
+    }
+
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (!document.exists()) {
+      Log.d("MyPrint", "Group with UID $groupUID does not exist")
+      return -1
+    }
+
+    // Create a map for the new timer state
+    val newTimerState = mapOf("endTime" to newEndTime, "isRunning" to newIsRunning)
+
+    // Update the timerState field in the group document
+    try {
+      groupDataCollection
+          .document(groupUID)
+          .update("timerState", newTimerState)
+          .addOnSuccessListener {
+            Log.d("MyPrint", "Timer parameter updated successfully for group with UID $groupUID")
+          }
+          .addOnFailureListener { e ->
+            Log.d(
+                "MyPrint",
+                "Failed to update timer parameter for group with UID $groupUID with error: ",
+                e)
+          }
+    } catch (e: Exception) {
+      Log.e("MyPrint", "Exception when updating timer: ", e)
+      return -1
+    }
+
+    return 0
+  }
+
   suspend fun getGroup(groupUID: String): Group {
     val document = groupDataCollection.document(groupUID).get().await()
     return if (document.exists()) {
       val name = document.getString("name") ?: ""
       val picture = Uri.parse(document.getString("picture") ?: "")
       val members = document.get("members") as List<String>
-      val timer = document.getLong("timer") ?: 0L
+      val timerStateMap = document.get("timerState") as? Map<String, Any>
+      val endTime = timerStateMap?.get("endTime") as? Long ?: System.currentTimeMillis()
+      val isRunning = timerStateMap?.get("isRunning") as? Boolean ?: false
+      val timerState = TimerState(endTime, isRunning)
 
       val topics = document.get("topics") as List<String>
-      Group(groupUID, name, picture, members, topics, timer)
+      Group(groupUID, name, picture, members, topics, timerState)
     } else {
       Log.d("MyPrint", "group document not found for group id $groupUID")
       Group.empty()
@@ -310,13 +359,19 @@ class DatabaseConnection {
   suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
+    Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
+    val timerState =
+        mapOf(
+            "endTime" to System.currentTimeMillis(), // current time as placeholder
+            "isRunning" to false // timer is not running initially
+            )
     val group =
         hashMapOf(
             "name" to name,
             "picture" to photoUri.toString(),
             "members" to listOf(uid),
             "topics" to emptyList<String>(),
-            "timer" to 0L)
+            "timerState" to timerState)
     if (photoUri != getDefaultPicture()) {
       groupDataCollection
           .add(group)
@@ -436,35 +491,6 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
-  }
-
-  suspend fun updateGroupTimer(groupUID: String, newTimerValue: Long): Int {
-    if (groupUID.isEmpty()) {
-      Log.d("MyPrint", "Group UID is empty")
-      return -1
-    }
-
-    val document = groupDataCollection.document(groupUID).get().await()
-    if (!document.exists()) {
-      Log.d("MyPrint", "Group with UID $groupUID does not exist")
-      return -1
-    }
-
-    // Update the timer parameter of the group
-    groupDataCollection
-        .document(groupUID)
-        .update("timer", newTimerValue)
-        .addOnSuccessListener {
-          Log.d("MyPrint", "Timer parameter updated successfully for group with UID $groupUID")
-        }
-        .addOnFailureListener { e ->
-          Log.d(
-              "MyPrint",
-              "Failed to update timer parameter for group with UID $groupUID with error: ",
-              e)
-        }
-
-    return 0
   }
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri) {

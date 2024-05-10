@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                       context = context,
                       apiKey = apiKey, // demo API key
                       geo = GEO.GlobalEdgeNetwork,
-                      user = User(id = db.getCurrentUser().username),
+                      user = User(id = "Test"),
                       // token = StreamVideo.devToken(currentUser.uid))
                       token = test_token)
                   .build()
@@ -99,7 +99,17 @@ class MainActivity : ComponentActivity() {
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (auth.currentUser != null) {
-                navController.navigate(Route.SOLOSTUDYHOME)
+
+                db.userExists(
+                    uid = db.getCurrentUserUID(),
+                    onSuccess = { userExists ->
+                      if (userExists) {
+                        navController.navigate(Route.SOLOSTUDYHOME)
+                      } else {
+                        navController.navigate(Route.CREATEACCOUNT)
+                      }
+                    },
+                    onFailure = { navController.navigate(Route.SOLOSTUDYHOME) })
               } else {
                 navController.navigate(Route.LOGIN)
               }
@@ -264,7 +274,9 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
+                    val viewModel2 = SharedTimerViewModel.getInstance(groupUID)
+
+                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }

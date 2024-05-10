@@ -8,7 +8,7 @@
     <string name="permission_granted">Permission GRANTED</string>
     <string name="create_group">Create a group</string>
     <string name="go_back">Go back</string>
-    <string name="you_have_signed_in_with_email">You have signed in with email %1$s</string>
+    <string name="you_have_signed_in_with_email">You have signed in with this email : %1$s</string>
     <string name="contentDescription_user_profile_picture">User profile picture</string>
     <string name="contentDescription_icon_add">Icon Add</string>
     <string name="contentDescription_icon_send">Icon Send</string>
@@ -84,5 +84,7 @@
     <string name="gps_not_enabled">GPS not enabled</string>
     <string name="your_location">"Your Location"</string>
     <string name="this_is_your_current_location">This is your current location</string>
+    <string name="create_account">Create Account</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
 </resources>
