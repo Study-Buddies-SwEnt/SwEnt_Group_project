@@ -22,7 +22,6 @@ import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
@@ -280,10 +279,6 @@ class DatabaseConnection {
       Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
     }
     return GroupList(emptyList())
-  }
-
-  fun getTimerReference(groupUID: String): DatabaseReference {
-    return rt_db.getReference("groups/$groupUID/timerState")
   }
 
   suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int {
