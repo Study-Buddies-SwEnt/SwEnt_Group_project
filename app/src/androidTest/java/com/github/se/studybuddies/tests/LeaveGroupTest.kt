@@ -16,7 +16,7 @@ class LeaveGroupTest : TestCase() {
 
   @Test
   fun testTextDisplay() {
-    composeTestRule.setContent { GroupsHomeScreen(composeTestRule).textDialogues }
+    //composeTestRule.setContent { GroupsHomeScreen(composeTestRule).textDialogues }
 
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.GroupsHomeScreen>(
         composeTestRule) {
