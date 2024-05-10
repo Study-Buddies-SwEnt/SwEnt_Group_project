@@ -1,8 +1,11 @@
 package com.github.se.studybuddies.tests
 
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.performClick
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import com.github.se.studybuddies.MainActivity
+import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import org.junit.Rule
@@ -15,6 +18,10 @@ class LeaveGroupTest : TestCase() {
 
   @Test
   fun testTextDisplay() {
+    composeTestRule.setContent {
+      GroupsHomeScreen(composeTestRule).textDialogues
+    }
+
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.GroupsHomeScreen>(
         composeTestRule) {
           textDialogues { assertIsDisplayed() }
