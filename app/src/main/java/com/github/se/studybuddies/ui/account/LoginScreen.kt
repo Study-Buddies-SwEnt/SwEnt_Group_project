@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.account
 
 import android.app.Activity
 import android.util.Log
@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -47,7 +48,6 @@ fun LoginScreen(navigationActions: NavigationActions) {
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
         onSignInResult(res, navigationActions)
       }
-  val playball = FontFamily(Font(R.font.playball_regular))
 
   Column(
       modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
@@ -63,7 +63,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
             text = "Study Buddies",
             style =
                 TextStyle(
-                    fontFamily = playball,
+                    fontFamily = FontFamily(Font(R.font.playball_regular)),
                     fontSize = 52.sp,
                     fontWeight = FontWeight(700),
                     textAlign = TextAlign.Center,
@@ -96,7 +96,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                   contentDescription = null,
                   modifier = Modifier.size(40.dp))
               Spacer(modifier = Modifier.width(8.dp))
-              Text("Sign in with Google", color = Blue)
+              Text(stringResource(R.string.sign_in_with_google), color = Blue)
             }
       }
 }

@@ -52,9 +52,9 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import java.time.LocalDate
@@ -154,7 +154,7 @@ fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
           Modifier.fillMaxWidth()
               .clickable {
                 val todoUID = todo.uid
-                navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
+                // navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
               }
               .drawBehind {
                 val strokeWidth = 1f

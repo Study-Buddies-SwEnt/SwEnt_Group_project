@@ -21,9 +21,26 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
+  /*
+  @SuppressLint("CoroutineCreationDuringComposition")
+  fun applyDeletions(deletions: Set<String>, onComplete: @Composable () -> Unit) {
+    viewModelScope.launch {
+      try {
+        deletions.forEach { itemId -> db.deleteTopicItem(topic.value.uid, itemId) }
+        // Refresh or update the local topic data after deletions
+        fetchTopicData(topic.value.uid)
+      } catch (e: Exception) {
+        // Handle exceptions that may occur during the deletion process
+        Log.e("TopicViewModel", "Error deleting topic items: $e")
+      }
+    }
+  }*/
+
   fun fetchTopicData(uid: String) {
     viewModelScope.launch {
-      _topic.value = db.getTopic(uid)
+      val task = db.getTopic(uid)
+      task.sortItems()
+      _topic.value = task
       Log.d("MyPrint", "Topic data fetched")
     }
   }
@@ -37,42 +54,41 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     fetchTopicData(name)
   }
 
-  fun createTopicFolder(name: String, area: ItemArea) {
-    db.createTopicFolder(name) { folder ->
+  fun createTopicFolder(name: String, area: ItemArea, parentUID: String) {
+    if (uid == null) return
+    db.createTopicFolder(name, parentUID) { folder ->
       when (area) {
         ItemArea.EXERCISES -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addExercise(uid, folder)
-            fetchTopicData(uid)
           }
         }
         ItemArea.THEORY -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addTheory(uid, folder)
-            fetchTopicData(uid)
           }
         }
       }
+      fetchTopicData(uid)
     }
   }
 
-  fun createTopicFile(name: String, area: ItemArea) {
-    db.createTopicFile(name) { file ->
+  fun createTopicFile(name: String, area: ItemArea, parentUID: String) {
+    if (uid == null) return
+    db.createTopicFile(name, parentUID) { file ->
       when (area) {
         ItemArea.EXERCISES -> {
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addExercise(uid, file)
-            fetchTopicData(uid)
           }
         }
         ItemArea.THEORY -> {
-          val updatedTheory = _topic.value.theory.toMutableList().apply { add(file) }
-          if (uid != null) {
+          if (parentUID.isBlank()) {
             db.addTheory(uid, file)
-            fetchTopicData(uid)
           }
         }
       }
+      fetchTopicData(uid)
     }
   }
 
