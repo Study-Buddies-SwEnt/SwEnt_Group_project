@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.todo
 
 //noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,119 +52,119 @@ fun EditToDoScreen(
     navigationActions: NavigationActions
 ) {
 
-    val todo by toDoListViewModel.todo.collectAsState()
-    toDoListViewModel.fetchTodoByUID(todoUID)
+  val todo by toDoListViewModel.todo.collectAsState()
+  toDoListViewModel.fetchTodoByUID(todoUID)
 
-    if (todo.uid.isEmpty()) {
-        Text(
-            text = "Loading task...",
-            style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-            modifier =
+  if (todo.uid.isEmpty()) {
+    Text(
+        text = "Loading task...",
+        style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+        modifier =
             Modifier.fillMaxSize().padding(16.dp).wrapContentHeight(Alignment.CenterVertically),
-            textAlign = TextAlign.Center)
-    } else {
+        textAlign = TextAlign.Center)
+  } else {
 
-        Log.d("MyPrint", "This viewModel is ${todo.name}")
-        Log.d("MyPrint", "UID is: $todoUID")
+    Log.d("MyPrint", "This viewModel is ${todo.name}")
+    Log.d("MyPrint", "UID is: $todoUID")
 
-        val titleState = remember { mutableStateOf(todo.name) }
-        val descriptionState = remember { mutableStateOf(todo.description) }
-        val selectedDate = remember { mutableStateOf(todo.dueDate) }
-        val statusState = remember { mutableStateOf(todo.status) }
+    val titleState = remember { mutableStateOf(todo.name) }
+    val descriptionState = remember { mutableStateOf(todo.description) }
+    val selectedDate = remember { mutableStateOf(todo.dueDate) }
+    val statusState = remember { mutableStateOf(todo.status) }
 
-        val isOpen = remember { mutableStateOf(false) }
-        val expanded = remember { mutableStateOf(false) }
+    val isOpen = remember { mutableStateOf(false) }
+    val expanded = remember { mutableStateOf(false) }
 
-        Column(modifier = Modifier.fillMaxSize().testTag("editScreen")) {
-            TodoTopBar(navigationActions, "Edit task")
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                content = {
-                    item {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                            TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                            Button(
-                                onClick = { expanded.value = true },
-                                modifier =
-                                Modifier.padding(0.dp)
-                                    .width(300.dp)
-                                    .height(45.dp)
-                                    .background(Color.Transparent, shape = RoundedCornerShape(10.dp)),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                border = BorderStroke(1.dp, statusColor(statusState.value))) {
-                                Text(
-                                    text = statusState.value.name, color = statusColor(statusState.value))
-                            }
-                            DropdownMenu(
-                                expanded = expanded.value,
-                                onDismissRequest = { expanded.value = false },
-                                modifier =
-                                Modifier.width(300.dp)
-                                    .padding(horizontal = 16.dp)
-                                    .background(
-                                        color = Color.Transparent, shape = RoundedCornerShape(10.dp))) {
-                                for (status in ToDoStatus.entries) {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                status.name,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier.fillMaxWidth())
-                                        },
-                                        onClick = {
-                                            statusState.value = status
-                                            expanded.value = false
-                                        })
-                                }
-                            }
-                            TodoSaveButton(titleState) {
-                                val updatedTodo =
-                                    ToDo(
-                                        uid = todoUID,
-                                        name = titleState.value,
-                                        description = descriptionState.value,
-                                        dueDate = selectedDate.value,
-                                        status = statusState.value)
-                                toDoListViewModel.updateToDo(todoUID, updatedTodo)
-                                navigationActions.goBack()
-                            }
-                            Button(
-                                onClick = {
-                                    toDoListViewModel.deleteToDo(todoUID)
-                                    navigationActions.goBack()
-                                },
-                                modifier =
-                                Modifier.padding(0.dp)
-                                    .width(300.dp)
-                                    .height(45.dp)
-                                    .background(Color.Transparent, shape = RoundedCornerShape(10.dp))
-                                    .testTag("todoDelete"),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
-                                Icon(
-                                    painter = painterResource(R.drawable.delete),
-                                    contentDescription = null,
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(36.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Delete", color = Color.Red)
-                            }
+    Column(modifier = Modifier.fillMaxSize().testTag("editScreen")) {
+      TodoTopBar(navigationActions, "Edit task")
+      LazyColumn(
+          modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
+          verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          content = {
+            item {
+              Column(
+                  modifier = Modifier.fillMaxWidth(),
+                  verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    TodoFields(titleState, descriptionState, selectedDate, isOpen)
+                    Button(
+                        onClick = { expanded.value = true },
+                        modifier =
+                            Modifier.padding(0.dp)
+                                .width(300.dp)
+                                .height(45.dp)
+                                .background(Color.Transparent, shape = RoundedCornerShape(10.dp)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        border = BorderStroke(1.dp, statusColor(statusState.value))) {
+                          Text(
+                              text = statusState.value.name, color = statusColor(statusState.value))
                         }
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false },
+                        modifier =
+                            Modifier.width(300.dp)
+                                .padding(horizontal = 16.dp)
+                                .background(
+                                    color = Color.Transparent, shape = RoundedCornerShape(10.dp))) {
+                          for (status in ToDoStatus.entries) {
+                            DropdownMenuItem(
+                                text = {
+                                  Text(
+                                      status.name,
+                                      textAlign = TextAlign.Center,
+                                      modifier = Modifier.fillMaxWidth())
+                                },
+                                onClick = {
+                                  statusState.value = status
+                                  expanded.value = false
+                                })
+                          }
+                        }
+                    TodoSaveButton(titleState) {
+                      val updatedTodo =
+                          ToDo(
+                              uid = todoUID,
+                              name = titleState.value,
+                              description = descriptionState.value,
+                              dueDate = selectedDate.value,
+                              status = statusState.value)
+                      toDoListViewModel.updateToDo(todoUID, updatedTodo)
+                      navigationActions.goBack()
                     }
-                })
-        }
-        if (isOpen.value) {
-            CustomDatePickerDialog(
-                onAccept = {
-                    isOpen.value = false
-                    if (it != null) {
-                        selectedDate.value = Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
-                    }
-                },
-                onCancel = { isOpen.value = false })
-        }
+                    Button(
+                        onClick = {
+                          toDoListViewModel.deleteToDo(todoUID)
+                          navigationActions.goBack()
+                        },
+                        modifier =
+                            Modifier.padding(0.dp)
+                                .width(300.dp)
+                                .height(45.dp)
+                                .background(Color.Transparent, shape = RoundedCornerShape(10.dp))
+                                .testTag("todoDelete"),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
+                          Icon(
+                              painter = painterResource(R.drawable.delete),
+                              contentDescription = null,
+                              tint = Color.Red,
+                              modifier = Modifier.size(36.dp))
+                          Spacer(modifier = Modifier.width(8.dp))
+                          Text("Delete", color = Color.Red)
+                        }
+                  }
+            }
+          })
     }
+    if (isOpen.value) {
+      CustomDatePickerDialog(
+          onAccept = {
+            isOpen.value = false
+            if (it != null) {
+              selectedDate.value = Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
+            }
+          },
+          onCancel = { isOpen.value = false })
+    }
+  }
 }
