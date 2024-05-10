@@ -9,40 +9,41 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
-import com.github.se.studybuddies.viewModels.TimerData
 import kotlin.text.*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SharedTimerScreen(
     navigationActions: NavigationActions,
-    sharedTimerViewModel: SharedTimerViewModel
+    sharedTimerViewModel: SharedTimerViewModel,
+    groupUID: String
 ) {
-  val timerData by sharedTimerViewModel.timerData.observeAsState(TimerData())
-  val remainingTime by sharedTimerViewModel.remainingTime.observeAsState(0L)
+  val timerData by sharedTimerViewModel.timerValue.collectAsState()
+  val remainingTime by sharedTimerViewModel.timerEnd.collectAsState()
 
   Scaffold(
       modifier = Modifier.fillMaxSize().testTag("sharedtimer_scaffold"),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title(title = "Timer") },
+            title = { Sub_title(title = "Shared Timer") },
             navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+              GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/$groupUID")
             },
             actions = {})
       },
@@ -54,12 +55,12 @@ fun SharedTimerScreen(
           Card(
               shape = RoundedCornerShape(30.dp),
               modifier = Modifier.padding(20.dp).fillMaxWidth().height(160.dp),
-              colors = CardDefaults.cardColors(containerColor = Color.White)) {
+              colors = CardDefaults.cardColors(containerColor = White)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                   Text(
-                      text = formatDuration(remainingTime),
+                      text = formatDuration(timerData),
                       fontSize = 40.sp,
-                      color = Color.Blue,
+                      color = Blue,
                       textAlign = TextAlign.Center)
                 }
               }
@@ -83,7 +84,7 @@ fun SharedTimerScreen(
               horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, sharedTimerViewModel::addHours)
                 TimeAdjustSection("Minutes", 1, sharedTimerViewModel::addMinutes)
-                TimeAdjustSection("Seconds", 10, sharedTimerViewModel::addSeconds)
+                TimeAdjustSection("Secondes", 1, sharedTimerViewModel::addSeconds)
               }
         }
   }

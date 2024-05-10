@@ -35,7 +35,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,13 +52,13 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
-import com.github.se.studybuddies.navigation.GROUPS_BOTTOM_NAVIGATION_DESTINATIONS
+import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.BottomNavigationBar
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.BottomNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
@@ -125,7 +124,16 @@ fun GroupScreen(
       bottomBar = {
         BottomNavigationBar(
             navigationActions = navigationActions,
-            destinations = GROUPS_BOTTOM_NAVIGATION_DESTINATIONS)
+            destinations =
+                listOf(
+                    Destination(
+                        route = Route.VIDEOCALL,
+                        icon = R.drawable.video_call,
+                        textId = "Video Call"),
+                    Destination(
+                        route = "${Route.SHAREDTIMER}/$groupUID",
+                        icon = R.drawable.messages,
+                        textId = "Timer")))
       }) {
         Column(
             modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHome"),
@@ -142,7 +150,7 @@ fun GroupScreen(
                               Chat(
                                   it.uid,
                                   it.name,
-                                  it.picture.toString(),
+                                  it.picture,
                                   ChatType.GROUP,
                                   groupViewModel.members.value!!.toList())
                             })

@@ -12,10 +12,10 @@ import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.ChatScreen
-import com.github.se.studybuddies.ui.screens.ChatScreen
-import com.github.se.studybuddies.ui.screens.EditDialog
-import com.github.se.studybuddies.ui.screens.OptionsDialog
-import com.github.se.studybuddies.ui.screens.TextBubble
+import com.github.se.studybuddies.ui.chat.ChatScreen
+import com.github.se.studybuddies.ui.chat.EditDialog
+import com.github.se.studybuddies.ui.chat.OptionsDialog
+import com.github.se.studybuddies.ui.chat.TextBubble
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -54,8 +54,10 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                         "e@a",
                         "best 1",
                         Uri.parse(
-                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))),
-            photoUrl = "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg")
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+                        "offline")),
+            picture =
+                Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
     composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
   }
@@ -95,6 +97,49 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
 }
 
 @RunWith(AndroidJUnit4::class)
+class ChatTestPrivate : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
+  @get:Rule val mockkRule = MockKRule(this)
+
+  // Relaxed mocks methods have a default implementation returning values
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  val groupUID = "automaticTestGroupUID"
+
+  @Before
+  fun testSetup() {
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.PRIVATE,
+            name = "Test Group",
+            members =
+                listOf(
+                    User(
+                        "1",
+                        "e@a",
+                        "best 1",
+                        Uri.parse(
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+                        "offline")),
+            picture =
+                Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
+  }
+
+  @Test
+  fun testTitle() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      chatPrivateTitleImage { assertIsDisplayed() }
+      chatPrivateTitleText { assertIsDisplayed() }
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
 class ChatTestBubble : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -106,7 +151,7 @@ class ChatTestBubble : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { TextBubble(message, true) }
   }
@@ -136,7 +181,7 @@ class ChatTestBubbleNotUser : TestCase(kaspressoBuilder = Kaspresso.Builder.with
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { TextBubble(message, false) }
   }
@@ -172,12 +217,13 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
             type = ChatType.GROUP,
             name = "Test Group",
             members = emptyList(),
-            photoUrl = "")
+            picture = Uri.EMPTY)
     val vm = MessageViewModel(chat)
     val message =
         Message(
             text = "Hello, World!",
-            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
+            sender =
+                User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(true) }
     val showEditDialog = remember { mutableStateOf(false) }
@@ -186,11 +232,10 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   @Before
   fun testSetup() {
-    val vm = MessageViewModel(Chat.withId(groupUID, ChatType.GROUP))
     val message =
         Message(
             text = "Hello, World!",
-            sender = User("testUser", "testUser", "testUser", Uri.EMPTY),
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     composeTestRule.setContent { testTrySetup() }
   }
@@ -216,6 +261,63 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 }
 
 @RunWith(AndroidJUnit4::class)
+class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  // This rule automatic initializes lateinit properties with @MockK, @RelaxedMockK, etc.
+  @get:Rule val mockkRule = MockKRule(this)
+
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  val groupUID = "automaticTestGroupUID"
+
+  @Composable
+  fun testTrySetup() {
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User("blabalUID", "testUser", "testUser", Uri.EMPTY, "offline"),
+            timestamp = System.currentTimeMillis())
+    val showOptionsDialog = remember { mutableStateOf(true) }
+    val showEditDialog = remember { mutableStateOf(false) }
+    OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
+  }
+
+  @Before
+  fun testSetup() {
+    val message =
+        Message(
+            text = "Hello, World!",
+            sender = User("testUser", "testUser", "testUser", Uri.EMPTY, "offline"),
+            timestamp = System.currentTimeMillis())
+    composeTestRule.setContent { testTrySetup() }
+  }
+
+  @Test
+  fun testOptionDialog() {
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      optionDialog { assertIsDisplayed() }
+      optionDialogStartPMButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      optionDialogCancelButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
 class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -229,7 +331,7 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
           type = ChatType.GROUP,
           name = "Test Group",
           members = emptyList(),
-          photoUrl = "")
+          picture = Uri.EMPTY)
 
   @Composable
   fun testTrySetup() {
@@ -237,7 +339,8 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
     val message =
         Message(
             text = "Hello, World!",
-            sender = User(User.empty().uid, "testUser", "testUser", Uri.EMPTY),
+            sender =
+                User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
     val showOptionsDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(true) }

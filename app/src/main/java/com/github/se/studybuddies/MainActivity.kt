@@ -20,17 +20,16 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.DirectMessageScreen
+import com.github.se.studybuddies.ui.account.AccountSettings
+import com.github.se.studybuddies.ui.account.CreateAccount
+import com.github.se.studybuddies.ui.account.LoginScreen
+import com.github.se.studybuddies.ui.chat.ChatScreen
+import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.map.MapScreen
-import com.github.se.studybuddies.ui.screens.ChatScreen
-import com.github.se.studybuddies.ui.screens.LoginScreen
-import com.github.se.studybuddies.ui.screens.VideoCallScreen
-import com.github.se.studybuddies.ui.settings.AccountSettings
-import com.github.se.studybuddies.ui.settings.CreateAccount
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
@@ -42,6 +41,7 @@ import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
+import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                       context = context,
                       apiKey = apiKey, // demo API key
                       geo = GEO.GlobalEdgeNetwork,
-                      user = User(id = db.getCurrentUser().username),
+                      user = User(id = "Test"),
                       // token = StreamVideo.devToken(currentUser.uid))
                       token = test_token)
                   .build()
@@ -99,7 +99,17 @@ class MainActivity : ComponentActivity() {
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (auth.currentUser != null) {
-                navController.navigate(Route.SOLOSTUDYHOME)
+
+                db.userExists(
+                    uid = db.getCurrentUserUID(),
+                    onSuccess = { userExists ->
+                      if (userExists) {
+                        navController.navigate(Route.SOLOSTUDYHOME)
+                      } else {
+                        navController.navigate(Route.CREATEACCOUNT)
+                      }
+                    },
+                    onFailure = { navController.navigate(Route.SOLOSTUDYHOME) })
               } else {
                 navController.navigate(Route.LOGIN)
               }
@@ -189,7 +199,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    GroupSetting(groupUID, navigationActions)
+                    GroupSetting(groupUID, GroupViewModel(groupUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }
@@ -232,7 +242,12 @@ class MainActivity : ComponentActivity() {
             composable(Route.MAP) {
               val currentUser = auth.currentUser
               if (currentUser != null) {
-                MapScreen(currentUser.uid, navigationActions, applicationContext)
+                MapScreen(
+                    currentUser.uid,
+                    UserViewModel(currentUser.uid),
+                    UsersViewModel(currentUser.uid),
+                    navigationActions,
+                    applicationContext)
               }
             }
             composable(Route.TIMER) {
@@ -259,7 +274,9 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
+                    val viewModel2 = SharedTimerViewModel.getInstance(groupUID)
+
+                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }
@@ -272,7 +289,13 @@ class MainActivity : ComponentActivity() {
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (topicUID != null && groupUID != null) {
-                    TopicScreen(groupUID, topicUID, TopicViewModel(topicUID), navigationActions)
+                    TopicScreen(
+                        groupUID,
+                        topicUID,
+                        GroupViewModel(groupUID),
+                        TopicViewModel(topicUID),
+                        chatViewModel,
+                        navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicScreen")
                   }
                 }
@@ -283,15 +306,26 @@ class MainActivity : ComponentActivity() {
                         navArgument("groupUID") { type = NavType.StringType },
                         navArgument("topicUID") { type = NavType.StringType })) { backStackEntry ->
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
-                  val groupUid = backStackEntry.arguments?.getString("groupUID")
-                  if (topicUID != null && groupUid != null) {
-                    TopicSettings(topicUID, groupUid, TopicViewModel(topicUID), navigationActions)
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (topicUID != null && groupUID != null) {
+                    TopicSettings(topicUID, groupUID, TopicViewModel(topicUID), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
           }
         }
       }
+    }
+  }
+
+  override fun onStop() {
+    super.onStop()
+    auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    val userViewModel = UserViewModel(currentUser?.uid)
+    // Set the user to offline when he closes the app
+    if (currentUser != null) {
+      userViewModel.updateLocation(currentUser.uid, R.string.offline.toString())
     }
   }
 }

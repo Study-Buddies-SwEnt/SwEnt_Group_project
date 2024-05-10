@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui.screens
+package com.github.se.studybuddies.ui.video_call
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize

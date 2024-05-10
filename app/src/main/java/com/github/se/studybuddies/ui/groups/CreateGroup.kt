@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -27,12 +26,13 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.permissions.checkPermission
-import com.github.se.studybuddies.ui.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
-import com.github.se.studybuddies.ui.settings.SetProfilePicture
+import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.shared_elements.SetProfilePicture
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -82,7 +82,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxWidth().background(White).testTag("create_group_column"),
+            modifier = Modifier.fillMaxSize().background(White).testTag("create_group_column"),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.padding(20.dp))

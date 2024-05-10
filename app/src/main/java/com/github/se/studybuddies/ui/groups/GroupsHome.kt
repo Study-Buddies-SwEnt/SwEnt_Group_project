@@ -65,20 +65,17 @@ import androidx.wear.compose.material.dialog.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.MainScreenScaffold
-import com.github.se.studybuddies.ui.screens.SearchIcon
+import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
+import com.github.se.studybuddies.ui.shared_elements.SearchIcon
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private val db = DatabaseConnection()
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -113,14 +110,15 @@ fun GroupsHome(
           Column(
               modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
               horizontalAlignment = Alignment.Start,
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-          ) {
-            Spacer(modifier = Modifier.height(80.dp))
-            Text(stringResource(R.string.join_or_create_a_new_group), textAlign = TextAlign.Center)
-            Spacer(modifier = Modifier.height(80.dp))
-            AddGroupButton(navigationActions = navigationActions)
-            AddLinkButton(navigationActions = navigationActions)
-          }
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
+                Spacer(modifier = Modifier.height(80.dp))
+                Text(
+                    stringResource(R.string.join_or_create_a_new_group),
+                    textAlign = TextAlign.Center)
+                Spacer(modifier = Modifier.height(80.dp))
+                AddGroupButton(navigationActions = navigationActions)
+                AddLinkButton(navigationActions = navigationActions)
+              }
         } else {
           Column(
               modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
@@ -320,19 +318,9 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
-                  scope.launch {
-                    val error = db.addUserToGroup(groupUID)
-                    if (error == -1) {
-                      showError = true
-                      delay(3000L) // delay for 3 seconds
-                      showError = false
-                    } else {
-                      showSucces = true
-                      delay(1500L) // delay for 1.5 seconds
-                      showSucces = false
-                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                    }
-                  }
+                  val groupVM = GroupViewModel(groupUID)
+                  groupVM.addUserToGroup(groupUID)
+                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
   }
