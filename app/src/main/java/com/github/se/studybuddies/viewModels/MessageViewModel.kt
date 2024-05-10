@@ -28,7 +28,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   }
 
   private fun getMessage() {
-    db.getMessages(chat.uid, chat.type, _messages)
+    db.getMessages(chat, _messages)
   }
 
   private fun getCurrentUser() {

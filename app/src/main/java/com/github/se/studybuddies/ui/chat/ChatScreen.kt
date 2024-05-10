@@ -418,8 +418,6 @@ fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: Muta
         onDismissRequest = { showIconsOptions.value = false },
         text = {
           Column {
-            Text(text = "stringResource(R.string.icon_options")
-            Spacer(modifier = Modifier.height(8.dp))
             LazyRow {
               items(3) {
                 if (it == 0) {

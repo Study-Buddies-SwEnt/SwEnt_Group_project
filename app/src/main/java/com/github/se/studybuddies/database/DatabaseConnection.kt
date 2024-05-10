@@ -28,13 +28,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -529,12 +529,8 @@ class DatabaseConnection {
       chatType: ChatType,
       additionalUID: String = ""
   ) {
-    val messagePath =
-        if (chatType == ChatType.TOPIC) {
-          getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-        } else {
-          getMessagePath(chatUID, chatType) + "/${message.uid}"
-        }
+    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
+
     val messageData =
         mutableMapOf(
             MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
@@ -672,8 +668,6 @@ class DatabaseConnection {
 
                     if (otherUserId != null) {
                       getUser(otherUserId).let { otherUser ->
-                        val messages = MutableStateFlow<List<Message>>(emptyList())
-                        getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
                         val newChat =
                             Chat(
                                 uid = chat.key ?: "",
@@ -702,8 +696,8 @@ class DatabaseConnection {
         })
   }
 
-  fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
-    val ref = rtDb.getReference(getMessagePath(uid, chatType))
+  fun getMessages(chat: Chat, liveData: MutableStateFlow<List<Message>>) {
+    val ref = rtDb.getReference(getMessagePath(chat.uid, chat.type, chat.additionalUID))
 
     ref.addValueEventListener(
         object : ValueEventListener {
