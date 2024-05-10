@@ -25,6 +25,7 @@ import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.DirectMessageScreen
+import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
@@ -269,6 +270,12 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
+
+            composable(Route.MAP) {
+                if (currentUser != null) {
+                      Placeholder(navigationActions)
+                }
+            }
           }
         }
       }
