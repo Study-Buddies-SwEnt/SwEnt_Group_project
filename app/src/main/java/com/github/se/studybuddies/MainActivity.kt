@@ -271,10 +271,10 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-            composable(Route.MAP) {
-                if (currentUser != null) {
-                      Placeholder(navigationActions)
-                }
+            composable(Route.PLACEHOLDER) {
+              if (currentUser != null) {
+                Placeholder(navigationActions)
+              }
             }
           }
         }

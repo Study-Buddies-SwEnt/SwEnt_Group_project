@@ -62,4 +62,5 @@
     <string name="modify_the_profile_picture">Modify the profile picture</string>
     <string name="enter_a_new_group_name">Enter a new group name</string>
     <string name="group_settings">Group settings</string>
+    <string name="feature_not_implemented_yet">feature not implemented yet</string>
 </resources>
