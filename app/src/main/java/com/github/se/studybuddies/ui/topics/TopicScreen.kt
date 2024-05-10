@@ -1,8 +1,11 @@
 package com.github.se.studybuddies.ui.topics
 
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +24,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,35 +50,47 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ItemArea
+import com.github.se.studybuddies.data.TopicFile
+import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.screens.GoBackRouteButton
-import com.github.se.studybuddies.ui.screens.Sub_title
-import com.github.se.studybuddies.ui.screens.TopNavigationBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
+import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @Composable
 fun TopicScreen(
     groupUID: String,
     topicUID: String,
+    groupViewModel: GroupViewModel,
     topicViewModel: TopicViewModel,
+    chatViewModel: ChatViewModel,
     navigationActions: NavigationActions
 ) {
   topicViewModel.fetchTopicData(topicUID)
   val topicData by topicViewModel.topic.collectAsState()
+  val group by groupViewModel.group.observeAsState()
 
   val nameState = remember { mutableStateOf(topicData.name) }
   var exercisesState by remember { mutableStateOf(topicData.exercises) }
@@ -88,6 +108,7 @@ fun TopicScreen(
   val folderFieldVisible = remember { mutableStateOf(false) }
   val fileFieldVisible = remember { mutableStateOf(false) }
   val enteredName = remember { mutableStateOf("") }
+  val parentUID = remember { mutableStateOf("") }
 
   Scaffold(
       modifier = Modifier.fillMaxSize(),
@@ -95,7 +116,18 @@ fun TopicScreen(
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
             navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
-            actions = {})
+            actions = {
+              IconButton(
+                  onClick = {
+                    navigationActions.navigateTo("${Route.TOPIC_SETTINGS}/$groupUID/$topicUID")
+                  },
+              ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    tint = Blue,
+                    contentDescription = stringResource(R.string.group_option))
+              }
+            })
       },
       floatingActionButton = {
         Column(horizontalAlignment = Alignment.End) {
@@ -136,7 +168,11 @@ fun TopicScreen(
               verticalAlignment = Alignment.Bottom,
               horizontalArrangement = Arrangement.End) {
                 Button(
-                    onClick = { floatingButtonsVisible.value = !floatingButtonsVisible.value },
+                    onClick = {
+                      floatingButtonsVisible.value = !floatingButtonsVisible.value
+                      folderFieldVisible.value = false
+                      fileFieldVisible.value = false
+                    },
                     modifier =
                         Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
                       Icon(
@@ -156,7 +192,21 @@ fun TopicScreen(
                   modifier =
                       Modifier.fillMaxWidth()
                           .background(Color.White)
-                          .clickable { navigationActions.navigateTo(Route.CHAT) }
+                          .clickable {
+                            chatViewModel.setChat(
+                                topicData.let {
+                                  group?.let { grp ->
+                                    Chat(
+                                        it.uid,
+                                        it.name,
+                                        grp.picture,
+                                        ChatType.TOPIC,
+                                        groupViewModel.members.value!!.toList(),
+                                        grp.uid)
+                                  }
+                                })
+                            navigationActions.navigateTo(Route.CHAT)
+                          }
                           .drawBehind {
                             val strokeWidth = 1f
                             val y = size.height - strokeWidth / 2
@@ -171,7 +221,7 @@ fun TopicScreen(
                           style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
                     }
                   }
-              Divider(color = Blue, thickness = 2.dp)
+              HorizontalDivider(color = Blue, thickness = 2.dp)
               Box(
                   modifier =
                       Modifier.fillMaxWidth()
@@ -206,7 +256,7 @@ fun TopicScreen(
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                           }
-                      Divider(
+                      HorizontalDivider(
                           modifier =
                               Modifier.align(
                                       if (areaState.value == ItemArea.EXERCISES) Alignment.Start
@@ -222,9 +272,13 @@ fun TopicScreen(
                   horizontalAlignment = Alignment.Start,
                   content = {
                     if (areaState.value == ItemArea.EXERCISES) {
-                      items(exercisesState) { topicItem -> TopicContentItem(topicItem) }
+                      items(exercisesState) { topicItem ->
+                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+                      }
                     } else if (areaState.value == ItemArea.THEORY) {
-                      items(theoryState.value) { topicItem -> TopicContentItem(topicItem) }
+                      items(theoryState.value) { topicItem ->
+                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+                      }
                     }
                   })
             }
@@ -232,38 +286,177 @@ fun TopicScreen(
           TopicItemField(
               enteredName = enteredName, label = stringResource(R.string.enter_a_folder_name)) {
                 folderFieldVisible.value = false
-                topicViewModel.createTopicFolder(enteredName.value, areaState.value)
+                if (enteredName.value.isNotBlank()) {
+                  topicViewModel.createTopicFolder(
+                      enteredName.value, areaState.value, parentUID.value)
+                }
                 enteredName.value = ""
+                parentUID.value = ""
               }
         }
         if (fileFieldVisible.value) {
           TopicItemField(
               enteredName = enteredName, label = stringResource(R.string.enter_a_file_name)) {
                 fileFieldVisible.value = false
-                topicViewModel.createTopicFile(enteredName.value, areaState.value)
+                if (enteredName.value.isNotBlank()) {
+                  topicViewModel.createTopicFile(
+                      enteredName.value, areaState.value, parentUID.value)
+                }
                 enteredName.value = ""
+                parentUID.value = ""
               }
         }
       }
 }
 
 @Composable
-fun TopicContentItem(topicItem: TopicItem) {
+fun TopicContentItem(
+    topicItem: TopicItem,
+    folderFieldVisible: MutableState<Boolean>,
+    fileFieldVisible: MutableState<Boolean>,
+    parentUID: MutableState<String>
+) {
+  when (topicItem) {
+    is TopicFolder -> {
+      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+    }
+    is TopicFile -> {
+      FileItem(topicItem)
+    }
+  }
+}
+
+@Composable
+fun FileItem(fileItem: TopicFile) {
   Box(
       modifier =
-          Modifier.fillMaxWidth().background(Color.White).drawBehind {
-            val strokeWidth = 1f
-            val y = size.height - strokeWidth / 2
-            drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-          }) {
+          Modifier.fillMaxWidth()
+              .padding(start = 48.dp)
+              .background(Color.White)
+              .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              }
+              .clickable {
+                // TODO: implement strong users
+              }) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Spacer(modifier = Modifier.size(16.dp))
+          Spacer(modifier = Modifier.size(20.dp))
           Text(
-              text = topicItem.name,
+              text = fileItem.name,
               modifier = Modifier.align(Alignment.CenterVertically),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
         }
+      }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun FolderItem(
+    folderItem: TopicFolder,
+    folderFieldVisible: MutableState<Boolean>,
+    fileFieldVisible: MutableState<Boolean>,
+    parentUID: MutableState<String>
+) {
+  var isExpanded by remember { mutableStateOf(false) }
+
+  Column {
+    Box(
+        modifier =
+            Modifier.fillMaxWidth()
+                .background(Color.White)
+                .drawBehind {
+                  val strokeWidth = 1f
+                  val y = size.height - strokeWidth / 2
+                  drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                }
+                .combinedClickable(
+                    onClick = { isExpanded = !isExpanded },
+                    onLongClick = { Log.d("MyPrint", "long pressed") })) {
+          Row(
+              modifier = Modifier.fillMaxWidth().padding(6.dp),
+              verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.size(10.dp))
+                Icon(
+                    painter = painterResource(R.drawable.arrow_right_24px),
+                    contentDescription = stringResource(R.string.arrow_icon),
+                    modifier = Modifier.size(28.dp).rotate(if (isExpanded) 90f else 0f))
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = folderItem.name,
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    style = TextStyle(fontSize = 20.sp),
+                    lineHeight = 28.sp)
+                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, parentUID)
+              }
+        }
+    if (isExpanded) {
+      Log.d("MyPrint", "isExpanded")
+      folderItem.items.forEach { child ->
+        TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID)
+      }
+    }
+  }
+}
+
+@Composable
+fun AddInFolderButton(
+    uid: String,
+    folderFieldVisible: MutableState<Boolean>,
+    fileFieldVisible: MutableState<Boolean>,
+    parentUID: MutableState<String>
+) {
+  val expandedState = remember { mutableStateOf(false) }
+  Box(modifier = Modifier.fillMaxWidth()) {
+    IconButton(
+        modifier = Modifier.align(Alignment.CenterEnd), onClick = { expandedState.value = true }) {
+          Icon(
+              modifier = Modifier.size(32.dp),
+              painter = painterResource(R.drawable.add_square),
+              contentDescription = stringResource(R.string.square_add_icon))
+        }
+  }
+  DropdownMenu(
+      modifier = Modifier.background(Blue).padding(0.dp),
+      expanded = expandedState.value,
+      onDismissRequest = { expandedState.value = false },
+      offset = DpOffset(x = (-16).dp, y = 0.dp)) {
+        DropdownMenuItem(
+            modifier = Modifier.fillMaxSize().padding(0.dp),
+            onClick = {
+              expandedState.value = false
+              folderFieldVisible.value = !folderFieldVisible.value
+              fileFieldVisible.value = false
+              if (folderFieldVisible.value) {
+                parentUID.value = uid
+              }
+            },
+            text = {
+              Text(
+                  modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
+                  text = stringResource(R.string.folder),
+                  color = White,
+                  style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+            })
+        DropdownMenuItem(
+            modifier = Modifier.fillMaxSize().padding(0.dp),
+            onClick = {
+              expandedState.value = false
+              fileFieldVisible.value = !fileFieldVisible.value
+              folderFieldVisible.value = false
+              if (fileFieldVisible.value) {
+                parentUID.value = uid
+              }
+            },
+            text = {
+              Text(
+                  modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
+                  text = stringResource(R.string.file),
+                  color = White,
+                  style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+            })
       }
 }
 

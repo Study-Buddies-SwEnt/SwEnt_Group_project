@@ -7,12 +7,18 @@ data class Group(
     val name: String,
     val picture: Uri,
     val members: List<String>,
-    val topics: List<String>
+    val topics: List<String>,
+    val timerState: TimerState
 ) {
   companion object {
     fun empty(): Group {
       return Group(
-          uid = "", name = "", picture = Uri.EMPTY, members = emptyList(), topics = emptyList())
+          uid = "",
+          name = "",
+          picture = Uri.EMPTY,
+          members = emptyList(),
+          topics = emptyList(),
+          timerState = TimerState(0L, false))
     }
   }
 }
