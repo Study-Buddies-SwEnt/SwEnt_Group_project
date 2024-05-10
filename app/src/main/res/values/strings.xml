@@ -64,9 +64,7 @@
     <string name="modify_the_profile_picture">Modify the profile picture</string>
     <string name="enter_a_new_group_name">Enter a new group name</string>
     <string name="group_settings">Group settings</string>
-<<<<<<< HEAD
     <string name="feature_not_implemented_yet">feature not implemented yet</string>
-=======
     <string name="start_direct_message">Start Private Message</string>
     <string name="direct_messages_title">Private Messages</string>
     <string name="direct_messages_empty">There is no private messages chat</string>
@@ -90,5 +88,4 @@
     <string name="create_account">Create Account</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
->>>>>>> 86abde5d3a4d193ce91f2c3d2a8570a3402dcc5e
 </resources>

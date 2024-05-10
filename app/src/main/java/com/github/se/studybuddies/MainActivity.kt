@@ -20,16 +20,12 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-<<<<<<< HEAD
-import com.github.se.studybuddies.ui.DirectMessageScreen
 import com.github.se.studybuddies.ui.Placeholder
-=======
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
->>>>>>> 86abde5d3a4d193ce91f2c3d2a8570a3402dcc5e
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
@@ -322,6 +318,7 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.PLACEHOLDER) {
+              val currentUser = auth.currentUser
               if (currentUser != null) {
                 Placeholder(navigationActions)
               }
