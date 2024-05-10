@@ -252,7 +252,10 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.TIMER) {
               if (auth.currentUser != null) {
-                TimerScreenContent(TimerViewModel(), navigationActions)
+
+                val viewModel = TimerViewModel.getInstance()
+
+                TimerScreenContent(viewModel, navigationActions = navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
