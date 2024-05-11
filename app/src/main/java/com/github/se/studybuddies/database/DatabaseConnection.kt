@@ -7,6 +7,8 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -51,6 +53,7 @@ class DatabaseConnection {
   private val groupDataCollection = db.collection("groupData")
   private val topicDataCollection = db.collection("topicData")
   private val topicItemCollection = db.collection("topicItemData")
+  private val contactDataCollection = db.collection("contactData")
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
@@ -1097,6 +1100,260 @@ class DatabaseConnection {
     }
     return TopicList(emptyList())
   }
+
+
+
+
+  suspend fun getAllContacts(uid: String): ContactList {
+        try {
+            val snapshot = userMembershipsCollection.document(uid).get().await()
+            val items = mutableListOf<Contact>()
+
+            if (snapshot.exists()) {
+                val contactUIDs = snapshot.data?.get("contacts") as? List<String>
+                contactUIDs?.let { contactsIDs ->
+                    contactsIDs.forEach { contactUID ->
+                        val document = contactDataCollection.document(contactUID).get().await()
+                        val members = document.get("members") as? Pair<String, String> ?: Pair("","")
+                        items.add(Contact(contactUID, members))
+                    }
+                }
+                return ContactList(items)
+            } else {
+                Log.d("MyPrint", "User with uid $uid does not exist")
+                return ContactList(emptyList())
+            }
+        } catch (e: Exception) {
+            Log.d("MyPrint", "In ViewModel, could not fetch contacts with error: $e")
+        }
+        return ContactList(emptyList())
+    }
+
+  suspend fun getContact(groupUID: String): Group {
+        val document = groupDataCollection.document(groupUID).get().await()
+        return if (document.exists()) {
+            val name = document.getString("name") ?: ""
+            val picture = Uri.parse(document.getString("picture") ?: "")
+            val members = document.get("members") as List<String>
+            val timerStateMap = document.get("timerState") as? Map<String, Any>
+            val endTime = timerStateMap?.get("endTime") as? Long ?: System.currentTimeMillis()
+            val isRunning = timerStateMap?.get("isRunning") as? Boolean ?: false
+            val timerState = TimerState(endTime, isRunning)
+
+            val topics = document.get("topics") as List<String>
+            Group(groupUID, name, picture, members, topics, timerState)
+        } else {
+            Log.d("MyPrint", "group document not found for group id $groupUID")
+            Group.empty()
+        }
+    }
+
+  suspend fun createContact(name: String, photoUri: Uri) {
+        val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
+        Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
+        Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
+        val timerState =
+            mapOf(
+                "endTime" to System.currentTimeMillis(), // current time as placeholder
+                "isRunning" to false // timer is not running initially
+            )
+        val group =
+            hashMapOf(
+                "name" to name,
+                "picture" to photoUri.toString(),
+                "members" to listOf(uid),
+                "topics" to emptyList<String>(),
+                "timerState" to timerState)
+        if (photoUri != getDefaultPicture()) {
+            groupDataCollection
+                .add(group)
+                .addOnSuccessListener { documentReference ->
+                    val groupUID = documentReference.id
+                    userMembershipsCollection
+                        .document(uid)
+                        .update("groups", FieldValue.arrayUnion(groupUID))
+                        .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
+                        .addOnFailureListener { e ->
+                            Log.d("MyPrint", "Failed to update user memberships with error: ", e)
+                        }
+                    val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+                    pictureRef
+                        .putFile(photoUri)
+                        .addOnSuccessListener {
+                            pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                                groupDataCollection.document(groupUID).update("picture", uri.toString())
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                        }
+                }
+                .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
+        } else {
+            val defaultPictureRef = storage.child("groupData/default_group.jpg")
+
+            groupDataCollection.add(group).addOnSuccessListener { documentReference ->
+                val groupUID = documentReference.id
+                val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+                userMembershipsCollection
+                    .document(uid)
+                    .update("groups", FieldValue.arrayUnion(groupUID))
+                    .addOnSuccessListener { Log.d("MyPrint", "Group successfully created") }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to update user memberships with error: ", e)
+                    }
+                defaultPictureRef
+                    .getBytes(Long.MAX_VALUE)
+                    .addOnSuccessListener { defaultPictureData ->
+                        pictureRef
+                            .putBytes(defaultPictureData)
+                            .addOnSuccessListener {
+                                pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                                    val updatedGroupData = group + mapOf("picture" to uri.toString())
+                                    groupDataCollection
+                                        .document(groupUID)
+                                        .set(updatedGroupData)
+                                        .addOnSuccessListener {
+                                            Log.d("MyPrint", "Group data successfully created for uid $uid")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.d("MyPrint", "Failed to update group data with error: ", e)
+                                        }
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.d(
+                                    "MyPrint",
+                                    "Failed to upload default picture for group $uid with error: ",
+                                    e)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to retrieve default picture with error: ", e)
+                    }
+            }
+        }
+    }
+
+
+    suspend fun addUserToContact(groupUID: String, user: String = "") {
+
+        if (groupUID == "") {
+            Log.d("MyPrint", "Group UID is empty")
+            return
+        }
+
+        // only look if userUID exist, can't find user by username
+        val userToAdd: String =
+            if (user == "") {
+                getCurrentUserUID()
+            } else {
+                user
+            }
+
+        if (getUser(userToAdd) == User.empty()) {
+            Log.d("MyPrint", "User with uid $userToAdd does not exist")
+            return
+        }
+
+        val document = groupDataCollection.document(groupUID).get().await()
+        if (!document.exists()) {
+            Log.d("MyPrint", "Group with uid $groupUID does not exist")
+            return
+        }
+        // add user to group
+        groupDataCollection
+            .document(groupUID)
+            .update("members", FieldValue.arrayUnion(userToAdd))
+            .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to add user to group with error: ", e)
+            }
+
+        // add group to the user's list of groups
+        userMembershipsCollection
+            .document(userToAdd)
+            .update("groups", FieldValue.arrayUnion(groupUID))
+            .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to add group to user with error: ", e)
+            }
+    }
+
+    fun updateContact(groupUID: String, name: String, photoUri: Uri) {
+
+        // change name of group
+        groupDataCollection
+            .document(groupUID)
+            .update("name", name)
+            .addOnSuccessListener { Log.d("UpdateGroup", "group name successfully updated") }
+            .addOnFailureListener { e ->
+                Log.d("UpdateGroup", "Failed modify group name with error: ", e)
+            }
+
+        // change picture of group
+        groupDataCollection
+            .document(groupUID)
+            .update("picture", photoUri.toString())
+            .addOnSuccessListener { Log.d("MyPrint", "picture successfully updated") }
+            .addOnFailureListener { e ->
+                Log.d("UpdateGroup", "Failed modify group picture with error: ", e)
+            }
+
+        val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
+        pictureRef
+            .putFile(photoUri)
+            .addOnSuccessListener {
+                pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                    groupDataCollection.document(groupUID).update("picture", uri.toString())
+                    Log.d("UpdateGroup", "Successfully upload group photo")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d("UpdateGroup", "Failed to upload photo with error: ", e)
+            }
+    }
+
+    suspend fun removeUserFromContact(groupUID: String, userUID: String = "") {
+
+        val user =
+            if (userUID == "") {
+                getCurrentUserUID()
+            } else {
+                userUID
+            }
+
+        groupDataCollection
+            .document(groupUID)
+            .update("members", FieldValue.arrayRemove(user))
+            .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to remove user from group with error: ", e)
+            }
+
+        val document = groupDataCollection.document(groupUID).get().await()
+        val members = document.get("members") as? List<String> ?: emptyList()
+
+        if (members.isEmpty()) {
+            groupDataCollection
+                .document(groupUID)
+                .delete()
+                .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
+                .addOnFailureListener { e ->
+                    Log.d("MyPrint", "Failed to remove user from group with error: ", e)
+                }
+        }
+
+        userMembershipsCollection
+            .document(user)
+            .update("groups", FieldValue.arrayRemove(groupUID))
+            .addOnSuccessListener { Log.d("MyPrint", "Remove group from user successfully") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to remove group from user with error: ", e)
+            }
+    }
+
+
 
   companion object {
     const val topic_name = "name"
