@@ -47,7 +47,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
       email: String,
       username: String,
       profilePictureUri: Uri,
-      location: String = R.string.offline.toString()
+      location: String = "offline"
   ) {
     viewModelScope.launch { db.createUser(uid, email, username, profilePictureUri, location) }
   }
@@ -58,7 +58,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
         email,
         username,
         profilePictureUri,
-        userData.value?.location ?: R.string.offline.toString())
+        userData.value?.location ?: "offline")
   }
 
   fun updateLocation(uid: String, location: String) {
