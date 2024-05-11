@@ -1,28 +1,21 @@
 package com.github.se.studybuddies.ui.video_call
 
 import android.content.res.Configuration
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.github.se.studybuddies.utility.LockScreenOrientation
+import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.activecall.CallContent
 import io.getstream.video.android.compose.ui.components.call.controls.ControlActions
@@ -35,40 +28,16 @@ import io.getstream.video.android.compose.ui.components.call.renderer.Participan
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 import io.getstream.video.android.compose.ui.components.call.renderer.RegularVideoRendererStyle
 import io.getstream.video.android.core.Call
-import io.getstream.video.android.core.RealtimeConnection
 
 // Design UI elements using Jetpack Compose
 @Composable
-fun VideoCallScreen(
-    call: Call,
-    onCallDisconnected: () -> Unit = {},
-    onUserLeaveCall: () -> Unit = {},
-) {
-  val context = LocalContext.current
+fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected: () -> Unit = {}) {
   val isCameraEnabled by call.camera.isEnabled.collectAsState()
   val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
-  var layout by remember { mutableStateOf(LayoutType.DYNAMIC) }
-  var showParticipants by remember { mutableStateOf(false) }
-  val orientation = LocalConfiguration.current.orientation
-  val participantsSize by call.state.participants.collectAsStateWithLifecycle()
-  val scope = rememberCoroutineScope()
-  val connection by call.state.connection.collectAsStateWithLifecycle()
-  val me by call.state.me.collectAsState()
+  val layout by remember { mutableStateOf(LayoutType.DYNAMIC) }
 
-  LaunchedEffect(key1 = connection) {
-    if (connection == RealtimeConnection.Disconnected) {
-      onCallDisconnected.invoke()
-    } else if (connection is RealtimeConnection.Failed) {
-      Toast.makeText(
-              context,
-              "Call connection failed (${(connection as RealtimeConnection.Failed).error}",
-              Toast.LENGTH_LONG,
-          )
-          .show()
-      onCallDisconnected.invoke()
-    }
-  }
   LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
+  videoVM.joinCall()
 
   VideoTheme {
     CallContent(
@@ -79,7 +48,10 @@ fun VideoCallScreen(
         call = call,
         enableInPictureInPicture = true,
         layout = layout,
-        onBackPressed = { onUserLeaveCall.invoke() },
+        onBackPressed = {
+          videoVM.leaveCall()
+          onCallDisconnected.invoke()
+        },
         videoContent = {
           ParticipantsLayout(
               call = call,
@@ -125,7 +97,10 @@ fun VideoCallScreen(
                                         VideoTheme.dimens.controlActionsButtonSize,
                                     )
                                     .testTag("CancelCallAction"),
-                            onCallAction = { onCallDisconnected.invoke() },
+                            onCallAction = {
+                              videoVM.leaveCall()
+                              onCallDisconnected.invoke()
+                            },
                         )
                       },
                   ))

@@ -23,8 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,7 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
@@ -75,7 +74,6 @@ fun GroupScreen(
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()
-  val coroutineScope = rememberCoroutineScope()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
@@ -127,7 +125,7 @@ fun GroupScreen(
             destinations =
                 listOf(
                     Destination(
-                        route = Route.VIDEOCALL,
+                        route = "${Route.CALLLOBBY}/$groupUID",
                         icon = R.drawable.video_call,
                         textId = "Video Call"),
                     Destination(
@@ -166,7 +164,7 @@ fun GroupScreen(
                       modifier =
                           Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
                         Image(
-                            painter = rememberImagePainter(pictureState.value),
+                            painter = rememberAsyncImagePainter(pictureState.value),
                             contentDescription = stringResource(R.string.group_picture),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop)
@@ -178,7 +176,7 @@ fun GroupScreen(
                       style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
                 }
               }
-          Divider(color = Blue, thickness = 4.dp)
+          HorizontalDivider(thickness = 4.dp, color = Blue)
           LazyColumn(
               modifier = Modifier.fillMaxSize(),
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),

@@ -1,19 +1,14 @@
 package com.github.se.studybuddies
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
-import com.github.se.studybuddies.ui.screens.VideoCallScreen
 import io.getstream.result.Result
 import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.notifications.NotificationHandler
-import io.getstream.video.android.model.StreamCallId
 import io.getstream.video.android.model.streamCallId
 import kotlinx.coroutines.launch
 
@@ -74,6 +69,7 @@ class CallActivity : ComponentActivity() {
       }
     }
 
+    /*
     // step 3 - build a call screen
     setContent {
       VideoCallScreen(
@@ -90,38 +86,12 @@ class CallActivity : ComponentActivity() {
           },
       )
     }
-  }
 
-  private fun goBackToMainScreen() {
-    if (!isFinishing) {
-      val intent =
-          Intent(this@CallActivity, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-          }
-      startActivity(intent)
-      finish()
-    }
+       */
   }
 
   companion object {
     const val EXTRA_CID: String = NotificationHandler.INTENT_EXTRA_CALL_CID
     const val EXTRA_DISABLE_MIC_BOOLEAN: String = "EXTRA_DISABLE_MIC"
-
-    /**
-     * @param callId the Call ID you want to join
-     * @param disableMicOverride optional parameter if you want to override the users setting and
-     *   disable the microphone.
-     */
-    @JvmStatic
-    fun createIntent(
-        context: Context,
-        callId: StreamCallId,
-        disableMicOverride: Boolean = false,
-    ): Intent {
-      return Intent(context, CallActivity::class.java).apply {
-        putExtra(EXTRA_CID, callId)
-        putExtra(EXTRA_DISABLE_MIC_BOOLEAN, disableMicOverride)
-      }
-    }
   }
 }

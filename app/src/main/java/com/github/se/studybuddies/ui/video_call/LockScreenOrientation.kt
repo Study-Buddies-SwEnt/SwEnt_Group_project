@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.utility
+package com.github.se.studybuddies.ui.video_call
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
