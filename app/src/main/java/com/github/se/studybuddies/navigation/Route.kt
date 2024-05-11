@@ -6,6 +6,7 @@ object Route {
   const val GROUPSHOME = "GroupsHome"
   const val CREATEGROUP = "CreateGroup"
   const val GROUPSETTING = "GroupSetting"
+  const val LEAVEGROUP = "LeaveGroup"
   const val GROUP = "Group"
   const val SETTINGS = "Settings"
   const val ACCOUNT = "AccountSettings"
