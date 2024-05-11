@@ -61,7 +61,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.wear.compose.material.dialog.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
