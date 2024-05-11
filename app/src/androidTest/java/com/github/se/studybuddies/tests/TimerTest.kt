@@ -34,7 +34,7 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
 
   @Before
   fun testSetup() {
-    val vm = TimerViewModel()
+    val vm = TimerViewModel.getInstance()
     composeTestRule.setContent { TimerScreenContent(vm, mockNavActions) }
   }
 

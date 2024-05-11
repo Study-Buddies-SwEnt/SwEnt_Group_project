@@ -16,5 +16,6 @@ sonar {
         property("sonar.projectKey", "Study-Buddies-SwEnt_SwEnt_Group_project")
         property("sonar.organization", "study-buddies-swent")
         property("sonar.host.url", "https://sonarcloud.io")
+        property ("sonar.gradle.skipCompile", "true")
     }
 }

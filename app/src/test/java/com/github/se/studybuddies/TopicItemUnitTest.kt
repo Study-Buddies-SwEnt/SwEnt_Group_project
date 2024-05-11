@@ -11,8 +11,8 @@ class TopicItemUnitTest {
   @Test
   fun testEmptyTopicItem() {
     // Act
-    val topicFile = TopicFile("test", "test", listOf("test"))
-    val topicFolder = TopicFolder("test", "test", listOf(topicFile))
+    val topicFile = TopicFile("test", "test", listOf("test"), "test")
+    val topicFolder = TopicFolder("test", "test", listOf(topicFile), "test")
     assert(topicFolder.folderName == "test")
   }
 }

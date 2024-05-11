@@ -77,7 +77,7 @@ fun TopicCreation(
                           cursorColor = Blue))
               Spacer(modifier = Modifier.height(20.dp))
 
-              SaveButton(nameState) {
+              SaveButton(nameState.value.isNotBlank()) {
                 topicViewModel.createTopic(nameState.value, groupUID)
                 navigationActions.navigateTo("${Route.GROUP}/$groupUID")
               }

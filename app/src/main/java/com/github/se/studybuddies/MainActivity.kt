@@ -90,7 +90,17 @@ class MainActivity : ComponentActivity() {
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               if (auth.currentUser != null) {
-                navController.navigate(Route.SOLOSTUDYHOME)
+
+                db.userExists(
+                    uid = db.getCurrentUserUID(),
+                    onSuccess = { userExists ->
+                      if (userExists) {
+                        navController.navigate(Route.SOLOSTUDYHOME)
+                      } else {
+                        navController.navigate(Route.CREATEACCOUNT)
+                      }
+                    },
+                    onFailure = { navController.navigate(Route.SOLOSTUDYHOME) })
               } else {
                 navController.navigate(Route.LOGIN)
               }
@@ -233,7 +243,10 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.TIMER) {
               if (auth.currentUser != null) {
-                TimerScreenContent(TimerViewModel(), navigationActions)
+
+                val viewModel = TimerViewModel.getInstance()
+
+                TimerScreenContent(viewModel, navigationActions = navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
@@ -271,7 +284,9 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    SharedTimerScreen(navigationActions, SharedTimerViewModel(groupUID))
+                    val viewModel2 = SharedTimerViewModel.getInstance(groupUID)
+
+                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }

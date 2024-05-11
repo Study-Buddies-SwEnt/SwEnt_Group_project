@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,8 +53,8 @@ import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
-import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DirectMessageScreen(
@@ -66,25 +67,19 @@ fun DirectMessageScreen(
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
   var isLoading by remember { mutableStateOf(true) }
 
-  if (isLoading) {
-    val handler = android.os.Handler()
-    val runnable =
-        object : Runnable {
-          override fun run() {
-            if (chats.isNotEmpty()) {
-              isLoading = false // Stop loading as chats are not empty
-            } else {
-              handler.postDelayed(this, 1000) // Continue checking every second
-            }
-          }
+  LaunchedEffect(chats) {
+    if (chats.isNotEmpty()) {
+      isLoading = false
+    } else {
+      repeat(10) {
+        delay(500)
+        if (chats.isNotEmpty()) {
+          isLoading = false
+          return@repeat
         }
-    handler.post(runnable) // Start the checking process
-    handler.postDelayed(
-        {
-          isLoading = false // Ensure isLoading is set to false after the original delay
-          handler.removeCallbacks(runnable) // Stop any further checks if time expires
-        },
-        5000)
+      }
+      isLoading = false
+    }
   }
 
   MainScreenScaffold(
@@ -96,7 +91,7 @@ fun DirectMessageScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
         } else if (showAddPrivateMessageList.value) {
-          ListAllUsers(showAddPrivateMessageList, usersViewModel)
+          ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
@@ -179,29 +174,27 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 }
 
 @Composable
-fun ListAllUsers(showAddPrivateMessageList: MutableState<Boolean>, usersViewModel: UsersViewModel) {
+fun ListAllUsers(
+    showAddPrivateMessageList: MutableState<Boolean>,
+    viewModel: DirectMessageViewModel,
+    usersViewModel: UsersViewModel
+) {
   val friendsData by usersViewModel.friends.collectAsState()
   var isLoading by remember { mutableStateOf(true) }
 
-  if (isLoading) {
-    val handler = android.os.Handler()
-    val runnable =
-        object : Runnable {
-          override fun run() {
-            if (friendsData.isNotEmpty()) {
-              isLoading = false // Stop loading as chats are not empty
-            } else {
-              handler.postDelayed(this, 1000) // Continue checking every second
-            }
-          }
+  LaunchedEffect(friendsData) {
+    if (friendsData.isNotEmpty()) {
+      isLoading = false
+    } else {
+      repeat(10) {
+        delay(500)
+        if (friendsData.isNotEmpty()) {
+          isLoading = false
+          return@repeat
         }
-    handler.post(runnable) // Start the checking process
-    handler.postDelayed(
-        {
-          isLoading = false // Ensure isLoading is set to false after the original delay
-          handler.removeCallbacks(runnable) // Stop any further checks if time expires
-        },
-        4000)
+      }
+      isLoading = false
+    }
   }
 
   if (isLoading) {
@@ -213,7 +206,7 @@ fun ListAllUsers(showAddPrivateMessageList: MutableState<Boolean>, usersViewMode
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(friendsData) { UserItem(it, showAddPrivateMessageList) }
+        items(friendsData) { friend -> UserItem(friend, viewModel, showAddPrivateMessageList) }
       }
     }
   }
@@ -221,7 +214,11 @@ fun ListAllUsers(showAddPrivateMessageList: MutableState<Boolean>, usersViewMode
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UserItem(user: User, showAddPrivateMessageList: MutableState<Boolean>) {
+fun UserItem(
+    user: User,
+    viewModel: DirectMessageViewModel,
+    showAddPrivateMessageList: MutableState<Boolean>
+) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
@@ -229,8 +226,7 @@ fun UserItem(user: User, showAddPrivateMessageList: MutableState<Boolean>) {
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
-                    val messageViewModel = MessageViewModel(Chat.empty())
-                    messageViewModel.startDirectMessage(user.uid)
+                    viewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
                   })) {
         Image(

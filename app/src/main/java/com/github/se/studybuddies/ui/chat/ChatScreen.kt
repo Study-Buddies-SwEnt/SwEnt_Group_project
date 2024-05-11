@@ -1,5 +1,10 @@
 package com.github.se.studybuddies.ui.chat
 
+import android.annotation.SuppressLint
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,8 +31,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -49,22 +54,27 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
+import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
+import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -73,6 +83,8 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
+  val showIconsOptions = remember { mutableStateOf(false) }
+  val showAddImage = remember { mutableStateOf(false) }
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
   val listState = rememberLazyListState()
 
@@ -82,8 +94,14 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
     }
   }
 
-  OptionsDialog(viewModel, selectedMessage, showOptionsDialog, showEditDialog, navigationActions)
-  EditDialog(viewModel, selectedMessage, showEditDialog)
+  selectedMessage?.let {
+    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
+  }
+  selectedMessage?.let { EditDialog(viewModel, it, showEditDialog) }
+
+  IconsOptionsList(showIconsOptions, showAddImage)
+
+  SendPhotoMessage(viewModel, showAddImage)
 
   Column(
       modifier =
@@ -124,7 +142,8 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                 }
           }
         }
-        MessageTextFields(onSend = { viewModel.sendMessage(it) })
+        MessageTextFields(
+            onSend = { viewModel.sendTextMessage(it) }, showIconsOptions = showIconsOptions)
       }
 }
 
@@ -133,7 +152,7 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
   Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
     if (displayName) {
       Image(
-          painter = rememberImagePainter(message.sender.photoUrl.toString()),
+          painter = rememberAsyncImagePainter(message.sender.photoUrl.toString()),
           contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
           modifier =
               Modifier.size(40.dp)
@@ -159,10 +178,30 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
                   style = TextStyle(color = Black),
                   modifier = Modifier.testTag("chat_message_sender_name"))
             }
-            Text(
-                text = message.text,
-                style = TextStyle(color = Black),
-                modifier = Modifier.testTag("chat_message_text"))
+            when (message) {
+              is Message.TextMessage -> {
+                Text(
+                    text = message.text,
+                    style = TextStyle(color = Black),
+                    modifier = Modifier.testTag("chat_message_text"))
+              }
+              is Message.PhotoMessage -> {
+                Image(
+                    painter = rememberAsyncImagePainter(message.photoUri.toString()),
+                    contentDescription = stringResource(R.string.contentDescription_photo),
+                    modifier =
+                        Modifier.size(200.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .testTag("chat_message_image"),
+                    contentScale = ContentScale.Crop)
+              }
+              else -> {
+                Text(
+                    text = stringResource(R.string.unsupported_messageType),
+                    style = TextStyle(color = Black),
+                )
+              }
+            }
             Text(
                 text = message.getTime(),
                 style = TextStyle(color = Gray),
@@ -173,7 +212,11 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
 }
 
 @Composable
-fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
+fun MessageTextFields(
+    onSend: (String) -> Unit,
+    defaultText: String = "",
+    showIconsOptions: MutableState<Boolean>
+) {
   var textToSend by remember { mutableStateOf(defaultText) }
   OutlinedTextField(
       value = textToSend,
@@ -197,7 +240,10 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
       leadingIcon = {
         IconButton(
             modifier = Modifier.size(48.dp).padding(6.dp),
-            onClick = { /*TODO add more message option as send photos*/}) {
+            onClick = {
+              showIconsOptions.value = !showIconsOptions.value
+              Log.d("MyPrint", "Icon clicked, showIconsOptions.value: ${showIconsOptions.value}")
+            }) {
               Icon(
                   Icons.Outlined.Add,
                   contentDescription = stringResource(R.string.contentDescription_icon_add),
@@ -214,7 +260,7 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
               }
             }) {
               Icon(
-                  Icons.Outlined.Send,
+                  imageVector = Icons.AutoMirrored.Outlined.Send,
                   contentDescription = stringResource(R.string.contentDescription_icon_send),
                   tint = Blue)
             }
@@ -225,7 +271,7 @@ fun MessageTextFields(onSend: (String) -> Unit, defaultText: String = "") {
 @Composable
 fun OptionsDialog(
     viewModel: MessageViewModel,
-    selectedMessage: Message?,
+    selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions
@@ -236,21 +282,23 @@ fun OptionsDialog(
         title = { Text(text = stringResource(R.string.options)) },
         text = {
           Column(modifier = Modifier.testTag("option_dialog")) {
-            selectedMessage?.let { Text(text = it.getDate()) }
-            if (viewModel.isUserMessageSender(selectedMessage!!)) {
+            Text(text = selectedMessage.getDate())
+            if (viewModel.isUserMessageSender(selectedMessage)) {
               Spacer(modifier = Modifier.height(8.dp))
-              Button(
-                  modifier = Modifier.testTag("option_dialog_edit"),
-                  onClick = {
-                    showEditDialog.value = true
-                    showOptionsDialog.value = false
-                  }) {
-                    Text(
-                        text = stringResource(R.string.edit),
-                        style = TextStyle(color = White),
-                    )
-                  }
-              Spacer(modifier = Modifier.height(8.dp))
+              if (selectedMessage is Message.TextMessage) {
+                Button(
+                    modifier = Modifier.testTag("option_dialog_edit"),
+                    onClick = {
+                      showEditDialog.value = true
+                      showOptionsDialog.value = false
+                    }) {
+                      Text(
+                          text = stringResource(R.string.edit),
+                          style = TextStyle(color = White),
+                      )
+                    }
+                Spacer(modifier = Modifier.height(8.dp))
+              }
               Button(
                   modifier = Modifier.testTag("option_dialog_delete"),
                   onClick = {
@@ -269,7 +317,9 @@ fun OptionsDialog(
                     modifier = Modifier.testTag("option_dialog_start_direct_message"),
                     onClick = {
                       showOptionsDialog.value = false
-                      viewModel.startDirectMessage(selectedMessage.sender.uid)
+                      viewModel.currentUser.value
+                          ?.let { DirectMessageViewModel(it.uid) }
+                          ?.startDirectMessage(selectedMessage.sender.uid)
                       navigationActions.navigateTo(Route.DIRECT_MESSAGE)
                     }) {
                       Text(
@@ -291,10 +341,11 @@ fun OptionsDialog(
   }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun EditDialog(
     viewModel: MessageViewModel,
-    selectedMessage: Message?,
+    selectedMessage: Message,
     showEditDialog: MutableState<Boolean>
 ) {
   if (showEditDialog.value) {
@@ -302,13 +353,16 @@ fun EditDialog(
         onDismissRequest = { showEditDialog.value = false },
         title = { Text(text = stringResource(R.string.edit)) },
         text = {
-          Column(modifier = Modifier.testTag("edit_dialog")) {
-            MessageTextFields(
-                onSend = {
-                  viewModel.editMessage(selectedMessage!!, it)
-                  showEditDialog.value = false
-                },
-                defaultText = selectedMessage!!.text)
+          if (selectedMessage is Message.TextMessage) {
+            Column(modifier = Modifier.testTag("edit_dialog")) {
+              MessageTextFields(
+                  onSend = {
+                    viewModel.editMessage(selectedMessage, it)
+                    showEditDialog.value = false
+                  },
+                  defaultText = selectedMessage.text,
+                  mutableStateOf(false))
+            }
           }
         },
         confirmButton = {
@@ -355,4 +409,97 @@ fun PrivateChatTitle(chat: Chat) {
 
   Spacer(modifier = Modifier.width(8.dp))
   Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
+}
+
+@Composable
+fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: MutableState<Boolean>) {
+  if (showIconsOptions.value) {
+    AlertDialog(
+        onDismissRequest = { showIconsOptions.value = false },
+        text = {
+          Column {
+            Text(text = "stringResource(R.string.icon_options")
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyRow {
+              items(3) {
+                if (it == 0) {
+                  IconButton(
+                      onClick = {
+                        showIconsOptions.value = false
+                        showAddImage.value = true
+                      },
+                      modifier = Modifier.padding(8.dp)) {
+                        Icon(
+                            imageVector = Icons.Outlined.Add,
+                            contentDescription = stringResource(R.string.app_name),
+                            tint = Blue)
+                      }
+                } else {
+                  //                                IconButton(
+                  //                                    onClick = {
+                  //                                        showIconsOptions.value = false
+                  //                                    },
+                  //                                    modifier = Modifier.padding(8.dp)
+                  //                                ) {
+                  //                                    Icon(
+                  //                                        imageVector = Icons.Outlined.Send,
+                  //                                        contentDescription =
+                  // stringResource(R.string.app_name),
+                  //                                        tint = Blue
+                  //                                    )
+                  //                                }
+                }
+              }
+            }
+          }
+        },
+        confirmButton = {
+          Button(modifier = Modifier.fillMaxWidth(), onClick = { showIconsOptions.value = false }) {
+            Text(text = stringResource(R.string.cancel), style = TextStyle(color = White))
+          }
+        })
+  }
+}
+
+@Composable
+fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableState<Boolean>) {
+  val photoState = remember { mutableStateOf(Uri.EMPTY) }
+  val context = LocalContext.current
+
+  val getContent =
+      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
+      }
+  val imageInput = "image/*"
+
+  val requestPermissionLauncher =
+      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+          getContent.launch(imageInput)
+        }
+      }
+  val permission = imagePermissionVersion()
+
+  if (showAddImage.value) {
+    AlertDialog(
+        onDismissRequest = { showAddImage.value = false },
+        text = {
+          Box(
+              contentAlignment = Alignment.Center,
+              modifier = Modifier.padding(8.dp).fillMaxWidth()) {
+                SetPicture(photoState) {
+                  checkPermission(context, permission, requestPermissionLauncher) {
+                    getContent.launch(imageInput)
+                  }
+                }
+              }
+        },
+        confirmButton = {
+          SaveButton(photoState.value.toString().isNotBlank()) {
+            messageViewModel.sendPhotoMessage(photoState.value)
+            showAddImage.value = false
+            photoState.value = Uri.EMPTY
+          }
+        })
+  }
 }
