@@ -34,6 +34,10 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
 
   @Before
   fun testSetup() {
+
+    if (StreamVideo.isInstalled) {
+      StreamVideo.removeClient()
+    }
     StreamVideoBuilder(
             context = context,
             apiKey = "x52wgjq8qyfc",
@@ -57,6 +61,7 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.VideoCallScreen>(
         composeTestRule) {
+          call_content { assertIsDisplayed() }
           controls { assertIsDisplayed() }
         }
   }

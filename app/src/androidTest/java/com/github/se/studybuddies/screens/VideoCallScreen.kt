@@ -7,7 +7,9 @@ import io.github.kakaocup.compose.node.element.KNode
 class VideoCallScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<VideoCallScreen>(
         semanticsProvider = semanticsProvider,
-        viewBuilderAction = { hasTestTag("VideoCallScreen") }) {
+        viewBuilderAction = { hasTestTag("video_call_screen") }) {
 
-  val controls: KNode = onNode { hasTestTag("ControlActions") }
+  val call_content = onNode { hasTestTag("call_content") }
+
+  val controls: KNode = call_content.child { hasTestTag("control_actions") }
 }
