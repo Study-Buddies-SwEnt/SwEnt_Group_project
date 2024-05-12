@@ -18,6 +18,8 @@ import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -67,6 +69,9 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CallLobbyScreen>(
         composeTestRule) {
+          runBlocking {
+            delay(6000) // Adjust the delay time as needed
+          }
           content { assertIsDisplayed() }
           topAppBar { assertIsDisplayed() }
           callIcon { assertIsDisplayed() }

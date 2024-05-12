@@ -17,6 +17,8 @@ import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -69,6 +71,9 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.VideoCallScreen>(
         composeTestRule) {
+          runBlocking {
+            delay(6000) // Adjust the delay time as needed
+          }
           call_content { assertIsDisplayed() }
           controls { assertIsDisplayed() }
         }
