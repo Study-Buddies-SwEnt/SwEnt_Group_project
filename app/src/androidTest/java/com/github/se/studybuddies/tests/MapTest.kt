@@ -45,7 +45,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           username = "testUser",
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-          location = R.string.offline.toString())
+          location = "offline")
   private val userVM = UserViewModel(uid)
   private val usersVM = UsersViewModel(uid)
 
