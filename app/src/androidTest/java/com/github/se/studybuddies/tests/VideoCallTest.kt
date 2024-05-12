@@ -16,7 +16,6 @@ import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
-import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -27,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
 
-  @get:Rule val mockkRule = MockKRule(this)
+  @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule
   val permissionRule: GrantPermissionRule =
@@ -35,7 +34,6 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
           android.Manifest.permission.CAMERA,
           android.Manifest.permission.RECORD_AUDIO,
       )
-  @get:Rule val composeTestRule = createComposeRule()
 
   private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
   private val uid = "111test"
