@@ -87,4 +87,8 @@
     <string name="create_account">Create Account</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
+    <string name="call_lobby">Call Lobby</string>
+    <string name="preview_of_your_call_setup">Preview of your call setup</string>
+    <string name="join_call">Join call</string>
+    <string name="phone_icon">Phone icon</string>
 </resources>

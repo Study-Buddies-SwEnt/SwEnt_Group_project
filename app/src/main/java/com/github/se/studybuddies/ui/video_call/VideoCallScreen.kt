@@ -44,7 +44,7 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
         modifier =
             Modifier.fillMaxSize()
                 .background(color = VideoTheme.colors.appBackground)
-                .testTag("VideoCallScreen"),
+                .testTag("Video Call Screen"),
         call = call,
         enableInPictureInPicture = true,
         layout = layout,
@@ -55,7 +55,11 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
         videoContent = {
           ParticipantsLayout(
               call = call,
-              modifier = Modifier.fillMaxSize().weight(1f).padding(6.dp),
+              modifier =
+                  Modifier.fillMaxSize()
+                      .weight(1f)
+                      .padding(6.dp)
+                      .testTag("Participant video screen"),
               style = RegularVideoRendererStyle(),
               videoRenderer = { modifier, _, participant, style ->
                 ParticipantVideo(
@@ -75,28 +79,26 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
                   listOf(
                       {
                         ToggleCameraAction(
-                            modifier = Modifier.size(52.dp).testTag("ToggleCameraAction"),
+                            modifier = Modifier.size(52.dp),
                             isCameraEnabled = isCameraEnabled,
                             onCallAction = { call.camera.setEnabled(it.isEnabled) })
                       },
                       {
                         ToggleMicrophoneAction(
-                            modifier = Modifier.size(52.dp).testTag("ToggleMicrophoneAction"),
+                            modifier = Modifier.size(52.dp),
                             isMicrophoneEnabled = isMicrophoneEnabled,
                             onCallAction = { call.microphone.setEnabled(it.isEnabled) })
                       },
                       {
                         FlipCameraAction(
-                            modifier = Modifier.size(52.dp).testTag("FlipCameraAction"),
-                            onCallAction = { call.camera.flip() })
+                            modifier = Modifier.size(52.dp), onCallAction = { call.camera.flip() })
                       },
                       {
                         CancelCallAction(
                             modifier =
                                 Modifier.size(
-                                        VideoTheme.dimens.controlActionsButtonSize,
-                                    )
-                                    .testTag("CancelCallAction"),
+                                    VideoTheme.dimens.controlActionsButtonSize,
+                                ),
                             onCallAction = {
                               videoVM.leaveCall()
                               onCallDisconnected.invoke()

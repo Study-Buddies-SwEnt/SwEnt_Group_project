@@ -19,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
@@ -43,38 +45,40 @@ fun CallLobbyScreen(
   val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
 
   VideoTheme {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().testTag("call_lobby")) {
       Column(
-          modifier = Modifier.fillMaxSize().testTag("call_lobby"),
+          modifier = Modifier.fillMaxSize().testTag("content"),
           horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         TopNavigationBar(
-            title = { Sub_title("Call Lobby") },
+            title = { Sub_title(stringResource(R.string.call_lobby)) },
             navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
             actions = {})
         Icon(
-            modifier = Modifier.size(36.dp),
+            modifier = Modifier.size(36.dp).testTag("phone_icon"),
             imageVector = Icons.Default.Phone,
-            contentDescription = "",
+            contentDescription = stringResource(R.string.phone_icon),
         )
         Text(
-            text = "Set up your test call",
+            text = stringResource(R.string.preview_of_your_call_setup),
+            modifier = Modifier.testTag("preview_text"),
         )
         CallLobby(
             call = call,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("call_preview"),
             isCameraEnabled = isCameraEnabled,
             isMicrophoneEnabled = isMicrophoneEnabled,
             onCallAction = { action ->
               when (action) {
-                is ToggleCamera -> callLobbyViewModel.enableCamera(!isCameraEnabled)
-                is ToggleMicrophone -> callLobbyViewModel.enableMicrophone(!isMicrophoneEnabled)
+                is ToggleCamera -> callLobbyViewModel.enableCamera(action.isEnabled)
+                is ToggleMicrophone -> callLobbyViewModel.enableMicrophone(action.isEnabled)
                 else -> Unit
               }
             })
         FloatingActionButton(
+            modifier = Modifier.testTag("join_call_button"),
             onClick = { navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID") }) {
-              Text("Join call")
+              Text(stringResource(R.string.join_call))
             }
       }
     }
