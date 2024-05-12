@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
@@ -27,6 +28,13 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
+
+  @get:Rule
+  val permissionRule: GrantPermissionRule =
+      GrantPermissionRule.grant(
+          android.Manifest.permission.CAMERA,
+          android.Manifest.permission.RECORD_AUDIO,
+      )
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
