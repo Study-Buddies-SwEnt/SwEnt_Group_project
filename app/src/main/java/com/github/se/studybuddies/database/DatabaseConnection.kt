@@ -1103,9 +1103,9 @@ class DatabaseConnection {
 
 
 
-  suspend fun getAllContacts(uid: String): ContactList {
+  suspend fun getAllContacts(uid: String): List<Contact> {
         try {
-            val snapshot = userMembershipsCollection.document(uid).get().await()
+            val snapshot = contactDataCollection.document(uid).get().await()
             val items = mutableListOf<Contact>()
 
             if (snapshot.exists()) {
@@ -1117,15 +1117,15 @@ class DatabaseConnection {
                         items.add(Contact(contactUID, members))
                     }
                 }
-                return ContactList(items)
+                return ContactList(items).getFilteredTasks(uid)
             } else {
                 Log.d("MyPrint", "User with uid $uid does not exist")
-                return ContactList(emptyList())
+                return emptyList()
             }
         } catch (e: Exception) {
             Log.d("MyPrint", "In ViewModel, could not fetch contacts with error: $e")
         }
-        return ContactList(emptyList())
+        return emptyList()
     }
 
   suspend fun getContact(contactUID: String): Contact {
@@ -1148,16 +1148,6 @@ class DatabaseConnection {
             )
         contactDataCollection
             .add(contact)
-            .addOnSuccessListener { documentReference ->
-                val contactUID = documentReference.id
-                userMembershipsCollection
-                    .document(uid)
-                    .update("contacts", FieldValue.arrayUnion(contactUID))
-                    .addOnSuccessListener { Log.d("MyPrint", "Contact successfully created") }
-                    .addOnFailureListener { e ->
-                        Log.d("MyPrint", "Failed to update user memberships with error: ", e)
-                    }
-            }
             .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create contact with error: ", e) }
     }
 

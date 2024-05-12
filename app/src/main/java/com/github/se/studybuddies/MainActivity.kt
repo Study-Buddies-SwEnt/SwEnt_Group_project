@@ -44,6 +44,7 @@ import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
@@ -191,7 +192,9 @@ class MainActivity : ComponentActivity() {
                     DirectMessageViewModel(currentUser.uid),
                     chatViewModel,
                     UsersViewModel(currentUser.uid),
-                    navigationActions)
+                    navigationActions,
+                    contactsViewModel = ContactsViewModel()
+                )
               }
             }
             composable(

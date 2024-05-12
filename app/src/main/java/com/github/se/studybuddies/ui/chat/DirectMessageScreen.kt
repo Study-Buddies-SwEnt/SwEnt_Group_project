@@ -46,12 +46,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
@@ -61,7 +63,8 @@ fun DirectMessageScreen(
     viewModel: DirectMessageViewModel,
     chatViewModel: ChatViewModel,
     usersViewModel: UsersViewModel,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    contactsViewModel: ContactsViewModel
 ) {
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
@@ -91,7 +94,8 @@ fun DirectMessageScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
         } else if (showAddPrivateMessageList.value) {
-          ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
+          //ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
+          ListAllContacts(showAddPrivateMessageList, viewModel, contactsViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
@@ -99,11 +103,15 @@ fun DirectMessageScreen(
           } else {
             Log.d("MyPrint", "DirectMessageScreen: chats is not empty")
             Column(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
             ) {
-              LazyColumn(modifier = Modifier.fillMaxWidth().padding(innerPadding)) {
+              LazyColumn(modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(innerPadding)) {
                 items(chats) { chat ->
                   DirectMessageItem(chat) {
                     chatViewModel.setChat(chat)
@@ -117,7 +125,9 @@ fun DirectMessageScreen(
         Box(
             contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
             modifier =
-                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
             }
       },
@@ -130,12 +140,17 @@ fun DirectMessageScreen(
 @Composable
 fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(16.dp),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { showAddPrivateMessageList.value = !showAddPrivateMessageList.value },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier = Modifier
+                .width(64.dp)
+                .height(64.dp)
+                .clip(MaterialTheme.shapes.medium)) {
               if (showAddPrivateMessageList.value) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -156,17 +171,21 @@ fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
 fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.fillMaxWidth().padding(8.dp).combinedClickable(onClick = { onClick() })) {
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(8.dp)
+          .combinedClickable(onClick = { onClick() })) {
         Image(
             painter = rememberAsyncImagePainter(chat.picture),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
-                Modifier.padding(8.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .align(Alignment.CenterVertically)
-                    .testTag("chat_user_profile_picture"),
+            Modifier
+                .padding(8.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(2.dp, Color.Gray, CircleShape)
+                .align(Alignment.CenterVertically)
+                .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = chat.name)
         Spacer(modifier = Modifier.weight(1f))
@@ -177,7 +196,7 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
     viewModel: DirectMessageViewModel,
-    usersViewModel: UsersViewModel
+    usersViewModel: UsersViewModel,
 ) {
   val friendsData by usersViewModel.friends.collectAsState()
   var isLoading by remember { mutableStateOf(true) }
@@ -212,6 +231,49 @@ fun ListAllUsers(
   }
 }
 
+
+@Composable
+fun ListAllContacts(
+    showAddPrivateMessageList: MutableState<Boolean>,
+    viewModel: DirectMessageViewModel,
+    contactsViewModel: ContactsViewModel
+) {
+
+    val contactsData by contactsViewModel.contacts.collectAsState()
+
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(contactsData) {
+        if (contactsData.isNotEmpty()) {
+            isLoading = false
+        } else {
+            repeat(10) {
+                delay(500)
+                if (contactsData.isNotEmpty()) {
+                    isLoading = false
+                    return@repeat
+                }
+            }
+            isLoading = false
+        }
+    }
+
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
+    } else {
+        if (contactsData.isEmpty()) {
+            Text(text = stringResource(R.string.no_friends_found))
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(contactsData) { contact -> ContactItem(contact, viewModel, showAddPrivateMessageList) }
+            }
+        }
+    }
+}
+
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserItem(
@@ -222,24 +284,61 @@ fun UserItem(
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
-          Modifier.fillMaxWidth()
-              .padding(8.dp)
-              .combinedClickable(
-                  onClick = {
-                    viewModel.startDirectMessage(user.uid)
-                    showAddPrivateMessageList.value = false
-                  })) {
+      Modifier
+          .fillMaxWidth()
+          .padding(8.dp)
+          .combinedClickable(
+              onClick = {
+                  viewModel.startDirectMessage(user.uid)
+                  showAddPrivateMessageList.value = false
+              })) {
         Image(
             painter = rememberAsyncImagePainter(user.photoUrl),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
-                Modifier.padding(8.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .align(Alignment.CenterVertically)
-                    .testTag("chat_user_profile_picture"),
+            Modifier
+                .padding(8.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(2.dp, Color.Gray, CircleShape)
+                .align(Alignment.CenterVertically)
+                .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = user.username)
       }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ContactItem(
+    contact: Contact,
+    viewModel: DirectMessageViewModel,
+    showAddPrivateMessageList: MutableState<Boolean>
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .combinedClickable(
+                onClick = {
+                    viewModel.startDirectMessage(contact.uid)
+                    showAddPrivateMessageList.value = false
+                })) {
+        Image(
+            painter = rememberAsyncImagePainter(contact.members.first),
+            contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
+            modifier =
+            Modifier
+                .padding(8.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(2.dp, Color.Gray, CircleShape)
+                .align(Alignment.CenterVertically)
+                .testTag("chat_user_profile_picture"),
+            contentScale = ContentScale.Crop)
+        Text(text = contact.members.first)
+    }
 }
