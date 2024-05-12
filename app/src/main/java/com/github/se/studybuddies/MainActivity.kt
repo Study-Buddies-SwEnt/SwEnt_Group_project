@@ -193,8 +193,7 @@ class MainActivity : ComponentActivity() {
                     chatViewModel,
                     UsersViewModel(currentUser.uid),
                     navigationActions,
-                    contactsViewModel = ContactsViewModel()
-                )
+                    contactsViewModel = ContactsViewModel())
               }
             }
             composable(
