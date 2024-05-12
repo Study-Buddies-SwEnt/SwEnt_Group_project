@@ -45,7 +45,6 @@ class LoginTest : TestCase() {
         Thread.sleep(2000)
       }
       Intents.intended(IntentMatchers.toPackage("com.google.android.gms"))
-
     }
   }
 }

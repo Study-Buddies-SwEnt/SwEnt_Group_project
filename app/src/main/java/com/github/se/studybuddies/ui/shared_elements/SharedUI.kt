@@ -102,7 +102,7 @@ fun MainScreenScaffold(
       drawerContent = {
         var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
         ModalDrawerSheet(
-            modifier = Modifier.requiredWidth(200.dp),
+            modifier = Modifier.requiredWidth(200.dp).testTag(title + "_drawer_sheet"),
         ) {
           Spacer(modifier = Modifier.size(16.dp))
           SETTINGS_DESTINATIONS.forEachIndexed { index, item ->
@@ -120,18 +120,21 @@ fun MainScreenScaffold(
                       contentDescription = item.textId,
                       tint = Blue)
                 },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
+                modifier =
+                    Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        .testTag(item.textId + "_button"))
           }
         }
       }) {
         Scaffold(
             modifier = Modifier.fillMaxSize().testTag(title + "_drawer_scaffold"),
             topBar = {
-              Box {
+              Box(modifier = Modifier.testTag(title + "_top_app_box")) {
                 CenterAlignedTopAppBar(
                     title = { Main_title(title = title) },
                     navigationIcon = { DrawerMenuIcon(scope, drawerState) },
-                    actions = { iconOptions() })
+                    actions = { iconOptions() },
+                    modifier = Modifier.testTag(title + "_top_app_bar"))
                 Divider(
                     color = Blue,
                     thickness = 4.dp,
@@ -156,13 +159,13 @@ fun TopNavigationBar(
     actions: @Composable () -> Unit,
 ) {
   Box(
-      modifier = Modifier.testTag("top_app_box"),
+      modifier = Modifier.testTag("_top_app_box"),
   ) {
     CenterAlignedTopAppBar(
         title = { title() },
         navigationIcon = { navigationIcon() },
         actions = { actions() },
-        modifier = Modifier.testTag("top_app_bar"))
+        modifier = Modifier.testTag("_top_app_bar"))
     Divider(
         color = Blue,
         thickness = 4.dp,
@@ -180,7 +183,9 @@ fun BottomNavigationBar(
   var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
   NavigationBar(
       modifier =
-          Modifier.clip(RoundedCornerShape(100.dp)).padding(10.dp).testTag("bottom_navigation_bar"),
+          Modifier.clip(RoundedCornerShape(100.dp))
+              .padding(10.dp)
+              .testTag(currentRoute + "_bottom_nav_bar"),
       containerColor = Color.White,
       contentColor = Color.White,
       tonalElevation = 0.dp,
@@ -230,9 +235,11 @@ fun DrawerMenuIcon(
     scope: CoroutineScope,
     drawerState: DrawerState,
 ) {
-  IconButton(onClick = { scope.launch { drawerState.open() } }) {
-    Icon(imageVector = Icons.Default.Menu, contentDescription = "Go back")
-  }
+  IconButton(
+      onClick = { scope.launch { drawerState.open() } },
+      modifier = Modifier.testTag("drawer_menu_icon")) {
+        Icon(imageVector = Icons.Default.Menu, contentDescription = "Go back")
+      }
 }
 
 @Composable
