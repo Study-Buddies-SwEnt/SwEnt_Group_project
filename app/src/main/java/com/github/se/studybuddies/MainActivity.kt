@@ -20,6 +20,7 @@ import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
@@ -345,6 +346,13 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
+
+            composable(Route.PLACEHOLDER) {
+              val currentUser = auth.currentUser
+              if (currentUser != null) {
+                Placeholder(navigationActions)
+              }
+            }
           }
         }
       }
