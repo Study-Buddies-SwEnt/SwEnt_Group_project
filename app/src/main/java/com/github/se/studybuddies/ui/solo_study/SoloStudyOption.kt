@@ -39,7 +39,7 @@ val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.PLACEHOLDE
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(
       onClick = { navigationActions.navigateTo(option.route) },
-      modifier = Modifier.height(120.dp).width(160.dp).testTag("solo_study_button"),
+      modifier = Modifier.height(120.dp).width(160.dp).testTag(option.name + "_button"),
       colors = ButtonDefaults.buttonColors(White),
       shape = RoundedCornerShape(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

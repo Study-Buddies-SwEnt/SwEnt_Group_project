@@ -9,6 +9,8 @@ package com.github.se.studybuddies.tests
 // ***************************************************************************** //
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.MainActivity
@@ -39,7 +41,11 @@ class LoginTest : TestCase() {
       loginButton {
         assertIsDisplayed()
         assertHasClickAction()
+        performClick()
+        Thread.sleep(2000)
       }
+      Intents.intended(IntentMatchers.toPackage("com.google.android.gms"))
+
     }
   }
 }
