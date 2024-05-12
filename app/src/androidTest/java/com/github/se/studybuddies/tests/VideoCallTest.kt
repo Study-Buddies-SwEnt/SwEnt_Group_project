@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -23,9 +24,16 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
-  @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
+
+  @get:Rule
+  val permissionRule: GrantPermissionRule =
+      GrantPermissionRule.grant(
+          android.Manifest.permission.CAMERA,
+          android.Manifest.permission.RECORD_AUDIO,
+      )
+  @get:Rule val composeTestRule = createComposeRule()
 
   private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
   private val uid = "111test"

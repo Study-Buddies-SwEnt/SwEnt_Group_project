@@ -25,7 +25,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
-  @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
 
@@ -35,6 +34,7 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
           android.Manifest.permission.CAMERA,
           android.Manifest.permission.RECORD_AUDIO,
       )
+  @get:Rule val composeTestRule = createComposeRule()
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
