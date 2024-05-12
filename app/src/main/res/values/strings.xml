@@ -87,4 +87,7 @@
     <string name="create_account">Create Account</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="ok">OK</string>
 </resources>
