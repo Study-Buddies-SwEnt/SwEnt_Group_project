@@ -72,9 +72,9 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       StudyBuddiesTheme {
         val navController = rememberNavController()
         navigationActions = NavigationActions(navController)
-        val startDestination = Route.START
+        val startDestination = Route.CREATEACCOUNT
         NavHost(navController = navController, startDestination = startDestination) {
-          composable(Route.START) {
+          /*composable(Route.START) {
             if (auth.currentUser != null) {
               db.userExists(
                   uid = db.getCurrentUserUID(),
@@ -89,7 +89,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
             } else {
               navController.navigate(Route.CREATEACCOUNT)
             }
-          }
+          }*/
           composable(Route.LOGIN) { LoginScreen(navigationActions) }
           composable(Route.CREATEACCOUNT) { CreateAccount(userVM, navigationActions) }
           composable(Route.SOLOSTUDYHOME) { SoloStudyHome(navigationActions) }
