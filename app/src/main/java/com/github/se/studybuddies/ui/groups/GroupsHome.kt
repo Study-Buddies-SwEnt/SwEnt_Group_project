@@ -165,11 +165,17 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                   Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
               onClick = {
                 expandedState.value = false
-                if (item.route == Route.LEAVEGROUP) {
-                  isLeaveGroupDialogVisible = true
-                } else {
-                  navigationActions.navigateTo("${item.route}/$groupUID")
-                }
+                  when (item.route) {
+                      Route.LEAVEGROUP -> {
+                          isLeaveGroupDialogVisible = true
+                      }
+                      Route.DELETEGROUP -> {
+                          isDeleteGroupDialogVisible = true
+                      }
+                      else -> {
+                          navigationActions.navigateTo("${item.route}/$groupUID")
+                      }
+                  }
               }) {
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(item.textId)
@@ -242,10 +248,12 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
                       text = stringResource(R.string.warning_1_group_deletion),
-                      modifier = Modifier.testTag("DeleteGroupDialogText"))
+                      modifier = Modifier.testTag("DeleteGroupDialogText"),
+                      textAlign = TextAlign.Center)
                   Text(
                       text = stringResource(R.string.warning_2_group_deletion),
-                      modifier = Modifier.testTag("DeleteGroupDialogText2"))
+                      modifier = Modifier.testTag("DeleteGroupDialogText2"),
+                      textAlign = TextAlign.Center)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
                       modifier = Modifier.fillMaxWidth(),

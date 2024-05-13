@@ -89,7 +89,7 @@
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
     <string name="warning_1_group_deletion">Are you sure you want to delete the group ?</string>
-    <string name="warning_2_group_deletion">This will delete the group and all it\'s content for all members</string>
+    <string name="warning_2_group_deletion">This will delete the group and all its content for all members</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="warning_leave_group">Are you sure you want to leave the group ?</string>
