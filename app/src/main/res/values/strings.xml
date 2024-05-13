@@ -77,7 +77,6 @@
     <string name="square_add_icon">square_add_icon</string>
     <string name="arrow_icon">arrow_icon</string>
     <string name="friends_location_found">Friends location found</string>
-    <string name="offline">Offline</string>
     <string name="location_service_started">Location service started</string>
     <string name="location_service_stopped">Location service stopped</string>
     <string name="location_permission_not_granted">Location permission not granted or waiting for them</string>

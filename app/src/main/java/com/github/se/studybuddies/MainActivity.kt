@@ -345,7 +345,7 @@ class MainActivity : ComponentActivity() {
     val userViewModel = UserViewModel(currentUser?.uid)
     // Set the user to offline when he closes the app
     if (currentUser != null) {
-      userViewModel.updateLocation(currentUser.uid, R.string.offline.toString())
+      userViewModel.updateLocation(currentUser.uid, "offline")
     }
   }
 }
