@@ -165,17 +165,17 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                   Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
               onClick = {
                 expandedState.value = false
-                  when (item.route) {
-                      Route.LEAVEGROUP -> {
-                          isLeaveGroupDialogVisible = true
-                      }
-                      Route.DELETEGROUP -> {
-                          isDeleteGroupDialogVisible = true
-                      }
-                      else -> {
-                          navigationActions.navigateTo("${item.route}/$groupUID")
-                      }
+                when (item.route) {
+                  Route.LEAVEGROUP -> {
+                    isLeaveGroupDialogVisible = true
                   }
+                  Route.DELETEGROUP -> {
+                    isDeleteGroupDialogVisible = true
+                  }
+                  else -> {
+                    navigationActions.navigateTo("${item.route}/$groupUID")
+                  }
+                }
               }) {
                 Spacer(modifier = Modifier.size(16.dp))
                 Text(item.textId)
