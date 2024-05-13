@@ -94,8 +94,8 @@ fun DirectMessageScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
         } else if (showAddPrivateMessageList.value) {
-          // ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
-          ListAllContacts(showAddPrivateMessageList, viewModel, contactsViewModel)
+          ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
+          //ListAllContacts(showAddPrivateMessageList, viewModel, contactsViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
