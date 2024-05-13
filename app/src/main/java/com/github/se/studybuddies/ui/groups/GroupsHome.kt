@@ -103,18 +103,20 @@ fun GroupsHome(
       Route.GROUPSHOME,
       content = { innerPadding ->
         if (isLoading) {
-          Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+          Box(modifier = Modifier.fillMaxSize().testTag("GroupsBox")) {
+            CircularProgressIndicator(
+                modifier = Modifier.testTag("CircularLoading").align(Alignment.Center))
           }
         } else if (groupList.value.isEmpty()) {
           Column(
-              modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
+              modifier = Modifier.fillMaxSize().testTag("GroupEmpty"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
                     stringResource(R.string.join_or_create_a_new_group),
-                    textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag("EmptyGroupText"))
                 Spacer(modifier = Modifier.height(80.dp))
                 AddGroupButton(navigationActions = navigationActions)
                 AddLinkButton(navigationActions = navigationActions)
@@ -126,7 +128,7 @@ fun GroupsHome(
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
             LazyColumn(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("GroupsList"),
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
@@ -245,7 +247,8 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
                 val strokeWidth = 1f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }) {
+              }
+              .testTag(group.name + "_box")) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
@@ -269,16 +272,21 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 @Composable
 fun AddGroupButton(navigationActions: NavigationActions) {
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddGroupRow"),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .testTag("AddGroupButton")) {
               Icon(
                   imageVector = Icons.Default.Add,
                   contentDescription = stringResource(R.string.create_a_task),
-                  tint = White)
+                  tint = White,
+                  modifier = Modifier.testTag("AddGroupIcon"))
             }
       }
 }
@@ -292,16 +300,21 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var showSucces by remember { mutableStateOf(false) }
 
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddLinkRow"),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = !isTextFieldVisible },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .testTag("AddLinkButton")) {
               Icon(
                   imageVector = Icons.Default.Share,
                   contentDescription = stringResource(R.string.link_button),
-                  tint = White)
+                  tint = White,
+                  modifier = Modifier.testTag("AddLinkIcon"))
             }
       }
   if (isTextFieldVisible) {
@@ -309,7 +322,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp).testTag("AddLinkTextField"),
         singleLine = true,
         colors =
             TextFieldDefaults.colors(

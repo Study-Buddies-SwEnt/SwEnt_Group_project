@@ -143,6 +143,10 @@ class SoloStudyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   fun testDrawerSoloStudy() {
     onComposeScreen<SoloStudyScreen>(composeTestRule) {
       drawerScaffold { assertIsDisplayed() }
+      soloTitle {
+        assertIsDisplayed()
+        assertTextEquals("Solo Study")
+      }
       topAppBox { assertIsDisplayed() }
       topAppBar { assertIsDisplayed() }
       drawerMenuButton {

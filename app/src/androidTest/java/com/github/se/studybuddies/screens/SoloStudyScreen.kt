@@ -36,6 +36,7 @@ class SoloStudyScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val drawerSheet: KNode = onNode { hasTestTag("Solo Study_drawer_sheet") }
   val settingsButton: KNode = drawerSheet.child { hasTestTag("Settings_button") }
   val accountButton: KNode = drawerSheet.child { hasTestTag("Account_button") }
+  val soloTitle: KNode = topAppBar.child { hasTestTag("main_title") }
 
   val soloBottomBar: KNode = drawerScaffold.child { hasTestTag("SoloStudyHome_bottom_nav_bar") }
   val soloStudyBottom: KNode = onNode { hasTestTag("Solo study_item") }

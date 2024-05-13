@@ -23,19 +23,21 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  val uid = "userTest"
+  val uid = "aloneUserTest"
 
   @Before
   fun testSetup() {
@@ -43,14 +45,62 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   }
 
   @Test
-  fun titleAndButtonAreCorrectlyDisplayed() {
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {}
+  fun assessEmptyGroup() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      groupBox { assertIsDisplayed() }
+      circularLoading { assertIsDisplayed() }
+      runBlocking { delay(2000) }
+      groupScreenEmpty { assertIsDisplayed() }
+      emptyGroupText { assertIsDisplayed() }
+    }
+  }
+
+  @Test
+  fun buttonCorrectlyDisplay() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      addButtonRow { assertIsDisplayed() }
+      addButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      // addButtonIcon { assertIsDisplayed() }
+
+      addLinkRow { assertIsDisplayed() }
+      addLinkButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      // addLinkIcon { assertIsDisplayed() }
+    }
+  }
+
+  @Test
+  fun buttonAreWorking() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      addButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+      verify { mockNavActions.navigateTo(Route.CREATEGROUP) }
+      confirmVerified(mockNavActions)
+
+      addLinkButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+    }
   }
 
   @Test
   fun testDrawerGroup() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       drawerScaffold { assertIsDisplayed() }
+      groupsTitle {
+        assertIsDisplayed()
+        assertTextEquals("Groups")
+      }
       topAppBox { assertIsDisplayed() }
       topAppBar { assertIsDisplayed() }
       drawerMenuButton {
@@ -112,6 +162,34 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       }
       verify { mockNavActions.navigateTo(Route.MAP) }
       confirmVerified(mockNavActions)
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
+class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  @get:Rule val mockkRule = MockKRule(this)
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  val uid = "userTest"
+
+  @Before
+  fun testSetup() {
+    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid), mockNavActions) }
+  }
+
+  @Test
+  fun groupList() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      groupBox { assertIsDisplayed() }
+      circularLoading { assertIsDisplayed() }
+      runBlocking { delay(3000) }
+
+      // groupScreen { assertIsDisplayed() }
+      // groupList { assertIsDisplayed() }
+      // testGroupBox { assertIsDisplayed() }
     }
   }
 }

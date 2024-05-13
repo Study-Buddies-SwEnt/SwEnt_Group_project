@@ -159,13 +159,13 @@ fun TopNavigationBar(
     actions: @Composable () -> Unit,
 ) {
   Box(
-      modifier = Modifier.testTag("_top_app_box"),
+      modifier = Modifier.testTag("top_app_box"),
   ) {
     CenterAlignedTopAppBar(
         title = { title() },
         navigationIcon = { navigationIcon() },
         actions = { actions() },
-        modifier = Modifier.testTag("_top_app_bar"))
+        modifier = Modifier.testTag("top_app_bar"))
     Divider(
         color = Blue,
         thickness = 4.dp,
