@@ -36,7 +36,6 @@ val TIMER = SoloStudyOption("Timer", R.drawable.timer, Route.TIMER)
 
 val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.CALENDAR)
 
-
 @Composable
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(
