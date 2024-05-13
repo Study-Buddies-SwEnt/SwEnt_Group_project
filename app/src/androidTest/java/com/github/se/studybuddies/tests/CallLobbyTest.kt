@@ -2,8 +2,8 @@ package com.github.se.studybuddies.tests
 
 import android.content.Context
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
@@ -40,7 +40,7 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
+  private val context: Context = ApplicationProvider.getApplicationContext()
   private val uid = "111test"
   private val userID = "testUser"
 

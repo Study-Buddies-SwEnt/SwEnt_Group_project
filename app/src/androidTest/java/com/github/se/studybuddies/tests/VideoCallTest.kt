@@ -2,8 +2,8 @@ package com.github.se.studybuddies.tests
 
 import android.content.Context
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
@@ -31,13 +31,10 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   @get:Rule
   val permissionRule: GrantPermissionRule =
       GrantPermissionRule.grant(
-          android.Manifest.permission.CAMERA,
-          android.Manifest.permission.RECORD_AUDIO,
-      )
+          android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
 
-  private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
+  private val context: Context = ApplicationProvider.getApplicationContext()
   private val uid = "111test"
-  private var videoCallVM: VideoCallViewModel? = null
   private val userID = "testUser"
 
   @Before
@@ -61,8 +58,7 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
         .build()
 
     val call = StreamVideo.instance().call("default", uid)
-    videoCallVM = VideoCallViewModel(call, uid)
-    composeTestRule.setContent { VideoCallScreen(call, videoCallVM!!) }
+    composeTestRule.setContent { VideoCallScreen(call, VideoCallViewModel(call, uid)) }
   }
 
   @Test
