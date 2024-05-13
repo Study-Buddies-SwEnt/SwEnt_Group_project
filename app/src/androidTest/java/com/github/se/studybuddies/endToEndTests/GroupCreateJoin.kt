@@ -123,7 +123,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       Espresso.closeSoftKeyboard()
       // saveButton { performClick() }
     }
-    // Go the settings
     /*ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }
