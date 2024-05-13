@@ -118,6 +118,9 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
+              val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
+              val displayName =
+                  viewModel.chat.type != ChatType.PRIVATE && !isCurrentUserMessageSender
             Row(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -130,15 +133,13 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                             })
                         .testTag("chat_message_row"),
                 horizontalArrangement =
-                    if (viewModel.isUserMessageSender(message)) {
+                    if (isCurrentUserMessageSender) {
                       Arrangement.End
                     } else {
                       Arrangement.Start
                     }) {
                   TextBubble(
-                      message,
-                      !viewModel.isUserMessageSender(message) &&
-                          viewModel.chat.type != ChatType.PRIVATE)
+                      message, displayName,)
                 }
           }
         }

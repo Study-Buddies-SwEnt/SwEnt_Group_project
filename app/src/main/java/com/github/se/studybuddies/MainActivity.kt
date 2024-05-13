@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -62,6 +63,7 @@ import io.getstream.video.android.model.User
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
+  private val chatViewModel: ChatViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -75,7 +77,7 @@ class MainActivity : ComponentActivity() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           val navController = rememberNavController()
           val navigationActions = NavigationActions(navController)
-          val chatViewModel = ChatViewModel()
+
           val startDestination = Route.START
           val context = LocalContext.current
           val apiKey = "x52wgjq8qyfc"
