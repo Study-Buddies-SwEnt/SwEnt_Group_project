@@ -1,61 +1,91 @@
 package com.github.se.studybuddies.viewModels
 
+import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope as viewModelScope1
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 
-class TimerViewModel : ViewModel() {
-  private val _timer = MutableStateFlow(0L) // Timer value in seconds
-  val timer = _timer.asStateFlow()
+class TimerViewModel private constructor() : ViewModel() {
+  // Existing ViewModel code here
+
+  companion object {
+    private var INSTANCE: TimerViewModel? = null
+
+    fun getInstance(): TimerViewModel {
+      if (INSTANCE == null) {
+        INSTANCE = TimerViewModel()
+      }
+      return INSTANCE!!
+    }
+  }
+
+  private val _timerValue = MutableStateFlow(0L) // Holds the elapsed time in milliseconds
+  val timerValue: StateFlow<Long> = _timerValue
+  var isRunning = false
 
   private val _timerEnd = MutableStateFlow(false)
-  val timerEnd = _timerEnd.asStateFlow()
+  val timerEnd: StateFlow<Boolean> = _timerEnd
 
-  private var timerJob: Job? = null
+  private var countDownTimer: CountDownTimer? = null
 
-  fun addHours(hours: Long) {
-    if (_timer.value + hours > 0) {
-      _timer.value += hours * 3600
-    }
-  }
+  private fun setupTimer() {
+    countDownTimer =
+        object : CountDownTimer(_timerValue.value, 1000) {
+          override fun onTick(millisUntilFinished: Long) {
+            _timerValue.tryEmit(millisUntilFinished)
+          }
 
-  fun addMinutes(minutes: Long) {
-    if (_timer.value + minutes > 0) {
-      _timer.value += minutes * 60
-    }
-  }
-
-  fun addSeconds(seconds: Long) {
-    if (_timer.value + seconds > 0) {
-      _timer.value += seconds
-    }
+          override fun onFinish() {
+            _timerValue.value = 0
+            _timerEnd.value = true
+            resetTimer()
+          }
+        }
   }
 
   fun startTimer() {
-    if (timerJob == null || timerJob?.isCompleted == true) {
-      timerJob =
-          viewModelScope1.launch {
-            while (isActive) {
-              delay(1000)
-              if (_timer.value > 0) _timer.value-- else _timerEnd.value = true
-              delay(1000)
-              _timerEnd.value = false
-            }
-          }
-    }
+    isRunning = true
+    _timerEnd.value = false
+    countDownTimer?.start()
   }
 
   fun pauseTimer() {
-    timerJob?.cancel()
+    isRunning = false
+    countDownTimer?.cancel()
+    setupTimer()
   }
 
   fun resetTimer() {
-    pauseTimer()
-    _timer.value = 0
+    isRunning = false
+    countDownTimer?.cancel()
+    _timerValue.value = 0
+    _timerEnd.value = false
+  }
+
+  fun addHours(hours: Long) {
+    val additionalTime = hours * 3600 * 1000 // Convert hours to milliseconds
+    updateTimer(additionalTime)
+  }
+
+  fun addMinutes(minutes: Long) {
+    val additionalTime = minutes * 60 * 1000 // Convert minutes to milliseconds
+    updateTimer(additionalTime)
+  }
+
+  fun addSeconds(seconds: Long) {
+    val additionalTime = seconds * 1000 // Convert seconds to milliseconds
+    updateTimer(additionalTime)
+  }
+
+  private fun updateTimer(additionalTime: Long) {
+    countDownTimer?.cancel()
+    val newTime = _timerValue.value + additionalTime
+    if (newTime >= 0) {
+      _timerValue.value = newTime
+      setupTimer()
+      if (isRunning) {
+        countDownTimer?.start()
+      }
+    }
   }
 }

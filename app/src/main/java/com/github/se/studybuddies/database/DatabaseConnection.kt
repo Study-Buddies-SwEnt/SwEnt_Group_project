@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class DatabaseConnection {
+
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
 
@@ -519,6 +520,45 @@ class DatabaseConnection {
         }
         .addOnFailureListener { e ->
           Log.d("UpdateGroup", "Failed to upload photo with error: ", e)
+        }
+  }
+
+  suspend fun removeUserFromGroup(groupUID: String, userUID: String = "") {
+
+    val user =
+        if (userUID == "") {
+          getCurrentUserUID()
+        } else {
+          userUID
+        }
+
+    groupDataCollection
+        .document(groupUID)
+        .update("members", FieldValue.arrayRemove(user))
+        .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to remove user from group with error: ", e)
+        }
+
+    val document = groupDataCollection.document(groupUID).get().await()
+    val members = document.get("members") as? List<String> ?: emptyList()
+
+    if (members.isEmpty()) {
+      groupDataCollection
+          .document(groupUID)
+          .delete()
+          .addOnSuccessListener { Log.d("MyPrint", "User successfully removed from group") }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to remove user from group with error: ", e)
+          }
+    }
+
+    userMembershipsCollection
+        .document(user)
+        .update("groups", FieldValue.arrayRemove(groupUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Remove group from user successfully") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to remove group from user with error: ", e)
         }
   }
 

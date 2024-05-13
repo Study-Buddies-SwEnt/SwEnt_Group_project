@@ -16,11 +16,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.se.studybuddies.calender.CalendarApp
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
@@ -43,6 +45,7 @@ import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
+import com.github.se.studybuddies.viewModels.CalendarViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -128,6 +131,13 @@ class MainActivity : ComponentActivity() {
               val currentUser = auth.currentUser
               if (currentUser != null) {
                 GroupsHome(currentUser.uid, GroupsHomeViewModel(currentUser.uid), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to GroupsHome")
+              }
+            }
+            composable(Route.CALENDAR) {
+              val currentUser = auth.currentUser
+              if (currentUser != null) {
+                CalendarApp(CalendarViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
@@ -257,7 +267,10 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.TIMER) {
               if (auth.currentUser != null) {
-                TimerScreenContent(TimerViewModel(), navigationActions)
+
+                val viewModel = TimerViewModel.getInstance()
+
+                TimerScreenContent(viewModel, navigationActions = navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
@@ -317,6 +330,13 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
+
+            composable(Route.PLACEHOLDER) {
+              val currentUser = auth.currentUser
+              if (currentUser != null) {
+                Placeholder(navigationActions)
+              }
+            }
           }
         }
       }

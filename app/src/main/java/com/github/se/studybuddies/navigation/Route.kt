@@ -6,7 +6,9 @@ object Route {
   const val GROUPSHOME = "GroupsHome"
   const val CREATEGROUP = "CreateGroup"
   const val GROUPSETTING = "GroupSetting"
+  const val LEAVEGROUP = "LeaveGroup"
   const val GROUP = "Group"
+  const val CALENDAR = "Calendar"
   const val SETTINGS = "Settings"
   const val ACCOUNT = "AccountSettings"
   const val CREATEACCOUNT = "CreateAccount"
@@ -15,7 +17,6 @@ object Route {
   const val TODOLIST = "Todo list"
   const val FOCUSMODE = "Focus Mode"
   const val TIMER = "Timer"
-  const val CALENDAR = "Calendar"
 
   const val SHAREDTIMER = "Shared timer"
 
@@ -28,4 +29,5 @@ object Route {
   const val DIRECT_MESSAGE = "DirectMessage"
   const val VIDEOCALL = "VideoCall"
   const val MAP = "Map"
+  const val PLACEHOLDER = "Placeholder"
 }

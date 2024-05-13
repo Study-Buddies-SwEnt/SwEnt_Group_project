@@ -101,6 +101,7 @@ android {
 dependencies {
     implementation("com.google.code.gson:gson:2.8.8")
     implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.wear.compose:compose-material:1.3.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
@@ -121,6 +122,10 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+// Google API client library for Android
+
+
+
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))

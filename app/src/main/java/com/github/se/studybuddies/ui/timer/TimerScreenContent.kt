@@ -32,21 +32,25 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TimerViewModel
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun TimerScreenContent(timerViewModel: TimerViewModel, navigationActions: NavigationActions) {
-  val timerValue by timerViewModel.timer.collectAsState()
+  val timerValue = timerViewModel.timerValue.collectAsState()
   val timerEnd by timerViewModel.timerEnd.collectAsState()
-
-  TimerScreen(
-      navigationActions = navigationActions,
-      timerValue = timerValue,
-      timerEnd = timerEnd,
-      onAddHours = { hours: Long -> timerViewModel.addHours(hours) },
-      onAddMinutes = { minutes: Long -> timerViewModel.addMinutes(minutes) },
-      onAddSeconds = timerViewModel::addSeconds,
-      onStart = { timerViewModel.startTimer() },
-      onPause = { timerViewModel.pauseTimer() },
-      onReset = { timerViewModel.resetTimer() })
+  timerValue?.let {
+    timerEnd?.let { it1 ->
+      TimerScreen(
+          navigationActions = navigationActions,
+          timerValue = it.value,
+          timerEnd = it1,
+          onAddHours = { hours: Long -> timerViewModel.addHours(hours) },
+          onAddMinutes = { minutes: Long -> timerViewModel.addMinutes(minutes) },
+          onAddSeconds = timerViewModel::addSeconds,
+          onStart = { timerViewModel.startTimer() },
+          onPause = { timerViewModel.pauseTimer() },
+          onReset = { timerViewModel.resetTimer() })
+    }
+  }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -83,11 +87,11 @@ fun TimerScreen(
             Card(
                 shape = RoundedCornerShape(30.dp),
                 modifier =
-                    Modifier.padding(20.dp).width(300.dp).height(160.dp).testTag("timer_red_card"),
+                    Modifier.padding(20.dp).width(300.dp).height(100.dp).testTag("timer_red_card"),
                 colors = CardDefaults.cardColors(containerColor = Color.Red)) {
                   Text(
-                      text = timerValue.formatTime(),
-                      fontSize = 80.sp,
+                      text = (timerValue / 1000).formatTime(),
+                      fontSize = 50.sp,
                       color = Blue,
                       modifier = Modifier.padding(10.dp))
                 }
@@ -98,7 +102,7 @@ fun TimerScreen(
                     Modifier.padding(30.dp).width(220.dp).height(80.dp).testTag("timer_card"),
                 colors = CardDefaults.cardColors(containerColor = White)) {
                   Text(
-                      text = timerValue.formatTime(),
+                      text = (timerValue / 1000).formatTime(),
                       fontSize = 40.sp,
                       color = Blue,
                       textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -125,7 +129,7 @@ fun TimerScreen(
               horizontalArrangement = Arrangement.SpaceAround) {
                 TimeAdjustSection("Hours", 1, onAddHours)
                 TimeAdjustSection("Minutes", 1, onAddMinutes)
-                TimeAdjustSection("Seconds", 10, onAddSeconds)
+                TimeAdjustSection("Seconds", 1, onAddSeconds)
               }
         }
   }
