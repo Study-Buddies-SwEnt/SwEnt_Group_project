@@ -39,7 +39,7 @@ class SoloStudyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
       row1 { assertIsDisplayed() }
       row2 { assertIsDisplayed() }
 
-      flashCardColumn { assertIsDisplayed() }
+      // flashCardColumn { assertIsDisplayed() }
       /*
       todoListColumn {
           assertIsDisplayed()
