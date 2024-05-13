@@ -64,6 +64,8 @@ import io.getstream.video.android.model.User
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
   private val chatViewModel: ChatViewModel by viewModels()
+  private val usersViewModel: UsersViewModel by viewModels()
+  private val directMessageViewModel: DirectMessageViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -100,12 +102,14 @@ class MainActivity : ComponentActivity() {
           }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              if (auth.currentUser != null) {
-
+              val currentUser = auth.currentUser
+              if (currentUser != null) {
                 db.userExists(
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
                       if (userExists) {
+                        directMessageViewModel.setUserUID(currentUser.uid)
+                        usersViewModel.setUserUID(currentUser.uid)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -188,11 +192,10 @@ class MainActivity : ComponentActivity() {
             composable(Route.DIRECT_MESSAGE) {
               val currentUser = auth.currentUser
               if (currentUser != null) {
+                directMessageViewModel.setUserUID(currentUser.uid)
+                usersViewModel.setUserUID(currentUser.uid)
                 DirectMessageScreen(
-                    DirectMessageViewModel(currentUser.uid),
-                    chatViewModel,
-                    UsersViewModel(currentUser.uid),
-                    navigationActions)
+                    directMessageViewModel, chatViewModel, usersViewModel, navigationActions)
               }
             }
             composable(

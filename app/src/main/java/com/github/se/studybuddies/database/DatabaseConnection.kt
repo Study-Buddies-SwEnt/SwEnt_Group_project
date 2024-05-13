@@ -85,7 +85,7 @@ class DatabaseConnection {
   }
 
   suspend fun getAllFriends(uid: String): List<User> {
-    try {
+    return try {
       val snapshot = userDataCollection.document(uid).get().await()
       val snapshotQuery = userDataCollection.get().await()
       val items = mutableListOf<User>()
@@ -96,14 +96,14 @@ class DatabaseConnection {
           val id = item.id
           items.add(getUser(id))
         }
-        return items
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
       }
+      items
     } catch (e: Exception) {
       Log.d("MyPrint", "Could not fetch friends with error: $e")
+      emptyList()
     }
-    return emptyList()
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -645,53 +645,48 @@ class DatabaseConnection {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
+  fun subscribeToPrivateChats(
+      userUID: String,
+      scope: CoroutineScope,
+      onUpdate: (List<Chat>) -> Unit
+  ) {
     val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
 
     ref.addValueEventListener(
         object : ValueEventListener {
-          private var handler = Handler(Looper.getMainLooper())
-          private var runnable: Runnable? = null
-
           override fun onDataChange(snapshot: DataSnapshot) {
-            runnable?.let { handler.removeCallbacks(it) }
-            runnable = Runnable {
-              CoroutineScope(Dispatchers.IO).launch {
-                val chatList = mutableListOf<Chat>()
-
-                snapshot.children.forEach { chat ->
-                  val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
-                  if (userUID in members) {
-                    val otherUserId = members.first { it != userUID }
-
-                    Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
-
-                    if (otherUserId != null) {
-                      getUser(otherUserId).let { otherUser ->
-                        val newChat =
-                            Chat(
-                                uid = chat.key ?: "",
-                                name = otherUser.username,
-                                picture = otherUser.photoUrl,
-                                type = ChatType.PRIVATE,
-                                members = listOf(otherUser, getUser(userUID)))
-                        chatList.add(newChat)
-                      }
-                    }
+            scope.launch(Dispatchers.IO) { // Using the passed scope to launch a coroutine
+              val chatList = mutableListOf<Chat>()
+              snapshot.children.forEach { chat ->
+                val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
+                if (userUID in members) {
+                  val otherUserId = members.firstOrNull { it != userUID }
+                  otherUserId?.let { userId ->
+                    val otherUser = getUser(userId) // Assume getUser is a suspend function
+                    val newChat =
+                        Chat(
+                            uid = chat.key ?: "",
+                            name = otherUser.username,
+                            picture = otherUser.photoUrl,
+                            type = ChatType.PRIVATE,
+                            members =
+                                listOf(
+                                    otherUser,
+                                    getUser(
+                                        userUID)) // Assuming getUser is non-blocking and correct
+                            // context handling
+                            )
+                    chatList.add(newChat)
                   }
                 }
-
-                withContext(Dispatchers.Main) { liveData.value = chatList }
               }
+              withContext(Dispatchers.Main) { onUpdate(chatList.sortedBy { it.name }) }
             }
-            handler.postDelayed(runnable!!, 1000)
           }
 
           override fun onCancelled(error: DatabaseError) {
-            Log.w(
-                "DatabaseConnection - getPrivateChatsList()",
-                "Failed to read value.",
-                error.toException())
+            // Handle potential errors
+            println("Database read failed: " + error.code)
           }
         })
   }
