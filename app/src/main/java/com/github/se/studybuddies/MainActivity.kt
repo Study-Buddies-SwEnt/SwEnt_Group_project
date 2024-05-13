@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.github.se.studybuddies.calender.CalendarApp
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
@@ -45,6 +46,7 @@ import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
 import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
+import com.github.se.studybuddies.viewModels.CalendarViewModel
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
@@ -116,6 +118,13 @@ class MainActivity : ComponentActivity() {
               val currentUser = auth.currentUser
               if (currentUser != null) {
                 GroupsHome(currentUser.uid, GroupsHomeViewModel(currentUser.uid), navigationActions)
+                Log.d("MyPrint", "Successfully navigated to GroupsHome")
+              }
+            }
+            composable(Route.CALENDAR) {
+              val currentUser = auth.currentUser
+              if (currentUser != null) {
+                CalendarApp(CalendarViewModel(), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }

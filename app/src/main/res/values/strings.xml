@@ -92,4 +92,7 @@
     <string name="preview_of_your_call_setup">Preview of your call setup</string>
     <string name="join_call">Join call</string>
     <string name="phone_icon">Phone icon</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="ok">OK</string>
 </resources>
