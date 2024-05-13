@@ -13,6 +13,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
@@ -111,7 +112,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun groupCreateJoin() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(
         composeTestRule) {
           // Create account
           saveButton { assertIsNotEnabled() }
