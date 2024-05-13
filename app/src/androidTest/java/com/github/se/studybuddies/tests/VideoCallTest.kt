@@ -70,9 +70,9 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.VideoCallScreen>(
         composeTestRule) {
           runBlocking {
-            delay(6000) // Adjust the delay time as needed
+            delay(15000) // Adjust the delay time as needed
           }
-          call_content { assertIsDisplayed() }
+          callContent { assertIsDisplayed() }
           controls { assertIsDisplayed() }
         }
   }

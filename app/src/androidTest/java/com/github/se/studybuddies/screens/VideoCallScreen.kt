@@ -9,7 +9,6 @@ class VideoCallScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
         semanticsProvider = semanticsProvider,
         viewBuilderAction = { hasTestTag("video_call_screen") }) {
 
-  val call_content = onNode { hasTestTag("call_content") }
-
-  val controls: KNode = call_content.child { hasTestTag("control_actions") }
+  val callContent = onNode { hasTestTag("call_content") }
+  val controls: KNode = callContent.child { hasTestTag("control_actions") }
 }

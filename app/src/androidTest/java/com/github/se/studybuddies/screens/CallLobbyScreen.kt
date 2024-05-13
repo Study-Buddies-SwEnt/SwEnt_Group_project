@@ -7,6 +7,7 @@ import io.github.kakaocup.compose.node.element.KNode
 class CallLobbyScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<CallLobbyScreen>(
         semanticsProvider = semanticsProvider, viewBuilderAction = { hasTestTag("call_lobby") }) {
+
   val content: KNode = onNode { hasTestTag("content") }
 
   val topAppBar: KNode = content.child { hasTestTag("top_app_box") }

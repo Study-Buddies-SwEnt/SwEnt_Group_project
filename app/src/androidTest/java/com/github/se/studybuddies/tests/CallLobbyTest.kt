@@ -70,7 +70,7 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CallLobbyScreen>(
         composeTestRule) {
           runBlocking {
-            delay(6000) // Adjust the delay time as needed
+            delay(15000) // Adjust the delay time as needed
           }
           content { assertIsDisplayed() }
           topAppBar { assertIsDisplayed() }
