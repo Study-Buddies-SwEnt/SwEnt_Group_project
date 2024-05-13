@@ -1139,7 +1139,7 @@ class DatabaseConnection {
 
   fun createContact(name: String) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
-    Log.d("MyPrint", "Creating new group with uid $uid")
+    Log.d("MyPrint", "Creating new contact with uid $uid")
     val contact = hashMapOf("members" to listOf(uid))
     contactDataCollection.add(contact).addOnFailureListener { e ->
       Log.d("MyPrint", "Failed to create contact with error: ", e)

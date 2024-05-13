@@ -95,7 +95,6 @@ fun DirectMessageScreen(
           }
         } else if (showAddPrivateMessageList.value) {
           ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
-          //ListAllContacts(showAddPrivateMessageList, viewModel, contactsViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
@@ -252,7 +251,7 @@ fun ListAllContacts(
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(contactsData) { contact ->
-          ContactItem(contact, viewModel, showAddPrivateMessageList)
+          ContactItem(contact, viewModel, showAddPrivateMessageList, contactsViewModel)
         }
       }
     }
@@ -296,7 +295,8 @@ fun UserItem(
 fun ContactItem(
     contact: Contact,
     viewModel: DirectMessageViewModel,
-    showAddPrivateMessageList: MutableState<Boolean>
+    showAddPrivateMessageList: MutableState<Boolean>,
+    contactsViewModel: ContactsViewModel
 ) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
@@ -307,6 +307,7 @@ fun ContactItem(
                   onClick = {
                     viewModel.startDirectMessage(contact.uid)
                     showAddPrivateMessageList.value = false
+                    contactsViewModel.createContact("")
                   })) {
         Image(
             painter = rememberAsyncImagePainter(contact.members.first),

@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +20,12 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
       fetchAllContacts(uid)
     }
   }
+
+
+  fun createContact(name: String) {
+    viewModelScope.launch { db.createContact(name) }
+  }
+
 
   fun fetchAllContacts(uid: String) {
     viewModelScope.launch {
