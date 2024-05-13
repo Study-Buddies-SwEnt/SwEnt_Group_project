@@ -58,6 +58,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @Test
   fun buttonCorrectlyDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      runBlocking { delay(2000) }
       addButtonRow { assertIsDisplayed() }
       addButton {
         assertIsDisplayed()
@@ -77,6 +78,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @Test
   fun buttonAreWorking() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      runBlocking { delay(2000) }
       addButton {
         assertIsDisplayed()
         assertHasClickAction()
