@@ -112,18 +112,17 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun groupCreateJoin() {
-    ComposeScreen.onComposeScreen<CreateAccountScreen>(
-        composeTestRule) {
-          // Create account
-          saveButton { assertIsNotEnabled() }
-          usernameField {
-            performTextClearance()
-            performTextInput("UserTest")
-            assertTextContains("UserTest")
-          }
-          Espresso.closeSoftKeyboard()
-          // saveButton { performClick() }
-        }
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      // Create account
+      // saveButton { assertIsNotEnabled() }
+      usernameField {
+        performTextClearance()
+        performTextInput("UserTest")
+        assertTextContains("UserTest")
+      }
+      Espresso.closeSoftKeyboard()
+      // saveButton { performClick() }
+    }
     // Go the settings
     /*ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
