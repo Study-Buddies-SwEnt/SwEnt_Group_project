@@ -10,7 +10,9 @@ val SETTINGS_DESTINATIONS =
         Destination(route = Route.ACCOUNT, icon = R.drawable.user, textId = "Account"))
 
 val GROUPS_SETTINGS_DESTINATIONS =
-    listOf(Destination(route = Route.GROUPSETTING, textId = "Modify a group"))
+    listOf(
+        Destination(route = Route.GROUPSETTING, textId = "Modify a group"),
+        Destination(route = Route.LEAVEGROUP, textId = "Leave group"))
 
 val BOTTOM_NAVIGATION_DESTINATIONS =
     listOf(
