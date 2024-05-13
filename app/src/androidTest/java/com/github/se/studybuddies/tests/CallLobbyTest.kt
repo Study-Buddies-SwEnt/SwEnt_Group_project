@@ -42,7 +42,6 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
 
   private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
   private val uid = "111test"
-  private var callLobbyVM: CallLobbyViewModel? = null
   private val userID = "testUser"
 
   @Before
@@ -61,7 +60,6 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
         )
         .build()
 
-    // callLobbyVM = CallLobbyViewModel(uid)
     composeTestRule.setContent { CallLobbyScreen(uid, CallLobbyViewModel(uid), mockNavActions) }
   }
 
