@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+import com.github.se.studybuddies.screens.VideoCallScreen
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -33,12 +34,12 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
       GrantPermissionRule.grant(
           android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
 
-  private val context: Context = ApplicationProvider.getApplicationContext()
   private val uid = "111test"
   private val userID = "testUser"
 
   @Before
   fun testSetup() {
+    val context: Context = ApplicationProvider.getApplicationContext()
 
     if (StreamVideo.isInstalled) {
       StreamVideo.removeClient()
@@ -63,13 +64,12 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
 
   @Test
   fun elementsAreDisplayed() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.VideoCallScreen>(
-        composeTestRule) {
-          runBlocking {
-            delay(15000) // Adjust the delay time as needed
-          }
-          callContent { assertIsDisplayed() }
-          controls { assertIsDisplayed() }
-        }
+    ComposeScreen.onComposeScreen<VideoCallScreen>(composeTestRule) {
+      runBlocking {
+        delay(15000) // Adjust the delay time as needed
+      }
+      callContent { assertIsDisplayed() }
+      controls { assertIsDisplayed() }
+    }
   }
 }
