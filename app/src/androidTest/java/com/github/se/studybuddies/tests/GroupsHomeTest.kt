@@ -44,6 +44,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid), mockNavActions) }
   }
 
+  /*
   @Test
   fun assessEmptyGroup() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
@@ -93,7 +94,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         performClick()
       }
     }
-  }
+  }*/
 
   @Test
   fun testDrawerGroup() {

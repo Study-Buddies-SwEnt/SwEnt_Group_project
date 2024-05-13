@@ -84,14 +84,14 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.padding(20.dp))
               GroupFields(nameState)
-              Spacer(modifier = Modifier.padding(20.dp))
+              Spacer(modifier = Modifier.padding(10.dp))
               SetProfilePicture(photoState) {
                 checkPermission(context, permission, requestPermissionLauncher) {
                   getContent.launch(imageInput)
                 }
               }
 
-              Spacer(modifier = Modifier.padding(20.dp))
+              Spacer(modifier = Modifier.padding(10.dp))
               SaveButton(nameState.value.isNotBlank()) {
                 groupViewModel.createGroup(nameState.value, photoState.value)
                 navigationActions.navigateTo(Route.GROUPSHOME)
