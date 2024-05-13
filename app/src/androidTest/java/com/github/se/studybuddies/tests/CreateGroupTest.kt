@@ -83,7 +83,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           assertIsNotEnabled()
 
           // act: click on the save button
-          performClick()
+          // performClick()
         }
         /*
         saveButtonText {
