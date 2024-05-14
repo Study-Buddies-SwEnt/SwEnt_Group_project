@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
@@ -44,7 +43,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           username = "testUser",
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-          location = R.string.offline.toString())
+          location = "offline")
   private val userVM = UserViewModel(uid)
   private val usersVM = UsersViewModel(uid)
 

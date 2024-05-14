@@ -217,7 +217,7 @@ fun UserLocationButton(
               }
               isTrackingOn.value = false
               Toast.makeText(context, R.string.location_service_stopped, Toast.LENGTH_SHORT).show()
-              UserViewModel().updateLocation(uid, R.string.offline.toString())
+              UserViewModel().updateLocation(uid, "offline")
               // In the case where nothing is wrong, we start the LocationService
             } else {
               Intent(context, LocationService::class.java).apply {
