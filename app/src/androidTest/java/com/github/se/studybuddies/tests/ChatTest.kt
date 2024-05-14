@@ -22,8 +22,6 @@ import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -77,9 +75,6 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   @Test
   fun testTitle() {
     onComposeScreen<ChatScreen>(composeTestRule) {
-      runBlocking {
-        delay(10000) // Adjust the delay time as needed
-      }
       chatGroupTitleImage { assertIsDisplayed() }
       chatGroupTitleText { assertIsDisplayed() }
       chatGroupTitleMembers { assertIsDisplayed() }

@@ -58,9 +58,6 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
   @Test
   fun elementsAreDisplayed() {
     onComposeScreen<MapScreen>(composeTestRule) {
-      runBlocking {
-        delay(10000) // Adjust the delay time as needed
-      }
       loading { assertIsDisplayed() }
       mapIcon { assertIsDisplayed() }
       mapScreen { assertIsDisplayed() }

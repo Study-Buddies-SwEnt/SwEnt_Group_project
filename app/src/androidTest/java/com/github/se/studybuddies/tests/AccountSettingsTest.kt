@@ -53,9 +53,6 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   fun topAppBar() = run {
     ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
       topAppBox {
-        runBlocking {
-          delay(10000) // Adjust the delay time as needed
-        }
         // arrange: verify pre-conditions
         assertIsDisplayed()
       }
