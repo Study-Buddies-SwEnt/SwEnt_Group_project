@@ -80,7 +80,6 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       chatGroupTitleText { assertIsDisplayed() }
       chatGroupTitleMembers { assertIsDisplayed() }
       chatGroupTitleMember { assertIsDisplayed() }
-
          */
     }
   }
