@@ -1,8 +1,6 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
@@ -29,8 +27,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -86,7 +84,7 @@ class DatabaseConnection {
   }
 
   suspend fun getAllFriends(uid: String): List<User> {
-    try {
+    return try {
       val snapshot = userDataCollection.document(uid).get().await()
       val snapshotQuery = userDataCollection.get().await()
       val items = mutableListOf<User>()
@@ -97,14 +95,14 @@ class DatabaseConnection {
           val id = item.id
           items.add(getUser(id))
         }
-        return items
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
       }
+      items
     } catch (e: Exception) {
       Log.d("MyPrint", "Could not fetch friends with error: $e")
+      emptyList()
     }
-    return emptyList()
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -569,12 +567,8 @@ class DatabaseConnection {
       chatType: ChatType,
       additionalUID: String = ""
   ) {
-    val messagePath =
-        if (chatType == ChatType.TOPIC) {
-          getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-        } else {
-          getMessagePath(chatUID, chatType) + "/${message.uid}"
-        }
+    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
+
     val messageData =
         mutableMapOf(
             MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
@@ -689,118 +683,98 @@ class DatabaseConnection {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun getPrivateChatsList(userUID: String, liveData: MutableStateFlow<List<Chat>>) {
+  fun subscribeToPrivateChats(
+      userUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (List<Chat>) -> Unit
+  ) {
     val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
 
     ref.addValueEventListener(
         object : ValueEventListener {
-          private var handler = Handler(Looper.getMainLooper())
-          private var runnable: Runnable? = null
-
           override fun onDataChange(snapshot: DataSnapshot) {
-            runnable?.let { handler.removeCallbacks(it) }
-            runnable = Runnable {
-              CoroutineScope(Dispatchers.IO).launch {
-                val chatList = mutableListOf<Chat>()
-
-                snapshot.children.forEach { chat ->
-                  val members = chat.child(ChatVal.MEMBERS).children.map { it.key }.toList()
-                  if (userUID in members) {
-                    val otherUserId = members.first { it != userUID }
-
-                    Log.d("MyPrint", "Found chat with other user ID: $otherUserId")
-
-                    if (otherUserId != null) {
-                      getUser(otherUserId).let { otherUser ->
-                        val messages = MutableStateFlow<List<Message>>(emptyList())
-                        getMessages(chat.key ?: "", ChatType.PRIVATE, messages)
-                        val newChat =
-                            Chat(
-                                uid = chat.key ?: "",
-                                name = otherUser.username,
-                                picture = otherUser.photoUrl,
-                                type = ChatType.PRIVATE,
-                                members = listOf(otherUser, getUser(userUID)))
-                        chatList.add(newChat)
+            scope.launch(ioDispatcher) {
+              val chatList =
+                  snapshot.children.mapNotNull { chat ->
+                    val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
+                    if (userUID in members) {
+                      val otherUserId = members.firstOrNull { it != userUID }
+                      otherUserId?.let { userId ->
+                        val otherUser = getUser(userId)
+                        val currentUser = getUser(userUID)
+                        Chat(
+                            uid = chat.key ?: "",
+                            name = otherUser.username,
+                            picture = otherUser.photoUrl,
+                            type = ChatType.PRIVATE,
+                            members = listOf(otherUser, currentUser))
                       }
+                    } else {
+                      null
                     }
                   }
-                }
 
-                withContext(Dispatchers.Main) { liveData.value = chatList }
-              }
+              withContext(mainDispatcher) { onUpdate(chatList.sortedBy { it.name }) }
             }
-            handler.postDelayed(runnable!!, 1000)
           }
 
           override fun onCancelled(error: DatabaseError) {
-            Log.w(
-                "DatabaseConnection - getPrivateChatsList()",
-                "Failed to read value.",
-                error.toException())
+            println("Database read failed: " + error.code)
           }
         })
   }
 
-  fun getMessages(uid: String, chatType: ChatType, liveData: MutableStateFlow<List<Message>>) {
-    val ref = rtDb.getReference(getMessagePath(uid, chatType))
+  fun getMessages(
+      chat: Chat,
+      liveData: MutableStateFlow<List<Message>>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher
+  ) {
+    val ref = rtDb.getReference(getMessagePath(chat.uid, chat.type, chat.additionalUID))
 
     ref.addValueEventListener(
         object : ValueEventListener {
-          private var handler = Handler(Looper.getMainLooper())
-          private var runnable: Runnable? = null
-
           override fun onDataChange(snapshot: DataSnapshot) {
-            runnable?.let { handler.removeCallbacks(it) }
-            runnable = Runnable {
-              CoroutineScope(Dispatchers.IO).launch {
-                val newMessages = mutableListOf<Message>()
-
-                // Process snapshot data to fetch user details and create message objects
-                for (postSnapshot in snapshot.children) {
-                  val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
-                  val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLong()
-
-                  val user = getUser(senderUID)
-                  val type = postSnapshot.child(MessageVal.TYPE).value.toString()
-                  when (type) {
-                    MessageVal.TEXT -> {
-                      val text = postSnapshot.child(MessageVal.TEXT).value.toString()
-                      val message =
-                          Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
-                      newMessages.add(message)
-                    }
-                    MessageVal.PHOTO -> {
-                      val photoUri =
-                          Uri.parse(postSnapshot.child(MessageVal.PHOTO).value.toString())
-                      val message =
-                          Message.PhotoMessage(
-                              postSnapshot.key.toString(), photoUri, user, timestamp)
-                      newMessages.add(message)
-                    }
-                    MessageVal.FILE -> {
-                      val fileUri = Uri.parse(postSnapshot.child(MessageVal.FILE).value.toString())
-                      val message =
-                          Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
-                      newMessages.add(message)
-                    }
-                    MessageVal.LINK -> {
-                      val linkUri = Uri.parse(postSnapshot.child(MessageVal.LINK).value.toString())
-                      val message =
-                          Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
-                      newMessages.add(message)
-                    }
-                    else -> {
-                      Log.d("MyPrint", "Message type not recognized")
+            CoroutineScope(ioDispatcher).launch {
+              val newMessages =
+                  snapshot.children.mapNotNull { postSnapshot ->
+                    val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
+                    val timestamp =
+                        postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLongOrNull()
+                            ?: return@mapNotNull null
+                    val user = getUser(senderUID)
+                    when (val type = postSnapshot.child(MessageVal.TYPE).value.toString()) {
+                      MessageVal.TEXT -> {
+                        val text = postSnapshot.child(MessageVal.TEXT).value.toString()
+                        Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
+                      }
+                      MessageVal.PHOTO -> {
+                        val photoUri =
+                            postSnapshot.child(MessageVal.PHOTO).value.toString().let(Uri::parse)
+                        Message.PhotoMessage(postSnapshot.key.toString(), photoUri, user, timestamp)
+                      }
+                      MessageVal.FILE -> {
+                        val fileUri =
+                            postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
+                        Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                      }
+                      MessageVal.LINK -> {
+                        val linkUri =
+                            postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
+                        Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                      }
+                      else -> {
+                        Log.d("MyPrint", "Message type not recognized: $type")
+                        null
+                      }
                     }
                   }
-                }
 
-                // Post new message list to the main thread to update the UI
-                withContext(Dispatchers.Main) { liveData.value = newMessages }
-              }
+              // Post new message list to the main thread to update the UI
+              withContext(mainDispatcher) { liveData.value = newMessages }
             }
-            handler.postDelayed(runnable!!, 500)
           }
 
           override fun onCancelled(error: DatabaseError) {

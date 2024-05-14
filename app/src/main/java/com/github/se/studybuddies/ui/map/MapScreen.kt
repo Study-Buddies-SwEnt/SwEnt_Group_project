@@ -51,7 +51,6 @@ import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.Red
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -62,7 +61,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @SuppressLint("InlinedApi", "CoroutineCreationDuringComposition")
 @Composable
@@ -242,7 +240,7 @@ fun FriendsLocationButton(
     usersViewModel: UsersViewModel,
     friendsData: MutableState<List<User>>,
 ) {
-  val friends by usersViewModel.friends.collectAsState()
+  val friends by usersViewModel.friends_old.collectAsState()
   friendsData.value = friends
 
   val isLoading = remember { mutableStateOf(true) }
