@@ -18,8 +18,6 @@ import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -74,7 +72,7 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   @Test
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<VideoCallScreen>(composeTestRule) {
-        /*
+      /*
       runBlocking {
         delay(6000) // Adjust the delay time as needed
       }
