@@ -67,6 +67,10 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
     viewModelScope.launch { db.removeUserFromGroup(groupUID, userUID) }
   }
 
+  fun deleteGroup(groupUID: String) {
+    viewModelScope.launch { db.deleteGroup(groupUID) }
+  }
+
   fun addUserToGroup(groupUID: String, text: String = "") {
     viewModelScope.launch { db.addUserToGroup(groupUID, text) }
   }
