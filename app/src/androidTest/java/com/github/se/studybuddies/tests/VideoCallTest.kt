@@ -75,7 +75,7 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<VideoCallScreen>(composeTestRule) {
       runBlocking {
-        delay(10000) // Adjust the delay time as needed
+        delay(6000) // Adjust the delay time as needed
       }
       callContent { assertIsDisplayed() }
       controls { assertIsDisplayed() }
