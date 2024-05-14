@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +34,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class DatabaseConnection {
 
@@ -730,52 +730,63 @@ class DatabaseConnection {
         })
   }
 
-    fun getMessages(chat: Chat, liveData: MutableStateFlow<List<Message>>, ioDispatcher: CoroutineDispatcher, mainDispatcher: CoroutineDispatcher) {
-        val ref = rtDb.getReference(getMessagePath(chat.uid, chat.type, chat.additionalUID))
+  fun getMessages(
+      chat: Chat,
+      liveData: MutableStateFlow<List<Message>>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher
+  ) {
+    val ref = rtDb.getReference(getMessagePath(chat.uid, chat.type, chat.additionalUID))
 
-        ref.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                CoroutineScope(ioDispatcher).launch {
-                    val newMessages = snapshot.children.mapNotNull { postSnapshot ->
-                        val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
-                        val timestamp = postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLongOrNull() ?: return@mapNotNull null
-                        val user = getUser(senderUID)
-                        when (val type = postSnapshot.child(MessageVal.TYPE).value.toString()) {
-                            MessageVal.TEXT -> {
-                                val text = postSnapshot.child(MessageVal.TEXT).value.toString()
-                                Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
-                            }
-                            MessageVal.PHOTO -> {
-                                val photoUri = postSnapshot.child(MessageVal.PHOTO).value.toString().let(Uri::parse)
-                                Message.PhotoMessage(postSnapshot.key.toString(), photoUri, user, timestamp)
-                            }
-                            MessageVal.FILE -> {
-                                val fileUri = postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                                Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
-                            }
-                            MessageVal.LINK -> {
-                                val linkUri = postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                                Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
-                            }
-                            else -> {
-                                Log.d("MyPrint", "Message type not recognized: $type")
-                                null
-                            }
-                        }
+    ref.addValueEventListener(
+        object : ValueEventListener {
+          override fun onDataChange(snapshot: DataSnapshot) {
+            CoroutineScope(ioDispatcher).launch {
+              val newMessages =
+                  snapshot.children.mapNotNull { postSnapshot ->
+                    val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
+                    val timestamp =
+                        postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLongOrNull()
+                            ?: return@mapNotNull null
+                    val user = getUser(senderUID)
+                    when (val type = postSnapshot.child(MessageVal.TYPE).value.toString()) {
+                      MessageVal.TEXT -> {
+                        val text = postSnapshot.child(MessageVal.TEXT).value.toString()
+                        Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
+                      }
+                      MessageVal.PHOTO -> {
+                        val photoUri =
+                            postSnapshot.child(MessageVal.PHOTO).value.toString().let(Uri::parse)
+                        Message.PhotoMessage(postSnapshot.key.toString(), photoUri, user, timestamp)
+                      }
+                      MessageVal.FILE -> {
+                        val fileUri =
+                            postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
+                        Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                      }
+                      MessageVal.LINK -> {
+                        val linkUri =
+                            postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
+                        Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                      }
+                      else -> {
+                        Log.d("MyPrint", "Message type not recognized: $type")
+                        null
+                      }
                     }
+                  }
 
-                    // Post new message list to the main thread to update the UI
-                    withContext(mainDispatcher) {
-                        liveData.value = newMessages
-                    }
-                }
+              // Post new message list to the main thread to update the UI
+              withContext(mainDispatcher) { liveData.value = newMessages }
             }
+          }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
-            }
+          override fun onCancelled(error: DatabaseError) {
+            Log.w(
+                "DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
+          }
         })
-    }
+  }
 
   private fun checkForExistingChat(
       currentUserUID: String,

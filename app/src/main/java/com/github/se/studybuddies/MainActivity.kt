@@ -151,8 +151,7 @@ class MainActivity : ComponentActivity() {
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
                     val groupViewModel = remember { GroupViewModel(groupUID) }
-                    GroupScreen(
-                        groupUID, groupViewModel, chatViewModel, navigationActions)
+                    GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -174,11 +173,7 @@ class MainActivity : ComponentActivity() {
                   val currentUser = remember { auth.currentUser }
                   if (backRoute != null && currentUser != null) {
                     val userViewModel = remember { UserViewModel(currentUser.uid) }
-                    AccountSettings(
-                        currentUser.uid,
-                        userViewModel,
-                        backRoute,
-                        navigationActions)
+                    AccountSettings(currentUser.uid, userViewModel, backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
@@ -249,8 +244,8 @@ class MainActivity : ComponentActivity() {
 
             composable(Route.CREATETODO) {
               if (auth.currentUser != null) {
-                  val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
-                  CreateToDo(toDoListViewModel, navigationActions)
+                val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
+                CreateToDo(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateToDo")
               }
             }
@@ -261,8 +256,8 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
                   if (todoUID != null) {
-                      val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
-                      EditToDoScreen(todoUID, toDoListViewModel, navigationActions)
+                    val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
+                    EditToDoScreen(todoUID, toDoListViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
                   }
                 }
@@ -294,7 +289,7 @@ class MainActivity : ComponentActivity() {
                 val call = StreamVideo.instance().call("default", callID)
                 val currentUser = remember { auth.currentUser }
                 if (currentUser != null) {
-                    val videoCallViewModel = remember { VideoCallViewModel(call, currentUser.uid) }
+                  val videoCallViewModel = remember { VideoCallViewModel(call, currentUser.uid) }
                   VideoCallScreen(videoCallViewModel, navigationActions)
                   Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
                 }
