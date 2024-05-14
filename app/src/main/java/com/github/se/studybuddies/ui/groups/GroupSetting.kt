@@ -112,9 +112,7 @@ fun GroupSetting(
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
-            actions = {
-                GroupsSettingsButton(groupUID, navigationActions)
-            })
+            actions = { GroupsSettingsButton(groupUID, navigationActions) })
       }) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize(),

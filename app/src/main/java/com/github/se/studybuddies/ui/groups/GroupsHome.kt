@@ -146,42 +146,44 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
   val groupViewModel = GroupViewModel(groupUID)
-  IconButton(
-      modifier = Modifier.testTag("GroupsSettingsButton"),
-      onClick = { expandedState.value = true },
-  ) {
-    Icon(
-        imageVector = Icons.Default.MoreVert,
-        tint = Blue,
-        contentDescription = stringResource(R.string.dots_menu))
-  }
-  DropdownMenu(
-      expanded = expandedState.value,
-      onDismissRequest = { expandedState.value = false },
-      modifier = Modifier.testTag("DropDownMenuText")) {
-        GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
-          DropdownMenuItem(
-              modifier =
-                  Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
-              onClick = {
-                expandedState.value = false
-                when (item.route) {
-                  Route.LEAVEGROUP -> {
-                    isLeaveGroupDialogVisible = true
+  Row {
+    IconButton(
+        modifier = Modifier.testTag("GroupsSettingsButton"),
+        onClick = { expandedState.value = true },
+    ) {
+      Icon(
+          imageVector = Icons.Default.MoreVert,
+          tint = Blue,
+          contentDescription = stringResource(R.string.dots_menu))
+    }
+    DropdownMenu(
+        expanded = expandedState.value,
+        onDismissRequest = { expandedState.value = false },
+        modifier = Modifier.testTag("DropDownMenuText")) {
+          GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
+            DropdownMenuItem(
+                modifier =
+                    Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
+                onClick = {
+                  expandedState.value = false
+                  when (item.route) {
+                    Route.LEAVEGROUP -> {
+                      isLeaveGroupDialogVisible = true
+                    }
+                    Route.DELETEGROUP -> {
+                      isDeleteGroupDialogVisible = true
+                    }
+                    else -> {
+                      navigationActions.navigateTo("${item.route}/$groupUID")
+                    }
                   }
-                  Route.DELETEGROUP -> {
-                    isDeleteGroupDialogVisible = true
-                  }
-                  else -> {
-                    navigationActions.navigateTo("${item.route}/$groupUID")
-                  }
+                }) {
+                  Spacer(modifier = Modifier.size(16.dp))
+                  Text(item.textId)
                 }
-              }) {
-                Spacer(modifier = Modifier.size(16.dp))
-                Text(item.textId)
-              }
+          }
         }
-      }
+  }
   if (isLeaveGroupDialogVisible) {
     Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
       Box(
@@ -375,8 +377,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        singleLine = true,
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
         colors =
             TextFieldDefaults.colors(
                 focusedContainerColor = White,
