@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.screens.VideoCallScreen
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
@@ -40,6 +41,13 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   @Before
   fun testSetup() {
     val context: Context = ApplicationProvider.getApplicationContext()
+    InstrumentationRegistry.getInstrumentation()
+        .uiAutomation
+        .grantRuntimePermission("com.github.se.studybuddies.tests", "android.permission.CAMERA")
+    InstrumentationRegistry.getInstrumentation()
+        .uiAutomation
+        .grantRuntimePermission(
+            "com.github.se.studybuddies.tests", "android.permission.RECORD_AUDIO")
 
     if (StreamVideo.isInstalled) {
       StreamVideo.removeClient()

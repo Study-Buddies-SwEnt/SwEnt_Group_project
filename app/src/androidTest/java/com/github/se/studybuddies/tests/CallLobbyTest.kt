@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.CallLobbyScreen
@@ -28,7 +29,6 @@ import org.junit.runner.RunWith
 class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
 
   @get:Rule val composeTestRule = createComposeRule()
-  @get:Rule val mockkRule = MockKRule(this)
 
   @get:Rule
   val permissionRule: GrantPermissionRule =
@@ -37,6 +37,7 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
           android.Manifest.permission.RECORD_AUDIO,
       )
 
+  @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val uid = "111test"
@@ -45,6 +46,13 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   @Before
   fun setup() {
     val context: Context = ApplicationProvider.getApplicationContext()
+    getInstrumentation()
+        .uiAutomation
+        .grantRuntimePermission("com.github.se.studybuddies.tests", "android.permission.CAMERA")
+    getInstrumentation()
+        .uiAutomation
+        .grantRuntimePermission(
+            "com.github.se.studybuddies.tests", "android.permission.RECORD_AUDIO")
     StreamVideoBuilder(
             context = context,
             apiKey = "x52wgjq8qyfc",
