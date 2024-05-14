@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -20,7 +21,8 @@ class DirectMessageViewModel(userUid: String = "") : ViewModel() {
     viewModelScope.launch {
       _userUid.collect { userUid ->
         if (userUid.isNotEmpty()) {
-          db.subscribeToPrivateChats(userUid, viewModelScope) { chats ->
+          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main) {
+              chats ->
             _directMessages.value = chats
           }
         }

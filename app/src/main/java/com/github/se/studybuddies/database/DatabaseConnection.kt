@@ -29,7 +29,6 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -687,6 +686,8 @@ class DatabaseConnection {
   fun subscribeToPrivateChats(
       userUID: String,
       scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
       onUpdate: (List<Chat>) -> Unit
   ) {
     val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
@@ -694,37 +695,32 @@ class DatabaseConnection {
     ref.addValueEventListener(
         object : ValueEventListener {
           override fun onDataChange(snapshot: DataSnapshot) {
-            scope.launch(Dispatchers.IO) { // Using the passed scope to launch a coroutine
-              val chatList = mutableListOf<Chat>()
-              snapshot.children.forEach { chat ->
-                val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
-                if (userUID in members) {
-                  val otherUserId = members.firstOrNull { it != userUID }
-                  otherUserId?.let { userId ->
-                    val otherUser = getUser(userId) // Assume getUser is a suspend function
-                    val newChat =
+            scope.launch(ioDispatcher) {
+              val chatList =
+                  snapshot.children.mapNotNull { chat ->
+                    val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
+                    if (userUID in members) {
+                      val otherUserId = members.firstOrNull { it != userUID }
+                      otherUserId?.let { userId ->
+                        val otherUser = getUser(userId)
+                        val currentUser = getUser(userUID)
                         Chat(
                             uid = chat.key ?: "",
                             name = otherUser.username,
                             picture = otherUser.photoUrl,
                             type = ChatType.PRIVATE,
-                            members =
-                                listOf(
-                                    otherUser,
-                                    getUser(
-                                        userUID)) // Assuming getUser is non-blocking and correct
-                            // context handling
-                            )
-                    chatList.add(newChat)
+                            members = listOf(otherUser, currentUser))
+                      }
+                    } else {
+                      null
+                    }
                   }
-                }
-              }
-              withContext(Dispatchers.Main) { onUpdate(chatList.sortedBy { it.name }) }
+
+              withContext(mainDispatcher) { onUpdate(chatList.sortedBy { it.name }) }
             }
           }
 
           override fun onCancelled(error: DatabaseError) {
-            // Handle potential errors
             println("Database read failed: " + error.code)
           }
         })

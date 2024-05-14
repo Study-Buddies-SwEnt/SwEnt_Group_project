@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
           }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              val currentUser = auth.currentUser
+              val currentUser = remember { auth.currentUser }
               if (currentUser != null) {
                 db.userExists(
                     uid = db.getCurrentUserUID(),
@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
               LoginScreen(navigationActions)
             }
             composable(Route.GROUPSHOME) {
-              val currentUser = auth.currentUser
+              val currentUser = remember { auth.currentUser }
               if (currentUser != null) {
                 val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid) }
                 GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions)
@@ -137,7 +137,7 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.CALENDAR) {
-              val currentUser = auth.currentUser
+              val currentUser = remember { auth.currentUser }
               if (currentUser != null) {
                 val calendarViewModel = remember { CalendarViewModel() }
                 CalendarApp(calendarViewModel, navigationActions)
