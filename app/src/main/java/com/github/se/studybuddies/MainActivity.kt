@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
@@ -219,8 +220,9 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CHAT) {
-              ChatScreen(
-                  MessageViewModel(chatViewModel.getChat() ?: Chat.empty()), navigationActions)
+              val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
+              val messageViewModel = remember { MessageViewModel(chat) }
+              ChatScreen(messageViewModel, navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
               if (auth.currentUser != null) {
