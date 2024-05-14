@@ -20,6 +20,7 @@ import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,5 +80,10 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
       callContent { assertIsDisplayed() }
       controls { assertIsDisplayed() }
     }
+  }
+
+  @After
+  fun afterTest() {
+    StreamVideo.removeClient()
   }
 }

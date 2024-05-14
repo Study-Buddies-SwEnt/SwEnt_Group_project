@@ -13,11 +13,13 @@ import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
+import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,6 +53,9 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
         .uiAutomation
         .grantRuntimePermission(
             "com.github.se.studybuddies.tests", "android.permission.RECORD_AUDIO")
+    if (StreamVideo.isInstalled) {
+      StreamVideo.removeClient()
+    }
     StreamVideoBuilder(
             context = context,
             apiKey = "x52wgjq8qyfc",
@@ -85,5 +90,10 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
 
          */
     }
+  }
+
+  @After
+  fun afterTest() {
+    StreamVideo.removeClient()
   }
 }
