@@ -10,6 +10,7 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -28,7 +29,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   }
 
   private fun getMessage() {
-    db.getMessages(chat.uid, chat.type, _messages)
+    db.getMessages(chat, _messages, Dispatchers.IO, Dispatchers.Main)
   }
 
   private fun getCurrentUser() {
