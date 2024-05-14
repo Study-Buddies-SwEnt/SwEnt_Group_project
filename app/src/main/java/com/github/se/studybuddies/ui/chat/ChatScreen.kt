@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -430,7 +431,7 @@ fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: Muta
                       },
                       modifier = Modifier.padding(8.dp)) {
                         Icon(
-                            imageVector = Icons.Outlined.Add,
+                            painter = painterResource(id = R.drawable.image_24px),
                             contentDescription = stringResource(R.string.app_name),
                             tint = Blue)
                       }
