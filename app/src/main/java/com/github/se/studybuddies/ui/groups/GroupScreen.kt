@@ -99,10 +99,7 @@ fun GroupScreen(
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
             actions = {
-              Icon(
-                  imageVector = Icons.Default.MoreVert,
-                  tint = Blue,
-                  contentDescription = stringResource(R.string.group_option))
+                GroupsSettingsButton(groupUID, navigationActions)
             })
       },
       floatingActionButton = {

@@ -61,7 +61,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.wear.compose.material.dialog.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
@@ -153,6 +152,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
   ) {
     Icon(
         imageVector = Icons.Default.MoreVert,
+        tint = Blue,
         contentDescription = stringResource(R.string.dots_menu))
   }
   DropdownMenu(
@@ -196,6 +196,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
                       text = stringResource(R.string.warning_leave_group),
+                      color = Blue,
                       modifier = Modifier.testTag("LeaveGroupDialogText"))
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
@@ -249,10 +250,12 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                   Text(
                       text = stringResource(R.string.warning_1_group_deletion),
                       modifier = Modifier.testTag("DeleteGroupDialogText"),
+                      color = Blue,
                       textAlign = TextAlign.Center)
                   Text(
                       text = stringResource(R.string.warning_2_group_deletion),
                       modifier = Modifier.testTag("DeleteGroupDialogText2"),
+                      color = Blue,
                       textAlign = TextAlign.Center)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
@@ -352,7 +355,6 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var text by remember { mutableStateOf("") }
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
-  val scope = rememberCoroutineScope()
   var showSucces by remember { mutableStateOf(false) }
 
   Row(
