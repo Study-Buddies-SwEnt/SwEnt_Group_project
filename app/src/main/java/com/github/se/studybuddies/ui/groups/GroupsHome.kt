@@ -102,18 +102,20 @@ fun GroupsHome(
       Route.GROUPSHOME,
       content = { innerPadding ->
         if (isLoading) {
-          Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+          Box(modifier = Modifier.fillMaxSize().testTag("GroupsBox")) {
+            CircularProgressIndicator(
+                modifier = Modifier.testTag("CircularLoading").align(Alignment.Center))
           }
         } else if (groupList.value.isEmpty()) {
           Column(
-              modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
+              modifier = Modifier.fillMaxSize().testTag("GroupEmpty"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
                     stringResource(R.string.join_or_create_a_new_group),
-                    textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag("EmptyGroupText"))
                 Spacer(modifier = Modifier.height(80.dp))
                 AddGroupButton(navigationActions = navigationActions)
                 AddLinkButton(navigationActions = navigationActions)
@@ -125,7 +127,7 @@ fun GroupsHome(
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
             LazyColumn(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("GroupsList"),
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
@@ -143,6 +145,7 @@ fun GroupsHome(
 @Composable
 fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions) {
   var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
+  var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
   val groupViewModel = GroupViewModel(groupUID)
   IconButton(
@@ -163,10 +166,16 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                   Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
               onClick = {
                 expandedState.value = false
-                if (item.route == Route.LEAVEGROUP) {
-                  isLeaveGroupDialogVisible = true
-                } else {
-                  navigationActions.navigateTo("${item.route}/$groupUID")
+                when (item.route) {
+                  Route.LEAVEGROUP -> {
+                    isLeaveGroupDialogVisible = true
+                  }
+                  Route.DELETEGROUP -> {
+                    isDeleteGroupDialogVisible = true
+                  }
+                  else -> {
+                    navigationActions.navigateTo("${item.route}/$groupUID")
+                  }
                 }
               }) {
                 Spacer(modifier = Modifier.size(16.dp))
@@ -187,7 +196,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
-                      text = "Are you sure you want to leave the group ?",
+                      text = stringResource(R.string.warning_leave_group),
                       modifier = Modifier.testTag("LeaveGroupDialogText"))
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
@@ -206,8 +215,8 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                                     .testTag("LeaveGroupDialogYesButton"),
                             colors =
                                 ButtonDefaults.buttonColors(
-                                    containerColor = Blue, contentColor = Color.Red)) {
-                              Text(text = "Yes")
+                                    containerColor = Color.Red, contentColor = White)) {
+                              Text(text = stringResource(R.string.yes))
                             }
 
                         Button(
@@ -219,8 +228,65 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                                     .testTag("LeaveGroupDialogNoButton"),
                             colors =
                                 ButtonDefaults.buttonColors(
-                                    containerColor = Blue, contentColor = Color.White)) {
-                              Text(text = "No")
+                                    containerColor = Blue, contentColor = White)) {
+                              Text(text = stringResource(R.string.no))
+                            }
+                      }
+                }
+          }
+    }
+  } else if (isDeleteGroupDialogVisible) {
+    Dialog(onDismissRequest = { isDeleteGroupDialogVisible = false }) {
+      Box(
+          modifier =
+              Modifier.width(300.dp)
+                  .height(200.dp)
+                  .clip(RoundedCornerShape(12.dp))
+                  .background(Color.White)) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                  Text(
+                      text = stringResource(R.string.warning_1_group_deletion),
+                      modifier = Modifier.testTag("DeleteGroupDialogText"),
+                      textAlign = TextAlign.Center)
+                  Text(
+                      text = stringResource(R.string.warning_2_group_deletion),
+                      modifier = Modifier.testTag("DeleteGroupDialogText2"),
+                      textAlign = TextAlign.Center)
+                  Spacer(modifier = Modifier.height(20.dp))
+                  Row(
+                      modifier = Modifier.fillMaxWidth(),
+                      horizontalArrangement = Arrangement.SpaceEvenly) {
+                        Button(
+                            onClick = {
+                              groupViewModel.deleteGroup(groupUID)
+                              navigationActions.navigateTo(Route.GROUPSHOME)
+                              isDeleteGroupDialogVisible = false
+                            },
+                            modifier =
+                                Modifier.clip(RoundedCornerShape(4.dp))
+                                    .width(80.dp)
+                                    .height(40.dp)
+                                    .testTag("DeleteGroupDialogYesButton"),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red, contentColor = White)) {
+                              Text(text = stringResource(R.string.yes))
+                            }
+
+                        Button(
+                            onClick = { isDeleteGroupDialogVisible = false },
+                            modifier =
+                                Modifier.clip(RoundedCornerShape(4.dp))
+                                    .width(80.dp)
+                                    .height(40.dp)
+                                    .testTag("DeleteGroupDialogNoButton"),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Blue, contentColor = White)) {
+                              Text(text = stringResource(R.string.no))
                             }
                       }
                 }
@@ -244,7 +310,8 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
                 val strokeWidth = 1f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }) {
+              }
+              .testTag(group.name + "_box")) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
@@ -268,16 +335,21 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 @Composable
 fun AddGroupButton(navigationActions: NavigationActions) {
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddGroupRow"),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .testTag("AddGroupButton")) {
               Icon(
                   imageVector = Icons.Default.Add,
                   contentDescription = stringResource(R.string.create_a_task),
-                  tint = White)
+                  tint = White,
+                  modifier = Modifier.testTag("AddGroupIcon"))
             }
       }
 }
@@ -291,16 +363,21 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var showSucces by remember { mutableStateOf(false) }
 
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddLinkRow"),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = !isTextFieldVisible },
-            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+            modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .testTag("AddLinkButton")) {
               Icon(
                   imageVector = Icons.Default.Share,
                   contentDescription = stringResource(R.string.link_button),
-                  tint = White)
+                  tint = White,
+                  modifier = Modifier.testTag("AddLinkIcon"))
             }
       }
   if (isTextFieldVisible) {
@@ -308,7 +385,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp).testTag("AddLinkTextField"),
         singleLine = true,
         colors =
             TextFieldDefaults.colors(
