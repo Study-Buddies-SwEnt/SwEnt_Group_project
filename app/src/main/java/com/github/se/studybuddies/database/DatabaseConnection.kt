@@ -545,7 +545,24 @@ class DatabaseConnection {
       groupDataCollection
           .document(groupUID)
           .delete()
-          .addOnSuccessListener { Log.d("Deletion", "User successfully removed from group") }
+          .addOnSuccessListener {
+            storage
+                .child("groupData/$groupUID")
+                .delete()
+                .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
+                .addOnFailureListener { e ->
+                  Log.d("Deletion", "Failed to delete group picture with error: ", e)
+                }
+
+            storage
+                .child("chatData/$groupUID")
+                .delete()
+                .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
+                .addOnFailureListener { e ->
+                  Log.d("Deletion", "Failed to delete group picture with error: ", e)
+                }
+            Log.d("Deletion", "User successfully removed from group")
+          }
           .addOnFailureListener { e ->
             Log.d("Deletion", "Failed to remove user from group with error: ", e)
           }
@@ -562,18 +579,26 @@ class DatabaseConnection {
 
   suspend fun deleteGroup(groupUID: String) {
 
-    // todo delete topics and messages
-
     val document = groupDataCollection.document(groupUID).get().await()
     val members = document.get("members") as? List<String> ?: emptyList()
 
-    storage
-        .child("groupData/$groupUID")
-        .delete()
-        .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
-        .addOnFailureListener { e ->
-          Log.d("Deletion", "Failed to delete group picture with error: ", e)
-        }
+    if (groupUID != "") {
+      storage
+          .child("groupData/$groupUID")
+          .delete()
+          .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
+          .addOnFailureListener { e ->
+            Log.d("Deletion", "Failed to delete group picture with error: ", e)
+          }
+
+      storage
+          .child("chatData/$groupUID")
+          .delete()
+          .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
+          .addOnFailureListener { e ->
+            Log.d("Deletion", "Failed to delete group picture with error: ", e)
+          }
+    }
 
     if (members.isNotEmpty()) {
       val listSize = members.size

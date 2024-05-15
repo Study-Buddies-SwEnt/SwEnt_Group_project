@@ -27,7 +27,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(
-                  modifier = Modifier.fillMaxWidth(),
+                  modifier = Modifier.fillMaxWidth().testTag("solo_study_row1"),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
                     Solo_study_buttons(navigationActions, option = FLASH_CARD)
                     Solo_study_buttons(navigationActions, option = TODO_LIST)
@@ -35,7 +35,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
 
               Spacer(modifier = Modifier.height(100.dp))
               Row(
-                  modifier = Modifier.fillMaxWidth(),
+                  modifier = Modifier.fillMaxWidth().testTag("solo_study_row2"),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
                     Solo_study_buttons(navigationActions, option = CALENDAR)
                     Solo_study_buttons(navigationActions, option = TIMER)

@@ -92,6 +92,5 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         }
     // verify { mockNavActions.navigateTo(Route.LOGIN) }
     // confirmVerified(mockNavActions)
-
   }
 }
