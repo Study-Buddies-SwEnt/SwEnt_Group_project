@@ -30,7 +30,7 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  val uid = "111testUser"
+  val uid = "userTest"
   var userVM = UserViewModel(uid)
 
   @Before
