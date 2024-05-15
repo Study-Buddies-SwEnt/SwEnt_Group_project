@@ -52,6 +52,7 @@ class DatabaseConnection {
   private val topicDataCollection = db.collection("topicData")
   private val topicItemCollection = db.collection("topicItemData")
   private val contactDataCollection = db.collection("contactData")
+  private val userContactsCollection = db.collection("userContacts")
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
@@ -1116,27 +1117,6 @@ class DatabaseConnection {
   }
 
   suspend fun getAllContacts(uid: String): List<Contact> {
-    try {
-      val snapshot = contactDataCollection.document(uid).get().await()
-      val items = mutableListOf<Contact>()
-
-      if (snapshot.exists()) {
-        val contactUIDs = snapshot.data?.get("contacts") as? List<String>
-        contactUIDs?.let { contactsIDs ->
-          contactsIDs.forEach { contactUID ->
-            val document = contactDataCollection.document(contactUID).get().await()
-            val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
-            items.add(Contact(contactUID, members))
-          }
-        }
-        return ContactList(items).getFilteredTasks(getCurrentUserUID())
-      } else {
-        Log.d("MyPrint", "User with uid $uid does not exist")
-        return emptyList()
-      }
-    } catch (e: Exception) {
-      Log.d("MyPrint", "In ViewModel, could not fetch contacts with error: $e")
-    }
     return emptyList()
   }
 
@@ -1155,9 +1135,28 @@ class DatabaseConnection {
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
     val contact = hashMapOf("members" to listOf(uid, otherUID))
-    contactDataCollection.add(contact).addOnFailureListener { e ->
+      //updating contacts collection
+    contactDataCollection
+        .add(contact)
+        .addOnFailureListener { e ->
       Log.d("MyPrint", "Failed to create contact with error: ", e)
     }
+      //updating current user's list of contacts
+    userContactsCollection
+        .document(uid)
+        .update("contacts", FieldValue.arrayUnion(otherUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Contact successfully added to userContacts") }
+        .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+        }
+      //updating other user's list of contacts
+    userContactsCollection
+        .document(otherUID)
+        .update("contacts", FieldValue.arrayUnion(uid))
+        .addOnSuccessListener { Log.d("MyPrint", "Contact successfully added to userContacts") }
+        .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+        }
   }
 
   suspend fun deleteContact(contactUID: String, userUID: String = "") {
