@@ -45,7 +45,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   lateinit var navigationActions: NavigationActions
 
   // Use the userTest created manually in the database
-  private val uid = "userTest"
+  private val uid = "userTestE2E"
   private val userTest =
       User(
           uid = uid,
@@ -117,8 +117,8 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       // saveButton { assertIsNotEnabled() }
       usernameField {
         performTextClearance()
-        performTextInput("UserTest")
-        assertTextContains("UserTest")
+        performTextInput("UserTestE2E")
+        assertTextContains("UserTestE2E")
       }
       Espresso.closeSoftKeyboard()
       // saveButton { performClick() }

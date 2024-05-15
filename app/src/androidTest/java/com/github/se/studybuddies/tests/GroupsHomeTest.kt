@@ -23,8 +23,6 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +34,8 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
-
+  // userTest
+  // aloneUserTest
   val uid = "aloneUserTest"
 
   @Before
@@ -176,11 +175,13 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  val uid = "userTest"
+  // Use a user that have friends
+  private val uid = "cYD8bTcYDyX3ngzssP22GYedcsh2"
+  private val groupHomeVM = GroupsHomeViewModel(uid)
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid), mockNavActions) }
+    composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions) }
   }
 
   @Test
@@ -188,11 +189,10 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       groupBox { assertIsDisplayed() }
       circularLoading { assertIsDisplayed() }
-      runBlocking { delay(3000) }
-
+      // runBlocking { delay(4000) }
       // groupScreen { assertIsDisplayed() }
-      // groupList { assertIsDisplayed() }
-      // testGroupBox { assertIsDisplayed() }
+      // addButton { assertIsDisplayed() }
+      // addLinkButton { assertIsDisplayed() }
     }
   }
 }

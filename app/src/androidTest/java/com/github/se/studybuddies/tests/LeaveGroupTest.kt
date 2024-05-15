@@ -22,12 +22,11 @@ class LeaveGroupTest : TestCase() {
 
   @Before
   fun setUp() {
-    composeTestRule.setContent { GroupsSettingsButton("015OJ6Lhmbp0XrLAkqHV", mockNavActions) }
+    composeTestRule.setContent { GroupsSettingsButton("userTest", mockNavActions) }
   }
 
   @Test
   fun testTextDisplay() {
-
     /*ComposeScreen.onComposeScreen<GroupsHomeScreen>(
     composeTestRule) {
     GroupsSettingsButton { assertIsDisplayed() }
