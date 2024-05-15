@@ -507,6 +507,7 @@ fun TopicItemField(
     dismiss: () -> Unit
 ) {
   AlertDialog(
+      modifier = Modifier.padding(0.dp),
       onDismissRequest = { dismiss() },
       confirmButton = { TextButton(onClick = { onDone() }) { Text(stringResource(R.string.ok)) } },
       dismissButton = {
@@ -525,7 +526,7 @@ fun TopicItemField(
                     unfocusedIndicatorColor = Blue),
             modifier =
                 Modifier.fillMaxWidth()
-                    .padding(38.dp)
+                    .padding(0.dp)
                     .border(width = 1.dp, color = Blue, shape = RoundedCornerShape(4.dp)),
             keyboardActions = KeyboardActions(onDone = { onDone() }),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
