@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
                       if (userExists) {
                         directMessageViewModel.setUserUID(currentUser.uid)
                         usersViewModel.setUserUID(currentUser.uid)
-                        navController.navigate(Route.SOLOSTUDYHOME)
+                        navController.navigate("${Route.TOPIC}/1XW9W62Qnk2N6ZfcIlrS/dfx11hplcQXvYjmMzaYs")
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
                       }

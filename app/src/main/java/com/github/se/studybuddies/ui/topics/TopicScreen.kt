@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -322,17 +323,17 @@ fun TopicContentItem(
       FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, depth)
     }
     is TopicFile -> {
-      FileItem(topicItem)
+      FileItem(topicItem, depth)
     }
   }
 }
 
 @Composable
-fun FileItem(fileItem: TopicFile) {
+fun FileItem(fileItem: TopicFile, depth: Int) {
   Box(
       modifier =
           Modifier.fillMaxWidth()
-              .padding(start = 48.dp)
+              .padding(start = (40*depth).dp)
               .background(Color.White)
               .drawBehind {
                 val strokeWidth = 1f
@@ -340,7 +341,7 @@ fun FileItem(fileItem: TopicFile) {
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
               .clickable {
-                // TODO: implement strong users
+                // TODO: implement strong users and resources
               }) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Spacer(modifier = Modifier.size(20.dp))
@@ -362,12 +363,13 @@ fun FolderItem(
     parentUID: MutableState<String>,
     depth: Int
 ) {
-  var isExpanded by remember { mutableStateOf(false) }
+  val isExpanded = remember { mutableStateOf(false) }
 
   Column {
     Box(
         modifier =
             Modifier.fillMaxWidth()
+                .padding(start = (40*depth).dp)
                 .background(Color.White)
                 .drawBehind {
                   val strokeWidth = 1f
@@ -375,7 +377,7 @@ fun FolderItem(
                   drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
                 }
                 .combinedClickable(
-                    onClick = { isExpanded = !isExpanded },
+                    onClick = { isExpanded.value = !isExpanded.value },
                     onLongClick = { Log.d("MyPrint", "long pressed") })) {
           Row(
               modifier = Modifier.fillMaxWidth().padding(6.dp),
@@ -384,17 +386,17 @@ fun FolderItem(
                 Icon(
                     painter = painterResource(R.drawable.arrow_right_24px),
                     contentDescription = stringResource(R.string.arrow_icon),
-                    modifier = Modifier.size(28.dp).rotate(if (isExpanded) 90f else 0f))
+                    modifier = Modifier.size(28.dp).rotate(if (isExpanded.value) 90f else 0f))
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
                     text = folderItem.name,
                     modifier = Modifier.align(Alignment.CenterVertically),
                     style = TextStyle(fontSize = 20.sp),
                     lineHeight = 28.sp)
-                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, parentUID, depth)
+                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, isExpanded, parentUID, depth)
               }
         }
-    if (isExpanded) {
+    if (isExpanded.value) {
       Log.d("MyPrint", "isExpanded")
       folderItem.items.forEach { child ->
         TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID, depth + 1)
@@ -408,13 +410,21 @@ fun AddInFolderButton(
     uid: String,
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
+    childrenExpanded: MutableState<Boolean>,
     parentUID: MutableState<String>,
     depth: Int
 ) {
   val expandedState = remember { mutableStateOf(false) }
-  Box(modifier = Modifier.fillMaxWidth()) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val offset = if (depth > 0) DpOffset((screenWidth-180).dp, 0.dp) else DpOffset(x = (-16).dp, y = 0.dp)
+  Box(modifier = Modifier.fillMaxWidth().padding(end = 16.dp)) {
     IconButton(
-        modifier = Modifier.align(Alignment.CenterEnd), onClick = { expandedState.value = true }) {
+        modifier = Modifier.align(Alignment.CenterEnd),
+        onClick = {
+            expandedState.value = true
+            childrenExpanded.value = true
+        }
+    ) {
           Icon(
               modifier = Modifier.size(32.dp),
               painter = painterResource(R.drawable.add_square),
@@ -425,7 +435,7 @@ fun AddInFolderButton(
       modifier = Modifier.background(Blue).padding(0.dp),
       expanded = expandedState.value,
       onDismissRequest = { expandedState.value = false },
-      offset = DpOffset(x = (-16).dp, y = 0.dp)) {
+      offset = offset) {
         if (depth <= 0) {
             DropdownMenuItem(
                 modifier = Modifier.fillMaxSize().padding(0.dp),
