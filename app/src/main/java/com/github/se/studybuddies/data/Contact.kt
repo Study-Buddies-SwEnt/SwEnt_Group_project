@@ -13,7 +13,7 @@ class ContactList(private val contacts: List<Contact>) {
     return contacts
   }
 
-  fun getFilteredTasks(searchQuery: String): List<Contact> {
+  fun getFilteredContacts(searchQuery: String): List<Contact> {
     val filteredContacts =
         contacts.filter { contact ->
           contact.members.first.contains(searchQuery, ignoreCase = true) or

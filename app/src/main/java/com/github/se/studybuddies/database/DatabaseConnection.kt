@@ -200,6 +200,18 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
         }
+
+
+    val contactList = hashMapOf("contacts" to emptyList<String>())
+      userContactsCollection
+          .document(uid)
+          .set(contactList)
+          .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
+          .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to create user contact list with error: ", e)
+          }
+
+
   }
 
   fun updateUserData(
@@ -1154,42 +1166,49 @@ class DatabaseConnection {
     }
   }
 
-  fun createContact(otherUID: String) {
+  suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
 
-    val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      //check if contact already exists
+    val contactList = getAllContacts(uid)
+    if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
+        (Log.d("MyPrint", "Contact already exists"))
+    }
+    else{
+        val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+        // updating contacts collection
+        contactDataCollection
+            .add(contact)
+            .addOnSuccessListener { document ->
+                val contactID = document.id
+                Log.d("MyPrint", "Contact successfully created")
 
-    // updating contacts collection
-    contactDataCollection
-        .add(contact)
-        .addOnSuccessListener { document ->
-          val contactID = document.id
-          Log.d("MyPrint", "Contact successfully created")
+                // updating current user's list of contacts
+                userContactsCollection
+                    .document(uid)
+                    .update("contacts", FieldValue.arrayUnion(contactID))
+                    .addOnSuccessListener {
+                        Log.d("MyPrint", "Contact successfully added to userContacts")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                    }
 
-          // updating current user's list of contacts
-          userContactsCollection
-              .document(uid)
-              .update("contacts", FieldValue.arrayUnion(contactID))
-              .addOnSuccessListener {
-                Log.d("MyPrint", "Contact successfully added to userContacts")
-              }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
-              }
-          // updating other user's list of contacts
-          userContactsCollection
-              .document(otherUID)
-              .update("contacts", FieldValue.arrayUnion(contactID))
-              .addOnSuccessListener {
-                Log.d("MyPrint", "Contact successfully added to userContacts")
-              }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
-              }
-        }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create contact with error: ", e) }
+                // updating other user's list of contacts
+                userContactsCollection
+                    .document(otherUID)
+                    .update("contacts", FieldValue.arrayUnion(contactID))
+                    .addOnSuccessListener {
+                        Log.d("MyPrint", "Contact successfully added to userContacts")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                    }
+            }
+            .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create contact with error: ", e) }
+    }
   }
 
   suspend fun deleteContact(contactUID: String, userUID: String = "") {
