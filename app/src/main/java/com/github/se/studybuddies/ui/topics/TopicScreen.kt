@@ -56,7 +56,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -137,9 +136,7 @@ fun TopicScreen(
         Column(horizontalAlignment = Alignment.End) {
           if (floatingButtonsVisible.value) {
             Button(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(45.dp),
+                modifier = Modifier.width(100.dp).height(45.dp),
                 shape = RoundedCornerShape(50),
                 onClick = {
                   folderFieldVisible.value = !folderFieldVisible.value
@@ -154,9 +151,7 @@ fun TopicScreen(
                 }
             Spacer(modifier = Modifier.size(7.dp))
             Button(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(45.dp),
+                modifier = Modifier.width(100.dp).height(45.dp),
                 shape = RoundedCornerShape(50),
                 onClick = {
                   fileFieldVisible.value = !fileFieldVisible.value
@@ -172,9 +167,7 @@ fun TopicScreen(
           }
           Spacer(modifier = Modifier.size(10.dp))
           Row(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(16.dp),
+              modifier = Modifier.fillMaxWidth().padding(16.dp),
               verticalAlignment = Alignment.Bottom,
               horizontalArrangement = Arrangement.End) {
                 Button(
@@ -184,10 +177,7 @@ fun TopicScreen(
                       fileFieldVisible.value = false
                     },
                     modifier =
-                    Modifier
-                        .width(64.dp)
-                        .height(64.dp)
-                        .clip(MaterialTheme.shapes.medium)) {
+                        Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
                       Icon(
                           imageVector = Icons.Default.Add,
                           contentDescription = stringResource(R.string.create_a_topic_item),
@@ -198,42 +188,35 @@ fun TopicScreen(
       },
       floatingActionButtonPosition = FabPosition.End) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
+            modifier = Modifier.fillMaxSize().padding(it),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
               Box(
                   modifier =
-                  Modifier
-                      .fillMaxWidth()
-                      .background(Color.White)
-                      .clickable {
-                          chatViewModel.setChat(
-                              topicData.let {
+                      Modifier.fillMaxWidth()
+                          .background(Color.White)
+                          .clickable {
+                            chatViewModel.setChat(
+                                topicData.let {
                                   group?.let { grp ->
-                                      Chat(
-                                          it.uid,
-                                          it.name,
-                                          grp.picture,
-                                          ChatType.TOPIC,
-                                          groupViewModel.members.value!!.toList(),
-                                          grp.uid
-                                      )
+                                    Chat(
+                                        it.uid,
+                                        it.name,
+                                        grp.picture,
+                                        ChatType.TOPIC,
+                                        groupViewModel.members.value!!.toList(),
+                                        grp.uid)
                                   }
-                              })
-                          navigationActions.navigateTo(Route.CHAT)
-                      }
-                      .drawBehind {
-                          val strokeWidth = 1f
-                          val y = size.height - strokeWidth / 2
-                          drawLine(
-                              Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth
-                          )
-                      }) {
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)) {
+                                })
+                            navigationActions.navigateTo(Route.CHAT)
+                          }
+                          .drawBehind {
+                            val strokeWidth = 1f
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                          }) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                       Spacer(modifier = Modifier.size(16.dp))
                       Text(
                           text = stringResource(R.string.chat),
@@ -244,17 +227,15 @@ fun TopicScreen(
               HorizontalDivider(color = Blue, thickness = 2.dp)
               Box(
                   modifier =
-                  Modifier
-                      .fillMaxWidth()
-                      .background(Color.White)
-                      .clickable { navigationActions.navigateTo(Route.CHAT) }
-                      .drawBehind {
-                          val strokeWidth = 1f
-                          val y = size.height - strokeWidth / 2
-                          drawLine(
-                              Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth
-                          )
-                      }) {
+                      Modifier.fillMaxWidth()
+                          .background(Color.White)
+                          .clickable { navigationActions.navigateTo(Route.CHAT) }
+                          .drawBehind {
+                            val strokeWidth = 1f
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                          }) {
                     Column {
                       Row(
                           horizontalArrangement = Arrangement.SpaceBetween,
@@ -262,32 +243,28 @@ fun TopicScreen(
                             Text(
                                 text = "Practice",
                                 modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .clickable { areaState.value = ItemArea.EXERCISES }
-                                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                                    .align(Alignment.CenterVertically),
+                                    Modifier.weight(1f)
+                                        .clickable { areaState.value = ItemArea.EXERCISES }
+                                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                                        .align(Alignment.CenterVertically),
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                             Text(
                                 text = "Theory",
                                 modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .clickable { areaState.value = ItemArea.THEORY }
-                                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                                    .align(Alignment.CenterVertically),
+                                    Modifier.weight(1f)
+                                        .clickable { areaState.value = ItemArea.THEORY }
+                                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                                        .align(Alignment.CenterVertically),
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                           }
                       HorizontalDivider(
                           modifier =
-                          Modifier
-                              .align(
-                                  if (areaState.value == ItemArea.EXERCISES) Alignment.Start
-                                  else Alignment.End
-                              )
-                              .fillMaxWidth(0.5f),
+                              Modifier.align(
+                                      if (areaState.value == ItemArea.EXERCISES) Alignment.Start
+                                      else Alignment.End)
+                                  .fillMaxWidth(0.5f),
                           color = Blue,
                           thickness = 4.dp)
                     }
@@ -299,18 +276,21 @@ fun TopicScreen(
                   content = {
                     if (areaState.value == ItemArea.EXERCISES) {
                       items(exercisesState) { topicItem ->
-                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
+                        TopicContentItem(
+                            topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
                       }
                     } else if (areaState.value == ItemArea.THEORY) {
                       items(theoryState.value) { topicItem ->
-                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
+                        TopicContentItem(
+                            topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
                       }
                     }
                   })
             }
         if (folderFieldVisible.value) {
           TopicItemField(
-              enteredName = enteredName, label = stringResource(R.string.enter_a_folder_name),
+              enteredName = enteredName,
+              label = stringResource(R.string.enter_a_folder_name),
               onDone = {
                 folderFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
@@ -321,14 +301,15 @@ fun TopicScreen(
                 parentUID.value = ""
               },
               dismiss = {
-                  folderFieldVisible.value = false
-                  enteredName.value = ""
-                  parentUID.value = ""
+                folderFieldVisible.value = false
+                enteredName.value = ""
+                parentUID.value = ""
               })
         }
         if (fileFieldVisible.value) {
           TopicItemField(
-              enteredName = enteredName, label = stringResource(R.string.enter_a_file_name),
+              enteredName = enteredName,
+              label = stringResource(R.string.enter_a_file_name),
               onDone = {
                 fileFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
@@ -339,9 +320,9 @@ fun TopicScreen(
                 parentUID.value = ""
               },
               dismiss = {
-                  fileFieldVisible.value = false
-                  enteredName.value = ""
-                  parentUID.value = ""
+                fileFieldVisible.value = false
+                enteredName.value = ""
+                parentUID.value = ""
               })
         }
       }
@@ -369,21 +350,18 @@ fun TopicContentItem(
 fun FileItem(fileItem: TopicFile, depth: Int) {
   Box(
       modifier =
-      Modifier
-          .fillMaxWidth()
-          .padding(start = (40 * depth).dp)
-          .background(Color.White)
-          .drawBehind {
-              val strokeWidth = 1f
-              val y = size.height - strokeWidth / 2
-              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-          }
-          .clickable {
-              // TODO: implement strong users and resources
-          }) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
+          Modifier.fillMaxWidth()
+              .padding(start = (40 * depth).dp)
+              .background(Color.White)
+              .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              }
+              .clickable {
+                // TODO: implement strong users and resources
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Spacer(modifier = Modifier.size(20.dp))
           Text(
               text = fileItem.name,
@@ -408,37 +386,38 @@ fun FolderItem(
   Column {
     Box(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(start = (40 * depth).dp)
-            .background(Color.White)
-            .drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-            }
-            .combinedClickable(
-                onClick = { isExpanded.value = !isExpanded.value },
-                onLongClick = { Log.d("MyPrint", "long pressed") })) {
+            Modifier.fillMaxWidth()
+                .padding(start = (40 * depth).dp)
+                .background(Color.White)
+                .drawBehind {
+                  val strokeWidth = 1f
+                  val y = size.height - strokeWidth / 2
+                  drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+                }
+                .combinedClickable(
+                    onClick = { isExpanded.value = !isExpanded.value },
+                    onLongClick = { Log.d("MyPrint", "long pressed") })) {
           Row(
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(6.dp),
+              modifier = Modifier.fillMaxWidth().padding(6.dp),
               verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.size(10.dp))
                 Icon(
                     painter = painterResource(R.drawable.arrow_right_24px),
                     contentDescription = stringResource(R.string.arrow_icon),
-                    modifier = Modifier
-                        .size(28.dp)
-                        .rotate(if (isExpanded.value) 90f else 0f))
+                    modifier = Modifier.size(28.dp).rotate(if (isExpanded.value) 90f else 0f))
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
                     text = folderItem.name,
                     modifier = Modifier.align(Alignment.CenterVertically),
                     style = TextStyle(fontSize = 20.sp),
                     lineHeight = 28.sp)
-                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, isExpanded, parentUID, depth)
+                AddInFolderButton(
+                    folderItem.uid,
+                    folderFieldVisible,
+                    fileFieldVisible,
+                    isExpanded,
+                    parentUID,
+                    depth)
               }
         }
     if (isExpanded.value) {
@@ -460,18 +439,16 @@ fun AddInFolderButton(
     depth: Int
 ) {
   val expandedState = remember { mutableStateOf(false) }
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    val offset = if (depth > 0) DpOffset((screenWidth-180).dp, 0.dp) else DpOffset(x = (-16).dp, y = 0.dp)
-  Box(modifier = Modifier
-      .fillMaxWidth()
-      .padding(end = 16.dp)) {
+  val screenWidth = LocalConfiguration.current.screenWidthDp
+  val offset =
+      if (depth > 0) DpOffset((screenWidth - 180).dp, 0.dp) else DpOffset(x = (-16).dp, y = 0.dp)
+  Box(modifier = Modifier.fillMaxWidth().padding(end = 16.dp)) {
     IconButton(
         modifier = Modifier.align(Alignment.CenterEnd),
         onClick = {
-            expandedState.value = true
-            childrenExpanded.value = true
-        }
-    ) {
+          expandedState.value = true
+          childrenExpanded.value = true
+        }) {
           Icon(
               modifier = Modifier.size(32.dp),
               painter = painterResource(R.drawable.add_square),
@@ -479,39 +456,31 @@ fun AddInFolderButton(
         }
   }
   DropdownMenu(
-      modifier = Modifier
-          .background(Blue)
-          .padding(0.dp),
+      modifier = Modifier.background(Blue).padding(0.dp),
       expanded = expandedState.value,
       onDismissRequest = { expandedState.value = false },
       offset = offset) {
         if (depth <= 0) {
-            DropdownMenuItem(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(0.dp),
-                onClick = {
-                    expandedState.value = false
-                    folderFieldVisible.value = !folderFieldVisible.value
-                    fileFieldVisible.value = false
-                    if (folderFieldVisible.value) {
-                        parentUID.value = uid
-                    }
-                },
-                text = {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .align(Alignment.CenterHorizontally),
-                        text = stringResource(R.string.folder),
-                        color = White,
-                        style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
-                })
+          DropdownMenuItem(
+              modifier = Modifier.fillMaxSize().padding(0.dp),
+              onClick = {
+                expandedState.value = false
+                folderFieldVisible.value = !folderFieldVisible.value
+                fileFieldVisible.value = false
+                if (folderFieldVisible.value) {
+                  parentUID.value = uid
+                }
+              },
+              text = {
+                Text(
+                    modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
+                    text = stringResource(R.string.folder),
+                    color = White,
+                    style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+              })
         }
         DropdownMenuItem(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp),
+            modifier = Modifier.fillMaxSize().padding(0.dp),
             onClick = {
               expandedState.value = false
               fileFieldVisible.value = !fileFieldVisible.value
@@ -522,9 +491,7 @@ fun AddInFolderButton(
             },
             text = {
               Text(
-                  modifier = Modifier
-                      .fillMaxSize()
-                      .align(Alignment.CenterHorizontally),
+                  modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
                   text = stringResource(R.string.file),
                   color = White,
                   style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
@@ -533,39 +500,35 @@ fun AddInFolderButton(
 }
 
 @Composable
-fun TopicItemField(enteredName: MutableState<String>, label: String, onDone: () -> Unit, dismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = { dismiss() },
-        confirmButton = {
-            TextButton(onClick = { onDone() }) {
-                Text(stringResource(R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { dismiss() }) {
-                Text(stringResource(R.string.cancel))
-            }
-        },
-        text = {
-            TextField(
-                value = enteredName.value,
-                onValueChange = { enteredName.value = it },
-                label = { Text(label) },
-                colors =
+fun TopicItemField(
+    enteredName: MutableState<String>,
+    label: String,
+    onDone: () -> Unit,
+    dismiss: () -> Unit
+) {
+  AlertDialog(
+      onDismissRequest = { dismiss() },
+      confirmButton = { TextButton(onClick = { onDone() }) { Text(stringResource(R.string.ok)) } },
+      dismissButton = {
+        TextButton(onClick = { dismiss() }) { Text(stringResource(R.string.cancel)) }
+      },
+      text = {
+        TextField(
+            value = enteredName.value,
+            onValueChange = { enteredName.value = it },
+            label = { Text(label) },
+            colors =
                 TextFieldDefaults.colors(
                     focusedContainerColor = White,
                     unfocusedContainerColor = White,
                     unfocusedLabelColor = Blue,
                     unfocusedIndicatorColor = Blue),
-                modifier =
-                Modifier
-                    .fillMaxWidth()
+            modifier =
+                Modifier.fillMaxWidth()
                     .padding(38.dp)
                     .border(width = 1.dp, color = Blue, shape = RoundedCornerShape(4.dp)),
-                keyboardActions = KeyboardActions(onDone = { onDone() }),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                singleLine = true)
-        }
-    )
-
+            keyboardActions = KeyboardActions(onDone = { onDone() }),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            singleLine = true)
+      })
 }
