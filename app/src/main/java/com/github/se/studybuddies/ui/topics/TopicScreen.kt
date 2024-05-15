@@ -273,11 +273,11 @@ fun TopicScreen(
                   content = {
                     if (areaState.value == ItemArea.EXERCISES) {
                       items(exercisesState) { topicItem ->
-                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
                       }
                     } else if (areaState.value == ItemArea.THEORY) {
                       items(theoryState.value) { topicItem ->
-                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+                        TopicContentItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
                       }
                     }
                   })
@@ -314,11 +314,12 @@ fun TopicContentItem(
     topicItem: TopicItem,
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
-    parentUID: MutableState<String>
+    parentUID: MutableState<String>,
+    depth: Int
 ) {
   when (topicItem) {
     is TopicFolder -> {
-      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID)
+      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, depth)
     }
     is TopicFile -> {
       FileItem(topicItem)
@@ -358,7 +359,8 @@ fun FolderItem(
     folderItem: TopicFolder,
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
-    parentUID: MutableState<String>
+    parentUID: MutableState<String>,
+    depth: Int
 ) {
   var isExpanded by remember { mutableStateOf(false) }
 
@@ -389,13 +391,13 @@ fun FolderItem(
                     modifier = Modifier.align(Alignment.CenterVertically),
                     style = TextStyle(fontSize = 20.sp),
                     lineHeight = 28.sp)
-                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, parentUID)
+                AddInFolderButton(folderItem.uid, folderFieldVisible, fileFieldVisible, parentUID, depth)
               }
         }
     if (isExpanded) {
       Log.d("MyPrint", "isExpanded")
       folderItem.items.forEach { child ->
-        TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID)
+        TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID, depth + 1)
       }
     }
   }
@@ -406,7 +408,8 @@ fun AddInFolderButton(
     uid: String,
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
-    parentUID: MutableState<String>
+    parentUID: MutableState<String>,
+    depth: Int
 ) {
   val expandedState = remember { mutableStateOf(false) }
   Box(modifier = Modifier.fillMaxWidth()) {
@@ -423,23 +426,25 @@ fun AddInFolderButton(
       expanded = expandedState.value,
       onDismissRequest = { expandedState.value = false },
       offset = DpOffset(x = (-16).dp, y = 0.dp)) {
-        DropdownMenuItem(
-            modifier = Modifier.fillMaxSize().padding(0.dp),
-            onClick = {
-              expandedState.value = false
-              folderFieldVisible.value = !folderFieldVisible.value
-              fileFieldVisible.value = false
-              if (folderFieldVisible.value) {
-                parentUID.value = uid
-              }
-            },
-            text = {
-              Text(
-                  modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
-                  text = stringResource(R.string.folder),
-                  color = White,
-                  style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
-            })
+        if (depth <= 0) {
+            DropdownMenuItem(
+                modifier = Modifier.fillMaxSize().padding(0.dp),
+                onClick = {
+                    expandedState.value = false
+                    folderFieldVisible.value = !folderFieldVisible.value
+                    fileFieldVisible.value = false
+                    if (folderFieldVisible.value) {
+                        parentUID.value = uid
+                    }
+                },
+                text = {
+                    Text(
+                        modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
+                        text = stringResource(R.string.folder),
+                        color = White,
+                        style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center))
+                })
+        }
         DropdownMenuItem(
             modifier = Modifier.fillMaxSize().padding(0.dp),
             onClick = {
