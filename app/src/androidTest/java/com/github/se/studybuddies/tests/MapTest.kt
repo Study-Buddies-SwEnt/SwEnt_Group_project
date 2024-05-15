@@ -2,11 +2,9 @@ package com.github.se.studybuddies.tests
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
@@ -45,7 +43,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           username = "testUser",
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-          location = R.string.offline.toString())
+          location = "offline")
   private val userVM = UserViewModel(uid)
   private val usersVM = UsersViewModel(uid)
 
@@ -93,14 +91,14 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   fun getUserFriends() {
     onComposeScreen<MapScreen>(composeTestRule) {
       // Now the friends list is not empty
-      var friends = usersVM.friends.value
+      var friends = usersVM.friends_old.value
       assert(friends.isEmpty())
       // wait for the friends list to be updated
       runBlocking {
         delay(10000) // Adjust the delay time as needed
       }
       usersVM.fetchAllFriends(uid)
-      friends = usersVM.friends.value
+      friends = usersVM.friends_old.value
       // After the delay, the friends list should be finally retrieved
       assert(friends.isNotEmpty())
     }
