@@ -65,9 +65,11 @@ import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.model.User
+import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
+  @Inject lateinit var locationApp: LocationApp
   private val chatViewModel: ChatViewModel by viewModels()
   private val usersViewModel: UsersViewModel by viewModels()
   private val directMessageViewModel: DirectMessageViewModel by viewModels()
