@@ -1,8 +1,5 @@
 package com.github.se.studybuddies.data
 
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-
 data class Contact(
     val uid: String,
     val members: Pair<String, String>,
@@ -13,7 +10,6 @@ data class Contact(
     }
   }
 }
-
 
 class ContactList(private val contacts: List<Contact>) {
   fun getAllTasks(): List<Contact> {

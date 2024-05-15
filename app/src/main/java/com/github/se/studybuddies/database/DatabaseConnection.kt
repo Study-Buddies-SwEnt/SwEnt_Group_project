@@ -1115,7 +1115,7 @@ class DatabaseConnection {
             items.add(Contact(contactUID, members))
           }
         }
-        return ContactList(items).getFilteredTasks(uid)
+        return ContactList(items).getFilteredTasks(getCurrentUserUID())
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
         return emptyList()
@@ -1132,15 +1132,15 @@ class DatabaseConnection {
       val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
       Contact(contactUID, members)
     } else {
-      Log.d("MyPrint", "group document not found for group id $contactUID")
+      Log.d("MyPrint", "contact document not found for contact id $contactUID")
       Contact.empty()
     }
   }
 
-  fun createContact(name: String) {
-    val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
-    Log.d("MyPrint", "Creating new contact with uid $uid")
-    val contact = hashMapOf("members" to listOf(uid))
+  fun createContact(otherUID: String) {
+    val uid = getCurrentUserUID()
+    Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
+    val contact = hashMapOf("members" to listOf(uid, otherUID))
     contactDataCollection.add(contact).addOnFailureListener { e ->
       Log.d("MyPrint", "Failed to create contact with error: ", e)
     }

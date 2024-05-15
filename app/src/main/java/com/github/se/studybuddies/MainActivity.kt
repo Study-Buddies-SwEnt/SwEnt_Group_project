@@ -120,6 +120,7 @@ class MainActivity : ComponentActivity() {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
               LoginScreen(navigationActions)
             }
+
             composable(Route.GROUPSHOME) {
               val currentUser = auth.currentUser
               if (currentUser != null) {
@@ -193,7 +194,7 @@ class MainActivity : ComponentActivity() {
                     chatViewModel,
                     UsersViewModel(currentUser.uid),
                     navigationActions,
-                    contactsViewModel = ContactsViewModel())
+                    contactsViewModel = ContactsViewModel(currentUser.uid))
               }
             }
             composable(

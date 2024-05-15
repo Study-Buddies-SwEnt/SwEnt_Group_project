@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -94,7 +93,7 @@ fun DirectMessageScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
           }
         } else if (showAddPrivateMessageList.value) {
-          ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
+          ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
@@ -181,6 +180,7 @@ fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
     viewModel: DirectMessageViewModel,
     usersViewModel: UsersViewModel,
+    contactsViewModel: ContactsViewModel
 ) {
   val friendsData by usersViewModel.friends.collectAsState()
   var isLoading by remember { mutableStateOf(true) }
@@ -209,49 +209,8 @@ fun ListAllUsers(
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(friendsData) { friend -> UserItem(friend, viewModel, showAddPrivateMessageList) }
-      }
-    }
-  }
-}
-
-@Composable
-fun ListAllContacts(
-    showAddPrivateMessageList: MutableState<Boolean>,
-    viewModel: DirectMessageViewModel,
-    contactsViewModel: ContactsViewModel
-) {
-
-  val contactsData by contactsViewModel.contacts.collectAsState()
-
-  var isLoading by remember { mutableStateOf(true) }
-
-  LaunchedEffect(contactsData) {
-    if (contactsData.isNotEmpty()) {
-      isLoading = false
-    } else {
-      repeat(10) {
-        delay(500)
-        if (contactsData.isNotEmpty()) {
-          isLoading = false
-          return@repeat
-        }
-      }
-      isLoading = false
-    }
-  }
-
-  if (isLoading) {
-    Box(modifier = Modifier.fillMaxSize()) {
-      CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-    }
-  } else {
-    if (contactsData.isEmpty()) {
-      Text(text = stringResource(R.string.no_friends_found))
-    } else {
-      LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(contactsData) { contact ->
-          ContactItem(contact, viewModel, showAddPrivateMessageList, contactsViewModel)
+        items(friendsData) { friend ->
+          UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
         }
       }
     }
@@ -263,7 +222,8 @@ fun ListAllContacts(
 fun UserItem(
     user: User,
     viewModel: DirectMessageViewModel,
-    showAddPrivateMessageList: MutableState<Boolean>
+    showAddPrivateMessageList: MutableState<Boolean>,
+    contactsViewModel: ContactsViewModel
 ) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
@@ -274,6 +234,7 @@ fun UserItem(
                   onClick = {
                     viewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
+                    contactsViewModel.createContact(user.uid)
                   })) {
         Image(
             painter = rememberAsyncImagePainter(user.photoUrl),
@@ -287,39 +248,5 @@ fun UserItem(
                     .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = user.username)
-      }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ContactItem(
-    contact: Contact,
-    viewModel: DirectMessageViewModel,
-    showAddPrivateMessageList: MutableState<Boolean>,
-    contactsViewModel: ContactsViewModel
-) {
-  Row(
-      verticalAlignment = Alignment.CenterVertically,
-      modifier =
-          Modifier.fillMaxWidth()
-              .padding(8.dp)
-              .combinedClickable(
-                  onClick = {
-                    viewModel.startDirectMessage(contact.uid)
-                    showAddPrivateMessageList.value = false
-                    contactsViewModel.createContact("")
-                  })) {
-        Image(
-            painter = rememberAsyncImagePainter(contact.members.first),
-            contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
-            modifier =
-                Modifier.padding(8.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .align(Alignment.CenterVertically)
-                    .testTag("chat_user_profile_picture"),
-            contentScale = ContentScale.Crop)
-        Text(text = contact.members.first)
       }
 }
