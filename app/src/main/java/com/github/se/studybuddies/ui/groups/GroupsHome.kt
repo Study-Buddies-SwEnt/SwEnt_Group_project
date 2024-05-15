@@ -61,7 +61,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.wear.compose.material.dialog.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
@@ -149,41 +148,44 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
   val groupViewModel = GroupViewModel(groupUID)
-  IconButton(
-      modifier = Modifier.testTag("GroupsSettingsButton"),
-      onClick = { expandedState.value = true },
-  ) {
-    Icon(
-        imageVector = Icons.Default.MoreVert,
-        contentDescription = stringResource(R.string.dots_menu))
-  }
-  DropdownMenu(
-      expanded = expandedState.value,
-      onDismissRequest = { expandedState.value = false },
-      modifier = Modifier.testTag("DropDownMenuText")) {
-        GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
-          DropdownMenuItem(
-              modifier =
-                  Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
-              onClick = {
-                expandedState.value = false
-                when (item.route) {
-                  Route.LEAVEGROUP -> {
-                    isLeaveGroupDialogVisible = true
+  Row {
+    IconButton(
+        modifier = Modifier.testTag("GroupsSettingsButton"),
+        onClick = { expandedState.value = true },
+    ) {
+      Icon(
+          imageVector = Icons.Default.MoreVert,
+          tint = Blue,
+          contentDescription = stringResource(R.string.dots_menu))
+    }
+    DropdownMenu(
+        expanded = expandedState.value,
+        onDismissRequest = { expandedState.value = false },
+        modifier = Modifier.testTag("DropDownMenuText")) {
+          GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
+            DropdownMenuItem(
+                modifier =
+                    Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
+                onClick = {
+                  expandedState.value = false
+                  when (item.route) {
+                    Route.LEAVEGROUP -> {
+                      isLeaveGroupDialogVisible = true
+                    }
+                    Route.DELETEGROUP -> {
+                      isDeleteGroupDialogVisible = true
+                    }
+                    else -> {
+                      navigationActions.navigateTo("${item.route}/$groupUID")
+                    }
                   }
-                  Route.DELETEGROUP -> {
-                    isDeleteGroupDialogVisible = true
-                  }
-                  else -> {
-                    navigationActions.navigateTo("${item.route}/$groupUID")
-                  }
+                }) {
+                  Spacer(modifier = Modifier.size(16.dp))
+                  Text(item.textId)
                 }
-              }) {
-                Spacer(modifier = Modifier.size(16.dp))
-                Text(item.textId)
-              }
+          }
         }
-      }
+  }
   if (isLeaveGroupDialogVisible) {
     Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
       Box(
@@ -198,6 +200,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
                       text = stringResource(R.string.warning_leave_group),
+                      color = Blue,
                       modifier = Modifier.testTag("LeaveGroupDialogText"))
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
@@ -251,10 +254,12 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
                   Text(
                       text = stringResource(R.string.warning_1_group_deletion),
                       modifier = Modifier.testTag("DeleteGroupDialogText"),
+                      color = Blue,
                       textAlign = TextAlign.Center)
                   Text(
                       text = stringResource(R.string.warning_2_group_deletion),
                       modifier = Modifier.testTag("DeleteGroupDialogText2"),
+                      color = Blue,
                       textAlign = TextAlign.Center)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
@@ -360,7 +365,6 @@ fun AddLinkButton(navigationActions: NavigationActions) {
   var text by remember { mutableStateOf("") }
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
-  val scope = rememberCoroutineScope()
   var showSucces by remember { mutableStateOf(false) }
 
   Row(

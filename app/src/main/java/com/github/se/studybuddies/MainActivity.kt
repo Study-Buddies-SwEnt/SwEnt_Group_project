@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -108,8 +109,7 @@ class MainActivity : ComponentActivity() {
           }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              val currentUser = remember { auth.currentUser }
-              if (currentUser != null) {
+              ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
                 db.userExists(
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
@@ -122,8 +122,6 @@ class MainActivity : ComponentActivity() {
                       }
                     },
                     onFailure = { navController.navigate(Route.SOLOSTUDYHOME) })
-              } else {
-                navController.navigate(Route.LOGIN)
               }
             }
             composable(Route.LOGIN) {
@@ -131,16 +129,14 @@ class MainActivity : ComponentActivity() {
               LoginScreen(navigationActions)
             }
             composable(Route.GROUPSHOME) {
-              val currentUser = remember { auth.currentUser }
-              if (currentUser != null) {
+              ifNotNull(remember { auth.currentUser }) { currentUser ->
                 val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid) }
                 GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
             composable(Route.CALENDAR) {
-              val currentUser = remember { auth.currentUser }
-              if (currentUser != null) {
+              ifNotNull(remember { auth.currentUser }) { _ ->
                 val calendarViewModel = remember { CalendarViewModel() }
                 CalendarApp(calendarViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
@@ -151,7 +147,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  if (groupUID != null) {
+                  ifNotNull(groupUID) { groupUID ->
                     val groupViewModel = remember { GroupViewModel(groupUID) }
                     GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
@@ -162,7 +158,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  if (backRoute != null) {
+                  ifNotNull(backRoute) { backRoute ->
                     Settings(backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
@@ -180,7 +176,7 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-              if (auth.currentUser != null) {
+              ifNotNull(auth.currentUser) { _ ->
                 val userViewModel = remember { UserViewModel() }
                 CreateAccount(userViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
@@ -198,15 +194,14 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEGROUP) {
-              if (auth.currentUser != null) {
+              ifNotNull(auth.currentUser) { _ ->
                 val groupViewModel = remember { GroupViewModel() }
                 CreateGroup(groupViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
             composable(Route.DIRECT_MESSAGE) {
-              val currentUser = remember { auth.currentUser }
-              if (currentUser != null) {
+              ifNotNull(remember { auth.currentUser }) { currentUser ->
                 directMessageViewModel.setUserUID(currentUser.uid)
                 usersViewModel.setUserUID(currentUser.uid)
                 DirectMessageScreen(
@@ -218,7 +213,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  if (groupUID != null) {
+                  ifNotNull(groupUID) { groupUID ->
                     val groupViewModel = remember { GroupViewModel(groupUID) }
                     GroupSetting(groupUID, groupViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
@@ -230,14 +225,14 @@ class MainActivity : ComponentActivity() {
               ChatScreen(messageViewModel, navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-              if (auth.currentUser != null) {
+              ifNotNull(auth.currentUser) { _ ->
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
                 SoloStudyHome(navigationActions)
               }
             }
 
             composable(Route.TODOLIST) {
-              if (auth.currentUser != null) {
+              ifNotNull(auth.currentUser) { _ ->
                 val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                 ToDoListScreen(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to ToDoList")
@@ -245,7 +240,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(Route.CREATETODO) {
-              if (auth.currentUser != null) {
+              ifNotNull(auth.currentUser) { _ ->
                 val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                 CreateToDo(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateToDo")
@@ -257,7 +252,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
-                  if (todoUID != null) {
+                  ifNotNull(todoUID) { todoUID ->
                     val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                     EditToDoScreen(todoUID, toDoListViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
@@ -265,8 +260,7 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.MAP) {
-              val currentUser = remember { auth.currentUser }
-              if (currentUser != null) {
+              ifNotNull(remember { auth.currentUser }) { currentUser ->
                 val userViewModel = remember { UserViewModel(currentUser.uid) }
                 val usersViewModel = remember { UsersViewModel(currentUser.uid) }
                 MapScreen(
@@ -278,8 +272,7 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.TIMER) {
-              if (auth.currentUser != null) {
-
+              ifNotNull(auth.currentUser) { _ ->
                 val viewModel = remember { TimerViewModel.getInstance() }
 
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
@@ -289,8 +282,7 @@ class MainActivity : ComponentActivity() {
             composable(Route.VIDEOCALL) {
               if (StreamVideo.isInstalled) {
                 val call = StreamVideo.instance().call("default", callID)
-                val currentUser = remember { auth.currentUser }
-                if (currentUser != null) {
+                ifNotNull(remember { auth.currentUser }) { currentUser ->
                   val videoCallViewModel = remember { VideoCallViewModel(call, currentUser.uid) }
                   VideoCallScreen(videoCallViewModel, navigationActions)
                   Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
@@ -304,7 +296,7 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  if (groupUID != null) {
+                  ifNotNull(groupUID) { groupUID ->
                     val viewModel2 = remember { SharedTimerViewModel.getInstance(groupUID) }
                     SharedTimerScreen(navigationActions, viewModel2, groupUID)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
@@ -347,14 +339,29 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.PLACEHOLDER) {
-              val currentUser = remember { auth.currentUser }
-              if (currentUser != null) {
-                Placeholder(navigationActions)
-              }
+              ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }
             }
           }
         }
       }
+    }
+  }
+
+  private inline fun <T> ifNotNull(value: T?, action: (T) -> Unit) {
+    if (value != null) {
+      action(value)
+    }
+  }
+
+  private inline fun <T> ifNotNullElse(
+      value: T?,
+      navController: NavHostController,
+      action: (T) -> Unit
+  ) {
+    if (value != null) {
+      action(value)
+    } else {
+      navController.navigate(Route.LOGIN)
     }
   }
 
