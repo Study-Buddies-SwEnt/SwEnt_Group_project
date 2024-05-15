@@ -134,7 +134,7 @@ class SoloStudyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
       confirmVerified(mockNavActions)
 
       calendarButton { performClick() }
-      verify { mockNavActions.navigateTo(Route.PLACEHOLDER) }
+      verify { mockNavActions.navigateTo(Route.CALENDAR) }
       confirmVerified(mockNavActions)
     }
   }
