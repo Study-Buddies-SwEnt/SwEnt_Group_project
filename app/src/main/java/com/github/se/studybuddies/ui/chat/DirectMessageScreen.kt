@@ -67,45 +67,29 @@ fun DirectMessageScreen(
 ) {
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
-  var isLoading by remember { mutableStateOf(true) }
-
-  LaunchedEffect(chats) {
-    if (chats.isNotEmpty()) {
-      isLoading = false
-    } else {
-      repeat(10) {
-        delay(500)
-        if (chats.isNotEmpty()) {
-          isLoading = false
-          return@repeat
-        }
-      }
-      isLoading = false
-    }
-  }
 
   MainScreenScaffold(
       navigationActions = navigationActions,
       backRoute = Route.DIRECT_MESSAGE,
       content = { innerPadding ->
-        if (isLoading) {
-          Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        if (showAddPrivateMessageList.value) {
+          Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
           }
-        } else if (showAddPrivateMessageList.value) {
-          ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
         } else {
           if (chats.isEmpty()) {
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
-            Text(text = stringResource(R.string.direct_messages_empty))
+            Text(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                text = stringResource(R.string.direct_messages_empty))
           } else {
             Log.d("MyPrint", "DirectMessageScreen: chats is not empty")
             Column(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
             ) {
-              LazyColumn(modifier = Modifier.fillMaxWidth().padding(innerPadding)) {
+              LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                 items(chats) { chat ->
                   DirectMessageItem(chat) {
                     chatViewModel.setChat(chat)
@@ -182,16 +166,16 @@ fun ListAllUsers(
     usersViewModel: UsersViewModel,
     contactsViewModel: ContactsViewModel
 ) {
-  val friendsData by usersViewModel.friends.collectAsState()
+  val friends = usersViewModel.friends.collectAsState(initial = emptyList()).value
   var isLoading by remember { mutableStateOf(true) }
 
-  LaunchedEffect(friendsData) {
-    if (friendsData.isNotEmpty()) {
+  LaunchedEffect(friends) {
+    if (friends.isNotEmpty()) {
       isLoading = false
     } else {
       repeat(10) {
         delay(500)
-        if (friendsData.isNotEmpty()) {
+        if (friends.isNotEmpty()) {
           isLoading = false
           return@repeat
         }
@@ -205,13 +189,11 @@ fun ListAllUsers(
       CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }
   } else {
-    if (friendsData.isEmpty()) {
+    if (friends.isEmpty()) {
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(friendsData) { friend ->
-          UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
-        }
+        items(friends) { friend -> UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel) }
       }
     }
   }
