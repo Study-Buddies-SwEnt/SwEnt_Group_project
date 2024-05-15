@@ -74,7 +74,7 @@ fun DirectMessageScreen(
       content = { innerPadding ->
         if (showAddPrivateMessageList.value) {
           Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
+            ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
           }
         } else {
           if (chats.isEmpty()) {
@@ -193,7 +193,9 @@ fun ListAllUsers(
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(friends) { friend -> UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel) }
+        items(friends) { friend ->
+          UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
+        }
       }
     }
   }

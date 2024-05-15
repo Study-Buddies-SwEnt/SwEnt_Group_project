@@ -212,7 +212,11 @@ class MainActivity : ComponentActivity() {
                 directMessageViewModel.setUserUID(currentUser.uid)
                 usersViewModel.setUserUID(currentUser.uid)
                 DirectMessageScreen(
-                    directMessageViewModel, chatViewModel, usersViewModel, navigationActions, ContactsViewModel(currentUser.uid))
+                    directMessageViewModel,
+                    chatViewModel,
+                    usersViewModel,
+                    navigationActions,
+                    ContactsViewModel(currentUser.uid))
               }
             }
             composable(
