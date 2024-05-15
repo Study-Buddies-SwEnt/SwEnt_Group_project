@@ -440,8 +440,7 @@ fun AddInFolderButton(
 ) {
   val expandedState = remember { mutableStateOf(false) }
   val screenWidth = LocalConfiguration.current.screenWidthDp
-  val offset =
-      if (depth > 0) DpOffset((screenWidth - 180).dp, 0.dp) else DpOffset(x = (-16).dp, y = 0.dp)
+  val offset = DpOffset((if (depth > 0) (screenWidth - 180) else (-16)).dp, 0.dp)
   Box(modifier = Modifier.fillMaxWidth().padding(end = 16.dp)) {
     IconButton(
         modifier = Modifier.align(Alignment.CenterEnd),
