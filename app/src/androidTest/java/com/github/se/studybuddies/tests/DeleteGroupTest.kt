@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LeaveGroupTest : TestCase() {
+class DeleteGroupTest : TestCase() {
   @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
@@ -21,18 +21,9 @@ class LeaveGroupTest : TestCase() {
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   @Before
-  fun setUp() {
-    composeTestRule.setContent { GroupsSettingsButton("userTest", mockNavActions) }
+  fun setUpTest() {
+    composeTestRule.setContent { GroupsSettingsButton("015OJ6Lhmbp0XrLAkqHV", mockNavActions) }
   }
 
-  @Test
-  fun testLeaveGroupDisplay() {
-    /*ComposeScreen.onComposeScreen<GroupsHomeScreen>(
-    composeTestRule) {
-    GroupsSettingsButton { assertIsDisplayed() }
-      textDialogues { assertIsDisplayed() }
-      textDialoguesYes { assertIsDisplayed() }
-      textDialoguesNo { assertIsDisplayed() }
-    }*/
-  }
+  @Test fun testDeleteGroupDisplay() {}
 }

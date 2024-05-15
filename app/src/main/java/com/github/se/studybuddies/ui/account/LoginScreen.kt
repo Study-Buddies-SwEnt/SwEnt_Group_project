@@ -78,6 +78,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                       .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
                       .setIsSmartLockEnabled(false)
                       .build()
+
               signInLauncher.launch(signInIntent)
             },
             colors =

@@ -9,7 +9,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -53,7 +52,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           username = "testUser",
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-          location = R.string.offline.toString())
+          location = "offline")
   private val userVM = UserViewModel(uid)
   private val groupHomeVM = GroupsHomeViewModel(uid)
   private val groupVM = GroupViewModel(uid)

@@ -26,7 +26,8 @@ data class SoloStudyOption(val name: String, val icon_id: Int, val route: String
 val FLASH_CARD = SoloStudyOption("Flash Card", R.drawable.flash_cards, Route.PLACEHOLDER)
 val TODO_LIST = SoloStudyOption("ToDo List", R.drawable.to_do_list, Route.TODOLIST)
 val TIMER = SoloStudyOption("Timer", R.drawable.timer, Route.TIMER)
-val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.PLACEHOLDER)
+
+val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.CALENDAR)
 
 @Composable
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
