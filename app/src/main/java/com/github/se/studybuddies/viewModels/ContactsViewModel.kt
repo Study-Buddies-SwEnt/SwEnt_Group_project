@@ -3,7 +3,7 @@ package com.github.se.studybuddies.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   private val db = DatabaseConnection()
-  private val _contact = MutableStateFlow<List<Contact>>(emptyList())
-  val contacts: StateFlow<List<Contact>> = _contact
+  private val _contacts = MutableStateFlow<ContactList>(ContactList(emptyList()))
+  val contacts: StateFlow<ContactList> = _contacts
 
   init {
     if (uid != null) {
@@ -21,7 +21,6 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun createContact(otherUID: String) {
-
     viewModelScope.launch { db.createContact(otherUID) }
   }
 
@@ -29,7 +28,7 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     viewModelScope.launch {
       try {
         val contacts = db.getAllContacts(uid)
-        _contact.value = contacts
+        _contacts.value = contacts
       } catch (e: Exception) {
         Log.d("MyPrint", "In ViewModel, could not fetch contacts with error $e")
       }

@@ -1,12 +1,9 @@
 package com.github.se.studybuddies.data
 
-data class Contact(
-    val id: String,
-    val members: Pair<String, String>,
-) {
+data class Contact(val id: String, val members: Pair<String, String>, val showOnMap: Boolean) {
   companion object {
     fun empty(): Contact {
-      return Contact(id = "", members = Pair("", ""))
+      return Contact(id = "", members = Pair("", ""), false)
     }
   }
 }
