@@ -17,7 +17,7 @@ class ContactList(private val contacts: List<Contact>) {
     val filteredContacts =
         contacts.filter { contact ->
           contact.members.get(0).contains(searchQuery, ignoreCase = true) or
-                  contact.members.get(1).contains(searchQuery, ignoreCase = true)
+              contact.members.get(1).contains(searchQuery, ignoreCase = true)
         }
     return filteredContacts
   }

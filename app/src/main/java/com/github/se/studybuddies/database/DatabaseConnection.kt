@@ -1172,7 +1172,8 @@ class DatabaseConnection {
     val contactList = getAllContacts(uid)
 
     if (!contactList.getAllTasks().isNotEmpty()) {
-          (Log.d("contacttest", "problem"))}
+      (Log.d("contacttest", "problem"))
+    }
 
     if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
