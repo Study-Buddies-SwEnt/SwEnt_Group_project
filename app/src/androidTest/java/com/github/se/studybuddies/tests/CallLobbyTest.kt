@@ -69,10 +69,9 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
             token =
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0")
         .build()
+    val callVM = CallLobbyViewModel(uid, "default")
 
-    composeTestRule.setContent {
-      CallLobbyScreen(uid, CallLobbyViewModel(uid, "default"), mockNavActions)
-    }
+    composeTestRule.setContent { CallLobbyScreen(uid, callVM, mockNavActions) }
   }
 
   @Test
