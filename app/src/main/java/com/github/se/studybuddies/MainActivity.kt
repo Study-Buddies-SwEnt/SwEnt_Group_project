@@ -138,9 +138,13 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.CALENDAR) {
-
               ifNotNull(remember { auth.currentUser }) { _ ->
-                val calendarViewModel = remember { CalendarViewModel() }
+                val calendarViewModel = remember {
+                  auth.currentUser?.let { it1 -> CalendarViewModel(it1.uid) }
+                }
+                if (calendarViewModel != null) {
+                  CalendarApp(calendarViewModel, navigationActions)
+                }
 
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
