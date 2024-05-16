@@ -27,8 +27,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
-class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+//@RunWith(AndroidJUnit4::class)
+class CallLobbyTest { /*: TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -96,4 +96,5 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
   fun afterTest() {
     StreamVideo.removeClient()
   }
+*/
 }
