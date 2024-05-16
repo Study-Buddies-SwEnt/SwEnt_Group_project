@@ -89,7 +89,6 @@ class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
         assertIsDisplayed()
         assertHasClickAction()
       }
-
          */
     }
   }
