@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.calender.CalendarApp
+import com.github.se.studybuddies.calender.DailyPlannerScreen
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
           val chatViewModel = ChatViewModel()
           val startDestination = Route.START
+
           val context = LocalContext.current
           val apiKey = "x52wgjq8qyfc"
           val test_apiKey = "mmhfdzb5evj2" // test
@@ -131,7 +133,7 @@ class MainActivity : ComponentActivity() {
             composable(Route.CALENDAR) {
               val currentUser = auth.currentUser
               if (currentUser != null) {
-                CalendarApp(CalendarViewModel(), navigationActions)
+                CalendarApp(CalendarViewModel((currentUser.uid)), navigationActions)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
@@ -153,6 +155,17 @@ class MainActivity : ComponentActivity() {
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
                   if (backRoute != null) {
                     Settings(backRoute, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to Settings")
+                  }
+                }
+            composable(
+                route = "${Route.DAILYPLANNER}/{date}",
+                arguments = listOf(navArgument("date") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val date = backStackEntry.arguments?.getString("date")
+                  val currentUser = auth.currentUser
+                  if (date != null && currentUser != null) {
+                    DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
@@ -260,12 +273,11 @@ class MainActivity : ComponentActivity() {
                     applicationContext)
               }
             }
-            composable(Route.TIMER) {
+            composable("timer") { backStackEntry ->
               if (auth.currentUser != null) {
-
-                val viewModel = TimerViewModel.getInstance()
-
-                TimerScreenContent(viewModel, navigationActions = navigationActions)
+                TimerScreenContent(
+                    TimerViewModel.getInstance(),
+                    navigationActions = NavigationActions(navController))
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }

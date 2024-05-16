@@ -7,6 +7,7 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -63,11 +64,38 @@ class DatabaseConnection {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
-      User(uid, email, username, photoUrl, location)
+      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
+      val plannerList =
+          dailyPlanners.map { plannerMap ->
+            DailyPlanner(
+                date = plannerMap["date"] as String,
+                goals = plannerMap["goals"] as List<String>,
+                appointments = plannerMap["appointments"] as Map<String, String>,
+                notes = plannerMap["notes"] as List<String>)
+          }
+      User(uid, email, username, photoUrl, location, plannerList)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
     }
+  }
+
+  fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+    val plannerMap =
+        dailyPlanners.map { planner ->
+          mapOf(
+              "date" to planner.date,
+              "goals" to planner.goals,
+              "appointments" to planner.appointments,
+              "notes" to planner.notes)
+        }
+    userDataCollection
+        .document(uid)
+        .update("dailyPlanners", plannerMap)
+        .addOnSuccessListener {
+          Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
+        }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
   }
 
   suspend fun getCurrentUser(): User {
@@ -126,7 +154,8 @@ class DatabaseConnection {
             "email" to email,
             "username" to username,
             "photoUrl" to profilePictureUri.toString(),
-            "location" to location)
+            "location" to location,
+            "dailyPlanners" to emptyList<Map<String, Any>>())
     if (profilePictureUri != getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)

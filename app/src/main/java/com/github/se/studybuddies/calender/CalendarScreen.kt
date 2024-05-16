@@ -68,8 +68,8 @@ fun CalendarApp(
               dates = uiState.dates,
               onPreviousMonthButtonClicked = { prevMonth -> viewModel.toPreviousMonth(prevMonth) },
               onNextMonthButtonClicked = { nextMonth -> viewModel.toNextMonth(nextMonth) },
-              onDateClickListener = {
-                //  will do later on
+              onDateClickListener = { date ->
+                navigationActions.navigateTo("${Route.DAILYPLANNER}/$date")
               })
         }
   }
