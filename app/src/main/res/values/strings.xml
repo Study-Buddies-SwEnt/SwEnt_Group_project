@@ -69,7 +69,7 @@
     <string name="direct_messages_title">Private Messages</string>
     <string name="direct_messages_empty">There is no private messages chat</string>
     <string name="no_friends_found">No friends are available</string>
-    <string name="start_direct_message_title">New Private Messages Chats</string>
+    <string name="start_direct_message_title">New Chats</string>
     <string name="new_private_message_icon">New Private Message</string>
     <string name="edit_topic_name">Edit Topic Name</string>
     <string name="contentDescription_photo">Photo</string>
@@ -77,7 +77,6 @@
     <string name="square_add_icon">square_add_icon</string>
     <string name="arrow_icon">arrow_icon</string>
     <string name="friends_location_found">Friends location found</string>
-    <string name="offline">Offline</string>
     <string name="location_service_started">Location service started</string>
     <string name="location_service_stopped">Location service stopped</string>
     <string name="location_permission_not_granted">Location permission not granted or waiting for them</string>
@@ -88,6 +87,11 @@
     <string name="create_account">Create Account</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
+    <string name="warning_1_group_deletion">Are you sure you want to delete the group ?</string>
+    <string name="warning_2_group_deletion">This will delete the group and all its content for all members</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="warning_leave_group">Are you sure you want to leave the group ?</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
     <string name="ok">OK</string>

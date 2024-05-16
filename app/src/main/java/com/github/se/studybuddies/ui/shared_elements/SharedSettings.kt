@@ -66,7 +66,7 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
       onClick = save,
       enabled = enabled,
       modifier =
-          Modifier.padding(0.dp)
+          Modifier.padding(10.dp)
               .width(300.dp)
               .height(50.dp)
               .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))

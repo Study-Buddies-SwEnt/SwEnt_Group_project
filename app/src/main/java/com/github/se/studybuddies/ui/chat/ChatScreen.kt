@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -118,6 +119,8 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
+            val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
+            val displayName = viewModel.chat.type != ChatType.PRIVATE && !isCurrentUserMessageSender
             Row(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -130,15 +133,15 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                             })
                         .testTag("chat_message_row"),
                 horizontalArrangement =
-                    if (viewModel.isUserMessageSender(message)) {
+                    if (isCurrentUserMessageSender) {
                       Arrangement.End
                     } else {
                       Arrangement.Start
                     }) {
                   TextBubble(
                       message,
-                      !viewModel.isUserMessageSender(message) &&
-                          viewModel.chat.type != ChatType.PRIVATE)
+                      displayName,
+                  )
                 }
           }
         }
@@ -418,8 +421,6 @@ fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: Muta
         onDismissRequest = { showIconsOptions.value = false },
         text = {
           Column {
-            Text(text = "stringResource(R.string.icon_options")
-            Spacer(modifier = Modifier.height(8.dp))
             LazyRow {
               items(3) {
                 if (it == 0) {
@@ -430,7 +431,7 @@ fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: Muta
                       },
                       modifier = Modifier.padding(8.dp)) {
                         Icon(
-                            imageVector = Icons.Outlined.Add,
+                            painter = painterResource(id = R.drawable.image_24px),
                             contentDescription = stringResource(R.string.app_name),
                             tint = Blue)
                       }
