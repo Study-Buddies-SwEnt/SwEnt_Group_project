@@ -320,7 +320,7 @@ class MainActivity : ComponentActivity() {
                         call,
                         videoVM,
                     ) {
-                        videoVM.call.leave()
+                      videoVM.call.leave()
                       StreamVideo.instance().state.activeCall.value?.leave()
                       navController.popBackStack("${Route.GROUP}/$groupUID", false)
                     }
