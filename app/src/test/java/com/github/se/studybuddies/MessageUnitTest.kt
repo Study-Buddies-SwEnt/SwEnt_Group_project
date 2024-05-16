@@ -3,11 +3,11 @@ package com.github.se.studybuddies
 import android.net.Uri
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
+import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.util.Calendar
 
 @RunWith(RobolectricTestRunner::class)
 class MessageUnitTest {
