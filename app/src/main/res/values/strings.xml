@@ -43,6 +43,7 @@
     <string name="picture">Picture</string>
     <string name="select_a_profile_picture">Select a profile picture</string>
     <string name="select_a_picture">Select a picture</string>
+    <string name="select_a_file">Select a file</string>
     <string name="flash_card">Flash Card</string>
     <string name="todo_list">Todo List</string>
     <string name="focus_mode">Focus Mode</string>
