@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,7 +73,6 @@ fun GroupScreen(
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()
-  val coroutineScope = rememberCoroutineScope()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
@@ -98,12 +95,7 @@ fun GroupScreen(
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
-            actions = {
-              Icon(
-                  imageVector = Icons.Default.MoreVert,
-                  tint = Blue,
-                  contentDescription = stringResource(R.string.group_option))
-            })
+            actions = { GroupsSettingsButton(groupUID, navigationActions) })
       },
       floatingActionButton = {
         Row(

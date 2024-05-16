@@ -8,6 +8,7 @@ plugins {
     id("com.ncorti.ktfmt.gradle") version "0.16.0"
     id("com.google.gms.google-services")
     id("com.google.secrets_gradle_plugin") version "0.6"
+    id("kotlin-kapt")
 }
 android {
     namespace = "com.github.se.studybuddies"
@@ -33,6 +34,7 @@ android {
         //inject the key dynamically into the manifest
         manifestPlaceholders["MAPS_API_KEY"]  = apiKey
         }
+
 
     configurations.configureEach {
         exclude(group= "com.google.protobuf", module= "protobuf-lite")
@@ -174,6 +176,20 @@ dependencies {
 
     // Stream Video Compose SDK
     implementation("io.getstream:stream-video-android-ui-compose:0.5.1")
+
+    // For Robolectric tests.
+    testImplementation("com.google.dagger:hilt-android-testing:2.44")
+    // ...with Kotlin.
+    kaptTest("com.google.dagger:hilt-android-compiler:2.44")
+    // ...with Java.
+    testAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.44")
+
+    // For instrumented tests.
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.44")
+    // ...with Kotlin.
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
+    // ...with Java.
+    androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.44")
 
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {
