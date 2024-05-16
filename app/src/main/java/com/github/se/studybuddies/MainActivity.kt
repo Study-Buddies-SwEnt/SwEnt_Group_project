@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -69,17 +70,15 @@ import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
-  @Inject lateinit var locationApp: LocationApp
-  private val chatViewModel: ChatViewModel by viewModels()
-  private val usersViewModel: UsersViewModel by viewModels()
-  private val directMessageViewModel: DirectMessageViewModel by viewModels()
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
     val db = DatabaseConnection()
+      val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
+        val usersViewModel = UsersViewModel(userUid = "", db = db)
+      val chatViewModel = ChatViewModel()
 
-    val studyBuddies = application as LocationApp
+      val studyBuddies = application as LocationApp
 
     setContent {
       StudyBuddiesTheme {
@@ -109,7 +108,7 @@ class MainActivity : ComponentActivity() {
           }
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
+                ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
                 db.userExists(
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
@@ -130,8 +129,8 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.GROUPSHOME) {
               ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid) }
-                GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions)
+                val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid,db) }
+                GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions,db)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
@@ -148,8 +147,8 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   ifNotNull(groupUID) { groupUID ->
-                    val groupViewModel = remember { GroupViewModel(groupUID) }
-                    GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions)
+                    val groupViewModel = remember { GroupViewModel(groupUID,db) }
+                    GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions,db)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -170,14 +169,14 @@ class MainActivity : ComponentActivity() {
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
                   val currentUser = remember { auth.currentUser }
                   if (backRoute != null && currentUser != null) {
-                    val userViewModel = remember { UserViewModel(currentUser.uid) }
+                    val userViewModel = remember { UserViewModel(currentUser.uid,db) }
                     AccountSettings(currentUser.uid, userViewModel, backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
             composable(Route.CREATEACCOUNT) {
               ifNotNull(auth.currentUser) { _ ->
-                val userViewModel = remember { UserViewModel() }
+                val userViewModel = remember { UserViewModel(db=db) }
                 CreateAccount(userViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
               }
@@ -188,14 +187,14 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    val topicViewModel = remember { TopicViewModel() }
+                    val topicViewModel = remember { TopicViewModel(db=db) }
                     TopicCreation(groupUID, topicViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Creation of topic ")
                   }
                 }
             composable(Route.CREATEGROUP) {
               ifNotNull(auth.currentUser) { _ ->
-                val groupViewModel = remember { GroupViewModel() }
+                val groupViewModel = remember { GroupViewModel(db=db) }
                 CreateGroup(groupViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
@@ -214,15 +213,15 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   ifNotNull(groupUID) { groupUID ->
-                    val groupViewModel = remember { GroupViewModel(groupUID) }
-                    GroupSetting(groupUID, groupViewModel, navigationActions)
+                    val groupViewModel = remember { GroupViewModel(groupUID,db) }
+                    GroupSetting(groupUID, groupViewModel, navigationActions,db)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }
             composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
-              ChatScreen(messageViewModel, navigationActions)
+              ChatScreen(messageViewModel, navigationActions,db)
             }
             composable(Route.SOLOSTUDYHOME) {
               ifNotNull(auth.currentUser) { _ ->
@@ -261,8 +260,8 @@ class MainActivity : ComponentActivity() {
 
             composable(Route.MAP) {
               ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val userViewModel = remember { UserViewModel(currentUser.uid) }
-                val usersViewModel = remember { UsersViewModel(currentUser.uid) }
+                val userViewModel = remember { UserViewModel(currentUser.uid,db) }
+                val usersViewModel = remember { UsersViewModel(currentUser.uid,db) }
                 MapScreen(
                     currentUser.uid,
                     userViewModel,
@@ -297,7 +296,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   ifNotNull(groupUID) { groupUID ->
-                    val viewModel2 = remember { SharedTimerViewModel.getInstance(groupUID) }
+                    val viewModel2 = remember { SharedTimerViewModel.getInstance(groupUID,db) }
                     SharedTimerScreen(navigationActions, viewModel2, groupUID)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
@@ -311,8 +310,8 @@ class MainActivity : ComponentActivity() {
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (topicUID != null && groupUID != null) {
-                    val groupViewModel = remember { GroupViewModel(groupUID) }
-                    val topicViewModel = remember { TopicViewModel(topicUID) }
+                    val groupViewModel = remember { GroupViewModel(groupUID,db) }
+                    val topicViewModel = remember { TopicViewModel(topicUID,db) }
                     TopicScreen(
                         groupUID,
                         topicUID,
@@ -332,7 +331,7 @@ class MainActivity : ComponentActivity() {
                   val topicUID = backStackEntry.arguments?.getString("topicUID")
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (topicUID != null && groupUID != null) {
-                    val topicViewModel = remember { TopicViewModel(topicUID) }
+                    val topicViewModel = remember { TopicViewModel(topicUID,db) }
                     TopicSettings(topicUID, groupUID, topicViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
@@ -367,9 +366,10 @@ class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
+      val db = DatabaseConnection()
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
-    val userViewModel = UserViewModel(currentUser?.uid)
+    val userViewModel = UserViewModel(currentUser?.uid,db)
     // Set the user to offline when he closes the app
     if (currentUser != null) {
       userViewModel.updateLocation(currentUser.uid, "offline")

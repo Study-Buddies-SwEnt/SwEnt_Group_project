@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class DirectMessageViewModel(userUid: String = "") : ViewModel() {
-  private val db = DatabaseConnection()
+class DirectMessageViewModel(private val userUid: String = "",private val db : DatabaseConnection) : ViewModel() {
   private val _userUid = MutableStateFlow(userUid)
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
   val directMessages =

@@ -13,7 +13,6 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateAccountScreen
-import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount

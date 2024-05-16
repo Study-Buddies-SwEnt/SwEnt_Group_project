@@ -64,6 +64,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -81,7 +82,8 @@ import kotlinx.coroutines.launch
 fun GroupsHome(
     uid: String,
     groupsHomeViewModel: GroupsHomeViewModel,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    db: DatabaseConnection
 ) {
   val coroutineScope = rememberCoroutineScope()
   groupsHomeViewModel.fetchGroups(uid)
@@ -118,7 +120,7 @@ fun GroupsHome(
                     modifier = Modifier.testTag("EmptyGroupText"))
                 Spacer(modifier = Modifier.height(80.dp))
                 AddGroupButton(navigationActions = navigationActions)
-                AddLinkButton(navigationActions = navigationActions)
+                AddLinkButton(navigationActions = navigationActions,db)
               }
         } else {
           Column(
@@ -131,9 +133,9 @@ fun GroupsHome(
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
-                  items(groupList.value) { group -> GroupItem(group, navigationActions) }
+                  items(groupList.value) { group -> GroupItem(group, navigationActions,db) }
                   item { AddGroupButton(navigationActions) }
-                  item { AddLinkButton(navigationActions) }
+                  item { AddLinkButton(navigationActions,db) }
                 })
           }
         }
@@ -143,11 +145,11 @@ fun GroupsHome(
 }
 
 @Composable
-fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions) {
+fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,db: DatabaseConnection) {
   var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
-  val groupViewModel = GroupViewModel(groupUID)
+  val groupViewModel = GroupViewModel(groupUID,db)
   Row {
     IconButton(
         modifier = Modifier.testTag("GroupsSettingsButton"),
@@ -302,7 +304,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions)
 }
 
 @Composable
-fun GroupItem(group: Group, navigationActions: NavigationActions) {
+fun GroupItem(group: Group, navigationActions: NavigationActions,db: DatabaseConnection) {
   Box(
       modifier =
           Modifier.fillMaxWidth()
@@ -333,7 +335,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          GroupsSettingsButton(group.uid, navigationActions)
+          GroupsSettingsButton(group.uid, navigationActions,db)
         }
       }
 }
@@ -361,7 +363,7 @@ fun AddGroupButton(navigationActions: NavigationActions) {
 }
 
 @Composable
-fun AddLinkButton(navigationActions: NavigationActions) {
+fun AddLinkButton(navigationActions: NavigationActions,db:  DatabaseConnection) {
   var text by remember { mutableStateOf("") }
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
@@ -405,7 +407,7 @@ fun AddLinkButton(navigationActions: NavigationActions) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
-                  val groupVM = GroupViewModel(groupUID)
+                  val groupVM = GroupViewModel(groupUID,db)
                   groupVM.addUserToGroup(groupUID)
                   navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                 }),

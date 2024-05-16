@@ -9,8 +9,7 @@ import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.launch
 
-class GroupsHomeViewModel(private val uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class GroupsHomeViewModel(private val uid: String? = null,private val db : DatabaseConnection) : ViewModel() {
   private val _groups = MutableLiveData(GroupList(emptyList()))
   val groups: LiveData<GroupList> = _groups
 

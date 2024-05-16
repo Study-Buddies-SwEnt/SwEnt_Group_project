@@ -50,6 +50,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -69,7 +70,8 @@ fun GroupScreen(
     groupUID: String,
     groupViewModel: GroupViewModel,
     chatViewModel: ChatViewModel,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    db: DatabaseConnection
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()
@@ -95,7 +97,7 @@ fun GroupScreen(
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
-            actions = { GroupsSettingsButton(groupUID, navigationActions) })
+            actions = { GroupsSettingsButton(groupUID, navigationActions,db) })
       },
       floatingActionButton = {
         Row(

@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
@@ -67,7 +68,8 @@ import kotlinx.coroutines.launch
 fun GroupSetting(
     groupUID: String,
     groupViewModel: GroupViewModel,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    db: DatabaseConnection
 ) {
 
   if (groupUID.isEmpty()) return
@@ -112,7 +114,7 @@ fun GroupSetting(
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
-            actions = { GroupsSettingsButton(groupUID, navigationActions) })
+            actions = { GroupsSettingsButton(groupUID, navigationActions,db) })
       }) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize(),

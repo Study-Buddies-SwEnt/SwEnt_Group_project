@@ -13,8 +13,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class SharedTimerViewModel private constructor(private val groupUID: String) : ViewModel() {
-  private val databaseConnection = DatabaseConnection()
+class SharedTimerViewModel private constructor(private val groupUID: String,private val db : DatabaseConnection) : ViewModel() {
   private val _timerValue = MutableStateFlow(0L) // Holds the current timer value in milliseconds
   val timerValue: StateFlow<Long> = _timerValue
 
@@ -27,9 +26,9 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
   companion object {
     private val instances = mutableMapOf<String, SharedTimerViewModel>()
 
-    fun getInstance(groupUID: String): SharedTimerViewModel {
+    fun getInstance(groupUID: String,db:DatabaseConnection): SharedTimerViewModel {
 
-      return instances.getOrPut(groupUID) { SharedTimerViewModel(groupUID) }
+      return instances.getOrPut(groupUID) { SharedTimerViewModel(groupUID,db) }
     }
   }
 
@@ -39,7 +38,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
 
   private fun subscribeToTimerUpdates() {
     groupUID?.let { uid ->
-      val timerRef = databaseConnection.getTimerReference(uid)
+      val timerRef = db.getTimerReference(uid)
       timerRef.addValueEventListener(
           object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -88,7 +87,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
     setupTimer(_timerValue.value)
     isRunning = true
     groupUID?.let { uid ->
-      viewModelScope.launch { databaseConnection.updateGroupTimer(uid, newEndTime, true) }
+      viewModelScope.launch { db.updateGroupTimer(uid, newEndTime, true) }
     }
   }
 
@@ -97,7 +96,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
     countDownTimer?.cancel()
     groupUID?.let { uid ->
       viewModelScope.launch() {
-        databaseConnection.updateGroupTimer(
+        db.updateGroupTimer(
             uid, System.currentTimeMillis() + _timerValue.value, false)
       }
     }
@@ -109,7 +108,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
     _timerEnd.value = false
     countDownTimer?.cancel()
     groupUID?.let { uid ->
-      viewModelScope.launch() { databaseConnection.updateGroupTimer(uid, 0L, false) }
+      viewModelScope.launch() { db.updateGroupTimer(uid, 0L, false) }
     }
   }
 
@@ -138,7 +137,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
       }
       groupUID?.let { uid ->
         val newEndTime = System.currentTimeMillis() + newTime
-        viewModelScope.launch { databaseConnection.updateGroupTimer(uid, newEndTime, isRunning) }
+        viewModelScope.launch { db.updateGroupTimer(uid, newEndTime, isRunning) }
       }
     }
   }
