@@ -13,6 +13,7 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateAccountScreen
+import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
@@ -113,19 +114,19 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun groupCreateJoin() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       // Create account
-      // saveButton { assertIsNotEnabled() }
+      saveButton { assertIsNotEnabled() }
       usernameField {
         performTextClearance()
         performTextInput("UserTestE2E")
         assertTextContains("UserTestE2E")
       }
       Espresso.closeSoftKeyboard()
-      // saveButton { performClick() }
+      saveButton { performClick() }
     }
-    /*ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
+    ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
-      groupsBottom { performClick() }
-    }
+      //groupsBottom { performClick() }
+    }/*
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       addButton { performClick() }
     }
