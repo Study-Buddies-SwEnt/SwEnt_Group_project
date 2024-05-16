@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class CallLobbyViewModel(val uid: String) : ViewModel() {
+class CallLobbyViewModel(val uid: String, val callType: String) : ViewModel() {
 
   val call: Call by lazy {
     val streamVideo = StreamVideo.instance()
-    val call = streamVideo.call("default", uid)
+    val call = streamVideo.call(callType, uid)
 
     viewModelScope.launch {
       // create the call if it doesn't exist - this will also load the settings for the call,
