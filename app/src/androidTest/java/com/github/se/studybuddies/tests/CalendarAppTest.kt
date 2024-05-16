@@ -25,10 +25,11 @@ class CalendarAppTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @get:Rule val mockkRule = MockKRule(this)
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
+  val uid = "111testUser"
 
   @Before
   fun testSetup() {
-    val vm = CalendarViewModel() // Consider using a mock or a test ViewModel instance
+    val vm = CalendarViewModel(uid) // Consider using a mock or a test ViewModel instance
     composeTestRule.setContent { CalendarApp(viewModel = vm, navigationActions = mockNavActions) }
   }
 
