@@ -282,6 +282,7 @@ class MainActivity : ComponentActivity() {
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null && StreamVideo.isInstalled) {
                     val viewModel = remember { CallLobbyViewModel(groupUID, callType) }
+                    Log.d("MyPrint", "Join VideoCall lobby")
                     CallLobbyScreen(groupUID, viewModel, navigationActions)
                   } else {
                     Log.d("MyPrint", "Failed bc video call client isn't installed")
@@ -314,12 +315,13 @@ class MainActivity : ComponentActivity() {
                           streamVideo.call(callType, groupUID)
                         }
                     val videoVM = remember { VideoCallViewModel(call, groupUID) }
+                    Log.d("MyPrint", "Join VideoCallScreen")
                     VideoCallScreen(
                         call,
                         videoVM,
                     ) {
+                        videoVM.call.leave()
                       StreamVideo.instance().state.activeCall.value?.leave()
-                      call.leave()
                       navController.popBackStack("${Route.GROUP}/$groupUID", false)
                     }
                   }

@@ -6,11 +6,22 @@ import androidx.lifecycle.viewModelScope
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.DeviceStatus
 import io.getstream.video.android.core.StreamVideo
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class CallLobbyViewModel(val uid: String, val callType: String) : ViewModel() {
+class CallLobbyViewModel @Inject constructor(val uid: String, val callType: String) : ViewModel() {
+
+  data class UiState(
+      val isLoading: Boolean = true,
+      val isCameraEnabled: Boolean = false,
+      val isMicrophoneEnabled: Boolean = false
+  )
 
   val call: Call by lazy {
     val streamVideo = StreamVideo.instance()
@@ -32,32 +43,18 @@ class CallLobbyViewModel(val uid: String, val callType: String) : ViewModel() {
     call
   }
 
-  init {
-    call.microphone.setEnabled(false)
-    call.camera.setEnabled(true)
-
-    viewModelScope.launch {
-      // wait for settings (this will not block the UI) and then update the camera
-      // based on it
-      val settings = call.state.settings.first { it != null }
-
-      val enabled =
-          when (call.camera.status.first()) {
-            is DeviceStatus.NotSelected -> {
-              settings?.video?.cameraDefaultOn ?: false
-            }
-            is DeviceStatus.Enabled -> {
-              true
-            }
-            is DeviceStatus.Disabled -> {
-              false
-            }
+  val state: StateFlow<UiState> =
+      flow {
+            emit(UiState(isLoading = true))
+            val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
+            val isMicrophoneEnabled = call.microphone.status.first() is DeviceStatus.Enabled
+            emit(
+                UiState(
+                    isLoading = false,
+                    isCameraEnabled = isCameraEnabled,
+                    isMicrophoneEnabled = isMicrophoneEnabled))
           }
-
-      // enable/disable camera capture (no preview would be visible otherwise)
-      call.camera.setEnabled(enabled)
-    }
-  }
+          .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
 
   private val event: MutableSharedFlow<CallLobbyEvent> = MutableSharedFlow()
 
@@ -69,17 +66,8 @@ class CallLobbyViewModel(val uid: String, val callType: String) : ViewModel() {
     call.microphone.setEnabled(enabled)
   }
 
-  fun signOut() {
-    viewModelScope.launch {
-      StreamVideo.instance().logOut()
-      StreamVideo.removeClient()
-    }
+  sealed interface CallLobbyEvent {
+
+    data class JoinFailed(val reason: String?) : CallLobbyEvent
   }
-}
-
-sealed interface CallLobbyEvent {
-
-  data object JoinCall : CallLobbyEvent
-
-  data class JoinFailed(val reason: String?) : CallLobbyEvent
 }
