@@ -87,7 +87,7 @@ class MessageUnitTest {
   @Test
   fun testLinkMessage() {
     // Arrange
-    val linkMessage = Message.LinkMessage("test-uid","", Uri.EMPTY, testUser, 0)
+    val linkMessage = Message.LinkMessage("test-uid", "", Uri.EMPTY, testUser, 0)
     // Act
     val linkUri = linkMessage.linkUri
     // Assert
@@ -97,7 +97,7 @@ class MessageUnitTest {
   @Test
   fun testFileMessage() {
     // Arrange
-    val fileMessage = Message.FileMessage("test-uid","", Uri.EMPTY, testUser, 0)
+    val fileMessage = Message.FileMessage("test-uid", "", Uri.EMPTY, testUser, 0)
     // Act
     val fileUri = fileMessage.fileUri
     // Assert
