@@ -1135,7 +1135,7 @@ class DatabaseConnection {
         contactsUIDs?.let { contactsIDs ->
           contactsIDs.forEach { contactID ->
             val document = contactDataCollection.document(contactID).get().await()
-            val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
+            val members = document.get("members") as? List<String> ?: emptyList()
             val showOnMap = document.get("showOnMap") as Boolean
             items.add(Contact(contactID, members, showOnMap))
           }
@@ -1154,7 +1154,7 @@ class DatabaseConnection {
   suspend fun getContact(contactUID: String): Contact {
     val document = contactDataCollection.document(contactUID).get().await()
     return if (document.exists()) {
-      val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
+      val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
       Contact(contactUID, members, showOnMap)
     } else {
@@ -1170,6 +1170,10 @@ class DatabaseConnection {
 
     // check if contact already exists
     val contactList = getAllContacts(uid)
+
+    if (!contactList.getAllTasks().isNotEmpty()) {
+          (Log.d("contacttest", "problem"))}
+
     if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
     } else {
