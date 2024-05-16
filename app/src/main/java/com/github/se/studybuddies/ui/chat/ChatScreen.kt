@@ -163,10 +163,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 fun TextBubble(message: Message, displayName: Boolean = false) {
   val browserLauncher =
       rememberLauncherForActivityResult(
-          contract = ActivityResultContracts.StartActivityForResult()) { result ->
-            // Handle the result if needed
-          }
-  val context = LocalContext.current
+          contract = ActivityResultContracts.StartActivityForResult()) {}
 
   Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
     if (displayName) {
@@ -350,8 +347,6 @@ fun OptionsDialog(
             Text(text = selectedMessage.getDate())
             if (viewModel.isUserMessageSender(selectedMessage)) {
               Spacer(modifier = Modifier.height(8.dp))
-              if (selectedMessage is Message.TextMessage) {}
-
               when (selectedMessage) {
                 // LinkMessage is commented due to the lack of update of the linkName field yet
                 // (only the linkUri field is updated)
