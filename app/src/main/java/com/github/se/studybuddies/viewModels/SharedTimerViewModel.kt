@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.TimerState
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class SharedTimerViewModel private constructor(private val groupUID: String,private val db : DatabaseConnection) : ViewModel() {
+class SharedTimerViewModel private constructor(private val groupUID: String, private val db: DbRepository) : ViewModel() {
   private val _timerValue = MutableStateFlow(0L) // Holds the current timer value in milliseconds
   val timerValue: StateFlow<Long> = _timerValue
 
@@ -26,7 +26,7 @@ class SharedTimerViewModel private constructor(private val groupUID: String,priv
   companion object {
     private val instances = mutableMapOf<String, SharedTimerViewModel>()
 
-    fun getInstance(groupUID: String,db:DatabaseConnection): SharedTimerViewModel {
+    fun getInstance(groupUID: String, db: DbRepository): SharedTimerViewModel {
 
       return instances.getOrPut(groupUID) { SharedTimerViewModel(groupUID,db) }
     }

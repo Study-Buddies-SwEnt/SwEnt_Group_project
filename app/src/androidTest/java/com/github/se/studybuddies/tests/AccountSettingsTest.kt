@@ -6,7 +6,6 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.AccountSettingsScreen
 import com.github.se.studybuddies.ui.account.AccountSettings
-import com.github.se.studybuddies.utility.fakeDatabase.FakeDataBaseConnection
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso

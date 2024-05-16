@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.tests
 
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4

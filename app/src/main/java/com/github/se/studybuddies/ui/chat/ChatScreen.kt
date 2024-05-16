@@ -66,7 +66,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
@@ -81,7 +81,7 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions,db: DatabaseConnection) {
+fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions, db: DbRepository) {
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
@@ -279,7 +279,7 @@ fun OptionsDialog(
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
-    db : DatabaseConnection
+    db: DbRepository
 ) {
   if (showOptionsDialog.value) {
     AlertDialog(

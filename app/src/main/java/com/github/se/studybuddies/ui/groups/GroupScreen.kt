@@ -50,7 +50,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -71,7 +71,7 @@ fun GroupScreen(
     groupViewModel: GroupViewModel,
     chatViewModel: ChatViewModel,
     navigationActions: NavigationActions,
-    db: DatabaseConnection
+    db: DbRepository
 ) {
   val group by groupViewModel.group.observeAsState()
   val topics by groupViewModel.topics.observeAsState()

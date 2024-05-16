@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,6 +20,7 @@ import androidx.navigation.navArgument
 import com.github.se.studybuddies.calender.CalendarApp
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -66,14 +65,13 @@ import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.model.User
-import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
-    val db = DatabaseConnection()
+    val db : DbRepository = DatabaseConnection()
       val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
         val usersViewModel = UsersViewModel(userUid = "", db = db)
       val chatViewModel = ChatViewModel()
@@ -176,7 +174,7 @@ class MainActivity : ComponentActivity() {
                 }
             composable(Route.CREATEACCOUNT) {
               ifNotNull(auth.currentUser) { _ ->
-                val userViewModel = remember { UserViewModel(db=db) }
+                val userViewModel = remember { UserViewModel(db =db) }
                 CreateAccount(userViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
               }
@@ -187,14 +185,14 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null) {
-                    val topicViewModel = remember { TopicViewModel(db=db) }
+                    val topicViewModel = remember { TopicViewModel(db =db) }
                     TopicCreation(groupUID, topicViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Creation of topic ")
                   }
                 }
             composable(Route.CREATEGROUP) {
               ifNotNull(auth.currentUser) { _ ->
-                val groupViewModel = remember { GroupViewModel(db=db) }
+                val groupViewModel = remember { GroupViewModel(db =db) }
                 CreateGroup(groupViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }

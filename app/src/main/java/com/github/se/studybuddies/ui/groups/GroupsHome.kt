@@ -64,7 +64,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Group
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -83,7 +83,7 @@ fun GroupsHome(
     uid: String,
     groupsHomeViewModel: GroupsHomeViewModel,
     navigationActions: NavigationActions,
-    db: DatabaseConnection
+    db: DbRepository
 ) {
   val coroutineScope = rememberCoroutineScope()
   groupsHomeViewModel.fetchGroups(uid)
@@ -145,7 +145,7 @@ fun GroupsHome(
 }
 
 @Composable
-fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,db: DatabaseConnection) {
+fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions, db: DbRepository) {
   var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
@@ -304,7 +304,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
 }
 
 @Composable
-fun GroupItem(group: Group, navigationActions: NavigationActions,db: DatabaseConnection) {
+fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbRepository) {
   Box(
       modifier =
           Modifier.fillMaxWidth()
@@ -363,7 +363,7 @@ fun AddGroupButton(navigationActions: NavigationActions) {
 }
 
 @Composable
-fun AddLinkButton(navigationActions: NavigationActions,db:  DatabaseConnection) {
+fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
   var text by remember { mutableStateOf("") }
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
