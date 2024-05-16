@@ -1,33 +1,14 @@
 package com.github.se.studybuddies.tests
 
-import android.content.Context
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
-import androidx.test.rule.GrantPermissionRule
-import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.screens.CallLobbyScreen
-import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
-import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import io.getstream.video.android.core.StreamVideo
-import io.getstream.video.android.core.StreamVideoBuilder
-import io.getstream.video.android.model.User
-import io.github.kakaocup.compose.node.element.ComposeScreen
-import io.mockk.impl.annotations.RelaxedMockK
-import io.mockk.junit4.MockKRule
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CallLobbyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
-    /*
+  /*
       @get:Rule val composeTestRule = createComposeRule()
 
       @get:Rule
