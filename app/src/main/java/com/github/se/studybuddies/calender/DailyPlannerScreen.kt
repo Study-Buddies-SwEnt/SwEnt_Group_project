@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -83,7 +84,7 @@ fun DailyPlannerScreen(
       modifier = Modifier.fillMaxSize(),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title("Daily Planner") },
+            title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
             navigationIcon = { GoBackRouteButton(navigationActions, Route.CALENDAR) },
             actions = {})
       },
@@ -101,13 +102,13 @@ fun DailyPlannerScreen(
           Row {
             Column(modifier = Modifier.weight(1f).padding(end = 3.dp)) {
               PlannerSection(
-                  title = "Today's Goals",
+                  title = stringResource(id = R.string.todays_goals),
                   items = goals,
                   onItemChange = { index, value -> goals[index] = value },
                   onAddItemClick = { showAddGoalDialog = true })
               Spacer(modifier = Modifier.height(16.dp))
               PlannerSection(
-                  title = "Notes",
+                  title = stringResource(id = R.string.notes),
                   items = notes,
                   onItemChange = { index, value -> notes[index] = value },
                   onAddItemClick = { showAddNoteDialog = true })
@@ -126,12 +127,12 @@ fun DailyPlannerScreen(
   if (showAddGoalDialog) {
     AlertDialog(
         onDismissRequest = { showAddGoalDialog = false },
-        title = { Text("Add Goal", color = Blue) },
+        title = { Text(stringResource(id = R.string.add_goal), color = Blue) },
         text = {
           TextField(
               value = newGoalText,
               onValueChange = { newGoalText = it },
-              label = { Text("Goal", color = Blue) },
+              label = { Text(stringResource(id = R.string.goal), color = Blue) },
               colors =
                   TextFieldDefaults.textFieldColors(
                       textColor = Blue,
@@ -149,14 +150,14 @@ fun DailyPlannerScreen(
                 showAddGoalDialog = false
               },
               colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text("Add", color = White)
+                Text(stringResource(id = R.string.add), color = White)
               }
         },
         dismissButton = {
           Button(
               onClick = { showAddGoalDialog = false },
               colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text("Cancel", color = White)
+                Text(stringResource(id = R.string.cancel), color = White)
               }
         })
   }
@@ -164,12 +165,12 @@ fun DailyPlannerScreen(
   if (showAddNoteDialog) {
     AlertDialog(
         onDismissRequest = { showAddNoteDialog = false },
-        title = { Text("Add Note", color = Blue) },
+        title = { Text(stringResource(id = R.string.add_note), color = Blue) },
         text = {
           TextField(
               value = newNoteText,
               onValueChange = { newNoteText = it },
-              label = { Text("Note", color = Blue) },
+              label = { Text(stringResource(id = R.string.note), color = Blue) },
               colors =
                   TextFieldDefaults.textFieldColors(
                       textColor = Blue,
@@ -187,14 +188,14 @@ fun DailyPlannerScreen(
                 showAddNoteDialog = false
               },
               colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text("Add", color = White)
+                Text(stringResource(id = R.string.add), color = White)
               }
         },
         dismissButton = {
           Button(
               onClick = { showAddNoteDialog = false },
               colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text("Cancel", color = White)
+                Text(stringResource(id = R.string.cancel), color = White)
               }
         })
   }
@@ -202,13 +203,13 @@ fun DailyPlannerScreen(
   if (showAddAppointmentDialog) {
     AlertDialog(
         onDismissRequest = { showAddAppointmentDialog = false },
-        title = { Text("Add Appointment", color = Blue) },
+        title = { Text(stringResource(id = R.string.add_appointment), color = Blue) },
         text = {
           Column {
             TextField(
                 value = newAppointmentText,
                 onValueChange = { newAppointmentText = it },
-                label = { Text("Appointment Title", color = Blue) },
+                label = { Text(stringResource(id = R.string.appointment_title), color = Blue) },
                 colors =
                     TextFieldDefaults.textFieldColors(
                         textColor = Blue,
@@ -222,7 +223,7 @@ fun DailyPlannerScreen(
                   onValueChange = {
                     newAppointmentHour = it.filter { char -> char.isDigit() }.take(2)
                   },
-                  label = { Text("Hour", color = Blue) },
+                  label = { Text(stringResource(id = R.string.hour), color = Blue) },
                   modifier = Modifier.weight(1f),
                   colors =
                       TextFieldDefaults.textFieldColors(
@@ -237,7 +238,7 @@ fun DailyPlannerScreen(
                   onValueChange = {
                     newAppointmentMinute = it.filter { char -> char.isDigit() }.take(2)
                   },
-                  label = { Text("Minute", color = Blue) },
+                  label = { Text(stringResource(id = R.string.minute), color = Blue) },
                   modifier = Modifier.weight(1f),
                   colors =
                       TextFieldDefaults.textFieldColors(
@@ -269,14 +270,14 @@ fun DailyPlannerScreen(
                 showAddAppointmentDialog = false
               },
               colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text("Add", color = White)
+                Text(stringResource(id = R.string.add), color = White)
               }
         },
         dismissButton = {
           Button(
               onClick = { showAddAppointmentDialog = false },
               colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text("Cancel", color = White)
+                Text(stringResource(id = R.string.cancel), color = White)
               }
         })
   }
@@ -351,7 +352,7 @@ fun AppointmentsSection(
   Column {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Text(
-          "Appointments",
+          text = stringResource(id = R.string.appointments),
           color = Blue,
           fontFamily = FontFamily(Font(R.font.coolvetica_regular)),
           fontSize = 18.sp)
