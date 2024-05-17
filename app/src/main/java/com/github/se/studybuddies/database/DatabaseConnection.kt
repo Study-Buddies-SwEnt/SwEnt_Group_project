@@ -670,12 +670,21 @@ class DatabaseConnection {
         }
       }
       is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
+        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
+            messageData[MessageVal.FILE] = uri.toString()
+            messageData[MessageVal.FILE_NAME] = message.fileName
+            messageData[MessageVal.TYPE] = MessageVal.FILE
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload file")
+          }
+        }
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
+        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
@@ -713,6 +722,19 @@ class DatabaseConnection {
         }
   }
 
+  private fun uploadChatFile(uid: String, chatUID: String, fileUri: Uri, callback: (Uri?) -> Unit) {
+    val storagePath = "chatData/$chatUID/$uid"
+    val fileRef = storage.child(storagePath)
+
+    fileRef
+        .putFile(fileUri)
+        .addOnSuccessListener { fileRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) } }
+        .addOnFailureListener { e ->
+          Log.e("UploadChatFile", "Failed to upload file: ", e)
+          callback(null)
+        }
+  }
+
   fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rtDb.getReference(messagePath).removeValue()
@@ -723,14 +745,20 @@ class DatabaseConnection {
     rtDb.getReference(topic.toString()).removeValue()
   }
 
-  fun editMessage(
-      groupUID: String,
-      message: Message.TextMessage,
-      chatType: ChatType,
-      newText: String
-  ) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+    when (message) {
+      is Message.TextMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+      }
+      is Message.LinkMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.LINK to newText))
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
+    }
   }
 
   private fun getMessagePath(
@@ -836,12 +864,16 @@ class DatabaseConnection {
                       MessageVal.FILE -> {
                         val fileUri =
                             postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                        Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                        val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
+                        Message.FileMessage(
+                            postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
                       }
                       MessageVal.LINK -> {
                         val linkUri =
                             postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                        Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                        val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
+                        Message.LinkMessage(
+                            postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
                       }
                       else -> {
                         Log.d("MyPrint", "Message type not recognized: $type")

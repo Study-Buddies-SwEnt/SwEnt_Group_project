@@ -43,6 +43,7 @@ sealed class Message {
 
   data class LinkMessage(
       override val uid: String = UUID.randomUUID().toString(),
+      val linkName: String,
       val linkUri: Uri,
       override val sender: User,
       override val timestamp: Long,
@@ -50,6 +51,7 @@ sealed class Message {
 
   data class FileMessage(
       override val uid: String = UUID.randomUUID().toString(),
+      val fileName: String,
       val fileUri: Uri,
       override val sender: User,
       override val timestamp: Long,
@@ -115,5 +117,8 @@ object MessageVal {
   const val TEXT = "text"
   const val PHOTO = "photoUri"
   const val LINK = "linkUri"
+  const val LINK_NAME = "linkName"
   const val FILE = "fileUri"
+  const val FILE_NAME = "fileName"
+  const val FILE_TYPE = "application/pdf"
 }
