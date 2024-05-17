@@ -5,7 +5,12 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+<<<<<<< calender_event
 import com.github.se.studybuddies.data.DailyPlanner
+=======
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
+>>>>>>> main
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -50,6 +55,8 @@ class DatabaseConnection {
   private val groupDataCollection = db.collection("groupData")
   private val topicDataCollection = db.collection("topicData")
   private val topicItemCollection = db.collection("topicItemData")
+  private val contactDataCollection = db.collection("contactData")
+  private val userContactsCollection = db.collection("userContacts")
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
@@ -224,6 +231,15 @@ class DatabaseConnection {
         .addOnSuccessListener { Log.d("MyPrint", "User memberships successfully created") }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
+        }
+
+    val contactList = hashMapOf("contacts" to emptyList<String>())
+    userContactsCollection
+        .document(uid)
+        .set(contactList)
+        .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to create user contact list with error: ", e)
         }
   }
 
@@ -1164,6 +1180,101 @@ class DatabaseConnection {
       Log.d("MyPrint", "Could not fetch topics with error ", e)
     }
     return TopicList(emptyList())
+  }
+
+  suspend fun getAllContacts(uid: String): ContactList {
+    try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<Contact>()
+
+      if (snapshot.exists()) {
+        val contactsUIDs = snapshot.data?.get("contacts") as? List<String>
+        contactsUIDs?.let { contactsIDs ->
+          contactsIDs.forEach { contactID ->
+            val document = contactDataCollection.document(contactID).get().await()
+            val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
+            val showOnMap = document.get("showOnMap") as Boolean
+            items.add(Contact(contactID, members, showOnMap))
+          }
+        }
+        return ContactList(items)
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+        return ContactList(emptyList())
+      }
+    } catch (e: Exception) {
+      Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
+    }
+    return ContactList(emptyList())
+  }
+
+  suspend fun getContact(contactUID: String): Contact {
+    val document = contactDataCollection.document(contactUID).get().await()
+    return if (document.exists()) {
+      val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
+      val showOnMap = document.get("showOnMap") as Boolean
+      Contact(contactUID, members, showOnMap)
+    } else {
+      Log.d("MyPrint", "contact document not found for contact id $contactUID")
+      Contact.empty()
+    }
+  }
+
+  suspend fun createContact(otherUID: String) {
+
+    val uid = getCurrentUserUID()
+    Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
+
+    // check if contact already exists
+    val contactList = getAllContacts(uid)
+    if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
+      (Log.d("MyPrint", "Contact already exists"))
+    } else {
+      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      // updating contacts collection
+      contactDataCollection
+          .add(contact)
+          .addOnSuccessListener { document ->
+            val contactID = document.id
+            Log.d("MyPrint", "Contact successfully created")
+
+            // updating current user's list of contacts
+            userContactsCollection
+                .document(uid)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrfixint", "Failed to add new contact to userContacts with error: ", e)
+                }
+
+            // updating other user's list of contacts
+            userContactsCollection
+                .document(otherUID)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                }
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to create contact with error: ", e)
+          }
+    }
+  }
+
+  suspend fun deleteContact(contactUID: String, userUID: String = "") {
+
+    val document = contactDataCollection.document(contactUID).get().await()
+
+    contactDataCollection
+        .document(contactUID)
+        .delete()
+        .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
   }
 
   companion object {
