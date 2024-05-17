@@ -28,13 +28,12 @@ import io.getstream.video.android.compose.ui.components.call.renderer.LayoutType
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantVideo
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 import io.getstream.video.android.compose.ui.components.call.renderer.RegularVideoRendererStyle
-import io.getstream.video.android.core.Call
 
 // Design UI elements using Jetpack Compose
 @Composable
-fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected: () -> Unit = {}) {
-  val isCameraEnabled by call.camera.isEnabled.collectAsState()
-  val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
+fun VideoCallScreen(videoVM: VideoCallViewModel, onCallDisconnected: () -> Unit = {}) {
+  val isCameraEnabled by videoVM.call.camera.isEnabled.collectAsState()
+  val isMicrophoneEnabled by videoVM.call.microphone.isEnabled.collectAsState()
   val layout by remember { mutableStateOf(LayoutType.DYNAMIC) }
 
   LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
@@ -47,16 +46,16 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
               Modifier.fillMaxSize()
                   .background(color = VideoTheme.colors.appBackground)
                   .testTag("call_content"),
-          call = call,
+          call = videoVM.call,
           enableInPictureInPicture = true,
           layout = layout,
           onBackPressed = {
-            videoVM.leaveCall()
+            videoVM.keepActiveCall()
             onCallDisconnected.invoke()
           },
           videoContent = {
             ParticipantsLayout(
-                call = call,
+                call = videoVM.call,
                 modifier =
                     Modifier.fillMaxSize()
                         .weight(1f)
@@ -66,7 +65,7 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
                 videoRenderer = { modifier, _, participant, style ->
                   ParticipantVideo(
                       modifier = modifier.padding(4.dp).clip(RoundedCornerShape(8.dp)),
-                      call = call,
+                      call = videoVM.call,
                       participant = participant,
                       style = style,
                   )
@@ -75,7 +74,7 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
           },
           controlsContent = {
             ControlActions(
-                call = call,
+                call = videoVM.call,
                 modifier = Modifier.testTag("control_actions"),
                 actions =
                     listOf(
@@ -83,18 +82,18 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
                           ToggleCameraAction(
                               modifier = Modifier.size(52.dp),
                               isCameraEnabled = isCameraEnabled,
-                              onCallAction = { call.camera.setEnabled(it.isEnabled) })
+                              onCallAction = { videoVM.call.camera.setEnabled(it.isEnabled) })
                         },
                         {
                           ToggleMicrophoneAction(
                               modifier = Modifier.size(52.dp),
                               isMicrophoneEnabled = isMicrophoneEnabled,
-                              onCallAction = { call.microphone.setEnabled(it.isEnabled) })
+                              onCallAction = { videoVM.call.microphone.setEnabled(it.isEnabled) })
                         },
                         {
                           FlipCameraAction(
                               modifier = Modifier.size(52.dp),
-                              onCallAction = { call.camera.flip() })
+                              onCallAction = { videoVM.call.camera.flip() })
                         },
                         {
                           CancelCallAction(

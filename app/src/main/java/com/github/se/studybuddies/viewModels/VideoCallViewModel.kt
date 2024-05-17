@@ -11,11 +11,17 @@ class VideoCallViewModel(val call: Call, val uid: String) : ViewModel() {
   fun joinCall() {
     viewModelScope.launch {
       StreamVideo.instance().state.activeCall.value?.leave()
+      keepActiveCall()
       call.join(create = true)
     }
   }
 
   fun leaveCall() {
-    viewModelScope.launch { call.leave() }
+    StreamVideo.instance().state.removeActiveCall()
+    call.leave()
+  }
+
+  fun keepActiveCall() {
+    StreamVideo.instance().state.setActiveCall(call)
   }
 }
