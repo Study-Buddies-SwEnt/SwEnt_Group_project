@@ -29,6 +29,7 @@ object Route {
   const val TOPICCREATION = " TopicCreaction"
   const val DIRECT_MESSAGE = "DirectMessage"
   const val VIDEOCALL = "VideoCall"
+  const val CALLLOBBY = "CallLobby"
   const val MAP = "Map"
   const val PLACEHOLDER = "Placeholder"
 }

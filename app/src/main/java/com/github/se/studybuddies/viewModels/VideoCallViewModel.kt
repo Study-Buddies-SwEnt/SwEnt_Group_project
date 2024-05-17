@@ -9,13 +9,13 @@ import kotlinx.coroutines.launch
 class VideoCallViewModel(val call: Call, val uid: String) : ViewModel() {
 
   fun joinCall() {
-    viewModelScope.launch { call.join(create = true) }
+    viewModelScope.launch {
+      StreamVideo.instance().state.activeCall.value?.leave()
+      call.join(create = true)
+    }
   }
 
   fun leaveCall() {
-    viewModelScope.launch {
-      call.leave()
-      StreamVideo.removeClient()
-    }
+    viewModelScope.launch { call.leave() }
   }
 }
