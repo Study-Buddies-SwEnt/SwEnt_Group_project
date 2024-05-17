@@ -61,24 +61,17 @@ fun DailyPlannerScreen(
 
   val planner by viewModel.getDailyPlanner(date).collectAsState()
 
-  var goals by remember { mutableStateOf(planner.goals.toMutableList()) }
-  var appointments by remember { mutableStateOf(planner.appointments.toMutableMap().toSortedMap()) }
-  var notes by remember { mutableStateOf(planner.notes.toMutableList()) }
+  var goals by remember { mutableStateOf(listOf<String>()) }
+  var appointments by remember { mutableStateOf(mapOf<String, String>().toSortedMap()) }
+  var notes by remember { mutableStateOf(listOf<String>()) }
 
   LaunchedEffect(planner) {
-    goals = planner.goals.toMutableList()
-    appointments = planner.appointments.toMutableMap().toSortedMap()
-    notes = planner.notes.toMutableList()
+    goals = planner.goals
+    appointments = planner.appointments.toSortedMap()
+    notes = planner.notes
   }
 
-  var showAddGoalDialog by remember { mutableStateOf(false) }
-  var showAddNoteDialog by remember { mutableStateOf(false) }
-  var showAddAppointmentDialog by remember { mutableStateOf(false) }
-  var newGoalText by remember { mutableStateOf("") }
-  var newNoteText by remember { mutableStateOf("") }
-  var newAppointmentHour by remember { mutableStateOf("") }
-  var newAppointmentMinute by remember { mutableStateOf("") }
-  var newAppointmentText by remember { mutableStateOf("") }
+  var dialogState by remember { mutableStateOf<DialogState?>(null) }
 
   Scaffold(
       modifier = Modifier.fillMaxSize(),
@@ -93,7 +86,7 @@ fun DailyPlannerScreen(
           val updatedPlanner =
               DailyPlanner(date = date, goals = goals, appointments = appointments, notes = notes)
           viewModel.updateDailyPlanner(date, updatedPlanner)
-          navigationActions.navigateTo("${Route.DAILYPLANNER}/$date")
+          navigationActions.navigateTo(Route.CALENDAR)
         }
       }) { padding ->
         Column(modifier = Modifier.padding(10.dp).padding(padding)) {
@@ -104,192 +97,48 @@ fun DailyPlannerScreen(
               PlannerSection(
                   title = stringResource(id = R.string.todays_goals),
                   items = goals,
-                  onItemChange = { index, value -> goals[index] = value },
-                  onAddItemClick = { showAddGoalDialog = true })
+                  onAddItemClick = { dialogState = DialogState.AddGoal })
               Spacer(modifier = Modifier.height(16.dp))
               PlannerSection(
                   title = stringResource(id = R.string.notes),
                   items = notes,
-                  onItemChange = { index, value -> notes[index] = value },
-                  onAddItemClick = { showAddNoteDialog = true })
+                  onAddItemClick = { dialogState = DialogState.AddNote })
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
               AppointmentsSection(
                   appointments = appointments,
-                  onAppointmentChange = { time, value -> appointments[time] = value },
-                  onAddAppointmentClick = { showAddAppointmentDialog = true })
+                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment })
             }
           }
         }
       }
 
-  if (showAddGoalDialog) {
-    AlertDialog(
-        onDismissRequest = { showAddGoalDialog = false },
-        title = { Text(stringResource(id = R.string.add_goal), color = Blue) },
-        text = {
-          TextField(
-              value = newGoalText,
-              onValueChange = { newGoalText = it },
-              label = { Text(stringResource(id = R.string.goal), color = Blue) },
-              colors =
-                  TextFieldDefaults.textFieldColors(
-                      textColor = Blue,
-                      backgroundColor = White,
-                      focusedIndicatorColor = Blue,
-                      unfocusedIndicatorColor = Blue))
-        },
-        confirmButton = {
-          Button(
-              onClick = {
-                if (newGoalText.isNotEmpty()) {
-                  goals.add(newGoalText)
-                  newGoalText = ""
-                }
-                showAddGoalDialog = false
-              },
-              colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text(stringResource(id = R.string.add), color = White)
-              }
-        },
-        dismissButton = {
-          Button(
-              onClick = { showAddGoalDialog = false },
-              colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text(stringResource(id = R.string.cancel), color = White)
-              }
-        })
-  }
-
-  if (showAddNoteDialog) {
-    AlertDialog(
-        onDismissRequest = { showAddNoteDialog = false },
-        title = { Text(stringResource(id = R.string.add_note), color = Blue) },
-        text = {
-          TextField(
-              value = newNoteText,
-              onValueChange = { newNoteText = it },
-              label = { Text(stringResource(id = R.string.note), color = Blue) },
-              colors =
-                  TextFieldDefaults.textFieldColors(
-                      textColor = Blue,
-                      backgroundColor = White,
-                      focusedIndicatorColor = Blue,
-                      unfocusedIndicatorColor = Blue))
-        },
-        confirmButton = {
-          Button(
-              onClick = {
-                if (newNoteText.isNotEmpty()) {
-                  notes.add(newNoteText)
-                  newNoteText = ""
-                }
-                showAddNoteDialog = false
-              },
-              colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text(stringResource(id = R.string.add), color = White)
-              }
-        },
-        dismissButton = {
-          Button(
-              onClick = { showAddNoteDialog = false },
-              colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text(stringResource(id = R.string.cancel), color = White)
-              }
-        })
-  }
-
-  if (showAddAppointmentDialog) {
-    AlertDialog(
-        onDismissRequest = { showAddAppointmentDialog = false },
-        title = { Text(stringResource(id = R.string.add_appointment), color = Blue) },
-        text = {
-          Column {
-            TextField(
-                value = newAppointmentText,
-                onValueChange = { newAppointmentText = it },
-                label = { Text(stringResource(id = R.string.appointment_title), color = Blue) },
-                colors =
-                    TextFieldDefaults.textFieldColors(
-                        textColor = Blue,
-                        backgroundColor = White,
-                        focusedIndicatorColor = Blue,
-                        unfocusedIndicatorColor = Blue))
-            Spacer(modifier = Modifier.height(16.dp))
-            Row {
-              TextField(
-                  value = newAppointmentHour,
-                  onValueChange = {
-                    newAppointmentHour = it.filter { char -> char.isDigit() }.take(2)
-                  },
-                  label = { Text(stringResource(id = R.string.hour), color = Blue) },
-                  modifier = Modifier.weight(1f),
-                  colors =
-                      TextFieldDefaults.textFieldColors(
-                          textColor = Blue,
-                          backgroundColor = White,
-                          focusedIndicatorColor = Blue,
-                          unfocusedIndicatorColor = Blue),
-                  isError = newAppointmentHour.toIntOrNull()?.let { it !in 0..23 } == true)
-              Spacer(modifier = Modifier.width(8.dp))
-              TextField(
-                  value = newAppointmentMinute,
-                  onValueChange = {
-                    newAppointmentMinute = it.filter { char -> char.isDigit() }.take(2)
-                  },
-                  label = { Text(stringResource(id = R.string.minute), color = Blue) },
-                  modifier = Modifier.weight(1f),
-                  colors =
-                      TextFieldDefaults.textFieldColors(
-                          textColor = Blue,
-                          backgroundColor = White,
-                          focusedIndicatorColor = Blue,
-                          unfocusedIndicatorColor = Blue),
-                  isError = newAppointmentMinute.toIntOrNull()?.let { it !in 0..59 } == true)
-            }
-          }
-        },
-        confirmButton = {
-          Button(
-              onClick = {
-                val hour = newAppointmentHour.toIntOrNull()
-                val minute = newAppointmentMinute.toIntOrNull()
-                if (newAppointmentText.isNotEmpty() &&
-                    hour != null &&
-                    minute != null &&
-                    hour in 0..23 &&
-                    minute in 0..59) {
-                  val time = String.format("%02d:%02d", hour, minute)
-                  appointments[time] = newAppointmentText
-                  appointments = appointments.toSortedMap()
-                  newAppointmentText = ""
-                  newAppointmentHour = ""
-                  newAppointmentMinute = ""
-                }
-                showAddAppointmentDialog = false
-              },
-              colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text(stringResource(id = R.string.add), color = White)
-              }
-        },
-        dismissButton = {
-          Button(
-              onClick = { showAddAppointmentDialog = false },
-              colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
-                Text(stringResource(id = R.string.cancel), color = White)
-              }
-        })
+  when (dialogState) {
+    DialogState.AddGoal ->
+        AddItemDialog(
+            title = stringResource(id = R.string.add_goal),
+            label = stringResource(id = R.string.goal),
+            onAddItem = { newItem -> goals = goals + newItem },
+            onDismiss = { dialogState = null })
+    DialogState.AddNote ->
+        AddItemDialog(
+            title = stringResource(id = R.string.add_note),
+            label = stringResource(id = R.string.note),
+            onAddItem = { newItem -> notes = notes + newItem },
+            onDismiss = { dialogState = null })
+    DialogState.AddAppointment ->
+        AddAppointmentDialog(
+            onAddAppointment = { time, text ->
+              appointments = (appointments + (time to text)).toSortedMap()
+            },
+            onDismiss = { dialogState = null })
+    null -> {}
   }
 }
 
 @Composable
-fun PlannerSection(
-    title: String,
-    items: List<String>,
-    onItemChange: (Int, String) -> Unit,
-    onAddItemClick: () -> Unit
-) {
+fun PlannerSection(title: String, items: List<String>, onAddItemClick: () -> Unit) {
   Column {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Text(
@@ -303,52 +152,29 @@ fun PlannerSection(
       }
     }
     Spacer(modifier = Modifier.height(8.dp))
-    items.forEachIndexed { index, item ->
+    items.forEachIndexed { _, item ->
       TextFieldWithLines(
-          value = item,
-          onValueChange = { onItemChange(index, it) },
-          singleLine = false // Allow multi-line input
+          value = item, singleLine = false // Allow multi-line input
           )
       Spacer(modifier = Modifier.height(8.dp))
-    }
-    if (items.isEmpty()) {
-      repeat(3) {
-        TextFieldWithLines(value = "", onValueChange = {}, singleLine = false)
-        Spacer(modifier = Modifier.height(8.dp))
-      }
     }
   }
 }
 
 @Composable
-fun TextFieldWithLines(
-    value: String,
-    onValueChange: (String) -> Unit,
-    lineCount: Int = 1,
-    singleLine: Boolean = true
-) {
+fun TextFieldWithLines(value: String, singleLine: Boolean = true) {
   Column {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-        singleLine = singleLine,
-        colors =
-            TextFieldDefaults.textFieldColors(
-                textColor = Blue,
-                backgroundColor = White,
-                unfocusedIndicatorColor = Blue,
-                focusedIndicatorColor = Blue))
+    Text(
+        text = value,
+        color = Blue,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 20.dp),
+        maxLines = if (singleLine) 1 else Int.MAX_VALUE)
     Divider(color = Blue, thickness = 1.dp)
   }
 }
 
 @Composable
-fun AppointmentsSection(
-    appointments: Map<String, String>,
-    onAppointmentChange: (String, String) -> Unit,
-    onAddAppointmentClick: () -> Unit
-) {
+fun AppointmentsSection(appointments: Map<String, String>, onAddAppointmentClick: () -> Unit) {
   Column {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Text(
@@ -362,27 +188,147 @@ fun AppointmentsSection(
       }
     }
     Spacer(modifier = Modifier.height(8.dp))
-    if (appointments.isEmpty()) {
+
+    appointments.forEach { (time, appointment) ->
       Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TextFieldWithLines(
-            value = "",
-            onValueChange = {
-              onAppointmentChange(it.toString(), it.toString())
-            } // Dummy function to force display of lines
-            )
+        Text(time, color = Blue, modifier = Modifier.width(80.dp))
+        TextFieldWithLines(value = appointment, singleLine = false)
       }
       Spacer(modifier = Modifier.height(8.dp))
-    } else {
-      appointments.forEach { (time, appointment) ->
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-          Text(time, color = Blue, modifier = Modifier.width(80.dp))
-          TextFieldWithLines(
-              value = appointment,
-              onValueChange = { onAppointmentChange(time, it) },
-              singleLine = false)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-      }
     }
   }
+}
+
+@Composable
+fun AddItemDialog(
+    title: String,
+    label: String,
+    onAddItem: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+  var newItemText by remember { mutableStateOf("") }
+
+  AlertDialog(
+      onDismissRequest = onDismiss,
+      title = { Text(title, color = Blue) },
+      text = {
+        TextField(
+            value = newItemText,
+            onValueChange = { newItemText = it },
+            label = { Text(label, color = Blue) },
+            colors =
+                TextFieldDefaults.textFieldColors(
+                    textColor = Blue,
+                    backgroundColor = White,
+                    focusedIndicatorColor = Blue,
+                    unfocusedIndicatorColor = Blue))
+      },
+      confirmButton = {
+        Button(
+            onClick = {
+              if (newItemText.isNotEmpty()) {
+                onAddItem(newItemText)
+                newItemText = ""
+              }
+              onDismiss()
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
+              Text(stringResource(id = R.string.add), color = White)
+            }
+      },
+      dismissButton = {
+        Button(onClick = onDismiss, colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
+          Text(stringResource(id = R.string.cancel), color = White)
+        }
+      })
+}
+
+@Composable
+fun AddAppointmentDialog(onAddAppointment: (String, String) -> Unit, onDismiss: () -> Unit) {
+  var newAppointmentText by remember { mutableStateOf("") }
+  var newAppointmentHour by remember { mutableStateOf("") }
+  var newAppointmentMinute by remember { mutableStateOf("") }
+
+  AlertDialog(
+      onDismissRequest = onDismiss,
+      title = { Text(stringResource(id = R.string.add_appointment), color = Blue) },
+      text = {
+        Column {
+          TextField(
+              value = newAppointmentText,
+              onValueChange = { newAppointmentText = it },
+              label = { Text(stringResource(id = R.string.appointment_title), color = Blue) },
+              colors =
+                  TextFieldDefaults.textFieldColors(
+                      textColor = Blue,
+                      backgroundColor = White,
+                      focusedIndicatorColor = Blue,
+                      unfocusedIndicatorColor = Blue))
+          Spacer(modifier = Modifier.height(16.dp))
+          Row {
+            TextField(
+                value = newAppointmentHour,
+                onValueChange = {
+                  newAppointmentHour = it.filter { char -> char.isDigit() }.take(2)
+                },
+                label = { Text(stringResource(id = R.string.hour), color = Blue) },
+                modifier = Modifier.weight(1f),
+                colors =
+                    TextFieldDefaults.textFieldColors(
+                        textColor = Blue,
+                        backgroundColor = White,
+                        focusedIndicatorColor = Blue,
+                        unfocusedIndicatorColor = Blue),
+                isError = newAppointmentHour.toIntOrNull()?.let { it !in 0..23 } == true)
+            Spacer(modifier = Modifier.width(8.dp))
+            TextField(
+                value = newAppointmentMinute,
+                onValueChange = {
+                  newAppointmentMinute = it.filter { char -> char.isDigit() }.take(2)
+                },
+                label = { Text(stringResource(id = R.string.minute), color = Blue) },
+                modifier = Modifier.weight(1f),
+                colors =
+                    TextFieldDefaults.textFieldColors(
+                        textColor = Blue,
+                        backgroundColor = White,
+                        focusedIndicatorColor = Blue,
+                        unfocusedIndicatorColor = Blue),
+                isError = newAppointmentMinute.toIntOrNull()?.let { it !in 0..59 } == true)
+          }
+        }
+      },
+      confirmButton = {
+        Button(
+            onClick = {
+              val hour = newAppointmentHour.toIntOrNull()
+              val minute = newAppointmentMinute.toIntOrNull()
+              if (newAppointmentText.isNotEmpty() &&
+                  hour != null &&
+                  minute != null &&
+                  hour in 0..24 &&
+                  minute in 0..60) {
+                val time = String.format("%02d:%02d", hour, minute)
+                onAddAppointment(time, newAppointmentText)
+                newAppointmentText = ""
+                newAppointmentHour = ""
+                newAppointmentMinute = ""
+              }
+              onDismiss()
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
+              Text(stringResource(id = R.string.add), color = White)
+            }
+      },
+      dismissButton = {
+        Button(onClick = onDismiss, colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
+          Text(stringResource(id = R.string.cancel), color = White)
+        }
+      })
+}
+
+enum class DialogState {
+  AddGoal,
+  AddNote,
+  AddAppointment
 }

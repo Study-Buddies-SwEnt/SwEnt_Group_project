@@ -146,7 +146,7 @@ class MainActivity : ComponentActivity() {
                   CalendarApp(calendarViewModel, navigationActions)
                 }
 
-                Log.d("MyPrint", "Successfully navigated to GroupsHome")
+                Log.d("MyPrint", "Successfully navigated to Clendar")
               }
             }
             composable(
@@ -178,7 +178,7 @@ class MainActivity : ComponentActivity() {
                   val currentUser = auth.currentUser
                   if (date != null && currentUser != null) {
                     DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to Settings")
+                    Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
             composable(
