@@ -659,13 +659,10 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { fileUri ->
           fileState.value = fileUri
-          val cursor = context.contentResolver.query(fileUri, null, null, null, null)
-          cursor?.use {
-            if (it.moveToFirst()) {
-              val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-              if (nameIndex != -1) {
-                fileName.value = it.getString(nameIndex)
-              }
+          context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && nameIndex != -1) {
+              fileName.value = cursor.getString(nameIndex)
             }
           }
         }
