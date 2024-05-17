@@ -5,12 +5,9 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
-<<<<<<< calender_event
-import com.github.se.studybuddies.data.DailyPlanner
-=======
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
->>>>>>> main
+import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
