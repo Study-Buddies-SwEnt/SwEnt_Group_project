@@ -148,7 +148,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
                     } else {
                       Arrangement.Start
                     }) {
-                  TextBubble(
+                  MessageBubble(
                       message,
                       displayName,
                   )
@@ -161,7 +161,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
 }
 
 @Composable
-fun TextBubble(message: Message, displayName: Boolean = false) {
+fun MessageBubble(message: Message, displayName: Boolean = false) {
   val browserLauncher =
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.StartActivityForResult()) {}
@@ -524,6 +524,7 @@ fun IconsOptionsList(
     showAddFile: MutableState<Boolean>
 ) {
   ShowAlertDialog(
+      modifier = Modifier.testTag("dialog_more_messages_types"),
       showDialog = showIconsOptions,
       onDismiss = { showIconsOptions.value = false },
       title = {},
@@ -533,6 +534,7 @@ fun IconsOptionsList(
             when (it) {
               0 ->
                   IconButtonOption(
+                      modifier = Modifier.testTag("icon_send_image"),
                       onClickAction = {
                         showIconsOptions.value = false
                         showAddImage.value = true
@@ -541,6 +543,7 @@ fun IconsOptionsList(
                       contentDescription = stringResource(R.string.app_name))
               1 ->
                   IconButtonOption(
+                      modifier = Modifier.testTag("icon_send_link"),
                       onClickAction = {
                         showIconsOptions.value = false
                         showAddLink.value = true
@@ -549,6 +552,7 @@ fun IconsOptionsList(
                       contentDescription = stringResource(R.string.app_name))
               2 ->
                   IconButtonOption(
+                      modifier = Modifier.testTag("icon_send_file"),
                       onClickAction = {
                         showIconsOptions.value = false
                         showAddFile.value = true
@@ -598,17 +602,20 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
       }
 
   ShowAlertDialog(
+      modifier = Modifier.testTag("add_image_dialog"),
       showDialog = showAddImage,
       onDismiss = { showAddImage.value = false },
       title = {},
       content = {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(8.dp).fillMaxWidth()) {
-          SetPicture(photoState) {
-            checkPermission(context, permission, requestPermissionLauncher) {
-              getContent.launch(imageInput)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
+              SetPicture(photoState) {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
+                }
+              }
             }
-          }
-        }
       },
       button =
           @Composable {
@@ -628,20 +635,23 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
   val linkName = remember { mutableStateOf("") }
 
   ShowAlertDialog(
+      modifier = Modifier.testTag("add_link_dialog"),
       showDialog = showAddLink,
       onDismiss = { showAddLink.value = false },
       title = {},
       content = {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(8.dp).fillMaxWidth()) {
-          OutlinedTextField(
-              value = linkState.value,
-              onValueChange = { linkState.value = it },
-              modifier = Modifier.fillMaxWidth(),
-              textStyle = TextStyle(color = Black),
-              singleLine = true,
-              placeholder = { Text(stringResource(R.string.enter_link)) },
-          )
-        }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_link_box")) {
+              OutlinedTextField(
+                  value = linkState.value,
+                  onValueChange = { linkState.value = it },
+                  modifier = Modifier.fillMaxWidth().testTag("add_link_text_field"),
+                  textStyle = TextStyle(color = Black),
+                  singleLine = true,
+                  placeholder = { Text(stringResource(R.string.enter_link)) },
+              )
+            }
       },
       button =
           @Composable {
@@ -702,6 +712,7 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
       }
 
   ShowAlertDialog(
+      modifier = Modifier.testTag("add_file_dialog"),
       showDialog = showAddFile,
       onDismiss = { showAddFile.value = false },
       title = {},
@@ -709,15 +720,20 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
         Box(
             contentAlignment = Alignment.Center,
             modifier =
-                Modifier.padding(8.dp).fillMaxWidth().clickable {
-                  checkPermission(context, permission, requestPermissionLauncher) {
-                    getContent.launch(fileInput)
-                  }
-                }) {
+                Modifier.padding(8.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                      checkPermission(context, permission, requestPermissionLauncher) {
+                        getContent.launch(fileInput)
+                      }
+                    }
+                    .testTag("add_file_box")) {
               if (fileState.value == Uri.EMPTY) {
-                Text(text = stringResource(R.string.select_a_file))
+                Text(
+                    text = stringResource(R.string.select_a_file),
+                    modifier = Modifier.testTag("select_file"))
               } else {
-                Text(text = fileName.value)
+                Text(text = fileName.value, modifier = Modifier.testTag("select_file"))
               }
             }
       },
@@ -736,6 +752,7 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
 
 @Composable
 fun ShowAlertDialog(
+    modifier: Modifier = Modifier,
     showDialog: MutableState<Boolean>,
     onDismiss: () -> Unit,
     title: @Composable () -> Unit,
@@ -743,6 +760,11 @@ fun ShowAlertDialog(
     button: @Composable () -> Unit = {},
 ) {
   if (showDialog.value) {
-    AlertDialog(onDismissRequest = onDismiss, text = content, title = title, confirmButton = button)
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        text = content,
+        title = title,
+        confirmButton = button)
   }
 }
