@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.calender.CalendarApp
+import com.github.se.studybuddies.calender.DailyPlannerScreen
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
@@ -179,6 +180,17 @@ class MainActivity : ComponentActivity() {
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }
             }
+              composable(
+                  route = "${Route.DAILYPLANNER}/{date}",
+                  arguments = listOf(navArgument("date") { type = NavType.StringType })) {
+                      backStackEntry ->
+                  val date = backStackEntry.arguments?.getString("date")
+                  val currentUser = auth.currentUser
+                  if (date != null && currentUser != null) {
+                      DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+                      Log.d("MyPrint", "Successfully navigated to Daily Planner")
+                  }
+              }
           }
         }
       }
@@ -289,7 +301,7 @@ class MainActivity : ComponentActivity() {
     if (groupUID != null) {
       val topicViewModel = remember { TopicViewModel() }
       TopicCreation(groupUID, topicViewModel, navigationActions)
-      Log.d("MyPrint", "Successfully navigated to TopicCreation")
+      Log.d("MyPrint", "Successfully navigated to Creation of topic")
     }
   }
 
@@ -512,6 +524,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
+
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     val userViewModel = UserViewModel(currentUser?.uid)

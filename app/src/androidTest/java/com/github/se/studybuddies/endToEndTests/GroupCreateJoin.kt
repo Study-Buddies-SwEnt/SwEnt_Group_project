@@ -52,7 +52,8 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           username = "testUser",
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
-          location = "offline")
+          location = "offline",
+          dailyPlanners = emptyList())
   private val userVM = UserViewModel(uid)
   private val groupHomeVM = GroupsHomeViewModel(uid)
   private val groupVM = GroupViewModel(uid)
