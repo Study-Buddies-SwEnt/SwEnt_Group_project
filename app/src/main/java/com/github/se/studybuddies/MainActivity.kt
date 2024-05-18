@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.calender.CalendarApp
+import com.github.se.studybuddies.calender.DailyPlannerScreen
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
@@ -135,9 +136,14 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.CALENDAR) {
               ifNotNull(remember { auth.currentUser }) { _ ->
-                val calendarViewModel = remember { CalendarViewModel() }
-                CalendarApp(calendarViewModel, navigationActions)
-                Log.d("MyPrint", "Successfully navigated to GroupsHome")
+                val calendarViewModel = remember {
+                  auth.currentUser?.let { it1 -> CalendarViewModel(it1.uid) }
+                }
+                if (calendarViewModel != null) {
+                  CalendarApp(calendarViewModel, navigationActions)
+                }
+
+                Log.d("MyPrint", "Successfully navigated to Clendar")
               }
             }
             composable(
@@ -159,6 +165,17 @@ class MainActivity : ComponentActivity() {
                   ifNotNull(backRoute) { backRoute ->
                     Settings(backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
+                  }
+                }
+            composable(
+                route = "${Route.DAILYPLANNER}/{date}",
+                arguments = listOf(navArgument("date") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val date = backStackEntry.arguments?.getString("date")
+                  val currentUser = auth.currentUser
+                  if (date != null && currentUser != null) {
+                    DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
             composable(
@@ -273,11 +290,13 @@ class MainActivity : ComponentActivity() {
                     applicationContext)
               }
             }
+
             composable(Route.TIMER) {
               ifNotNull(auth.currentUser) { _ ->
                 val viewModel = remember { TimerViewModel.getInstance() }
 
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
+
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
@@ -409,6 +428,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
+
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     val userViewModel = UserViewModel(currentUser?.uid)

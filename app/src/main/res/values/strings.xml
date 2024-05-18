@@ -99,5 +99,20 @@
     <string name="warning_leave_group">Are you sure you want to leave the group ?</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
+    <!-- Strings for DailyPlannerScreen -->
+    <string name="daily_planner_title">Daily Planner</string>
+    <string name="todays_goals">Today\'s Goals</string>
+    <string name="notes">Notes</string>
+    <string name="appointments">Appointments</string>
+    <string name="add_goal">Add Goal</string>
+    <string name="goal">Goal</string>
+    <string name="add">Add</string>
+
+    <string name="add_note">Add Note</string>
+    <string name="note">Note</string>
+    <string name="add_appointment">Add Appointment</string>
+    <string name="appointment_title">Appointment Title</string>
+    <string name="hour">Hour</string>
+    <string name="minute">Minute</string>
     <string name="ok">OK</string>
 </resources>
