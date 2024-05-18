@@ -471,13 +471,7 @@ fun EditDialog(
               showIconsOptions = mutableStateOf(false))
         }
       },
-      button =
-          @Composable {
-            SaveButton(selectedMessageText.isNotBlank()) {
-              viewModel.editMessage(selectedMessage, selectedMessageText)
-              showEditDialog.value = false
-            }
-          })
+      button = {})
 }
 
 @Composable

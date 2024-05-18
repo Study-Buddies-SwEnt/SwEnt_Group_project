@@ -341,10 +341,6 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     onComposeScreen<ChatScreen>(composeTestRule) {
       editDialog { assertIsDisplayed() }
       editDialogTextField { assertIsDisplayed() }
-      editDialogSave {
-        assertIsDisplayed()
-        assertHasClickAction()
-      }
     }
   }
 

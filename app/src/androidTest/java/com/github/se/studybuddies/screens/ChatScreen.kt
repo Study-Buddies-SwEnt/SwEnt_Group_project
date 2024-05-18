@@ -30,7 +30,6 @@ class ChatScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
 
   val editDialog: KNode = onNode { hasTestTag("edit_dialog") }
   val editDialogTextField: KNode = editDialog.child { hasTestTag("chat_text_field") }
-  val editDialogSave: KNode = onNode { hasTestTag("save_button") }
   val chatGroupTitleImage: KNode = onNode { hasTestTag("group_title_profile_picture") }
   val chatGroupTitleText: KNode = onNode { hasTestTag("group_title_name") }
   val chatGroupTitleMembers: KNode = onNode { hasTestTag("group_title_members_row") }
