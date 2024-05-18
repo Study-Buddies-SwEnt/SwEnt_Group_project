@@ -94,7 +94,6 @@ class MainActivity : ComponentActivity() {
 
           val callType = "default"
 
-
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
