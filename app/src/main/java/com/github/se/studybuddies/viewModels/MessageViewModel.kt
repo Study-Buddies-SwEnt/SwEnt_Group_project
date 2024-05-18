@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42,11 +41,20 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
           Message.TextMessage(text = text, sender = it, timestamp = System.currentTimeMillis())
         }
 
-    if (message != null) {
-      if (chat.type == ChatType.TOPIC)
-          db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
-      else db.sendMessage(chat.uid, message, chat.type)
-    } else Log.d("MyPrint", "message is null, could not retrieve")
+    sendMessage(message!!)
+  }
+
+  fun sendLinkMessage(linkName: String, linkUri: Uri) {
+    val message =
+        _currentUser.value?.let {
+          Message.LinkMessage(
+              linkName = linkName,
+              linkUri = linkUri,
+              sender = it,
+              timestamp = System.currentTimeMillis())
+        }
+
+    sendMessage(message!!)
   }
 
   fun sendPhotoMessage(photoUri: Uri) {
@@ -55,12 +63,25 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
           Message.PhotoMessage(
               photoUri = photoUri, sender = it, timestamp = System.currentTimeMillis())
         }
+    sendMessage(message!!)
+  }
 
-    if (message != null) {
-      if (chat.type == ChatType.TOPIC)
-          db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
-      else db.sendMessage(chat.uid, message, chat.type)
-    } else Log.d("MyPrint", "message is null, could not retrieve")
+  fun sendFileMessage(fileName: String, fileUri: Uri) {
+    val message =
+        _currentUser.value?.let {
+          Message.FileMessage(
+              fileName = fileName,
+              fileUri = fileUri,
+              sender = it,
+              timestamp = System.currentTimeMillis())
+        }
+    sendMessage(message!!)
+  }
+
+  private fun sendMessage(message: Message) {
+    if (chat.type == ChatType.TOPIC)
+        db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
+    else db.sendMessage(chat.uid, message, chat.type)
   }
 
   fun deleteMessage(message: Message) {
@@ -71,7 +92,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     }
   }
 
-  fun editMessage(message: Message.TextMessage, newText: String) {
+  fun editMessage(message: Message, newText: String) {
     if (!isUserMessageSender(message)) return
     // Check if the message UID exists in the list before proceeding.
     val messageExists = _messages.value.any { it.uid == message.uid }
@@ -83,7 +104,19 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     // Update the message in the local state
     _messages.value =
         _messages.value.map {
-          if (it.uid == message.uid) (it as Message.TextMessage).copy(text = newText) else it
+          if (it.uid == message.uid) {
+            when (it) {
+              is Message.TextMessage -> {
+                it.copy(text = newText)
+              }
+              is Message.LinkMessage -> {
+                it.copy(linkUri = Uri.parse(newText))
+              }
+              else -> {
+                it
+              }
+            }
+          } else it
         }
   }
 
