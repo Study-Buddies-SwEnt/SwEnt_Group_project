@@ -69,11 +69,9 @@ import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
-import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
-  @Inject lateinit var locationApp: LocationApp
   private val chatViewModel: ChatViewModel by viewModels()
   private val usersViewModel: UsersViewModel by viewModels()
   private val directMessageViewModel: DirectMessageViewModel by viewModels()
@@ -92,7 +90,7 @@ class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
 
           NavHost(navController = navController, startDestination = Route.START) {
-            composable(Route.START) { HandleStartDestination(navController, db, navigationActions) }
+            composable(Route.START) { HandleStartDestination(navController, db) }
             composable(Route.LOGIN) {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
               LoginScreen(navigationActions)
@@ -191,7 +189,6 @@ class MainActivity : ComponentActivity() {
   private fun HandleStartDestination(
       navController: NavHostController,
       db: DatabaseConnection,
-      navigationActions: NavigationActions
   ) {
     ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
       db.userExists(
@@ -242,8 +239,7 @@ class MainActivity : ComponentActivity() {
       backStackEntry: NavBackStackEntry,
       navigationActions: NavigationActions
   ) {
-    val groupUID = backStackEntry.arguments?.getString("groupUID")
-    ifNotNull(groupUID) { groupUID ->
+    ifNotNull(backStackEntry.arguments?.getString("groupUID")) { groupUID ->
       val groupViewModel = remember { GroupViewModel(groupUID) }
       GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions)
       Log.d("MyPrint", "Successfully navigated to GroupScreen")
@@ -255,8 +251,7 @@ class MainActivity : ComponentActivity() {
       backStackEntry: NavBackStackEntry,
       navigationActions: NavigationActions
   ) {
-    val backRoute = backStackEntry.arguments?.getString("backRoute")
-    ifNotNull(backRoute) { backRoute ->
+    ifNotNull(backStackEntry.arguments?.getString("backRoute")) { backRoute ->
       Settings(backRoute, navigationActions)
       Log.d("MyPrint", "Successfully navigated to Settings")
     }
@@ -326,8 +321,7 @@ class MainActivity : ComponentActivity() {
       backStackEntry: NavBackStackEntry,
       navigationActions: NavigationActions
   ) {
-    val groupUID = backStackEntry.arguments?.getString("groupUID")
-    ifNotNull(groupUID) { groupUID ->
+    ifNotNull(backStackEntry.arguments?.getString("groupUID")) { groupUID ->
       val groupViewModel = remember { GroupViewModel(groupUID) }
       GroupSetting(groupUID, groupViewModel, navigationActions)
       Log.d("MyPrint", "Successfully navigated to GroupSetting")
@@ -379,8 +373,7 @@ class MainActivity : ComponentActivity() {
       navigationActions: NavigationActions,
       studyBuddies: LocationApp
   ) {
-    val todoUID = backStackEntry.arguments?.getString("todoUID")
-    ifNotNull(todoUID) { todoUID ->
+    ifNotNull(backStackEntry.arguments?.getString("todoUID")) { todoUID ->
       val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
       EditToDoScreen(todoUID, toDoListViewModel, navigationActions)
       Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
@@ -446,7 +439,7 @@ class MainActivity : ComponentActivity() {
   private fun getOrCreateCall(streamVideo: StreamVideo, activeCall: Call?, groupUID: String): Call {
     return if (activeCall != null) {
       if (activeCall.id != groupUID) {
-        Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+        Log.w("CallActivity", "A call with id: $groupUID existed. Leaving.")
         activeCall.leave()
         streamVideo.call("default", groupUID)
       } else {
@@ -462,8 +455,7 @@ class MainActivity : ComponentActivity() {
       backStackEntry: NavBackStackEntry,
       navigationActions: NavigationActions
   ) {
-    val groupUID = backStackEntry.arguments?.getString("groupUID")
-    ifNotNull(groupUID) { groupUID ->
+    ifNotNull(backStackEntry.arguments?.getString("groupUID")) { groupUID ->
       val viewModel2 = remember { SharedTimerViewModel.getInstance(groupUID) }
       SharedTimerScreen(navigationActions, viewModel2, groupUID)
       Log.d("MyPrint", "Successfully navigated to SharedTimer")
