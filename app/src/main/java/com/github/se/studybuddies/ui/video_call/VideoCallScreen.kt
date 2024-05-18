@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.video_call
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,14 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.activecall.CallContent
@@ -28,6 +32,7 @@ import io.getstream.video.android.compose.ui.components.call.renderer.LayoutType
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantVideo
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 import io.getstream.video.android.compose.ui.components.call.renderer.RegularVideoRendererStyle
+import io.getstream.video.android.core.RealtimeConnection
 
 // Design UI elements using Jetpack Compose
 @Composable
@@ -35,9 +40,35 @@ fun VideoCallScreen(videoVM: VideoCallViewModel, onCallDisconnected: () -> Unit 
   val isCameraEnabled by videoVM.call.camera.isEnabled.collectAsState()
   val isMicrophoneEnabled by videoVM.call.microphone.isEnabled.collectAsState()
   val layout by remember { mutableStateOf(LayoutType.DYNAMIC) }
+  val connection by videoVM.call.state.connection.collectAsStateWithLifecycle()
+  val context = LocalContext.current
 
   LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
-  videoVM.joinCall()
+  LaunchedEffect(key1 = connection) {
+    when (connection) {
+      RealtimeConnection.Disconnected -> {
+        Toast.makeText(
+                context,
+                "Call connection disconnected (${(connection as RealtimeConnection.Failed).error}",
+                Toast.LENGTH_LONG,
+            )
+            .show()
+        onCallDisconnected.invoke()
+      }
+      RealtimeConnection.Failed("connection") -> {
+        Toast.makeText(
+                context,
+                "Call connection failed (${(connection as RealtimeConnection.Failed).error}",
+                Toast.LENGTH_LONG,
+            )
+            .show()
+        onCallDisconnected.invoke()
+      }
+      else -> {
+        videoVM.joinCall()
+      }
+    }
+  }
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("video_call_screen")) {
@@ -50,7 +81,8 @@ fun VideoCallScreen(videoVM: VideoCallViewModel, onCallDisconnected: () -> Unit 
           enableInPictureInPicture = true,
           layout = layout,
           onBackPressed = {
-            videoVM.keepActiveCall()
+            // videoVM.keepActiveCall()
+            videoVM.leaveCall()
             onCallDisconnected.invoke()
           },
           videoContent = {

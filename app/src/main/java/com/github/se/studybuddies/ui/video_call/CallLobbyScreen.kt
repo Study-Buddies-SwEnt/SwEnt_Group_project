@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.lobby.CallLobby
@@ -41,6 +43,7 @@ fun CallLobbyScreen(
 ) {
   LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
   val call by remember { mutableStateOf(callLobbyViewModel.call) }
+  val isLoading by callLobbyViewModel.isLoading.collectAsState()
   val isCameraEnabled by call.camera.isEnabled.collectAsState()
   val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
 
@@ -80,6 +83,12 @@ fun CallLobbyScreen(
             onClick = { navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID") }) {
               Text(stringResource(R.string.join_call))
             }
+      }
+      if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center),
+            color = Blue,
+        )
       }
     }
   }

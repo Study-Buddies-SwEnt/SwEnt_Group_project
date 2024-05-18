@@ -66,7 +66,7 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
         .build()
 
     val call = StreamVideo.instance().call("default", uid)
-    composeTestRule.setContent { VideoCallScreen(call, VideoCallViewModel(call, uid)) }
+    composeTestRule.setContent { VideoCallScreen(VideoCallViewModel(call, uid)) { call.leave() } }
   }
 
   @Test

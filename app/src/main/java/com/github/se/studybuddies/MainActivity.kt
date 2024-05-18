@@ -64,6 +64,7 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
+import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
 import javax.inject.Inject
 
@@ -295,32 +296,15 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  val streamVideo = StreamVideo.instance()
-                  val activeCall = streamVideo.state.activeCall.value
-                  if (groupUID != null) {
-                    val call = remember {
-                      if (activeCall != null) {
-                        if (activeCall.id != groupUID) {
-                          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
-                          activeCall.leave()
-                          // Return a new call
-                          streamVideo.call(callType, groupUID)
-                        } else {
-                          // Call ID is the same, use the active call
-                          activeCall
-                        }
-                      } else {
-                        // There is no active call, create new call
-                        streamVideo.call(callType, groupUID)
-                      }
-                    }
+                  val activeCall = StreamVideo.instance().state.activeCall.value
+                  ifNotNull(groupUID) { groupUID ->
+                    val call = startCall(activeCall, groupUID, callType)
                     val videoVM = remember { VideoCallViewModel(call, groupUID) }
                     Log.d("MyPrint", "Join VideoCallScreen")
                     VideoCallScreen(
                         videoVM,
                     ) {
                       videoVM.leaveCall()
-                      StreamVideo.instance().state.activeCall.value?.leave()
                       navController.popBackStack("${Route.GROUP}/$groupUID", false)
                     }
                   }
@@ -381,6 +365,40 @@ class MainActivity : ComponentActivity() {
       }
     }
   }
+
+  private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
+      if (activeCall != null) {
+        if (activeCall.id != groupUID) {
+          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+          activeCall.leave()
+          // Return a new call
+          StreamVideo.instance().call(callType, groupUID)
+        } else {
+          // Call ID is the same, use the active call
+          activeCall
+        }
+      } else {
+        // There is no active call, create new call
+        StreamVideo.instance().call(callType, groupUID)
+      }
+  /*
+  private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
+      if (activeCall != null) {
+        if (activeCall.id != groupUID) {
+          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+          activeCall.leave()
+          // Return a new call
+          StreamVideo.instance().call(callType, groupUID)
+        } else {
+          // Call ID is the same, use the active call
+          activeCall
+        }
+      } else {
+        // There is no active call, create new call
+        StreamVideo.instance().call(callType, groupUID)
+      }
+
+   */
 
   private inline fun <T> ifNotNull(value: T?, action: (T) -> Unit) {
     if (value != null) {
