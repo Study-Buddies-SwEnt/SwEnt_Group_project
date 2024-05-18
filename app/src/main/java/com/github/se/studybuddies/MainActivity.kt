@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -49,6 +50,7 @@ import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.CalendarViewModel
+import com.github.se.studybuddies.viewModels.CalendarViewModelFactory
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
@@ -140,15 +142,11 @@ class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.CALENDAR) {
-              ifNotNull(remember { auth.currentUser }) { _ ->
-                val calendarViewModel = remember {
-                  auth.currentUser?.let { it1 -> CalendarViewModel(it1.uid) }
-                }
-                if (calendarViewModel != null) {
-                  CalendarApp(calendarViewModel, navigationActions)
-                }
-
-                Log.d("MyPrint", "Successfully navigated to Clendar")
+              val currentUser = auth.currentUser
+              if (currentUser != null) {
+                val calendarViewModel: CalendarViewModel =
+                    viewModel(factory = CalendarViewModelFactory(currentUser.uid))
+                CalendarApp(calendarViewModel, navigationActions)
               }
             }
             composable(
@@ -179,7 +177,9 @@ class MainActivity : ComponentActivity() {
                   val date = backStackEntry.arguments?.getString("date")
                   val currentUser = auth.currentUser
                   if (date != null && currentUser != null) {
-                    DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+                    val calendarViewModel: CalendarViewModel =
+                        viewModel(factory = CalendarViewModelFactory(currentUser.uid))
+                    DailyPlannerScreen(date, calendarViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }

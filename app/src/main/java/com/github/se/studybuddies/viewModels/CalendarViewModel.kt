@@ -2,6 +2,7 @@ package com.github.se.studybuddies.viewModels
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.CalendarDataSource
 import com.github.se.studybuddies.data.CalendarUiState
@@ -77,5 +78,14 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
         currentState.copy(yearMonth = prevMonth, dates = dataSource.getDates(prevMonth))
       }
     }
+  }
+}
+
+class CalendarViewModelFactory(private val uid: String) : ViewModelProvider.Factory {
+  override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    if (modelClass.isAssignableFrom(CalendarViewModel::class.java)) {
+      return CalendarViewModel(uid) as T
+    }
+    throw IllegalArgumentException("Unknown ViewModel class")
   }
 }

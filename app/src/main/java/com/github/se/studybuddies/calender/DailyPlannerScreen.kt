@@ -54,7 +54,7 @@ import kotlin.math.*
 @Composable
 fun DailyPlannerScreen(
     date: String,
-    viewModel: CalendarViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: CalendarViewModel,
     navigationActions: NavigationActions
 ) {
   LaunchedEffect(date) { viewModel.refreshDailyPlanners() }
