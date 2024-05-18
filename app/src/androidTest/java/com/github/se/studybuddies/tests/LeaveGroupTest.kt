@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.groups.GroupsSettingsButton
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
@@ -20,9 +21,11 @@ class LeaveGroupTest : TestCase() {
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
+  private val db = MockDatabase()
+
   @Before
   fun setUp() {
-    composeTestRule.setContent { GroupsSettingsButton("userTest", mockNavActions) }
+    composeTestRule.setContent { GroupsSettingsButton("userTest", mockNavActions,db) }
   }
 
   @Test

@@ -37,27 +37,12 @@ class SharedTimerViewModel private constructor(private val groupUID: String, pri
   }
 
   private fun subscribeToTimerUpdates() {
-    groupUID?.let { uid ->
-      val timerRef = db.getTimerReference(uid)
-      timerRef.addValueEventListener(
-          object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-              snapshot.getValue(TimerState::class.java)?.let { timerState ->
-                _timerValue.value = timerState.endTime - System.currentTimeMillis()
-                isRunning = timerState.isRunning
-                if (isRunning) {
-                  setupTimer(_timerValue.value)
-                } else {
-                  pauseTimer()
-                }
-              }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-              Log.e("TimerViewModel", "Failed to read timer", error.toException())
-            }
-          })
-    } ?: error("Group UID is not set. Call setup() with valid Group UID.")
+    isRunning = db.getTimerUpdates(groupUID,_timerValue)
+    if (isRunning) {
+      setupTimer(_timerValue.value)
+    } else {
+      pauseTimer()
+    }
   }
 
   private fun setupTimer(timeRemaining: Long) {

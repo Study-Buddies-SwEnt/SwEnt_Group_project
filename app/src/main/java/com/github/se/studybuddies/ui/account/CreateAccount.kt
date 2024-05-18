@@ -56,7 +56,11 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
   }
   userViewModel.fetchUserData(uid)
   val user by userViewModel.userData.observeAsState()
-  val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+val email = if(userViewModel.isFakeDatabase()){
+        "test@gmail.com"
+    }else{
+        FirebaseAuth.getInstance().currentUser?.email ?: ""
+    }
   val usernameState = remember { mutableStateOf("") }
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
   val context = LocalContext.current
@@ -93,9 +97,13 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                   contentDescription = "Go back",
                   modifier =
                       Modifier.clickable {
+                          if(userViewModel.isFakeDatabase()) {
+                              userViewModel.signOut()
+                              navigationActions.navigateTo(Route.LOGIN)
+                          }else{
                             FirebaseAuth.getInstance().signOut()
                             navigationActions.navigateTo(Route.LOGIN)
-                          }
+                          }}
                           .testTag("go_back_button"))
             },
             actions = {})

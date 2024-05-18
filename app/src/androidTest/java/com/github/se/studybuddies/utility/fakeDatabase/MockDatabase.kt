@@ -33,13 +33,17 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class MockDatabase :DbRepository{
-  private val userDataCollection = ConcurrentHashMap<String, User>()
-  private val userMembershipsCollection = ConcurrentHashMap<String, List<String>>()
+  private val userDataCollection = fakeUserDataCollection
+  private val userMembershipsCollection = fakeUserMembershipsCollection
   private val groupDataCollection = ConcurrentHashMap<String, Group>()
   private val topicDataCollection = ConcurrentHashMap<String, TopicDatabase>()
   private val topicItemCollection = ConcurrentHashMap<String, TopicItemDatabase>()
   private val rtDb = ConcurrentHashMap<String, Map<String, Any>>()
 
+
+  override fun isFakeDatabase(): Boolean{
+    return true
+  }
   override suspend fun getUser(uid: String): User {
     return userDataCollection[uid] ?: User.empty()
   }
@@ -93,7 +97,7 @@ class MockDatabase :DbRepository{
     }
 
     val membership = hashMapOf("groups" to emptyList<String>())
-    userMembershipsCollection[uid] = membership["groups"] as List<String>
+    userMembershipsCollection[uid] = (membership["groups"] as List<String>).toMutableList()
   }
 
   override fun updateUserData(
@@ -220,14 +224,14 @@ class MockDatabase :DbRepository{
       groupDataCollection[uid] = group
       userMembershipsCollection[uid]?.let {
         val updatedList = it + uid
-        userMembershipsCollection[uid] = updatedList
+        userMembershipsCollection[uid] = updatedList.toMutableList()
       }
     } else {
       val group = Group(groupUID, name, getDefaultPicture(), emptyList(), emptyList(), timerState)
       groupDataCollection[uid] = group
       userMembershipsCollection[uid]?.let {
         val updatedList = it + uid
-        userMembershipsCollection[uid] = updatedList
+        userMembershipsCollection[uid] = updatedList.toMutableList()
       }
     }
   }
@@ -262,7 +266,7 @@ class MockDatabase :DbRepository{
     // add group to the user's list of groups
     userMembershipsCollection[userToAdd]?.let {
       val updatedList = it + groupUID
-      userMembershipsCollection[userToAdd] = updatedList
+      userMembershipsCollection[userToAdd] = updatedList.toMutableList()
     }
   }
 
@@ -300,7 +304,7 @@ class MockDatabase :DbRepository{
 
     userMembershipsCollection[user]?.let {
       val updatedList = it - groupUID
-      userMembershipsCollection[user] = updatedList
+      userMembershipsCollection[user] = updatedList.toMutableList()
     }
   }
 
@@ -316,7 +320,7 @@ class MockDatabase :DbRepository{
 
         userMembershipsCollection[user]?.let {
           val updatedList = it - groupUID
-          userMembershipsCollection[user] = updatedList
+          userMembershipsCollection[user] = updatedList.toMutableList()
         }
       }
     }
@@ -733,7 +737,17 @@ class MockDatabase :DbRepository{
     topicItemCollection[item.uid] = TopicItemDatabase(item.uid, item.name, item.parentUID, type, "", "", strongUsers, folderItems)
   }
 
-  override fun getTimerReference(groupId: String) = rtDb["timer/$groupId"]
+  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>) : Boolean {
+    var isRunning = false
+    groupUID?.let { uid ->
+      val timerState = rtDb["timer/$uid"] as? TimerState
+      timerState?.let {
+        _timerValue.value = it.endTime - System.currentTimeMillis()
+        isRunning = it.isRunning
+      }
+    } ?: error("Group UID is not set. Call setup() with valid Group UID.")
+    return isRunning
+  }
 
   override suspend fun getALlTopics(groupUID: String): TopicList {
     try {
@@ -764,6 +778,8 @@ class MockDatabase :DbRepository{
     }
     return TopicList(emptyList())
   }
+
+
 
   companion object {
     const val topic_name = "name"

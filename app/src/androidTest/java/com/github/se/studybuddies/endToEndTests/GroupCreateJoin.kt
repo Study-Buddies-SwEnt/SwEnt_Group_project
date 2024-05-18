@@ -10,6 +10,8 @@ import androidx.navigation.navArgument
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.data.User
+import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateAccountScreen
@@ -22,6 +24,7 @@ import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
@@ -53,9 +56,10 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
           location = "offline")
-  private val userVM = UserViewModel(uid)
-  private val groupHomeVM = GroupsHomeViewModel(uid)
-  private val groupVM = GroupViewModel(uid)
+  val db : DbRepository = MockDatabase()
+  private val userVM = UserViewModel(uid,db)
+  private val groupHomeVM = GroupsHomeViewModel(uid,db)
+  private val groupVM = GroupViewModel(uid,db)
 
   @Before
   fun testSetup() {
@@ -102,7 +106,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
                   AccountSettings(uid, userVM, backRoute, navigationActions)
                 }
               }
-          composable(Route.GROUPSHOME) { GroupsHome(uid, groupHomeVM, navigationActions) }
+          composable(Route.GROUPSHOME) { GroupsHome(uid, groupHomeVM, navigationActions,db) }
           composable(Route.CREATEGROUP) { CreateGroup(groupVM, navigationActions) }
         }
       }

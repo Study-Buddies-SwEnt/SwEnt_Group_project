@@ -36,8 +36,9 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 interface DbRepository {
+    fun isFakeDatabase(): Boolean
 
-    // using the userData collection
+        // using the userData collection
     suspend fun getUser(uid: String): User?
 
     suspend fun getCurrentUser(): User?
@@ -186,8 +187,9 @@ interface DbRepository {
 
     fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit)
     fun updateTopicItem(item: TopicItem)
-    fun getTimerReference(groupId: String): DatabaseReference
-    suspend fun getALlTopics(groupUID: String): TopicList
+    fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>) : Boolean
+
+        suspend fun getALlTopics(groupUID: String): TopicList
 
     companion object {
         const val topic_name = "name"

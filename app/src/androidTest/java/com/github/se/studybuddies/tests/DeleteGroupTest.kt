@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.groups.GroupsSettingsButton
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
@@ -20,9 +21,12 @@ class DeleteGroupTest : TestCase() {
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
+  private val db = MockDatabase()
+  private val uid = "userTest"
+
   @Before
   fun setUpTest() {
-    composeTestRule.setContent { GroupsSettingsButton("015OJ6Lhmbp0XrLAkqHV", mockNavActions) }
+    composeTestRule.setContent { GroupsSettingsButton(uid, mockNavActions,db) }
   }
 
   @Test fun testDeleteGroupDisplay() {}

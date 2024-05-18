@@ -49,6 +49,10 @@ class DatabaseConnection : DbRepository{
   private val topicDataCollection = db.collection("topicData")
   private val topicItemCollection = db.collection("topicItemData")
 
+    override fun isFakeDatabase(): Boolean{
+        return false
+    }
+
   // using the userData collection
   override suspend fun getUser(uid: String): User {
     if (uid.isEmpty()) {
@@ -1104,7 +1108,27 @@ class DatabaseConnection : DbRepository{
         }
   }
 
-    override fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
+
+    override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>) : Boolean {
+        var isRunning = false
+        groupUID?.let { uid ->
+            val timerRef = rtDb.getReference("timer/$uid")
+            timerRef.addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        snapshot.getValue(TimerState::class.java)?.let { timerState ->
+                            _timerValue.value = timerState.endTime - System.currentTimeMillis()
+                            isRunning = timerState.isRunning
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("TimerViewModel", "Failed to read timer", error.toException())
+                    }
+                })
+        } ?: error("Group UID is not set. Call setup() with valid Group UID.")
+        return isRunning
+    }
 
     override suspend fun getALlTopics(groupUID: String): TopicList {
     try {

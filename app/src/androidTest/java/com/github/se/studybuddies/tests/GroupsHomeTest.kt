@@ -14,6 +14,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -37,10 +38,11 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   // userTest
   // aloneUserTest
   val uid = "aloneUserTest"
+  private val db = MockDatabase()
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid), mockNavActions) }
+    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid,db), mockNavActions,db) }
   }
 
   /*
@@ -175,13 +177,15 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
+  private val db = MockDatabase()
+
   // Use a user that have friends
   private val uid = "cYD8bTcYDyX3ngzssP22GYedcsh2"
-  private val groupHomeVM = GroupsHomeViewModel(uid)
+  private val groupHomeVM = GroupsHomeViewModel(uid,db)
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions) }
+    composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions,db) }
   }
 
   @Test

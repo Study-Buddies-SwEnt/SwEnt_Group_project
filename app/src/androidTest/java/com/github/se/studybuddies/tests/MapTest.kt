@@ -9,6 +9,7 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
 import com.github.se.studybuddies.ui.map.MapScreen
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -44,8 +45,9 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
           location = "offline")
-  private val userVM = UserViewModel(uid)
-  private val usersVM = UsersViewModel(uid)
+  private val db = MockDatabase()
+  private val userVM = UserViewModel(uid,db)
+  private val usersVM = UsersViewModel(uid,db)
 
   @Before
   fun setup() {
@@ -75,8 +77,9 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val uid = "userTest"
-  private val userVM = UserViewModel(uid)
-  private val usersVM = UsersViewModel(uid)
+  private val db = MockDatabase()
+  private val userVM = UserViewModel(uid,db)
+  private val usersVM = UsersViewModel(uid,db)
 
   @Before
   fun setup() {
