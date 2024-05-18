@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.calender
+package com.github.se.studybuddies.ui.calender
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column

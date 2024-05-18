@@ -20,8 +20,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.github.se.studybuddies.calender.CalendarApp
-import com.github.se.studybuddies.calender.DailyPlannerScreen
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
@@ -31,6 +29,8 @@ import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
+import com.github.se.studybuddies.ui.calender.CalendarApp
+import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
@@ -180,17 +180,12 @@ class MainActivity : ComponentActivity() {
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }
             }
-              composable(
-                  route = "${Route.DAILYPLANNER}/{date}",
-                  arguments = listOf(navArgument("date") { type = NavType.StringType })) {
-                      backStackEntry ->
-                  val date = backStackEntry.arguments?.getString("date")
-                  val currentUser = auth.currentUser
-                  if (date != null && currentUser != null) {
-                      DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
-                      Log.d("MyPrint", "Successfully navigated to Daily Planner")
-                  }
-              }
+            composable(
+                route = "${Route.DAILYPLANNER}/{date}",
+                arguments = listOf(navArgument("date") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  HandleDailyPlannerScreen(backStackEntry, navigationActions)
+                }
           }
         }
       }
@@ -239,10 +234,13 @@ class MainActivity : ComponentActivity() {
 
   @Composable
   private fun HandleCalendarScreen(navigationActions: NavigationActions) {
-    ifNotNull(remember { auth.currentUser }) { _ ->
-      val calendarViewModel = remember { CalendarViewModel() }
-      CalendarApp(calendarViewModel, navigationActions)
-      Log.d("MyPrint", "Successfully navigated to Calendar")
+    val currentUser = remember { auth.currentUser }
+    ifNotNull(currentUser) {
+      val calendarViewModel = remember { currentUser?.let { CalendarViewModel(it.uid) } }
+      if (calendarViewModel != null) {
+        CalendarApp(calendarViewModel, navigationActions)
+      }
+      Log.d("MyPrint", "Successfully navigated to Clendar")
     }
   }
 
@@ -501,6 +499,19 @@ class MainActivity : ComponentActivity() {
       val topicViewModel = remember { TopicViewModel(topicUID) }
       TopicSettings(topicUID, groupUID, topicViewModel, navigationActions)
       Log.d("MyPrint", "Successfully navigated to TopicSettings")
+    }
+  }
+
+  @Composable
+  private fun HandleDailyPlannerScreen(
+      backStackEntry: NavBackStackEntry,
+      navigationActions: NavigationActions
+  ) {
+    val date = backStackEntry.arguments?.getString("date")
+    val currentUser = auth.currentUser
+    if (date != null && currentUser != null) {
+      DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+      Log.d("MyPrint", "Successfully navigated to Daily Planner")
     }
   }
 
