@@ -302,7 +302,7 @@ fun MessageTextFields(
               }),
       leadingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp),
+            modifier = Modifier.size(48.dp).padding(6.dp).testTag("icon_more_messages_types"),
             onClick = {
               showIconsOptions.value = !showIconsOptions.value
               Log.d("MyPrint", "Icon clicked, showIconsOptions.value: ${showIconsOptions.value}")

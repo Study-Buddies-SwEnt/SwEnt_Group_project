@@ -1,9 +1,14 @@
 package com.github.se.studybuddies.tests
 
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
@@ -26,6 +31,8 @@ import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +47,16 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val groupUID = "automaticTestGroupUID"
+
+  @Before
+  fun setUp() {
+    Intents.init()
+  }
+
+  @After
+  fun tearDown() {
+    Intents.release()
+  }
 
   @Test
   fun textAndButtonAreCorrectlyDisplayed() {
@@ -69,6 +86,64 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       }
       textField { assertIsDisplayed() }
       chatMessage { assertIsDisplayed() }
+      messageMoreType { assertIsDisplayed() }
+    }
+  }
+
+  @Test
+  fun messageLongClick() {
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members =
+                listOf(
+                    User(
+                        "1",
+                        "e@a",
+                        "best 1",
+                        Uri.parse(
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+                        "offline"),
+                ),
+            picture =
+                Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      chatMessage {
+        assertIsDisplayed()
+        performGesture { longClick() }
+      }
+      optionDialog { assertIsDisplayed() }
+    }
+  }
+
+  @Test
+  fun clickOption() {
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members =
+                listOf(
+                    User(
+                        "1",
+                        "e@a",
+                        "best 1",
+                        Uri.parse(
+                            "https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+                        "offline"),
+                ),
+            picture =
+                Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      messageMoreType { performClick() }
+      sendMoreMessagesType { assertIsDisplayed() }
     }
   }
 
@@ -200,7 +275,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             sender = sender,
             timestamp = System.currentTimeMillis(),
             linkName = "Test Link",
-            linkUri = Uri.parse("https://www.google.com"))
+            linkUri = Uri.parse("https://www.epfl.ch"))
     composeTestRule.setContent { MessageBubble(message, true) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
@@ -216,13 +291,33 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   }
 
   @Test
+  fun testLinkMessageClick() {
+    val message =
+        Message.LinkMessage(
+            sender = sender,
+            timestamp = System.currentTimeMillis(),
+            linkName = "Test Link",
+            linkUri = Uri.parse("https://www.epfl.ch"))
+    composeTestRule.setContent { MessageBubble(message, true) }
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      linkMessage {
+        performClick()
+        intended(IntentMatchers.hasAction(Intent.ACTION_VIEW))
+        intended(IntentMatchers.hasData(message.linkUri))
+      }
+    }
+  }
+
+  @Test
   fun testFileMessageBubble() {
     val message =
         Message.FileMessage(
             sender = sender,
             timestamp = System.currentTimeMillis(),
             fileName = "Test File",
-            fileUri = Uri.parse("https://www.google.com"))
+            fileUri =
+                Uri.parse(
+                    "https://firebasestorage.googleapis.com/v0/b/study-buddies-e655a.appspot.com/o/chatData%2F093a42fc-f032-4979-befd-49f939a36de4%2Fcfd241c5-985e-46f1-8812-c3d9d91109ac?alt=media&token=47aeeabe-2abf-440e-b2f6-ec7cdccf9e1e"))
     composeTestRule.setContent { MessageBubble(message, true) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
@@ -234,6 +329,25 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
         assertHasClickAction()
       }
       textBubbleTime { assertIsDisplayed() }
+    }
+  }
+
+  @Test
+  fun testFileMessageClick() {
+    val message =
+        Message.FileMessage(
+            sender = sender,
+            timestamp = System.currentTimeMillis(),
+            fileName = "Test File",
+            fileUri =
+                Uri.parse(
+                    "https://firebasestorage.googleapis.com/v0/b/study-buddies-e655a.appspot.com/o/chatData%2F093a42fc-f032-4979-befd-49f939a36de4%2Fcfd241c5-985e-46f1-8812-c3d9d91109ac?alt=media&token=47aeeabe-2abf-440e-b2f6-ec7cdccf9e1e"))
+    composeTestRule.setContent { MessageBubble(message, true) }
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      fileMessage {
+        performClick()
+        intended(IntentMatchers.hasAction(Intent.ACTION_CHOOSER))
+      }
     }
   }
 
