@@ -238,10 +238,6 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         assertIsDisplayed()
         assertHasClickAction()
       }
-      optionDialogCancelButton {
-        assertIsDisplayed()
-        assertHasClickAction()
-      }
     }
   }
 }
@@ -286,10 +282,6 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         assertIsDisplayed()
         assertHasClickAction()
       }
-      optionDialogCancelButton {
-        assertIsDisplayed()
-        assertHasClickAction()
-      }
     }
   }
 }
@@ -329,7 +321,7 @@ class ChatTestEdit : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
     onComposeScreen<ChatScreen>(composeTestRule) {
       editDialog { assertIsDisplayed() }
       editDialogTextField { assertIsDisplayed() }
-      editDialogCancelButton {
+      editDialogSave {
         assertIsDisplayed()
         assertHasClickAction()
       }

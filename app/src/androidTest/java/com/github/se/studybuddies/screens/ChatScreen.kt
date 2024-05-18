@@ -22,13 +22,11 @@ class ChatScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val optionDialog: KNode = onNode { hasTestTag("option_dialog") }
   val optionDialogEdit: KNode = optionDialog.child { hasTestTag("option_dialog_edit") }
   val optionDialogDeleteButton: KNode = optionDialog.child { hasTestTag("option_dialog_delete") }
-  val optionDialogCancelButton: KNode = onNode { hasTestTag("option_dialog_cancel") }
   val optionDialogStartPMButton: KNode = onNode { hasTestTag("option_dialog_start_direct_message") }
 
   val editDialog: KNode = onNode { hasTestTag("edit_dialog") }
   val editDialogTextField: KNode = editDialog.child { hasTestTag("chat_text_field") }
-  val editDialogCancelButton: KNode = onNode { hasTestTag("edit_dialog_cancel") }
-
+  val editDialogSave: KNode = onNode { hasTestTag("save_button") }
   val chatGroupTitleImage: KNode = onNode { hasTestTag("group_title_profile_picture") }
   val chatGroupTitleText: KNode = onNode { hasTestTag("group_title_name") }
   val chatGroupTitleMembers: KNode = onNode { hasTestTag("group_title_members_row") }

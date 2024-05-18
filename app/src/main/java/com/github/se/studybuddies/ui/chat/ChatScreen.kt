@@ -351,8 +351,7 @@ fun OptionsDialog(
             showEditDialog = showEditDialog,
             navigationActions = navigationActions)
       },
-      onSave = { showOptionsDialog.value = false },
-      isSaveEnabled = true)
+      button = {})
 }
 
 @Composable
@@ -472,11 +471,13 @@ fun EditDialog(
               showIconsOptions = mutableStateOf(false))
         }
       },
-      onSave = {
-        viewModel.editMessage(selectedMessage, selectedMessageText)
-        showEditDialog.value = false
-      },
-      isSaveEnabled = selectedMessageText.isNotBlank())
+      button =
+          @Composable {
+            SaveButton(selectedMessageText.isNotBlank()) {
+              viewModel.editMessage(selectedMessage, selectedMessageText)
+              showEditDialog.value = false
+            }
+          })
 }
 
 @Composable
@@ -558,8 +559,7 @@ fun IconsOptionsList(
           }
         }
       },
-      onSave = { showIconsOptions.value = false },
-      isSaveEnabled = true)
+      button = {})
 }
 
 @Composable
@@ -610,12 +610,16 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
           }
         }
       },
-      onSave = {
-        messageViewModel.sendPhotoMessage(photoState.value)
-        showAddImage.value = false
-        photoState.value = Uri.EMPTY
-      },
-      isSaveEnabled = photoState.value.toString().isNotBlank())
+      button =
+          @Composable {
+            SaveButton(
+                photoState.value.toString().isNotBlank(),
+            ) {
+              messageViewModel.sendPhotoMessage(photoState.value)
+              showAddImage.value = false
+              photoState.value = Uri.EMPTY
+            }
+          })
 }
 
 @Composable
@@ -639,21 +643,25 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
           )
         }
       },
-      onSave = {
-        val uriString = linkState.value.trim()
-        val uri =
-            if (!isValidUrl(uriString)) {
-              Uri.parse("https://$uriString")
-            } else {
-              Uri.parse(uriString)
+      button =
+          @Composable {
+            SaveButton(
+                linkState.value.isNotBlank(),
+            ) {
+              val uriString = linkState.value.trim()
+              val uri =
+                  if (!isValidUrl(uriString)) {
+                    Uri.parse("https://$uriString")
+                  } else {
+                    Uri.parse(uriString)
+                  }
+              linkName.value = uriString.substringAfter("//")
+              messageViewModel.sendLinkMessage(linkName.value, uri)
+              showAddLink.value = false
+              linkState.value = ""
+              linkName.value = ""
             }
-        linkName.value = uriString.substringAfter("//")
-        messageViewModel.sendLinkMessage(linkName.value, uri)
-        showAddLink.value = false
-        linkState.value = ""
-        linkName.value = ""
-      },
-      isSaveEnabled = linkState.value.isNotBlank())
+          })
 }
 
 fun isValidUrl(url: String): Boolean {
@@ -713,13 +721,17 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
               }
             }
       },
-      onSave = {
-        messageViewModel.sendFileMessage(fileName.value, fileState.value)
-        showAddFile.value = false
-        fileState.value = Uri.EMPTY
-        fileName.value = ""
-      },
-      isSaveEnabled = fileState.value.toString().isNotBlank())
+      button =
+          @Composable {
+            SaveButton(
+                fileState.value.toString().isNotBlank(),
+            ) {
+              messageViewModel.sendFileMessage(fileName.value, fileState.value)
+              showAddFile.value = false
+              fileState.value = Uri.EMPTY
+              fileName.value = ""
+            }
+          })
 }
 
 @Composable
@@ -728,14 +740,9 @@ fun ShowAlertDialog(
     onDismiss: () -> Unit,
     title: @Composable () -> Unit,
     content: @Composable () -> Unit,
-    onSave: () -> Unit,
-    isSaveEnabled: Boolean
+    button: @Composable () -> Unit = {},
 ) {
   if (showDialog.value) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        text = content,
-        title = title,
-        confirmButton = { SaveButton(isSaveEnabled, onSave) })
+    AlertDialog(onDismissRequest = onDismiss, text = content, title = title, confirmButton = button)
   }
 }
