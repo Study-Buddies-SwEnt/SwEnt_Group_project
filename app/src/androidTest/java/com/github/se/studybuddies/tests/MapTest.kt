@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.data.User
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
 import com.github.se.studybuddies.ui.map.MapScreen
@@ -34,7 +35,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   // Use the userTest created manually in the database
-  private val uid = "userTest1"
+  private val uid = "userTest"
   private val userTest =
       User(
           uid = uid,
@@ -43,7 +44,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           photoUrl =
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
           location = "offline")
-  private val db = MockDatabase()
+  private val db = DatabaseConnection()
   private val userVM = UserViewModel(uid, db)
   private val usersVM = UsersViewModel(uid, db)
 
