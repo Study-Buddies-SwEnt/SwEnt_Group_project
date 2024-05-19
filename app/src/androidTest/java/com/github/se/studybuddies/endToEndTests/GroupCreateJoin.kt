@@ -1,14 +1,9 @@
 package com.github.se.studybuddies.endToEndTests
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.kaspersky.components.composesupport.config.withComposeSupport
-import com.kaspersky.kaspresso.kaspresso.Kaspresso
-import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import org.junit.runner.RunWith
-
+/*
 @RunWith(AndroidJUnit4::class)
 class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
-  /*
+
     @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val mockkRule = MockKRule(this)
 
@@ -133,5 +128,5 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           }
         }
            */
-  }*/
-}
+  }
+}*/
