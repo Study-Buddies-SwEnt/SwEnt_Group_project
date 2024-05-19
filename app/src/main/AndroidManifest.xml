@@ -41,7 +41,7 @@
         tools:targetApi="34">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
+            android:value="AIzaSyCa3x16MPeqXAaf35RSN8dFd0rBRJwybNo" />
         <meta-data
             android:name="io.getstream.video.android.geo.API_KEY"
             android:value="${STREAM}" />
