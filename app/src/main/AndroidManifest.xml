@@ -24,9 +24,6 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyCa3x16MPeqXAaf35RSN8dFd0rBRJwybNo" />
 
     <application
         android:name=".mapService.LocationApp"
