@@ -1,7 +1,9 @@
 package com.github.se.studybuddies.endToEndTests
 
 import android.net.Uri
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +17,6 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.LoginScreen
-import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
@@ -127,10 +128,11 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       Espresso.closeSoftKeyboard()
       saveButton { performClick() }
     }
-    ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
-      soloStudyScreen { assertIsDisplayed() }
+    composeTestRule.onNodeWithTag("solo_study_home").assertIsDisplayed()
+    /*ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
+      //soloStudyScreen { assertIsDisplayed() }
       // groupsBottom { performClick() }
-    } /*
+    }
       ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
         groupScreen { assertIsDisplayed() }
         addButton { performClick() }
