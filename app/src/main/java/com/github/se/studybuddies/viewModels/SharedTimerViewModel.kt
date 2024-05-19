@@ -30,15 +30,16 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
         Log.e("SharedTimerViewModel", "Failed to initialize: ${e.message}")
       }
     }
-    observeTimerChanges()
   }
+  /*
+   private fun observeTimerChanges() {
+     databaseConnection.observeTimerChanges(
+         groupUID, viewModelScope, Dispatchers.IO, Dispatchers.Main) { timerState ->
+           viewModelScope.launch { syncTimerWithFirebase(timerState) }
+         }
+   }
 
-  private fun observeTimerChanges() {
-    databaseConnection.observeTimerChanges(
-        groupUID, viewModelScope, Dispatchers.IO, Dispatchers.Main) { timerState ->
-          viewModelScope.launch { syncTimerWithFirebase(timerState) }
-        }
-  }
+  */
 
   private suspend fun syncTimerWithFirebase(timerState: TimerState) {
     val remainingTime = timerState.endTime - System.currentTimeMillis()
