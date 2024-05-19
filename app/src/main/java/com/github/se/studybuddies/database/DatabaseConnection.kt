@@ -39,8 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class DatabaseConnection {
-
+class DatabaseConnection : DbRepository {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
 
@@ -57,8 +56,12 @@ class DatabaseConnection {
   private val contactDataCollection = db.collection("contactData")
   private val userContactsCollection = db.collection("userContacts")
 
+  override fun isFakeDatabase(): Boolean {
+    return false
+  }
+
   // using the userData collection
-  suspend fun getUser(uid: String): User {
+  override suspend fun getUser(uid: String): User {
     if (uid.isEmpty()) {
       return User.empty()
     }
@@ -84,7 +87,7 @@ class DatabaseConnection {
     }
   }
 
-  fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+  override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
     val plannerMap =
         dailyPlanners.map { planner ->
           mapOf(
@@ -102,11 +105,11 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
   }
 
-  suspend fun getCurrentUser(): User {
+  override suspend fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
   }
 
-  fun getCurrentUserUID(): String {
+  override fun getCurrentUserUID(): String {
     val uid = FirebaseAuth.getInstance().currentUser?.uid
     return if (uid != null) {
       Log.d("MyPrint", "Fetched user UID is $uid")
@@ -117,7 +120,7 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getAllFriends(uid: String): List<User> {
+  override suspend fun getAllFriends(uid: String): List<User> {
     return try {
       val snapshot = userDataCollection.document(uid).get().await()
       val snapshotQuery = userDataCollection.get().await()
@@ -139,16 +142,16 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getDefaultProfilePicture(): Uri {
+  override suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  suspend fun createUser(
+  override suspend fun createUser(
       uid: String,
       email: String,
       username: String,
       profilePictureUri: Uri,
-      location: String = "offline"
+      location: String
   ) {
     Log.d(
         "MyPrint",
@@ -242,7 +245,7 @@ class DatabaseConnection {
         }
   }
 
-  fun updateUserData(
+  override fun updateUserData(
       uid: String,
       email: String,
       username: String,
@@ -272,7 +275,7 @@ class DatabaseConnection {
         }
   }
 
-  fun updateLocation(uid: String, location: String) {
+  override fun updateLocation(uid: String, location: String) {
     userDataCollection
         .document(uid)
         .update("location", location)
@@ -282,7 +285,11 @@ class DatabaseConnection {
         }
   }
 
-  fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
+  override fun userExists(
+      uid: String,
+      onSuccess: (Boolean) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
     userDataCollection
         .document(uid)
         .get()
@@ -291,7 +298,7 @@ class DatabaseConnection {
   }
 
   // using the groups & userMemberships collections
-  suspend fun getAllGroups(uid: String): GroupList {
+  override suspend fun getAllGroups(uid: String): GroupList {
     try {
       val snapshot = userMembershipsCollection.document(uid).get().await()
       val items = mutableListOf<Group>()
@@ -324,7 +331,11 @@ class DatabaseConnection {
     return GroupList(emptyList())
   }
 
-  suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int {
+  override suspend fun updateGroupTimer(
+      groupUID: String,
+      newEndTime: Long,
+      newIsRunning: Boolean
+  ): Int {
     if (groupUID.isEmpty()) {
       Log.d("MyPrint", "Group UID is empty")
       return -1
@@ -361,7 +372,7 @@ class DatabaseConnection {
     return 0
   }
 
-  suspend fun getGroup(groupUID: String): Group {
+  override suspend fun getGroup(groupUID: String): Group {
     val document = groupDataCollection.document(groupUID).get().await()
     return if (document.exists()) {
       val name = document.getString("name") ?: ""
@@ -380,7 +391,7 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getGroupName(groupUID: String): String {
+  override suspend fun getGroupName(groupUID: String): String {
     val document = groupDataCollection.document(groupUID).get().await()
     return if (document.exists()) {
       document.getString("name") ?: ""
@@ -390,11 +401,11 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getDefaultPicture(): Uri {
+  override suspend fun getDefaultPicture(): Uri {
     return storage.child("groupData/default_group.jpg").downloadUrl.await()
   }
 
-  suspend fun createGroup(name: String, photoUri: Uri) {
+  override suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
     Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
@@ -487,7 +498,7 @@ class DatabaseConnection {
    *
    * return -1 in case of invalid entries
    */
-  suspend fun addUserToGroup(groupUID: String, user: String = "") {
+  override suspend fun addUserToGroup(groupUID: String, user: String) {
 
     if (groupUID == "") {
       Log.d("MyPrint", "Group UID is empty")
@@ -531,7 +542,7 @@ class DatabaseConnection {
         }
   }
 
-  fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
+  override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
 
     // change name of group
     groupDataCollection
@@ -565,7 +576,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun removeUserFromGroup(groupUID: String, userUID: String = "") {
+  override suspend fun removeUserFromGroup(groupUID: String, userUID: String) {
 
     val user =
         if (userUID == "") {
@@ -621,7 +632,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun deleteGroup(groupUID: String) {
+  override suspend fun deleteGroup(groupUID: String) {
 
     val document = groupDataCollection.document(groupUID).get().await()
     val members = document.get("members") as? List<String> ?: emptyList()
@@ -670,11 +681,11 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendMessage(
+  override fun sendMessage(
       chatUID: String,
       message: Message,
       chatType: ChatType,
-      additionalUID: String = ""
+      additionalUID: String
   ) {
     val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
 
@@ -725,7 +736,7 @@ class DatabaseConnection {
     }
   }
 
-  private fun saveMessage(path: String, data: Map<String, Any>) {
+  override fun saveMessage(path: String, data: Map<String, Any>) {
     rtDb
         .getReference(path)
         .updateChildren(data)
@@ -733,7 +744,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.w("MessageSend", "Failed to write message.", e) }
   }
 
-  private fun uploadChatImage(
+  override fun uploadChatImage(
       uid: String,
       chatUID: String,
       imageUri: Uri,
@@ -766,42 +777,23 @@ class DatabaseConnection {
         }
   }
 
-  fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
+  override fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rtDb.getReference(messagePath).removeValue()
   }
-  /*
-    fun observeTimerChanges(
-        groupUID: String,
-        scope: CoroutineScope,
-        ioDispatcher: CoroutineDispatcher,
-        mainDispatcher: CoroutineDispatcher,
-        onUpdate: (TimerState) -> Unit
-    ) {
-      val docRef = FirebaseFirestore.getInstance().collection("groupData").document(groupUID)
-      docRef.addSnapshotListener { snapshot, e ->
-        if (e != null) {
-          Log.w("DatabaseConnection", "Listen failed.", e)
-          return@addSnapshotListener
-        }
-        if (snapshot != null && snapshot.exists()) {
-          scope.launch(ioDispatcher) {
-            val timerStateMap = snapshot.get("timerState") as? Map<String, Any>
-            val endTime = timerStateMap?.get("endTime") as? Long ?: 0L
-            val isRunning = timerStateMap?.get("isRunning") as? Boolean ?: false
-            val timerState = TimerState(endTime, isRunning)
-            withContext(mainDispatcher) { onUpdate(timerState) }
-          }
-        }
-      }
-    }
-  */
-  suspend fun removeTopic(uid: String) {
+
+  override suspend fun removeTopic(uid: String) {
+
     val topic = getTopic(uid)
     rtDb.getReference(topic.toString()).removeValue()
   }
 
-  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+  override fun editMessage(
+      groupUID: String,
+      message: Message,
+      chatType: ChatType,
+      newText: String
+  ) {
     when (message) {
       is Message.TextMessage -> {
         val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
@@ -817,11 +809,7 @@ class DatabaseConnection {
     }
   }
 
-  private fun getMessagePath(
-      chatUID: String,
-      chatType: ChatType,
-      additionalUID: String = ""
-  ): String {
+  override fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String): String {
     return when (chatType) {
       ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
       ChatType.GROUP -> getGroupMessagesPath(chatUID)
@@ -829,23 +817,23 @@ class DatabaseConnection {
     }
   }
 
-  private fun getGroupMessagesPath(groupUID: String): String {
+  override fun getGroupMessagesPath(groupUID: String): String {
     return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
-  private fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
+  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
     return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
-  private fun getPrivateMessagesPath(chatUID: String): String {
+  override fun getPrivateMessagesPath(chatUID: String): String {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
   }
 
-  private fun getPrivateChatMembersPath(chatUID: String): String {
+  override fun getPrivateChatMembersPath(chatUID: String): String {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun subscribeToPrivateChats(
+  override fun subscribeToPrivateChats(
       userUID: String,
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
@@ -888,7 +876,7 @@ class DatabaseConnection {
         })
   }
 
-  fun getMessages(
+  override fun getMessages(
       chat: Chat,
       liveData: MutableStateFlow<List<Message>>,
       ioDispatcher: CoroutineDispatcher,
@@ -950,7 +938,7 @@ class DatabaseConnection {
         })
   }
 
-  private fun checkForExistingChat(
+  override fun checkForExistingChat(
       currentUserUID: String,
       otherUID: String,
       onResult: (Boolean, String?) -> Unit
@@ -981,7 +969,7 @@ class DatabaseConnection {
         })
   }
 
-  fun startDirectMessage(otherUID: String) {
+  override fun startDirectMessage(otherUID: String) {
     val currentUserUID = getCurrentUserUID()
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
@@ -1005,7 +993,7 @@ class DatabaseConnection {
   }
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String): Topic {
     val document = topicDataCollection.document(uid).get().await()
     return if (document.exists()) {
       val name = document.getString(topic_name) ?: ""
@@ -1030,7 +1018,7 @@ class DatabaseConnection {
     }
   }
 
-  private suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
+  override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
     for (itemUID in listUID) {
       val document = topicItemCollection.document(itemUID).get().await()
@@ -1054,7 +1042,7 @@ class DatabaseConnection {
     return items
   }
 
-  fun createTopic(name: String, callBack: (String) -> Unit) {
+  override fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
             topic_name to name,
@@ -1073,7 +1061,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun addTopicToGroup(topicUID: String, groupUID: String) {
+  override suspend fun addTopicToGroup(topicUID: String, groupUID: String) {
     val document = groupDataCollection.document(groupUID).get().await()
     if (document.exists()) {
       groupDataCollection
@@ -1088,7 +1076,7 @@ class DatabaseConnection {
     }
   }
 
-  fun addExercise(uid: String, exercise: TopicItem) {
+  override fun addExercise(uid: String, exercise: TopicItem) {
     val exerciseUID = exercise.uid
     topicDataCollection
         .document(uid)
@@ -1100,7 +1088,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  fun addTheory(uid: String, theory: TopicItem) {
+  override fun addTheory(uid: String, theory: TopicItem) {
     val theoryUID = theory.uid
     topicDataCollection
         .document(uid)
@@ -1112,7 +1100,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  suspend fun deleteTopic(topicId: String) {
+  override suspend fun deleteTopic(topicId: String) {
     val itemRef = topicDataCollection.document(topicId)
     try {
       itemRef.delete().await()
@@ -1123,7 +1111,7 @@ class DatabaseConnection {
     }
   }
 
-  fun updateTopicName(uid: String, name: String) {
+  override fun updateTopicName(uid: String, name: String) {
     topicDataCollection
         .document(uid)
         .update(topic_name, name)
@@ -1131,7 +1119,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
+  override fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
     val folder =
         hashMapOf(
             topic_name to name,
@@ -1155,7 +1143,7 @@ class DatabaseConnection {
         }
   }
 
-  fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit) {
+  override fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit) {
     val file =
         hashMapOf(
             topic_name to name,
@@ -1179,7 +1167,7 @@ class DatabaseConnection {
         }
   }
 
-  private fun updateTopicItem(item: TopicItem) {
+  override fun updateTopicItem(item: TopicItem) {
     var task = emptyMap<String, Any>()
     var type = ""
     var folderItems = emptyList<String>()
@@ -1206,9 +1194,28 @@ class DatabaseConnection {
         }
   }
 
-  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
+  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
+    var isRunning = false
+    groupUID?.let { uid ->
+      val timerRef = rtDb.getReference("timer/$uid")
+      timerRef.addValueEventListener(
+          object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+              snapshot.getValue(TimerState::class.java)?.let { timerState ->
+                _timerValue.value = timerState.endTime - System.currentTimeMillis()
+                isRunning = timerState.isRunning
+              }
+            }
 
-  fun getAllTopics(
+            override fun onCancelled(error: DatabaseError) {
+              Log.e("TimerViewModel", "Failed to read timer", error.toException())
+            }
+          })
+    } ?: error("Group UID is not set. Call setup() with valid Group UID.")
+    return isRunning
+  }
+
+  override fun getAllTopics(
       groupUID: String,
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
@@ -1227,7 +1234,6 @@ class DatabaseConnection {
         scope.launch(ioDispatcher) {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
-
           if (topicUIDs.isNotEmpty()) {
             topicUIDs
                 .map { topicUid -> async { getTopic(topicUid) } }
