@@ -20,19 +20,7 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
   private var countDownTimer: CountDownTimer? = null
 
   init {
-    viewModelScope.launch {
-      syncTimerWithFirebase()
-      startPeriodicSync()
-    }
-  }
-
-  private fun startPeriodicSync() {
-    viewModelScope.launch {
-      while (isActive) {
-        syncTimerWithFirebase()
-        delay(2000) // Appeler toutes les 2 secondes
-      }
-    }
+    viewModelScope.launch { syncTimerWithFirebase() }
   }
 
   private suspend fun syncTimerWithFirebase() {
