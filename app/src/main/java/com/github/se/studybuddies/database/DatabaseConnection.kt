@@ -45,36 +45,11 @@ class DatabaseConnection {
       return User.empty()
     }
     val document = userDataCollection.document(uid).get().await()
-    return if (document.exists()) {
-      val email = document.getString("email") ?: ""
-      val username = document.getString("username") ?: ""
-      val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-      val location = document.getString("location") ?: "offline"
-      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
-      val plannerList =
-          dailyPlanners.map { plannerMap ->
-            DailyPlanner(
-                date = plannerMap["date"] as String,
-                goals = plannerMap["goals"] as List<String>,
-                appointments = plannerMap["appointments"] as Map<String, String>,
-                notes = plannerMap["notes"] as List<String>)
-          }
-      User(uid, email, username, photoUrl, location, plannerList)
-    } else {
-      Log.d("MyPrint", "user document not found for id $uid")
-      User.empty()
-    }
+    return document.toUser()
   }
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
-    val plannerMap =
-        dailyPlanners.map { planner ->
-          mapOf(
-              "date" to planner.date,
-              "goals" to planner.goals,
-              "appointments" to planner.appointments,
-              "notes" to planner.notes)
-        }
+    val plannerMap = dailyPlanners.map { it.toMap() }
     userDataCollection
         .document(uid)
         .update("dailyPlanners", plannerMap)
@@ -702,7 +677,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun deleteContact(contactUID: String, userUID: String = "") {
+  fun deleteContact(contactUID: String, userUID: String = "") {
     contactDataCollection
         .document(contactUID)
         .delete()
@@ -710,7 +685,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
   }
 
-  private suspend fun DocumentSnapshot.toUser(): User {
+  private fun DocumentSnapshot.toUser(): User {
     return if (this.exists()) {
       val email = this.getString("email") ?: ""
       val username = this.getString("username") ?: ""
@@ -725,14 +700,6 @@ class DatabaseConnection {
     }
   }
 
-  private fun Map<String, Any>.toDailyPlanner(): DailyPlanner {
-    return DailyPlanner(
-        date = this["date"] as String,
-        goals = this["goals"] as List<String>,
-        appointments = this["appointments"] as Map<String, String>,
-        notes = this["notes"] as List<String>)
-  }
-
   private fun DailyPlanner.toMap(): Map<String, Any> {
     return mapOf(
         "date" to this.date,
@@ -741,16 +708,25 @@ class DatabaseConnection {
         "notes" to this.notes)
   }
 
-  private suspend fun DocumentSnapshot.toGroup(): Group {
+  private fun Map<String, Any>.toDailyPlanner(): DailyPlanner {
+    return DailyPlanner(
+        date = this["date"] as String,
+        goals = this["goals"] as List<String>,
+        appointments = this["appointments"] as Map<String, String>,
+        notes = this["notes"] as List<String>)
+  }
+
+  private fun DocumentSnapshot.toGroup(): Group {
     val name = this.getString("name") ?: ""
-    val picture = Uri.parse(this.getString("picture") ?: "")
-    val members = this.get("members") as List<String>
+    val pictureUri = this.getString("picture")?.let { Uri.parse(it) } ?: Uri.EMPTY
+    val members = this.get("members") as? List<String> ?: emptyList()
     val timerStateMap = this.get("timerState") as? Map<String, Any>
     val endTime = timerStateMap?.get("endTime") as? Long ?: System.currentTimeMillis()
     val isRunning = timerStateMap?.get("isRunning") as? Boolean ?: false
     val timerState = TimerState(endTime, isRunning)
-    val topics = this.get("topics") as List<String>
-    return Group(this.id, name, picture, members, topics, timerState)
+    val topics = this.get("topics") as? List<String> ?: emptyList()
+
+    return Group(this.id, name, pictureUri, members, topics, timerState)
   }
 
   private suspend fun DocumentSnapshot.toTopic(): Topic {
