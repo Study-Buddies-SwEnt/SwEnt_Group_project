@@ -29,6 +29,7 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
       } catch (e: Exception) {
         Log.e("SharedTimerViewModel", "Failed to initialize: ${e.message}")
       }
+      //
     }
   }
   /*
