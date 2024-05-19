@@ -15,9 +15,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class CallLobbyViewModel @Inject constructor(val uid: String, val callType: String) : ViewModel() {
@@ -48,21 +50,21 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
     }
     call
   }
-  /*
-    val state: StateFlow<UiState> =
-        flow {
-              emit(UiState(isLoading = true))
-              val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
-              val isMicrophoneEnabled = call.microphone.status.first() is DeviceStatus.Enabled
-              emit(
-                  UiState(
-                      isLoading = false,
-                      isCameraEnabled = isCameraEnabled,
-                      isMicrophoneEnabled = isMicrophoneEnabled))
-            }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
-  */
 
+  val state: StateFlow<UiState> =
+      flow {
+            emit(UiState(isLoading = true))
+            val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
+            val isMicrophoneEnabled = call.microphone.status.first() is DeviceStatus.Enabled
+            emit(
+                UiState(
+                    isLoading = false,
+                    isCameraEnabled = isCameraEnabled,
+                    isMicrophoneEnabled = isMicrophoneEnabled))
+          }
+          .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
+
+  /*
   init {
     // for demo we set the default state for mic and camera to be on
     // and then we wait for call settings and we update the default state accordingly
@@ -87,10 +89,10 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
             }
           }
 
-      // enable/disable camera capture (no preview would be visible otherwise)
-      call.camera.setEnabled(enabled)
     }
   }
+
+   */
 
   private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
   internal val isLoading: StateFlow<Boolean> = _isLoading

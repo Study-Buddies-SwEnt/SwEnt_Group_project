@@ -8,7 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.github.se.studybuddies.screens.VideoCallScreen
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
-import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
@@ -66,7 +65,7 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
         .build()
 
     val call = StreamVideo.instance().call("default", uid)
-    composeTestRule.setContent { VideoCallScreen(VideoCallViewModel(call, uid)) { call.leave() } }
+    composeTestRule.setContent { VideoCallScreen(call, uid) { call.leave() } }
   }
 
   @Test
