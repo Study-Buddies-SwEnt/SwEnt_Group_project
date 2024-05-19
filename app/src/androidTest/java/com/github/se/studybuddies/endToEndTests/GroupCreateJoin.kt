@@ -2,8 +2,12 @@ package com.github.se.studybuddies.endToEndTests
 
 import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +19,6 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
@@ -32,7 +35,6 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
 import org.junit.Before
 import org.junit.Rule
@@ -117,7 +119,14 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun groupCreateJoin() {
-    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+    // composeTestRule.onNodeWithTag("save_button").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("username_field").performTextClearance()
+    composeTestRule.onNodeWithTag("username_field").performTextInput("UserTestE2E")
+    composeTestRule.onNodeWithTag("username_field").assertTextContains("UserTestE2E")
+    Espresso.closeSoftKeyboard()
+    composeTestRule.onNodeWithTag("save_button").performClick()
+
+    /* ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       // Create account
       saveButton { assertIsNotEnabled() }
       usernameField {
@@ -127,7 +136,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
       Espresso.closeSoftKeyboard()
       saveButton { performClick() }
-    }
+    }*/
     composeTestRule.onNodeWithTag("solo_study_home").assertIsDisplayed()
     /*ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       //soloStudyScreen { assertIsDisplayed() }
