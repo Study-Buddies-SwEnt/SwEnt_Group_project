@@ -1,9 +1,9 @@
 package com.github.se.studybuddies.data
 
-data class Contact(val id: String, val members: Pair<String, String>, val showOnMap: Boolean) {
+data class Contact(val id: String, val members: List<String>, val showOnMap: Boolean) {
   companion object {
     fun empty(): Contact {
-      return Contact(id = "", members = Pair("", ""), false)
+      return Contact(id = "", members = emptyList(), false)
     }
   }
 }
@@ -16,8 +16,8 @@ class ContactList(private val contacts: List<Contact>) {
   fun getFilteredContacts(searchQuery: String): List<Contact> {
     val filteredContacts =
         contacts.filter { contact ->
-          contact.members.first.contains(searchQuery, ignoreCase = true) or
-              contact.members.second.contains(searchQuery, ignoreCase = true)
+          contact.members.get(0).contains(searchQuery, ignoreCase = true) or
+              contact.members.get(1).contains(searchQuery, ignoreCase = true)
         }
     return filteredContacts
   }
