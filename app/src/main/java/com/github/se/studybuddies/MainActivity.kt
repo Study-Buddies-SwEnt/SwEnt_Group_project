@@ -64,8 +64,8 @@ import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
-import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
+import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
 import javax.inject.Inject
 
@@ -187,7 +187,7 @@ class MainActivity : ComponentActivity() {
                   if (backRoute != null && currentUser != null) {
                     val userViewModel = remember { UserViewModel(currentUser.uid) }
                     AccountSettings(currentUser.uid, userViewModel, backRoute, navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to Settings")
+                    Log.d("MyPrint", "Successfully navigated to Account")
                   }
                 }
             composable(Route.CREATEACCOUNT) {
@@ -311,7 +311,7 @@ class MainActivity : ComponentActivity() {
                     CallLobbyScreen(groupUID, viewModel, navigationActions)
                   } else {
                     Log.d("MyPrint", "Failed bc video call client isn't installed")
-                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                    navController.popBackStack("${Route.GROUP}/$groupUID", false)
                   }
                 }
 
@@ -320,33 +320,11 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  val streamVideo = StreamVideo.instance()
-                  val activeCall = streamVideo.state.activeCall.value
-                  if (groupUID != null) {
-                    val call =
-                        if (activeCall != null) {
-                          if (activeCall.id != groupUID) {
-                            Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
-                            // If the call id is different leave the previous call
-                            activeCall.leave()
-                            // Return a new call
-                            streamVideo.call(callType, groupUID)
-                          } else {
-                            // Call ID is the same, use the active call
-                            activeCall
-                          }
-                        } else {
-                          // There is no active call, create new call
-                          streamVideo.call(callType, groupUID)
-                        }
-                    val videoVM = remember { VideoCallViewModel(call, groupUID) }
+                  val activeCall = StreamVideo.instance().state.activeCall.value
+                  ifNotNull(groupUID) { callId ->
+                    val call = startCall(activeCall, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
-                    VideoCallScreen(
-                        call,
-                        videoVM,
-                    ) {
-                      videoVM.call.leave()
-                      StreamVideo.instance().state.activeCall.value?.leave()
+                    VideoCallScreen(call) {
                       navController.popBackStack("${Route.GROUP}/$groupUID", false)
                     }
                   }
@@ -407,6 +385,22 @@ class MainActivity : ComponentActivity() {
       }
     }
   }
+
+  private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
+      if (activeCall != null) {
+        if (activeCall.id != groupUID) {
+          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+          activeCall.leave()
+          // Return a new call
+          StreamVideo.instance().call(callType, groupUID)
+        } else {
+          // Call ID is the same, use the active call
+          activeCall
+        }
+      } else {
+        // There is no active call, create new call
+        StreamVideo.instance().call(callType, groupUID)
+      }
 
   private inline fun <T> ifNotNull(value: T?, action: (T) -> Unit) {
     if (value != null) {
