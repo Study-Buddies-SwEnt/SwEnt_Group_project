@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.calender
+package com.github.se.studybuddies.ui.calender
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +31,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.CalendarUiState
+import com.github.se.studybuddies.data.DateUtil
+import com.github.se.studybuddies.data.getDisplayName
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
@@ -43,10 +45,7 @@ import java.time.YearMonth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarApp(
-    viewModel: CalendarViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    navigationActions: NavigationActions
-) {
+fun CalendarApp(viewModel: CalendarViewModel, navigationActions: NavigationActions) {
   val uiState by viewModel.uiState.collectAsState()
 
   Scaffold(
@@ -68,8 +67,8 @@ fun CalendarApp(
               dates = uiState.dates,
               onPreviousMonthButtonClicked = { prevMonth -> viewModel.toPreviousMonth(prevMonth) },
               onNextMonthButtonClicked = { nextMonth -> viewModel.toNextMonth(nextMonth) },
-              onDateClickListener = {
-                //  will do later on
+              onDateClickListener = { date ->
+                navigationActions.navigateTo("${Route.DAILYPLANNER}/$date")
               })
         }
   }

@@ -2,9 +2,9 @@ package com.github.se.studybuddies.tests
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.calender.CalendarApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.CalendarScreen
+import com.github.se.studybuddies.ui.calender.CalendarApp
 import com.github.se.studybuddies.viewModels.CalendarViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -25,10 +25,11 @@ class CalendarAppTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @get:Rule val mockkRule = MockKRule(this)
 
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
+  val uid = "111testUser"
 
   @Before
   fun testSetup() {
-    val vm = CalendarViewModel() // Consider using a mock or a test ViewModel instance
+    val vm = CalendarViewModel(uid) // Consider using a mock or a test ViewModel instance
     composeTestRule.setContent { CalendarApp(viewModel = vm, navigationActions = mockNavActions) }
   }
 
