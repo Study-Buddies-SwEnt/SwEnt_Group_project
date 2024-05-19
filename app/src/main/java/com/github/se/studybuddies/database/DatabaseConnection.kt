@@ -705,6 +705,30 @@ class DatabaseConnection {
     rtDb.getReference(messagePath).removeValue()
   }
 
+  fun observeTimerChanges(
+      groupUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (Group) -> Unit
+  ) {
+    val docRef = groupDataCollection.document(groupUID)
+    docRef.addSnapshotListener { snapshot, e ->
+      if (e != null) {
+        Log.w("DatabaseConnection", "Listen failed.", e)
+        return@addSnapshotListener
+      }
+      if (snapshot != null && snapshot.exists()) {
+        scope.launch(ioDispatcher) {
+          val group = snapshot.toObject(Group::class.java)
+          if (group != null) {
+            withContext(mainDispatcher) { onUpdate(group) }
+          }
+        }
+      }
+    }
+  }
+
   suspend fun removeTopic(uid: String) {
     val topic = getTopic(uid)
     rtDb.getReference(topic.toString()).removeValue()
@@ -1104,8 +1128,6 @@ class DatabaseConnection {
           Log.d("MyPrint", "topic item ${item.uid} failed to update with error ", e)
         }
   }
-
-  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
 
   suspend fun getALlTopics(groupUID: String): TopicList {
     try {
