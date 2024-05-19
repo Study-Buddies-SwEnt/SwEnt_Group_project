@@ -1,10 +1,8 @@
 package com.github.se.studybuddies.viewModels
 
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,35 +21,31 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
 
   init {
     viewModelScope.launch {
-      try {
-        val group = databaseConnection.getGroup(groupUID)
-        syncTimerWithFirebase(group.timerState)
-      } catch (e: Exception) {
-        Log.e("SharedTimerViewModel", "Failed to initialize: ${e.message}")
-      }
-      //
+      syncTimerWithFirebase()
+      startPeriodicSync()
     }
   }
-  /*
-   private fun observeTimerChanges() {
-     databaseConnection.observeTimerChanges(
-         groupUID, viewModelScope, Dispatchers.IO, Dispatchers.Main) { timerState ->
-           viewModelScope.launch { syncTimerWithFirebase(timerState) }
-         }
-   }
 
-  */
+  private fun startPeriodicSync() {
+    viewModelScope.launch {
+      while (isActive) {
+        syncTimerWithFirebase()
+        delay(2000) // Appeler toutes les 2 secondes
+      }
+    }
+  }
 
-  private suspend fun syncTimerWithFirebase(timerState: TimerState) {
+  private suspend fun syncTimerWithFirebase() {
+    val group = databaseConnection.getGroup(groupUID)
+    val timerState = group.timerState
     val remainingTime = timerState.endTime - System.currentTimeMillis()
     if (remainingTime > 0) {
       _timerValue.value = remainingTime
-      val wasRunning = isRunning
       isRunning = timerState.isRunning
-      if (isRunning && !wasRunning) {
+      if (isRunning) {
         setupTimer(remainingTime)
-      } else if (!isRunning && wasRunning) {
-        cancelCurrentTimer()
+      } else {
+        pauseTimer()
       }
     } else {
       resetTimerValues()
@@ -59,93 +53,58 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
   }
 
   private fun setupTimer(timeRemaining: Long) {
-    cancelCurrentTimer()
-    countDownTimer = createCountDownTimer(timeRemaining)
+    countDownTimer?.cancel()
+    countDownTimer =
+        object : CountDownTimer(timeRemaining, 1000) {
+          override fun onTick(millisUntilFinished: Long) {
+            _timerValue.value = millisUntilFinished
+            viewModelScope.launch {
+              databaseConnection.updateGroupTimer(
+                  groupUID, _timerValue.value + System.currentTimeMillis(), isRunning)
+            }
+          }
+
+          override fun onFinish() {
+            _timerValue.value = 0
+            _timerEnd.value = true
+            isRunning = false
+            viewModelScope.launch { databaseConnection.updateGroupTimer(groupUID, 0L, false) }
+          }
+        }
+
     if (isRunning) {
       countDownTimer?.start()
     }
   }
 
-  private fun createCountDownTimer(timeRemaining: Long): CountDownTimer {
-    return object : CountDownTimer(timeRemaining, 1000) {
-      override fun onTick(millisUntilFinished: Long) {
-        _timerValue.value = millisUntilFinished
-        if (isRunning) {
-          viewModelScope.launch {
-            try {
-              databaseConnection.updateGroupTimer(
-                  groupUID, System.currentTimeMillis() + millisUntilFinished, isRunning)
-            } catch (e: Exception) {
-              Log.e("SharedTimerViewModel", "Failed to update timer: ${e.message}")
-            }
-          }
-        }
-      }
-
-      override fun onFinish() {
-        _timerValue.value = 0
-        _timerEnd.value = true
-        isRunning = false
-        viewModelScope.launch {
-          try {
-            databaseConnection.updateGroupTimer(groupUID, 0L, false)
-          } catch (e: Exception) {
-            Log.e("SharedTimerViewModel", "Failed to finish timer: ${e.message}")
-          }
-        }
-      }
-    }
-  }
-
-  private fun cancelCurrentTimer() {
-    countDownTimer?.cancel()
-    countDownTimer = null
-  }
-
   fun startTimer() {
-    if (isRunning || _timerValue.value <= 0) return
-    isRunning = true
-    setupTimer(_timerValue.value)
-    viewModelScope.launch {
-      try {
-        databaseConnection.updateGroupTimer(
-            groupUID, System.currentTimeMillis() + _timerValue.value, true)
-      } catch (e: Exception) {
-        Log.e("SharedTimerViewModel", "Failed to start timer: ${e.message}")
-      }
+    if (isRunning) return
+    if (_timerValue.value > 0) {
+      val newEndTime = System.currentTimeMillis() + _timerValue.value
+      isRunning = true
+      setupTimer(_timerValue.value)
     }
   }
 
   fun pauseTimer() {
-    if (!isRunning) return
     isRunning = false
-    cancelCurrentTimer()
+    countDownTimer?.cancel()
     viewModelScope.launch {
-      try {
-        databaseConnection.updateGroupTimer(
-            groupUID, System.currentTimeMillis() + _timerValue.value, false)
-      } catch (e: Exception) {
-        Log.e("SharedTimerViewModel", "Failed to pause timer: ${e.message}")
-      }
+      databaseConnection.updateGroupTimer(
+          groupUID, System.currentTimeMillis() + _timerValue.value, false)
     }
   }
 
   fun resetTimer() {
     isRunning = false
     resetTimerValues()
-    viewModelScope.launch {
-      try {
-        databaseConnection.updateGroupTimer(groupUID, 0L, false)
-      } catch (e: Exception) {
-        Log.e("SharedTimerViewModel", "Failed to reset timer: ${e.message}")
-      }
-    }
+    viewModelScope.launch { databaseConnection.updateGroupTimer(groupUID, 0L, false) }
   }
 
   private fun resetTimerValues() {
     _timerValue.value = 0
     _timerEnd.value = false
-    cancelCurrentTimer()
+    countDownTimer?.cancel()
   }
 
   fun addHours(hours: Long) {
@@ -167,14 +126,8 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
       if (isRunning) {
         setupTimer(newTime)
       }
-      viewModelScope.launch {
-        try {
-          databaseConnection.updateGroupTimer(
-              groupUID, System.currentTimeMillis() + newTime, isRunning)
-        } catch (e: Exception) {
-          Log.e("SharedTimerViewModel", "Failed to update timer: ${e.message}")
-        }
-      }
+      val newEndTime = System.currentTimeMillis() + newTime
+      viewModelScope.launch { databaseConnection.updateGroupTimer(groupUID, newEndTime, isRunning) }
     }
   }
 }
