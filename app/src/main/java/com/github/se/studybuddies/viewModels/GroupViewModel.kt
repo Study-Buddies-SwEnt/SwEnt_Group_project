@@ -10,6 +10,7 @@ import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.StorageDatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,7 +49,7 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
   }
 
   suspend fun getDefaultPicture(): Uri {
-    return withContext(Dispatchers.IO) { db.getDefaultPicture() }
+    return withContext(Dispatchers.IO) { StorageDatabaseConnection().getDefaultGroupPicture() }
   }
 
   fun fetchUsers() {

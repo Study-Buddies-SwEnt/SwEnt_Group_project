@@ -9,6 +9,7 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.RealtimeDatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class MessageViewModel(val chat: Chat) : ViewModel() {
 
-  private val db = DatabaseConnection()
+  private val db = RealtimeDatabaseConnection()
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
@@ -32,7 +33,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   }
 
   private fun getCurrentUser() {
-    viewModelScope.launch { _currentUser.value = db.getCurrentUser() }
+    viewModelScope.launch { _currentUser.value = DatabaseConnection().getCurrentUser() }
   }
 
   fun sendTextMessage(text: String) {

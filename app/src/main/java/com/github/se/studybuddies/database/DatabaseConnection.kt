@@ -2,17 +2,12 @@ package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
-import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ChatType
-import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
-import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -21,20 +16,13 @@ import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -42,11 +30,6 @@ import kotlinx.coroutines.withContext
 class DatabaseConnection {
 
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-  private val storage = FirebaseStorage.getInstance().reference
-
-  private val rtDb =
-      Firebase.database(
-          "https://study-buddies-e655a-default-rtdb.europe-west1.firebasedatabase.app/")
 
   // all collections
   private val userDataCollection = db.collection("userData")
@@ -139,10 +122,6 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getDefaultProfilePicture(): Uri {
-    return storage.child("userData/default.jpg").downloadUrl.await()
-  }
-
   suspend fun createUser(
       uid: String,
       email: String,
@@ -160,66 +139,41 @@ class DatabaseConnection {
             "photoUrl" to profilePictureUri.toString(),
             "location" to location,
             "dailyPlanners" to emptyList<Map<String, Any>>())
-    if (profilePictureUri != getDefaultProfilePicture()) {
+    if (profilePictureUri != StorageDatabaseConnection().getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)
           .set(user)
           .addOnSuccessListener {
-            val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
-            pictureRef
-                .putFile(profilePictureUri)
-                .addOnSuccessListener {
-                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                    userDataCollection.document(uid).update("photoUrl", uri.toString())
-                  }
-                  Log.d("MyPrint", "User data successfully created")
-                }
-                .addOnFailureListener { e ->
-                  Log.d(
-                      "MyPrint",
-                      "Failed to upload photo with error with link $profilePictureUri: ",
-                      e)
-                }
-            Log.d("MyPrint", "User data successfully created for uid $uid")
+            CoroutineScope(Dispatchers.IO).launch {
+              val uploadedUri =
+                  StorageDatabaseConnection().uploadUserProfilePicture(uid, profilePictureUri)
+              if (uploadedUri != null) {
+                userDataCollection.document(uid).update("photoUrl", uploadedUri.toString())
+              }
+              Log.d("MyPrint", "User data successfully created")
+            }
           }
           .addOnFailureListener { e ->
             Log.d("MyPrint", "Failed to create user data with error: ", e)
           }
     } else {
       // If the profile picture URI is the default one, copy it to the user's folder
-      val defaultPictureRef = storage.child("userData/default.jpg")
-      val profilePictureRef = storage.child("userData/$uid/profilePicture.jpg")
-
-      defaultPictureRef
-          .getBytes(Long.MAX_VALUE)
-          .addOnSuccessListener { defaultPictureData ->
-            profilePictureRef
-                .putBytes(defaultPictureData)
-                .addOnSuccessListener {
-                  // Once the default picture is uploaded, update the user data with the correct
-                  // photo URL
-                  profilePictureRef.downloadUrl.addOnSuccessListener { uri ->
-                    val updatedUserData = user + mapOf("photoUrl" to uri.toString())
-                    userDataCollection
-                        .document(uid)
-                        .set(updatedUserData)
-                        .addOnSuccessListener {
-                          Log.d("MyPrint", "User data successfully created for uid $uid")
-                        }
-                        .addOnFailureListener { e ->
-                          Log.d("MyPrint", "Failed to update user data with error: ", e)
-                        }
-                  }
-                }
-                .addOnFailureListener { e ->
-                  Log.d(
-                      "MyPrint",
-                      "Failed to upload default profile picture for user $uid with error: ",
-                      e)
-                }
+      val defaultPictureRef = StorageDatabaseConnection().getDefaultProfilePicture()
+      userDataCollection
+          .document(uid)
+          .set(user)
+          .addOnSuccessListener {
+            CoroutineScope(Dispatchers.IO).launch {
+              val uploadedUri =
+                  StorageDatabaseConnection().uploadUserProfilePicture(uid, defaultPictureRef)
+              if (uploadedUri != null) {
+                userDataCollection.document(uid).update("photoUrl", uploadedUri.toString())
+              }
+              Log.d("MyPrint", "User data successfully created")
+            }
           }
           .addOnFailureListener { e ->
-            Log.d("MyPrint", "Failed to retrieve default profile picture with error: ", e)
+            Log.d("MyPrint", "Failed to create user data with error: ", e)
           }
     }
 
@@ -254,18 +208,14 @@ class DatabaseConnection {
         .document(uid)
         .update(task as Map<String, Any>)
         .addOnSuccessListener {
-          val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
-          pictureRef
-              .putFile(profilePictureUri)
-              .addOnSuccessListener {
-                pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  userDataCollection.document(uid).update("photoUrl", uri.toString())
-                }
-              }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to upload photo with error: ", e)
-              }
-          Log.d("MyPrint", "User data successfully updated")
+          CoroutineScope(Dispatchers.IO).launch {
+            val uploadedUri =
+                StorageDatabaseConnection().uploadUserProfilePicture(uid, profilePictureUri)
+            if (uploadedUri != null) {
+              userDataCollection.document(uid).update("photoUrl", uploadedUri.toString())
+            }
+            Log.d("MyPrint", "User data successfully updated")
+          }
         }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to update user data with error: ", e)
@@ -390,10 +340,6 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getDefaultPicture(): Uri {
-    return storage.child("groupData/default_group.jpg").downloadUrl.await()
-  }
-
   suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
@@ -410,7 +356,7 @@ class DatabaseConnection {
             "members" to listOf(uid),
             "topics" to emptyList<String>(),
             "timerState" to timerState)
-    if (photoUri != getDefaultPicture()) {
+    if (photoUri != StorageDatabaseConnection().getDefaultGroupPicture()) {
       groupDataCollection
           .add(group)
           .addOnSuccessListener { documentReference ->
@@ -422,25 +368,18 @@ class DatabaseConnection {
                 .addOnFailureListener { e ->
                   Log.d("MyPrint", "Failed to update user memberships with error: ", e)
                 }
-            val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
-            pictureRef
-                .putFile(photoUri)
-                .addOnSuccessListener {
-                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                    groupDataCollection.document(groupUID).update("picture", uri.toString())
-                  }
-                }
-                .addOnFailureListener { e ->
-                  Log.d("MyPrint", "Failed to upload photo with error: ", e)
-                }
+            CoroutineScope(Dispatchers.IO).launch {
+              val uploadedUri = StorageDatabaseConnection().uploadGroupPicture(groupUID, photoUri)
+              if (uploadedUri != null) {
+                groupDataCollection.document(groupUID).update("picture", uploadedUri.toString())
+              }
+            }
           }
           .addOnFailureListener { e -> Log.d("MyPrint", "Failed to create group with error: ", e) }
     } else {
-      val defaultPictureRef = storage.child("groupData/default_group.jpg")
-
+      val defaultPictureRef = StorageDatabaseConnection().getDefaultGroupPicture()
       groupDataCollection.add(group).addOnSuccessListener { documentReference ->
         val groupUID = documentReference.id
-        val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
         userMembershipsCollection
             .document(uid)
             .update("groups", FieldValue.arrayUnion(groupUID))
@@ -448,35 +387,13 @@ class DatabaseConnection {
             .addOnFailureListener { e ->
               Log.d("MyPrint", "Failed to update user memberships with error: ", e)
             }
-        defaultPictureRef
-            .getBytes(Long.MAX_VALUE)
-            .addOnSuccessListener { defaultPictureData ->
-              pictureRef
-                  .putBytes(defaultPictureData)
-                  .addOnSuccessListener {
-                    pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                      val updatedGroupData = group + mapOf("picture" to uri.toString())
-                      groupDataCollection
-                          .document(groupUID)
-                          .set(updatedGroupData)
-                          .addOnSuccessListener {
-                            Log.d("MyPrint", "Group data successfully created for uid $uid")
-                          }
-                          .addOnFailureListener { e ->
-                            Log.d("MyPrint", "Failed to update group data with error: ", e)
-                          }
-                    }
-                  }
-                  .addOnFailureListener { e ->
-                    Log.d(
-                        "MyPrint",
-                        "Failed to upload default picture for group $uid with error: ",
-                        e)
-                  }
-            }
-            .addOnFailureListener { e ->
-              Log.d("MyPrint", "Failed to retrieve default picture with error: ", e)
-            }
+        CoroutineScope(Dispatchers.IO).launch {
+          val uploadedUri =
+              StorageDatabaseConnection().uploadGroupPicture(groupUID, defaultPictureRef)
+          if (uploadedUri != null) {
+            groupDataCollection.document(groupUID).update("picture", uploadedUri.toString())
+          }
+        }
       }
     }
   }
@@ -532,7 +449,6 @@ class DatabaseConnection {
   }
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
-
     // change name of group
     groupDataCollection
         .document(groupUID)
@@ -551,22 +467,15 @@ class DatabaseConnection {
           Log.d("UpdateGroup", "Failed modify group picture with error: ", e)
         }
 
-    val pictureRef = storage.child("groupData/$groupUID/picture.jpg")
-    pictureRef
-        .putFile(photoUri)
-        .addOnSuccessListener {
-          pictureRef.downloadUrl.addOnSuccessListener { uri ->
-            groupDataCollection.document(groupUID).update("picture", uri.toString())
-            Log.d("UpdateGroup", "Successfully upload group photo")
-          }
-        }
-        .addOnFailureListener { e ->
-          Log.d("UpdateGroup", "Failed to upload photo with error: ", e)
-        }
+    CoroutineScope(Dispatchers.IO).launch {
+      val uploadedUri = StorageDatabaseConnection().uploadGroupPicture(groupUID, photoUri)
+      if (uploadedUri != null) {
+        groupDataCollection.document(groupUID).update("picture", uploadedUri.toString())
+      }
+    }
   }
 
   suspend fun removeUserFromGroup(groupUID: String, userUID: String = "") {
-
     val user =
         if (userUID == "") {
           getCurrentUserUID()
@@ -590,22 +499,10 @@ class DatabaseConnection {
           .document(groupUID)
           .delete()
           .addOnSuccessListener {
-            storage
-                .child("groupData/$groupUID")
-                .delete()
-                .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
-                .addOnFailureListener { e ->
-                  Log.d("Deletion", "Failed to delete group picture with error: ", e)
-                }
-
-            storage
-                .child("chatData/$groupUID")
-                .delete()
-                .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
-                .addOnFailureListener { e ->
-                  Log.d("Deletion", "Failed to delete group picture with error: ", e)
-                }
-            Log.d("Deletion", "User successfully removed from group")
+            CoroutineScope(Dispatchers.IO).launch {
+              StorageDatabaseConnection().deleteGroupData(groupUID)
+              Log.d("Deletion", "User successfully removed from group")
+            }
           }
           .addOnFailureListener { e ->
             Log.d("Deletion", "Failed to remove user from group with error: ", e)
@@ -622,26 +519,13 @@ class DatabaseConnection {
   }
 
   suspend fun deleteGroup(groupUID: String) {
-
     val document = groupDataCollection.document(groupUID).get().await()
     val members = document.get("members") as? List<String> ?: emptyList()
 
     if (groupUID != "") {
-      storage
-          .child("groupData/$groupUID")
-          .delete()
-          .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
-          .addOnFailureListener { e ->
-            Log.d("Deletion", "Failed to delete group picture with error: ", e)
-          }
-
-      storage
-          .child("chatData/$groupUID")
-          .delete()
-          .addOnSuccessListener { Log.d("Deletion", "Group picture successfully deleted") }
-          .addOnFailureListener { e ->
-            Log.d("Deletion", "Failed to delete group picture with error: ", e)
-          }
+      CoroutineScope(Dispatchers.IO).launch {
+        StorageDatabaseConnection().deleteGroupData(groupUID)
+      }
     }
 
     if (members.isNotEmpty()) {
@@ -667,316 +551,6 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("Deletion", "Failed to remove user from group with error: ", e)
         }
-  }
-
-  // using the Realtime Database for messages
-  fun sendMessage(
-      chatUID: String,
-      message: Message,
-      chatType: ChatType,
-      additionalUID: String = ""
-  ) {
-    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-
-    val messageData =
-        mutableMapOf(
-            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
-    when (message) {
-      is Message.TextMessage -> {
-        messageData[MessageVal.TEXT] = message.text
-        messageData[MessageVal.TYPE] = MessageVal.TEXT
-        saveMessage(messagePath, messageData)
-      }
-      is Message.PhotoMessage -> {
-
-        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
-            messageData[MessageVal.PHOTO] = uri.toString()
-            messageData[MessageVal.TYPE] = MessageVal.PHOTO
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload photo")
-          }
-        }
-      }
-      is Message.FileMessage -> {
-        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
-            messageData[MessageVal.FILE] = uri.toString()
-            messageData[MessageVal.FILE_NAME] = message.fileName
-            messageData[MessageVal.TYPE] = MessageVal.FILE
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload file")
-          }
-        }
-      }
-      is Message.LinkMessage -> {
-        messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.LINK_NAME] = message.linkName
-        messageData[MessageVal.TYPE] = MessageVal.LINK
-        saveMessage(messagePath, messageData)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
-
-  private fun saveMessage(path: String, data: Map<String, Any>) {
-    rtDb
-        .getReference(path)
-        .updateChildren(data)
-        .addOnSuccessListener { Log.d("MessageSend", "Message successfully written!") }
-        .addOnFailureListener { e -> Log.w("MessageSend", "Failed to write message.", e) }
-  }
-
-  private fun uploadChatImage(
-      uid: String,
-      chatUID: String,
-      imageUri: Uri,
-      callback: (Uri?) -> Unit
-  ) {
-    val storagePath = "chatData/$chatUID/$uid.jpg"
-    val pictureRef = storage.child(storagePath)
-
-    pictureRef
-        .putFile(imageUri)
-        .addOnSuccessListener {
-          pictureRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) }
-        }
-        .addOnFailureListener { e ->
-          Log.e("UploadChatImage", "Failed to upload image: ", e)
-          callback(null)
-        }
-  }
-
-  private fun uploadChatFile(uid: String, chatUID: String, fileUri: Uri, callback: (Uri?) -> Unit) {
-    val storagePath = "chatData/$chatUID/$uid"
-    val fileRef = storage.child(storagePath)
-
-    fileRef
-        .putFile(fileUri)
-        .addOnSuccessListener { fileRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) } }
-        .addOnFailureListener { e ->
-          Log.e("UploadChatFile", "Failed to upload file: ", e)
-          callback(null)
-        }
-  }
-
-  fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb.getReference(messagePath).removeValue()
-  }
-
-  suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
-    rtDb.getReference(topic.toString()).removeValue()
-  }
-
-  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
-    when (message) {
-      is Message.TextMessage -> {
-        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
-      }
-      is Message.LinkMessage -> {
-        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.LINK to newText))
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
-
-  private fun getMessagePath(
-      chatUID: String,
-      chatType: ChatType,
-      additionalUID: String = ""
-  ): String {
-    return when (chatType) {
-      ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
-      ChatType.GROUP -> getGroupMessagesPath(chatUID)
-      ChatType.TOPIC -> getTopicMessagesPath(chatUID, additionalUID)
-    }
-  }
-
-  private fun getGroupMessagesPath(groupUID: String): String {
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  private fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  private fun getPrivateMessagesPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-  }
-
-  private fun getPrivateChatMembersPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
-  }
-
-  fun subscribeToPrivateChats(
-      userUID: String,
-      scope: CoroutineScope,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher,
-      onUpdate: (List<Chat>) -> Unit
-  ) {
-    val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
-
-    ref.addValueEventListener(
-        object : ValueEventListener {
-          override fun onDataChange(snapshot: DataSnapshot) {
-            scope.launch(ioDispatcher) {
-              val chatList =
-                  snapshot.children.mapNotNull { chat ->
-                    val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
-                    if (userUID in members) {
-                      val otherUserId = members.firstOrNull { it != userUID }
-                      otherUserId?.let { userId ->
-                        val otherUser = getUser(userId)
-                        val currentUser = getUser(userUID)
-                        Chat(
-                            uid = chat.key ?: "",
-                            name = otherUser.username,
-                            picture = otherUser.photoUrl,
-                            type = ChatType.PRIVATE,
-                            members = listOf(otherUser, currentUser))
-                      }
-                    } else {
-                      null
-                    }
-                  }
-
-              withContext(mainDispatcher) { onUpdate(chatList.sortedBy { it.name }) }
-            }
-          }
-
-          override fun onCancelled(error: DatabaseError) {
-            println("Database read failed: " + error.code)
-          }
-        })
-  }
-
-  fun getMessages(
-      chat: Chat,
-      liveData: MutableStateFlow<List<Message>>,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher
-  ) {
-    val ref = rtDb.getReference(getMessagePath(chat.uid, chat.type, chat.additionalUID))
-
-    ref.addValueEventListener(
-        object : ValueEventListener {
-          override fun onDataChange(snapshot: DataSnapshot) {
-            CoroutineScope(ioDispatcher).launch {
-              val newMessages =
-                  snapshot.children.mapNotNull { postSnapshot ->
-                    val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
-                    val timestamp =
-                        postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLongOrNull()
-                            ?: return@mapNotNull null
-                    val user = getUser(senderUID)
-                    when (val type = postSnapshot.child(MessageVal.TYPE).value.toString()) {
-                      MessageVal.TEXT -> {
-                        val text = postSnapshot.child(MessageVal.TEXT).value.toString()
-                        Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
-                      }
-                      MessageVal.PHOTO -> {
-                        val photoUri =
-                            postSnapshot.child(MessageVal.PHOTO).value.toString().let(Uri::parse)
-                        Message.PhotoMessage(postSnapshot.key.toString(), photoUri, user, timestamp)
-                      }
-                      MessageVal.FILE -> {
-                        val fileUri =
-                            postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                        val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
-                        Message.FileMessage(
-                            postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
-                      }
-                      MessageVal.LINK -> {
-                        val linkUri =
-                            postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                        val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
-                        Message.LinkMessage(
-                            postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
-                      }
-                      else -> {
-                        Log.d("MyPrint", "Message type not recognized: $type")
-                        null
-                      }
-                    }
-                  }
-
-              // Post new message list to the main thread to update the UI
-              withContext(mainDispatcher) { liveData.value = newMessages }
-            }
-          }
-
-          override fun onCancelled(error: DatabaseError) {
-            Log.w(
-                "DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
-          }
-        })
-  }
-
-  private fun checkForExistingChat(
-      currentUserUID: String,
-      otherUID: String,
-      onResult: (Boolean, String?) -> Unit
-  ) {
-    val query =
-        rtDb
-            .getReference(ChatVal.DIRECT_MESSAGES)
-            .orderByChild("${ChatVal.MEMBERS}/$currentUserUID")
-            .equalTo(true)
-
-    query.addListenerForSingleValueEvent(
-        object : ValueEventListener {
-          override fun onDataChange(snapshot: DataSnapshot) {
-            snapshot.children.forEach { chatSnapshot ->
-              if (chatSnapshot.hasChild("${ChatVal.MEMBERS}/$otherUID")) {
-                onResult(true, chatSnapshot.key)
-                return
-              }
-            }
-            onResult(false, null)
-          }
-
-          override fun onCancelled(databaseError: DatabaseError) {
-            Log.w(
-                "DatabaseConnect", "Failed to check for existing chat", databaseError.toException())
-            onResult(false, null)
-          }
-        })
-  }
-
-  fun startDirectMessage(otherUID: String) {
-    val currentUserUID = getCurrentUserUID()
-    checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
-      if (chatExists) {
-        Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
-      } else {
-        Log.d("MyPrint", "startDirectMessage: creating new chat")
-        val newChatId = UUID.randomUUID().toString()
-        val memberPath = getPrivateChatMembersPath(newChatId)
-        val members = mapOf(currentUserUID to true, otherUID to true)
-        rtDb
-            .getReference(memberPath)
-            .updateChildren(members)
-            .addOnSuccessListener {
-              Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
-            }
-            .addOnFailureListener {
-              Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
-            }
-      }
-    }
   }
 
   // using the topicData and topicItemData collections
@@ -1181,8 +755,6 @@ class DatabaseConnection {
         }
   }
 
-  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
-
   fun getAllTopics(
       groupUID: String,
       scope: CoroutineScope,
@@ -1306,9 +878,7 @@ class DatabaseConnection {
   }
 
   suspend fun deleteContact(contactUID: String, userUID: String = "") {
-
     val document = contactDataCollection.document(contactUID).get().await()
-
     contactDataCollection
         .document(contactUID)
         .delete()

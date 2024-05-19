@@ -6,12 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.RealtimeDatabaseConnection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class SharedTimerViewModel private constructor(private val groupUID: String) : ViewModel() {
   private val databaseConnection = DatabaseConnection()
@@ -38,8 +39,8 @@ class SharedTimerViewModel private constructor(private val groupUID: String) : V
   }
 
   private fun subscribeToTimerUpdates() {
-    groupUID?.let { uid ->
-      val timerRef = databaseConnection.getTimerReference(uid)
+    groupUID.let { uid ->
+      val timerRef = RealtimeDatabaseConnection().getTimerReference(uid)
       timerRef.addValueEventListener(
           object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

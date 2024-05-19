@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.StorageDatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
-    return withContext(Dispatchers.IO) { db.getDefaultProfilePicture() }
+    return withContext(Dispatchers.IO) { StorageDatabaseConnection().getDefaultProfilePicture() }
   }
 
   fun createUser(
