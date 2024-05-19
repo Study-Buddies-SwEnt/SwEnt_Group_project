@@ -18,25 +18,25 @@ class CreateToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<CreateToDoScreen>(
         semanticsProvider = semanticsProvider, viewBuilderAction = { hasTestTag("createScreen") }) {
 
-    val screenTitle: KNode = onNode { hasTestTag("createTodoTitle") }
+  val screenTitle: KNode = onNode { hasTestTag("createTodoTitle") }
 
-    val goBackButton: KNode = onNode { hasTestTag("goBackButton") }
-    val saveButton: KNode = onNode { hasTestTag("todoSave") }
-    val topAppBox: KNode = child { hasTestTag("top_app_box") }
-    val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
-    val divider: KNode = onNode { hasTestTag("divider") }
+  val goBackButton: KNode = onNode { hasTestTag("goBackButton") }
+  val saveButton: KNode = onNode { hasTestTag("todoSave") }
+  val topAppBox: KNode = child { hasTestTag("top_app_box") }
+  val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
+  val divider: KNode = onNode { hasTestTag("divider") }
 
-    val createTodoCol: KNode = child { hasTestTag("create_toDo_column") }
-    val todoFields: KNode = createTodoCol.child { hasTestTag("toDo_name_field") }
+  val createTodoCol: KNode = child { hasTestTag("create_toDo_column") }
+  val todoFields: KNode = createTodoCol.child { hasTestTag("toDo_name_field") }
 
-    val inputTitle: KNode = onNode { hasTestTag("inputTodoTitle") }
-    val inputDescription: KNode = onNode { hasTestTag("inputTodoDescription") }
-    val inputDueDate: KNode = onNode { hasTestTag("inputTodoDate") }
+  val inputTitle: KNode = onNode { hasTestTag("inputTodoTitle") }
+  val inputDescription: KNode = onNode { hasTestTag("inputTodoDescription") }
+  val inputDueDate: KNode = onNode { hasTestTag("inputTodoDate") }
 
-    private val locationDropDownMenuBox = onNode { hasTestTag("locationDropDownMenuBox") }
+  private val locationDropDownMenuBox = onNode { hasTestTag("locationDropDownMenuBox") }
 
-    val inputLocation: KNode = locationDropDownMenuBox.child { hasTestTag("inputLocation") }
-    private val locationDropDownMenu: KNode =
-        locationDropDownMenuBox.child { hasTestTag("locationDropDownMenu") }
-    val inputLocationProposal: KNode = locationDropDownMenu.child { hasClickAction() }
+  val inputLocation: KNode = locationDropDownMenuBox.child { hasTestTag("inputLocation") }
+  private val locationDropDownMenu: KNode =
+      locationDropDownMenuBox.child { hasTestTag("locationDropDownMenu") }
+  val inputLocationProposal: KNode = locationDropDownMenu.child { hasClickAction() }
 }

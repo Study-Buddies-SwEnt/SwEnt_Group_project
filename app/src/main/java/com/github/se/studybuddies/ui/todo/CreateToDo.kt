@@ -33,7 +33,10 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
   Column(modifier = Modifier.fillMaxSize().testTag("createScreen")) {
     TodoTopBar(navigationActions, "Create a new task")
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp).testTag("create_toDo_column"),
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 20.dp)
+                .testTag("create_toDo_column"),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally) {
           item {
@@ -62,7 +65,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
         onAccept = {
           isOpen.value = false
           if (it != null) {
-              selectedDate.value = Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
+            selectedDate.value = Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
           }
         },
         onCancel = { isOpen.value = false })
