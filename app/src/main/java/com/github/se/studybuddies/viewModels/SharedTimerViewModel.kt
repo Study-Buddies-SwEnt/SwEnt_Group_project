@@ -23,15 +23,6 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
     viewModelScope.launch { syncTimerWithFirebase() }
   }
 
-  private fun startPeriodicSync() {
-    viewModelScope.launch {
-      while (isActive) {
-        syncTimerWithFirebase()
-        delay(2000) // Appeler toutes les 2 secondes
-      }
-    }
-  }
-
   private suspend fun syncTimerWithFirebase() {
     val group = databaseConnection.getGroup(groupUID)
     val timerState = group.timerState
