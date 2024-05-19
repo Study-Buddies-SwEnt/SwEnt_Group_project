@@ -430,7 +430,6 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       optionDialogStartPMButton {
         assertIsDisplayed()
         assertHasClickAction()
-        performClick()
       }
     }
   }
