@@ -1206,7 +1206,6 @@ class DatabaseConnection {
         }
   }
 
-
   fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
 
   fun getAllTopics(
@@ -1228,7 +1227,6 @@ class DatabaseConnection {
         scope.launch(ioDispatcher) {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
-
 
           if (topicUIDs.isNotEmpty()) {
             topicUIDs
