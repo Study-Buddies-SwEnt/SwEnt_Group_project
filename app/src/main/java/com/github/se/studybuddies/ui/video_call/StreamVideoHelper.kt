@@ -26,6 +26,7 @@ object StreamVideoInitHelper {
   private var isInitialising = false
   private lateinit var context: Context
   private val _initState = MutableStateFlow(InitializedState.NOT_STARTED)
+  private val TAG: String = "StreamVideoInitHelper"
 
   fun init(appContext: Context) {
     context = appContext.applicationContext
@@ -40,13 +41,13 @@ object StreamVideoInitHelper {
   suspend fun loadSdk() {
     if (StreamVideo.isInstalled) {
       _initState.value = InitializedState.FINISHED
-      Log.w("StreamVideoInitHelper", "[initStreamVideo] StreamVideo is already initialised.")
+      Log.w(TAG, "[initStreamVideo] StreamVideo is already initialised.")
       return
     }
 
     if (isInitialising) {
       _initState.value = InitializedState.RUNNING
-      Log.d("StreamVideoInitHelper", "[initStreamVideo] StreamVideo is already initialising")
+      Log.d(TAG, "[initStreamVideo] StreamVideo is already initialising")
       return
     }
 
@@ -68,17 +69,16 @@ object StreamVideoInitHelper {
                         id = loggedInUser.uid,
                         name = username,
                     ),
-                token =
-                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0",
+                token = StreamVideo.devToken(loggedInUser.uid),
                 loggingLevel = LoggingLevel(priority = Priority.VERBOSE),
             )
             .build()
       }
-      Log.i("StreamVideoInitHelper", "Init successful.")
+      Log.i(TAG, "Init successful.")
       _initState.value = InitializedState.FINISHED
     } catch (e: Exception) {
       _initState.value = InitializedState.FAILED
-      Log.e("StreamVideoInitHelper", "Init failed.", e)
+      Log.e(TAG, "Init failed.", e)
     }
 
     isInitialising = false

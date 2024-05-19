@@ -781,8 +781,8 @@ class DatabaseConnection : DbRepository {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rtDb.getReference(messagePath).removeValue()
   }
-
   override suspend fun removeTopic(uid: String) {
+
     val topic = getTopic(uid)
     rtDb.getReference(topic.toString()).removeValue()
   }

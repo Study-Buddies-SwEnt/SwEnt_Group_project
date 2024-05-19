@@ -8,6 +8,7 @@ import io.getstream.video.android.core.DeviceStatus
 import io.getstream.video.android.core.StreamVideo
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -26,18 +27,19 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
   val call: Call by lazy {
     val streamVideo = StreamVideo.instance()
     val call = streamVideo.call(callType, uid)
-
     viewModelScope.launch {
       // create the call if it doesn't exist - this will also load the settings for the call,
       // this way the lobby screen can already display the right mic/camera settings
       // This also starts listening to the call events to get the participant count
       val callGetOrCreateResult = call.create()
       if (callGetOrCreateResult.isFailure) {
+        // in demo we can ignore this. The lobby screen will just display default camera/video,
+        // but we will show an error
         Log.e(
             "CallLobbyViewModel",
             "Failed to create the call ${callGetOrCreateResult.errorOrNull()}",
         )
-        event.emit(CallLobbyEvent.JoinFailed(callGetOrCreateResult.errorOrNull()?.message))
+        _event.emit(CallLobbyEvent.JoinFailed(callGetOrCreateResult.errorOrNull()?.message))
       }
     }
     call
@@ -56,7 +58,10 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
           }
           .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
 
-  private val event: MutableSharedFlow<CallLobbyEvent> = MutableSharedFlow()
+  private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  internal val isLoading: StateFlow<Boolean> = _isLoading
+
+  private val _event: MutableSharedFlow<CallLobbyEvent> = MutableSharedFlow()
 
   fun enableCamera(enabled: Boolean) {
     call.camera.setEnabled(enabled)
@@ -65,9 +70,11 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
   fun enableMicrophone(enabled: Boolean) {
     call.microphone.setEnabled(enabled)
   }
+}
 
-  sealed interface CallLobbyEvent {
+sealed interface CallLobbyEvent {
 
-    data class JoinFailed(val reason: String?) : CallLobbyEvent
-  }
+  data object JoinCall : CallLobbyEvent
+
+  data class JoinFailed(val reason: String?) : CallLobbyEvent
 }
