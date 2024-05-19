@@ -9,12 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
+import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GroupViewModel(uid: String? = null, private val db: DbRepository) : ViewModel() {
+class GroupViewModel(uid: String? = null, private val db: DbRepository = DatabaseConnection()) : ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
   val members: LiveData<List<User>> = _members
