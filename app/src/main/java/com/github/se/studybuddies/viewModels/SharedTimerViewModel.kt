@@ -20,7 +20,19 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
   private var countDownTimer: CountDownTimer? = null
 
   init {
-    viewModelScope.launch { syncTimerWithFirebase() }
+    viewModelScope.launch {
+      syncTimerWithFirebase()
+      startPeriodicSync()
+    }
+  }
+
+  private fun startPeriodicSync() {
+    viewModelScope.launch {
+      while (isActive) {
+        syncTimerWithFirebase()
+        delay(2000) // Appeler toutes les 2 secondes
+      }
+    }
   }
 
   private suspend fun syncTimerWithFirebase() {
@@ -46,6 +58,10 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
         object : CountDownTimer(timeRemaining, 1000) {
           override fun onTick(millisUntilFinished: Long) {
             _timerValue.value = millisUntilFinished
+            viewModelScope.launch {
+              databaseConnection.updateGroupTimer(
+                  groupUID, _timerValue.value + System.currentTimeMillis(), isRunning)
+            }
           }
 
           override fun onFinish() {
@@ -62,11 +78,11 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
   }
 
   fun startTimer() {
+    if (isRunning) return
     if (_timerValue.value > 0) {
       val newEndTime = System.currentTimeMillis() + _timerValue.value
       isRunning = true
       setupTimer(_timerValue.value)
-      viewModelScope.launch { databaseConnection.updateGroupTimer(groupUID, newEndTime, true) }
     }
   }
 
