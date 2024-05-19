@@ -85,7 +85,12 @@ fun TodoFields(
       label = { Text("Title") },
       placeholder = { Text("Name the task") },
       singleLine = true,
-      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("inputTodoTitle").testTag("toDo_name_field"))
+      modifier =
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(65.dp)
+              .testTag("inputTodoTitle")
+              .testTag("toDo_name_field"))
   OutlinedTextField(
       value = descriptionState.value,
       onValueChange = { descriptionState.value = it },
