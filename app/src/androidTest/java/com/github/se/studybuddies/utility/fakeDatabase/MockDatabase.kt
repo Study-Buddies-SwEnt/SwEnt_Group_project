@@ -5,6 +5,7 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -39,6 +40,7 @@ class MockDatabase : DbRepository {
   private val topicDataCollection = ConcurrentHashMap<String, TopicDatabase>()
   private val topicItemCollection = ConcurrentHashMap<String, TopicItemDatabase>()
   private val rtDb = ConcurrentHashMap<String, Map<String, Any>>()
+  private val storage = ConcurrentHashMap<String, Uri>()
 
   override fun isFakeDatabase(): Boolean {
     return true
@@ -384,15 +386,22 @@ class MockDatabase : DbRepository {
 
   override fun editMessage(
       groupUID: String,
-      message: Message.TextMessage,
+      message: Message,
       chatType: ChatType,
       newText: String
   ) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb[messagePath]?.let {
-      val updatedMessage = it.toMutableMap()
-      updatedMessage[MessageVal.TEXT] = newText
-      rtDb[messagePath] = updatedMessage
+    when (message) {
+      is Message.TextMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb[messagePath] = mapOf(MessageVal.TEXT to newText)
+      }
+      is Message.LinkMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb[messagePath] = mapOf(MessageVal.LINK to newText)
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
     }
   }
 
@@ -515,12 +524,16 @@ class MockDatabase : DbRepository {
                   MessageVal.FILE -> {
                     val fileUri =
                         postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                    Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                    val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
+                    Message.FileMessage(
+                        postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
                   }
                   MessageVal.LINK -> {
                     val linkUri =
                         postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                    Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                    val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
+                    Message.LinkMessage(
+                        postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
                   }
                   else -> {
                     Log.d("MyPrint", "Message type not recognized: $type")
@@ -633,6 +646,12 @@ class MockDatabase : DbRepository {
       }
     }
     return items
+  }
+
+  private fun uploadChatFile(uid: String, chatUID: String, fileUri: Uri, callback: (Uri?) -> Unit) {
+    val storagePath = "chatData/$chatUID/$uid"
+    val fileRef = storage[storagePath]
+    storage[storagePath] = fileUri
   }
 
   override fun createTopic(name: String, callBack: (String) -> Unit) {
@@ -783,6 +802,10 @@ class MockDatabase : DbRepository {
       Log.d("MyPrint", "Could not fetch topics with error ", e)
     }
     return TopicList(emptyList())
+  }
+
+  override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+    userDataCollection[uid] = userDataCollection[uid]!!.copy(dailyPlanners = dailyPlanners)
   }
 
   companion object {

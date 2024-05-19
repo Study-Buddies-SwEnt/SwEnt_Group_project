@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class TopicViewModel(private val uid: String? = null, private val db: DbRepository = DatabaseConnection()) : ViewModel() {
+class TopicViewModel(
+    private val uid: String? = null,
+    private val db: DbRepository = DatabaseConnection()
+) : ViewModel() {
   private val _topic = MutableStateFlow<Topic>(Topic.empty())
   val topic: StateFlow<Topic> = _topic
 

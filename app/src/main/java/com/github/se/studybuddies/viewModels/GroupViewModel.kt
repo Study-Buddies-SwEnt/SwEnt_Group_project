@@ -15,7 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GroupViewModel(uid: String? = null, private val db: DbRepository = DatabaseConnection()) : ViewModel() {
+class GroupViewModel(uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
+    ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
   val members: LiveData<List<User>> = _members

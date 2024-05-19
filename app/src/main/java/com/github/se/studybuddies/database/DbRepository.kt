@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
@@ -93,12 +94,7 @@ interface DbRepository {
 
   suspend fun removeTopic(uid: String)
 
-  fun editMessage(
-      groupUID: String,
-      message: Message.TextMessage,
-      chatType: ChatType,
-      newText: String
-  )
+  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String)
 
   fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String = ""): String
 
@@ -157,6 +153,8 @@ interface DbRepository {
   fun updateTopicItem(item: TopicItem)
 
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
+
+  fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
 
   suspend fun getALlTopics(groupUID: String): TopicList
 

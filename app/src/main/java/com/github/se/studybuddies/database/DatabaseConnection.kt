@@ -85,7 +85,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  overrride fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+  override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
     val plannerMap =
         dailyPlanners.map { planner ->
           mapOf(
@@ -102,7 +102,7 @@ class DatabaseConnection : DbRepository {
         }
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
   }
-  
+
   override suspend fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
   }
@@ -762,7 +762,6 @@ class DatabaseConnection : DbRepository {
         }
   }
 
-
   private fun uploadChatFile(uid: String, chatUID: String, fileUri: Uri, callback: (Uri?) -> Unit) {
     val storagePath = "chatData/$chatUID/$uid"
     val fileRef = storage.child(storagePath)
@@ -786,8 +785,12 @@ class DatabaseConnection : DbRepository {
     rtDb.getReference(topic.toString()).removeValue()
   }
 
-
-  override editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+  override fun editMessage(
+      groupUID: String,
+      message: Message,
+      chatType: ChatType,
+      newText: String
+  ) {
     when (message) {
       is Message.TextMessage -> {
         val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"

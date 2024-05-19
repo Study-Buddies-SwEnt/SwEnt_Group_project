@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class SharedTimerViewModel
-private constructor(private val groupUID: String, private val db: DbRepository = DatabaseConnection()) : ViewModel() {
+private constructor(
+    private val groupUID: String,
+    private val db: DbRepository = DatabaseConnection()
+) : ViewModel() {
   private val _timerValue = MutableStateFlow(0L) // Holds the current timer value in milliseconds
   val timerValue: StateFlow<Long> = _timerValue
 

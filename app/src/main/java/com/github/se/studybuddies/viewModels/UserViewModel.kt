@@ -14,7 +14,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class UserViewModel(val uid: String? = null, private val db: DbRepository = DatabaseConnection()) : ViewModel() {
+class UserViewModel(val uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
+    ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
 
