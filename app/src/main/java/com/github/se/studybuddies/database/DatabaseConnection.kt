@@ -1214,8 +1214,7 @@ class DatabaseConnection : DbRepository {
     return isRunning
   }
 
-
-  fun getAllTopics(
+  override fun getAllTopics(
       groupUID: String,
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,

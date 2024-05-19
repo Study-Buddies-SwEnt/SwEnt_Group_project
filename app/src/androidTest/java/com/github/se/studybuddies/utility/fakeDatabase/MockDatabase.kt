@@ -29,6 +29,8 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -774,34 +776,34 @@ class MockDatabase : DbRepository {
     return isRunning
   }
 
-  override suspend fun getALlTopics(groupUID: String): TopicList {
-    try {
-      val snapshot = groupDataCollection[groupUID]
-      val items = mutableListOf<Topic>()
+  override fun getAllTopics(
+      groupUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (TopicList) -> Unit
+  ) {
+    val group = groupDataCollection[groupUID]
 
-      return if (snapshot != null) {
-        val topicUIDs = snapshot.topics as? List<String>
-        if (topicUIDs != null) {
-          if (topicUIDs.isNotEmpty()) {
-            topicUIDs.forEach { topicUid ->
-              val topic = getTopic(topicUid)
-              items.add(topic)
-            }
-          } else {
-            Log.d("MyPrint", "List of topics is empty for this group")
-          }
+    if (group != null) {
+      scope.launch(ioDispatcher) {
+        val items = mutableListOf<Topic>()
+        val topicUIDs = group.topics
+        if (topicUIDs.isNotEmpty()) {
+          topicUIDs
+              .map { topicUid -> async { getTopic(topicUid) } }
+              .awaitAll()
+              .forEach { topic -> items.add(topic) }
         } else {
-          Log.d("MyPrint", "Could not fetch topics list")
+          Log.d("MyPrint", "List of topics is empty for this group")
         }
-        TopicList(items)
-      } else {
-        Log.d("MyPrint", "Group with uid $groupUID does not exist")
-        TopicList(emptyList())
+
+        withContext(mainDispatcher) { onUpdate(TopicList(items)) }
       }
-    } catch (e: Exception) {
-      Log.d("MyPrint", "Could not fetch topics with error ", e)
+    } else {
+      Log.d("MyPrint", "Group with uid $groupUID does not exist")
+      onUpdate(TopicList(emptyList()))
     }
-    return TopicList(emptyList())
   }
 
   override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {

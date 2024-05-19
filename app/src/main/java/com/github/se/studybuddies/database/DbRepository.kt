@@ -156,7 +156,13 @@ interface DbRepository {
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
 
-  suspend fun getALlTopics(groupUID: String): TopicList
+  fun getAllTopics(
+      groupUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (TopicList) -> Unit
+  )
 
   companion object {
     const val topic_name = "name"
