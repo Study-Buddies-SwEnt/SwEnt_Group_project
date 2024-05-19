@@ -1,4 +1,4 @@
-import com.android.build.api.variant.BuildConfigField
+
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.FileInputStream
 import java.util.Properties
@@ -153,6 +153,8 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.4.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.7")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.7")
     androidTestImplementation("com.kaspersky.android-components:kaspresso:1.4.3")
     // Allure support
     androidTestImplementation("com.kaspersky.android-components:kaspresso-allure-support:1.4.3")

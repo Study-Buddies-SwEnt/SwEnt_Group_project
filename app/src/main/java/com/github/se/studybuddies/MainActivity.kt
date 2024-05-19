@@ -18,8 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.github.se.studybuddies.calender.CalendarApp
-import com.github.se.studybuddies.calender.DailyPlannerScreen
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.mapService.LocationApp
@@ -29,6 +27,8 @@ import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
+import com.github.se.studybuddies.ui.calender.CalendarApp
+import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup

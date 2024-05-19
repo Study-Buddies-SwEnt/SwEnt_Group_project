@@ -2,9 +2,9 @@ package com.github.se.studybuddies.tests
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.calender.CalendarApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.CalendarScreen
+import com.github.se.studybuddies.ui.calender.CalendarApp
 import com.github.se.studybuddies.viewModels.CalendarViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
