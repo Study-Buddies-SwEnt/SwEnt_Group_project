@@ -29,13 +29,15 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection {
 
@@ -1181,34 +1183,42 @@ class DatabaseConnection {
 
   fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
 
-  suspend fun getALlTopics(groupUID: String): TopicList {
-    try {
-      val snapshot = groupDataCollection.document(groupUID).get().await()
-      val items = mutableListOf<Topic>()
+  fun getAllTopics(
+      groupUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (TopicList) -> Unit
+  ) {
+    val docRef = groupDataCollection.document(groupUID)
 
-      return if (snapshot.exists()) {
-        val topicUIDs = snapshot.data?.get("topics") as? List<String>
-        if (topicUIDs != null) {
+    docRef.addSnapshotListener { snapshot, e ->
+      if (e != null) {
+        Log.w("MyPrint", "Listen failed.", e)
+        return@addSnapshotListener
+      }
+
+      if (snapshot != null && snapshot.exists()) {
+        scope.launch(ioDispatcher) {
+          val items = mutableListOf<Topic>()
+          val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
+
           if (topicUIDs.isNotEmpty()) {
-            topicUIDs.forEach { topicUid ->
-              val topic = getTopic(topicUid)
-              items.add(topic)
-            }
+            topicUIDs
+                .map { topicUid -> async { getTopic(topicUid) } }
+                .awaitAll()
+                .forEach { topic -> items.add(topic) }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }
-        } else {
-          Log.d("MyPrint", "Could not fetch topics list")
+
+          withContext(mainDispatcher) { onUpdate(TopicList(items)) }
         }
-        TopicList(items)
       } else {
         Log.d("MyPrint", "Group with uid $groupUID does not exist")
-        TopicList(emptyList())
+        onUpdate(TopicList(emptyList()))
       }
-    } catch (e: Exception) {
-      Log.d("MyPrint", "Could not fetch topics with error ", e)
     }
-    return TopicList(emptyList())
   }
 
   suspend fun getAllContacts(uid: String): ContactList {
