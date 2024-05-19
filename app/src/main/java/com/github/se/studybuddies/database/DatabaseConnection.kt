@@ -5,6 +5,9 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
+import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -29,6 +32,8 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -49,6 +54,8 @@ class DatabaseConnection {
   private val groupDataCollection = db.collection("groupData")
   private val topicDataCollection = db.collection("topicData")
   private val topicItemCollection = db.collection("topicItemData")
+  private val contactDataCollection = db.collection("contactData")
+  private val userContactsCollection = db.collection("userContacts")
 
   // using the userData collection
   suspend fun getUser(uid: String): User {
@@ -61,11 +68,38 @@ class DatabaseConnection {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
-      User(uid, email, username, photoUrl, location)
+      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
+      val plannerList =
+          dailyPlanners.map { plannerMap ->
+            DailyPlanner(
+                date = plannerMap["date"] as String,
+                goals = plannerMap["goals"] as List<String>,
+                appointments = plannerMap["appointments"] as Map<String, String>,
+                notes = plannerMap["notes"] as List<String>)
+          }
+      User(uid, email, username, photoUrl, location, plannerList)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
     }
+  }
+
+  fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+    val plannerMap =
+        dailyPlanners.map { planner ->
+          mapOf(
+              "date" to planner.date,
+              "goals" to planner.goals,
+              "appointments" to planner.appointments,
+              "notes" to planner.notes)
+        }
+    userDataCollection
+        .document(uid)
+        .update("dailyPlanners", plannerMap)
+        .addOnSuccessListener {
+          Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
+        }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
   }
 
   suspend fun getCurrentUser(): User {
@@ -124,7 +158,8 @@ class DatabaseConnection {
             "email" to email,
             "username" to username,
             "photoUrl" to profilePictureUri.toString(),
-            "location" to location)
+            "location" to location,
+            "dailyPlanners" to emptyList<Map<String, Any>>())
     if (profilePictureUri != getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)
@@ -195,6 +230,15 @@ class DatabaseConnection {
         .addOnSuccessListener { Log.d("MyPrint", "User memberships successfully created") }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
+        }
+
+    val contactList = hashMapOf("contacts" to emptyList<String>())
+    userContactsCollection
+        .document(uid)
+        .set(contactList)
+        .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to create user contact list with error: ", e)
         }
   }
 
@@ -657,12 +701,21 @@ class DatabaseConnection {
         }
       }
       is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
+        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
+            messageData[MessageVal.FILE] = uri.toString()
+            messageData[MessageVal.FILE_NAME] = message.fileName
+            messageData[MessageVal.TYPE] = MessageVal.FILE
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload file")
+          }
+        }
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
+        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
@@ -696,6 +749,19 @@ class DatabaseConnection {
         }
         .addOnFailureListener { e ->
           Log.e("UploadChatImage", "Failed to upload image: ", e)
+          callback(null)
+        }
+  }
+
+  private fun uploadChatFile(uid: String, chatUID: String, fileUri: Uri, callback: (Uri?) -> Unit) {
+    val storagePath = "chatData/$chatUID/$uid"
+    val fileRef = storage.child(storagePath)
+
+    fileRef
+        .putFile(fileUri)
+        .addOnSuccessListener { fileRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) } }
+        .addOnFailureListener { e ->
+          Log.e("UploadChatFile", "Failed to upload file: ", e)
           callback(null)
         }
   }
@@ -735,14 +801,20 @@ class DatabaseConnection {
     rtDb.getReference(topic.toString()).removeValue()
   }
 
-  fun editMessage(
-      groupUID: String,
-      message: Message.TextMessage,
-      chatType: ChatType,
-      newText: String
-  ) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String) {
+    when (message) {
+      is Message.TextMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+      }
+      is Message.LinkMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.LINK to newText))
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
+    }
   }
 
   private fun getMessagePath(
@@ -848,12 +920,16 @@ class DatabaseConnection {
                       MessageVal.FILE -> {
                         val fileUri =
                             postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                        Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                        val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
+                        Message.FileMessage(
+                            postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
                       }
                       MessageVal.LINK -> {
                         val linkUri =
                             postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                        Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                        val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
+                        Message.LinkMessage(
+                            postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
                       }
                       else -> {
                         Log.d("MyPrint", "Message type not recognized: $type")
@@ -1130,34 +1206,141 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun getALlTopics(groupUID: String): TopicList {
-    try {
-      val snapshot = groupDataCollection.document(groupUID).get().await()
-      val items = mutableListOf<Topic>()
 
-      return if (snapshot.exists()) {
-        val topicUIDs = snapshot.data?.get("topics") as? List<String>
-        if (topicUIDs != null) {
+  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
+
+  fun getAllTopics(
+      groupUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (TopicList) -> Unit
+  ) {
+    val docRef = groupDataCollection.document(groupUID)
+
+    docRef.addSnapshotListener { snapshot, e ->
+      if (e != null) {
+        Log.w("MyPrint", "Listen failed.", e)
+        return@addSnapshotListener
+      }
+
+      if (snapshot != null && snapshot.exists()) {
+        scope.launch(ioDispatcher) {
+          val items = mutableListOf<Topic>()
+          val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
+
+
           if (topicUIDs.isNotEmpty()) {
-            topicUIDs.forEach { topicUid ->
-              val topic = getTopic(topicUid)
-              items.add(topic)
-            }
+            topicUIDs
+                .map { topicUid -> async { getTopic(topicUid) } }
+                .awaitAll()
+                .forEach { topic -> items.add(topic) }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }
-        } else {
-          Log.d("MyPrint", "Could not fetch topics list")
+
+          withContext(mainDispatcher) { onUpdate(TopicList(items)) }
         }
-        TopicList(items)
       } else {
         Log.d("MyPrint", "Group with uid $groupUID does not exist")
-        TopicList(emptyList())
+        onUpdate(TopicList(emptyList()))
+      }
+    }
+  }
+
+  suspend fun getAllContacts(uid: String): ContactList {
+    try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<Contact>()
+
+      if (snapshot.exists()) {
+        val contactsUIDs = snapshot.data?.get("contacts") as? List<String>
+        contactsUIDs?.let { contactsIDs ->
+          contactsIDs.forEach { contactID ->
+            val document = contactDataCollection.document(contactID).get().await()
+            val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
+            val showOnMap = document.get("showOnMap") as Boolean
+            items.add(Contact(contactID, members, showOnMap))
+          }
+        }
+        return ContactList(items)
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+        return ContactList(emptyList())
       }
     } catch (e: Exception) {
-      Log.d("MyPrint", "Could not fetch topics with error ", e)
+      Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
     }
-    return TopicList(emptyList())
+    return ContactList(emptyList())
+  }
+
+  suspend fun getContact(contactUID: String): Contact {
+    val document = contactDataCollection.document(contactUID).get().await()
+    return if (document.exists()) {
+      val members = document.get("members") as? Pair<String, String> ?: Pair("", "")
+      val showOnMap = document.get("showOnMap") as Boolean
+      Contact(contactUID, members, showOnMap)
+    } else {
+      Log.d("MyPrint", "contact document not found for contact id $contactUID")
+      Contact.empty()
+    }
+  }
+
+  suspend fun createContact(otherUID: String) {
+
+    val uid = getCurrentUserUID()
+    Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
+
+    // check if contact already exists
+    val contactList = getAllContacts(uid)
+    if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
+      (Log.d("MyPrint", "Contact already exists"))
+    } else {
+      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      // updating contacts collection
+      contactDataCollection
+          .add(contact)
+          .addOnSuccessListener { document ->
+            val contactID = document.id
+            Log.d("MyPrint", "Contact successfully created")
+
+            // updating current user's list of contacts
+            userContactsCollection
+                .document(uid)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrfixint", "Failed to add new contact to userContacts with error: ", e)
+                }
+
+            // updating other user's list of contacts
+            userContactsCollection
+                .document(otherUID)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                }
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to create contact with error: ", e)
+          }
+    }
+  }
+
+  suspend fun deleteContact(contactUID: String, userUID: String = "") {
+
+    val document = contactDataCollection.document(contactUID).get().await()
+
+    contactDataCollection
+        .document(contactUID)
+        .delete()
+        .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
   }
 
   companion object {
