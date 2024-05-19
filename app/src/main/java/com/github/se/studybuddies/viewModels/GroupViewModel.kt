@@ -12,6 +12,8 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -21,14 +23,14 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
   private val _members = MutableLiveData<List<User>>(emptyList())
   val members: LiveData<List<User>> = _members
   val group: LiveData<Group> = _group
-  private val _topics = MutableLiveData(TopicList(emptyList()))
-  val topics: LiveData<TopicList> = _topics
+  private val _topics = MutableStateFlow(TopicList(emptyList()))
+  val topics = _topics.asStateFlow()
 
   init {
     if (uid != null) {
       fetchGroupData(uid)
       fetchUsers()
-      fetchTopics(uid)
+      subscribeToTopics(uid)
     }
   }
 
@@ -36,14 +38,9 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
     viewModelScope.launch { _group.value = db.getGroup(uid) }
   }
 
-  fun fetchTopics(uid: String) {
-    viewModelScope.launch {
-      try {
-        val topics = db.getALlTopics(uid)
-        _topics.value = topics
-      } catch (e: Exception) {
-        Log.d("MyPrint", "In ViewModel, could not fetch topics with error ", e)
-      }
+  private fun subscribeToTopics(uid: String) {
+    db.getAllTopics(uid, viewModelScope, Dispatchers.IO, Dispatchers.Main) { topicList ->
+      _topics.value = topicList
     }
   }
 
