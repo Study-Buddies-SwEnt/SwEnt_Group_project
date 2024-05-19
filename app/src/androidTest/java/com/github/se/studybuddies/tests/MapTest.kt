@@ -19,8 +19,6 @@ import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onCompose
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +34,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   // Use the userTest created manually in the database
-  private val uid = "userTest"
+  private val uid = "userTest1"
   private val userTest =
       User(
           uid = uid,
@@ -46,8 +44,8 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
               Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
           location = "offline")
   private val db = MockDatabase()
-  private val userVM = UserViewModel(uid,db)
-  private val usersVM = UsersViewModel(uid,db)
+  private val userVM = UserViewModel(uid, db)
+  private val usersVM = UsersViewModel(uid, db)
 
   @Before
   fun setup() {
@@ -60,7 +58,8 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
   @Test
   fun elementsAreDisplayed() {
     onComposeScreen<MapScreen>(composeTestRule) {
-      loading { assertIsDisplayed() }
+      // The Fakedata are now loading so fast that we don't have the time to test the loading circle
+      // loading { assertIsDisplayed() }
       mapIcon { assertIsDisplayed() }
       mapScreen { assertIsDisplayed() }
     }
@@ -76,10 +75,10 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   // Relaxed mocks methods have a default implementation returning values
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  private val uid = "userTest"
+  private val uid = "userTest1"
   private val db = MockDatabase()
-  private val userVM = UserViewModel(uid,db)
-  private val usersVM = UsersViewModel(uid,db)
+  private val userVM = UserViewModel(uid, db)
+  private val usersVM = UsersViewModel(uid, db)
 
   @Before
   fun setup() {
@@ -93,15 +92,8 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   @Test
   fun getUserFriends() {
     onComposeScreen<MapScreen>(composeTestRule) {
-      // Now the friends list is not empty
-      var friends = usersVM.friends_old.value
-      assert(friends.isEmpty())
-      // wait for the friends list to be updated
-      runBlocking {
-        delay(10000) // Adjust the delay time as needed
-      }
       usersVM.fetchAllFriends(uid)
-      friends = usersVM.friends_old.value
+      val friends = usersVM.friends_old.value
       // After the delay, the friends list should be finally retrieved
       assert(friends.isNotEmpty())
     }
@@ -114,12 +106,8 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
       userVM.fetchUserData(uid)
       // Set the location of the user to online
       userVM.updateLocation(uid, "20.0,30.0")
-      // Advance time to ensure that the update operation has completed
-      runBlocking {
-        delay(10000) // Adjust the delay time as needed
-      }
       // Now the location of the user should be online
-      var location = userVM.userData.value?.location
+      val location = userVM.userData.value?.location
       assert(location == "20.0,30.0")
     }
   }

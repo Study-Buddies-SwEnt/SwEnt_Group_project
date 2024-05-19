@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.tests
 
 import com.github.se.studybuddies.database.DatabaseConnection
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
@@ -15,15 +14,15 @@ class SharedTimerViewModelTest {
 
   private lateinit var viewModel: SharedTimerViewModel
   private lateinit var databaseConnection: DatabaseConnection
-  private val groupUID = "test-group"
-  private val db = MockDatabase()
+  private val groupUID = "groupTest1"
+  // private val db = MockDatabase()
 
   @Before
   fun setup() {
     // Mock the DatabaseConnection
     databaseConnection = mockk(relaxed = true)
     // Creating instance of the ViewModel with mocked database connection
-    viewModel = SharedTimerViewModel.getInstance(groupUID,db)
+    viewModel = SharedTimerViewModel.getInstance(groupUID, databaseConnection)
   }
 
   @Test

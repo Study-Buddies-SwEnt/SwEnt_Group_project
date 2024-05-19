@@ -25,7 +25,7 @@ class LeaveGroupTest : TestCase() {
 
   @Before
   fun setUp() {
-    composeTestRule.setContent { GroupsSettingsButton("userTest", mockNavActions,db) }
+    composeTestRule.setContent { GroupsSettingsButton("userTest", mockNavActions, db) }
   }
 
   @Test

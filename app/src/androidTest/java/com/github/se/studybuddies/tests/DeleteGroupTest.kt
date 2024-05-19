@@ -26,7 +26,7 @@ class DeleteGroupTest : TestCase() {
 
   @Before
   fun setUpTest() {
-    composeTestRule.setContent { GroupsSettingsButton(uid, mockNavActions,db) }
+    composeTestRule.setContent { GroupsSettingsButton(uid, mockNavActions, db) }
   }
 
   @Test fun testDeleteGroupDisplay() {}

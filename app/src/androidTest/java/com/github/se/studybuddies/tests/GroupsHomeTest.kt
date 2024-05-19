@@ -42,7 +42,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid,db), mockNavActions,db) }
+    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid, db), mockNavActions, db) }
   }
 
   /*
@@ -181,11 +181,11 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   // Use a user that have friends
   private val uid = "cYD8bTcYDyX3ngzssP22GYedcsh2"
-  private val groupHomeVM = GroupsHomeViewModel(uid,db)
+  private val groupHomeVM = GroupsHomeViewModel(uid, db)
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions,db) }
+    composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions, db) }
   }
 
   @Test

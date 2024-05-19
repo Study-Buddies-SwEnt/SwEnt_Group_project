@@ -168,7 +168,7 @@ fun MapScreen(
       iconOptions = {
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.padding(8.dp)) {
           FriendsLocationButton(context, isTrackingOn, usersViewModel, friendsData)
-          UserLocationButton(uid, context, userViewModel,locationManager, isTrackingOn, isZooming)
+          UserLocationButton(uid, context, userViewModel, locationManager, isTrackingOn, isZooming)
         }
       })
 }

@@ -36,7 +36,7 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @Before
   fun testSetup() {
-    val userVM = UserViewModel(uid,db)
+    val userVM = UserViewModel(uid, db)
     composeTestRule.setContent { AccountSettings(uid, userVM, backRoute, mockNavActions) }
   }
 

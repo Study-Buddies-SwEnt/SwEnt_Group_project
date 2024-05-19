@@ -81,7 +81,11 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions, db: DbRepository) {
+fun ChatScreen(
+    viewModel: MessageViewModel,
+    navigationActions: NavigationActions,
+    db: DbRepository
+) {
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
@@ -97,7 +101,7 @@ fun ChatScreen(viewModel: MessageViewModel, navigationActions: NavigationActions
   }
 
   selectedMessage?.let {
-    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions,db)
+    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions, db)
   }
   selectedMessage?.let { EditDialog(viewModel, it, showEditDialog) }
 
@@ -323,7 +327,7 @@ fun OptionsDialog(
                     onClick = {
                       showOptionsDialog.value = false
                       viewModel.currentUser.value
-                          ?.let { DirectMessageViewModel(it.uid,db) }
+                          ?.let { DirectMessageViewModel(it.uid, db) }
                           ?.startDirectMessage(selectedMessage.sender.uid)
                       navigationActions.navigateTo(Route.DIRECT_MESSAGE)
                     }) {

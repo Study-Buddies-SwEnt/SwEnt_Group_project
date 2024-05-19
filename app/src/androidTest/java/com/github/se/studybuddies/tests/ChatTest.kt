@@ -9,7 +9,6 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.ChatScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
@@ -39,7 +38,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val groupUID = "automaticTestGroupUID"
-    private val db = MockDatabase()
+  private val db = MockDatabase()
 
   @Before
   fun testSetup() {
@@ -60,7 +59,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions,db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
   }
 
   @Test
@@ -107,7 +106,7 @@ class ChatTestPrivate : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val groupUID = "automaticTestGroupUID"
-    private val db = MockDatabase()
+  private val db = MockDatabase()
 
   @Before
   fun testSetup() {
@@ -128,7 +127,7 @@ class ChatTestPrivate : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions,db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
   }
 
   @Test
@@ -206,7 +205,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val groupUID = "automaticTestGroupUID"
-    private val db = MockDatabase()
+  private val db = MockDatabase()
 
   @Before
   fun testSetup() {
@@ -227,7 +226,7 @@ class ChatTestOption : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
       val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions,db)
+      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions, db)
     }
   }
 
@@ -260,7 +259,7 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val groupUID = "automaticTestGroupUID"
-    private val db = MockDatabase()
+  private val db = MockDatabase()
 
   @Before
   fun setup() {
@@ -280,7 +279,7 @@ class ChatTestOptionOther : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
       val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions,db)
+      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions, db)
     }
   }
 

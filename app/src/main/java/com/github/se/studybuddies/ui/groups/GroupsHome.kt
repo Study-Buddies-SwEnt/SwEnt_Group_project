@@ -120,7 +120,7 @@ fun GroupsHome(
                     modifier = Modifier.testTag("EmptyGroupText"))
                 Spacer(modifier = Modifier.height(80.dp))
                 AddGroupButton(navigationActions = navigationActions)
-                AddLinkButton(navigationActions = navigationActions,db)
+                AddLinkButton(navigationActions = navigationActions, db)
               }
         } else {
           Column(
@@ -133,9 +133,9 @@ fun GroupsHome(
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
-                  items(groupList.value) { group -> GroupItem(group, navigationActions,db) }
+                  items(groupList.value) { group -> GroupItem(group, navigationActions, db) }
                   item { AddGroupButton(navigationActions) }
-                  item { AddLinkButton(navigationActions,db) }
+                  item { AddLinkButton(navigationActions, db) }
                 })
           }
         }
@@ -149,7 +149,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
   var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
-  val groupViewModel = GroupViewModel(groupUID,db)
+  val groupViewModel = GroupViewModel(groupUID, db)
   Row {
     IconButton(
         modifier = Modifier.testTag("GroupsSettingsButton"),
@@ -335,7 +335,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          GroupsSettingsButton(group.uid, navigationActions,db)
+          GroupsSettingsButton(group.uid, navigationActions, db)
         }
       }
 }
@@ -407,7 +407,7 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
-                  val groupVM = GroupViewModel(groupUID,db)
+                  val groupVM = GroupViewModel(groupUID, db)
                   groupVM.addUserToGroup(groupUID)
                   navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                 }),

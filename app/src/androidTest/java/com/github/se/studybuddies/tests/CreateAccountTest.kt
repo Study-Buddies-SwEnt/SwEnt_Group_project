@@ -33,7 +33,7 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
 
   val uid = "userTest"
   private val db = MockDatabase()
-  var userVM = UserViewModel(uid,db)
+  var userVM = UserViewModel(uid, db)
 
   @Before
   fun testSetup() {

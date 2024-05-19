@@ -39,11 +39,8 @@ class UserViewModel(val uid: String? = null, private val db: DbRepository) : Vie
   suspend fun getDefaultProfilePicture(): Uri {
     if (db.isFakeDatabase()) {
       return db.getDefaultPicture()
-    } else
-      return withContext(Dispatchers.IO) { db.getDefaultProfilePicture()
-      }
+    } else return withContext(Dispatchers.IO) { db.getDefaultProfilePicture() }
   }
-
 
   fun createUser(
       uid: String,

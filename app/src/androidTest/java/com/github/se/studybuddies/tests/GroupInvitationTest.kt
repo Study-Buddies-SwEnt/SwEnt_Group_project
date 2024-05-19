@@ -14,7 +14,7 @@ class GroupInvitationTest {
   fun generateLinkTest() = runBlocking {
     var groupUID = "xtheb45SJUEHD"
     val groupName = "StudyBuddiesIsTheBest"
-    val groupVM = GroupViewModel(groupUID,db)
+    val groupVM = GroupViewModel(groupUID, db)
     var inviteLink = groupVM.createGroupInviteLink(groupUID, groupName)
     assertEquals(("studybuddiesJoinGroup=StudyBuddiesIsTheBest/xtheb45SJUEHD"), inviteLink)
 
@@ -27,7 +27,7 @@ class GroupInvitationTest {
   fun generateLinkEmptyNameTest() = runBlocking {
     val groupUID = "wUHd562G62H"
     val groupName = ""
-    val groupVM = GroupViewModel(groupUID,db)
+    val groupVM = GroupViewModel(groupUID, db)
     val inviteLink = groupVM.createGroupInviteLink(groupUID, groupName)
     assertEquals(("Current group not found"), inviteLink)
   }
@@ -36,7 +36,7 @@ class GroupInvitationTest {
   fun generateLinkWrongArgumentTest() = runBlocking {
     var groupUID = "xtheb45SJUEHD"
     val groupName = "Test28"
-    val groupVM = GroupViewModel(groupUID,db)
+    val groupVM = GroupViewModel(groupUID, db)
     val inviteLink = groupVM.createGroupInviteLink("", groupName)
     assertEquals(("Current group not found"), inviteLink)
   }
