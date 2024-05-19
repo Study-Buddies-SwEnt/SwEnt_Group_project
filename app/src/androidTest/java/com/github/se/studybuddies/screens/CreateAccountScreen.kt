@@ -12,5 +12,5 @@ class CreateAccountScreen(semanticsProvider: SemanticsNodeInteractionsProvider) 
 
   val usernameField: KNode = content.child { hasTestTag("username_field") }
   val profileButton: KNode = content.child { hasTestTag("set_picture_button") }
-  val saveButton: KNode = content.child { hasTestTag("save_button") }
+  val saveButton: KNode = onNode { hasTestTag("save_button") }
 }
