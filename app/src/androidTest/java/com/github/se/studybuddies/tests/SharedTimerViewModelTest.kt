@@ -22,7 +22,7 @@ class SharedTimerViewModelTest {
     // Mock the DatabaseConnection
     databaseConnection = mockk(relaxed = true)
     // Creating instance of the ViewModel with mocked database connection
-    viewModel = SharedTimerViewModel.getInstance(groupUID, databaseConnection)
+    viewModel = SharedTimerViewModel(groupUID, databaseConnection)
   }
 
   @Test
