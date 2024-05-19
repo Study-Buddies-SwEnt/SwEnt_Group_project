@@ -7,18 +7,12 @@ import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.DeviceStatus
 import io.getstream.video.android.core.StreamVideo
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -64,59 +58,10 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
           }
           .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
 
-  /*
-  init {
-    // for demo we set the default state for mic and camera to be on
-    // and then we wait for call settings and we update the default state accordingly
-    call.microphone.setEnabled(true)
-    call.camera.setEnabled(true)
-
-    viewModelScope.launch {
-      // wait for settings (this will not block the UI) and then update the camera
-      // based on it
-      val settings = call.state.settings.first { it != null }
-
-      val enabled =
-          when (call.camera.status.first()) {
-            is DeviceStatus.NotSelected -> {
-              settings?.video?.cameraDefaultOn ?: false
-            }
-            is DeviceStatus.Enabled -> {
-              true
-            }
-            is DeviceStatus.Disabled -> {
-              false
-            }
-          }
-
-    }
-  }
-
-   */
-
   private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
   internal val isLoading: StateFlow<Boolean> = _isLoading
 
   private val _event: MutableSharedFlow<CallLobbyEvent> = MutableSharedFlow()
-  @OptIn(ExperimentalCoroutinesApi::class)
-  internal val uiState: SharedFlow<CallLobbyUiState> =
-      _event
-          .flatMapLatest { event ->
-            when (event) {
-              is CallLobbyEvent.JoinCall -> {
-                flowOf(CallLobbyUiState.JoinCompleted)
-              }
-              is CallLobbyEvent.JoinFailed -> {
-                flowOf(CallLobbyUiState.JoinFailed(event.reason))
-              }
-            }
-          }
-          .onCompletion { _isLoading.value = false }
-          .shareIn(viewModelScope, SharingStarted.Lazily, 0)
-
-  fun handleUiEvent(event: CallLobbyEvent) {
-    viewModelScope.launch { this@CallLobbyViewModel._event.emit(event) }
-  }
 
   fun enableCamera(enabled: Boolean) {
     call.camera.setEnabled(enabled)
@@ -125,14 +70,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
   fun enableMicrophone(enabled: Boolean) {
     call.microphone.setEnabled(enabled)
   }
-}
-
-sealed interface CallLobbyUiState {
-  data object Nothing : CallLobbyUiState
-
-  data object JoinCompleted : CallLobbyUiState
-
-  data class JoinFailed(val reason: String?) : CallLobbyUiState
 }
 
 sealed interface CallLobbyEvent {

@@ -17,6 +17,7 @@ import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 import io.github.kakaocup.compose.node.element.ComposeScreen
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,19 +51,21 @@ class VideoCallTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
     if (StreamVideo.isInstalled) {
       StreamVideo.removeClient()
     }
-    StreamVideoBuilder(
-            context = context,
-            apiKey = "x52wgjq8qyfc",
-            user =
-                User(
-                    id = userID,
-                    name = "test",
-                ),
-            token =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0",
-            loggingLevel = LoggingLevel(priority = Priority.VERBOSE),
-        )
-        .build()
+    runBlocking {
+      StreamVideoBuilder(
+              context = context,
+              apiKey = "x52wgjq8qyfc",
+              user =
+                  User(
+                      id = userID,
+                      name = "test",
+                  ),
+              token =
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0",
+              loggingLevel = LoggingLevel(priority = Priority.VERBOSE),
+          )
+          .build()
+    }
 
     val call = StreamVideo.instance().call("default", uid)
     composeTestRule.setContent { VideoCallScreen(call) { call.leave() } }
