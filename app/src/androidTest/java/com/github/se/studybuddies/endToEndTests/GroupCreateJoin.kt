@@ -119,7 +119,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun groupCreateJoin() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       // Create account
-      //saveButton { assertIsNotEnabled() }
+      // saveButton { assertIsNotEnabled() }
       usernameField {
         performTextClearance()
         performTextInput("UserTestE2E")
