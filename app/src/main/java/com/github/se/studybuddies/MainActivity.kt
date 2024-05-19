@@ -1,5 +1,6 @@
 package com.github.se.studybuddies
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -10,7 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.calender.CalendarApp
+import com.github.se.studybuddies.calender.DailyPlannerScreen
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
@@ -46,9 +47,13 @@ import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
+import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
+import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.CalendarViewModel
+import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
@@ -61,14 +66,15 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
-import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideo
 import io.getstream.video.android.core.StreamVideoBuilder
 import io.getstream.video.android.model.User
+import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
 
+  @SuppressLint("StateFlowValueCalledInComposition")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
@@ -86,25 +92,9 @@ class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
 
           val startDestination = Route.START
-          val context = LocalContext.current
-          val apiKey = "x52wgjq8qyfc"
-          val test_apiKey = "mmhfdzb5evj2" // test
-          val callID = "default_a0546550-933a-4aa8-b3f4-06cd068f998c" // test
-          // val groupUID = "vMsJ8zIUDzwh" // test
-          val test_token =
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSm9ydXVzX0NfQmFvdGgiLCJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0pvcnV1c19DX0Jhb3RoIiwiaWF0IjoxNzE0NjUzOTg0LCJleHAiOjE3MTUyNTg3ODl9.WkUHrFvbIdfjqKIcxi4FQB6GmQB1q0uyQEAfJ61P_g0"
-          LaunchedEffect(key1 = Unit) {
-            if (auth.currentUser != null && !StreamVideo.isInstalled) {
-              StreamVideoBuilder(
-                      context = context,
-                      apiKey = apiKey, // demo API key
-                      geo = GEO.GlobalEdgeNetwork,
-                      user = User(id = "Test"),
-                      // token = StreamVideo.devToken(currentUser.uid))
-                      token = test_token)
-                  .build()
-            }
-          }
+
+          val callType = "default"
+
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
               ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
@@ -126,7 +116,19 @@ class MainActivity : ComponentActivity() {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
               LoginScreen(navigationActions)
             }
+
             composable(Route.GROUPSHOME) {
+              LaunchedEffect(key1 = Unit) {
+                if (auth.currentUser != null && !StreamVideo.isInstalled) {
+                  StreamVideoInitHelper.init(applicationContext)
+                  StreamVideoInitHelper.loadSdk()
+                  Log.d("MyPrint", "StreamVideo SDK is installed")
+                }
+                if (StreamVideo.isInstalled) {
+                  StreamVideoInitHelper.reloadSdk()
+                }
+              }
+
               ifNotNull(remember { auth.currentUser }) { currentUser ->
                 val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid, db) }
                 GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions, db)
@@ -135,9 +137,14 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.CALENDAR) {
               ifNotNull(remember { auth.currentUser }) { _ ->
-                val calendarViewModel = remember { CalendarViewModel() }
-                CalendarApp(calendarViewModel, navigationActions)
-                Log.d("MyPrint", "Successfully navigated to GroupsHome")
+                val calendarViewModel = remember {
+                  auth.currentUser?.let { it1 -> CalendarViewModel(it1.uid) }
+                }
+                if (calendarViewModel != null) {
+                  CalendarApp(calendarViewModel, navigationActions)
+                }
+
+                Log.d("MyPrint", "Successfully navigated to Clendar")
               }
             }
             composable(
@@ -159,6 +166,17 @@ class MainActivity : ComponentActivity() {
                   ifNotNull(backRoute) { backRoute ->
                     Settings(backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
+                  }
+                }
+            composable(
+                route = "${Route.DAILYPLANNER}/{date}",
+                arguments = listOf(navArgument("date") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val date = backStackEntry.arguments?.getString("date")
+                  val currentUser = auth.currentUser
+                  if (date != null && currentUser != null) {
+                    DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
             composable(
@@ -203,7 +221,11 @@ class MainActivity : ComponentActivity() {
                 directMessageViewModel.setUserUID(currentUser.uid)
                 usersViewModel.setUserUID(currentUser.uid)
                 DirectMessageScreen(
-                    directMessageViewModel, chatViewModel, usersViewModel, navigationActions)
+                    directMessageViewModel,
+                    chatViewModel,
+                    usersViewModel,
+                    navigationActions,
+                    ContactsViewModel(currentUser.uid))
               }
             }
             composable(
@@ -269,26 +291,68 @@ class MainActivity : ComponentActivity() {
                     applicationContext)
               }
             }
+
             composable(Route.TIMER) {
               ifNotNull(auth.currentUser) { _ ->
                 val viewModel = remember { TimerViewModel.getInstance() }
 
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
+
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
-            composable(Route.VIDEOCALL) {
-              if (StreamVideo.isInstalled) {
-                val call = StreamVideo.instance().call("default", callID)
-                ifNotNull(remember { auth.currentUser }) { currentUser ->
-                  val videoCallViewModel = remember { VideoCallViewModel(call, currentUser.uid) }
-                  VideoCallScreen(videoCallViewModel, navigationActions)
-                  Log.d("MyPrint", "Successfully navigated to VideoGroupScreen")
+            composable(
+                route = "${Route.CALLLOBBY}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  if (groupUID != null && StreamVideo.isInstalled) {
+                    val viewModel = remember { CallLobbyViewModel(groupUID, callType) }
+                    Log.d("MyPrint", "Join VideoCall lobby")
+                    CallLobbyScreen(groupUID, viewModel, navigationActions)
+                  } else {
+                    Log.d("MyPrint", "Failed bc video call client isn't installed")
+                    navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                  }
                 }
-              } else {
-                navigationActions.goBack()
-              }
-            }
+
+            composable(
+                route = "${Route.VIDEOCALL}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  val streamVideo = StreamVideo.instance()
+                  val activeCall = streamVideo.state.activeCall.value
+                  if (groupUID != null) {
+                    val call =
+                        if (activeCall != null) {
+                          if (activeCall.id != groupUID) {
+                            Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+                            // If the call id is different leave the previous call
+                            activeCall.leave()
+                            // Return a new call
+                            streamVideo.call(callType, groupUID)
+                          } else {
+                            // Call ID is the same, use the active call
+                            activeCall
+                          }
+                        } else {
+                          // There is no active call, create new call
+                          streamVideo.call(callType, groupUID)
+                        }
+                    val videoVM = remember { VideoCallViewModel(call, groupUID) }
+                    Log.d("MyPrint", "Join VideoCallScreen")
+                    VideoCallScreen(
+                        call,
+                        videoVM,
+                    ) {
+                      videoVM.call.leave()
+                      StreamVideo.instance().state.activeCall.value?.leave()
+                      navController.popBackStack("${Route.GROUP}/$groupUID", false)
+                    }
+                  }
+                }
+
             composable(
                 route = "${Route.SHAREDTIMER}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {

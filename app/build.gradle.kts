@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.FileInputStream
 import java.util.Properties
@@ -24,7 +25,7 @@ android {
             useSupportLibrary = true
         }
         //load the values from .properties file
-        val mapsKeyFile = project.rootProject.file("local.properties")
+        val mapsKeyFile = rootProject.file("./local.properties")
         val properties = Properties()
         properties.load(mapsKeyFile.inputStream())
 
@@ -32,12 +33,13 @@ android {
         val apiKey = properties.getProperty("MAPS_API_KEY") ?: ""
 
         //inject the key dynamically into the manifest
-        manifestPlaceholders["MAPS_API_KEY"]  = apiKey
-        }
+        manifestPlaceholders["MAPS_API_KEY"] = apiKey
+        manifestPlaceholders["STREAM"] = properties.getProperty("STREAM", "")
+    }
 
 
     configurations.configureEach {
-        exclude(group= "com.google.protobuf", module= "protobuf-lite")
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
     }
 
     signingConfigs {
@@ -100,10 +102,14 @@ android {
 }
 
 
+
 dependencies {
     implementation("com.google.code.gson:gson:2.8.8")
+    implementation( "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.wear.compose:compose-material:1.3.1")
+    implementation("androidx.room:room-common:2.6.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
