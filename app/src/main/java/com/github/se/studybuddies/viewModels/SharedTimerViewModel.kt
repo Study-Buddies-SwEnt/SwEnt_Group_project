@@ -35,8 +35,8 @@ class SharedTimerViewModel(private val groupUID: String) : ViewModel() {
 
   private fun observeTimerChanges() {
     databaseConnection.observeTimerChanges(
-        groupUID, viewModelScope, Dispatchers.IO, Dispatchers.Main) { group ->
-          viewModelScope.launch { syncTimerWithFirebase(group.timerState) }
+        groupUID, viewModelScope, Dispatchers.IO, Dispatchers.Main) { timerState ->
+          viewModelScope.launch { syncTimerWithFirebase(timerState) }
         }
   }
 

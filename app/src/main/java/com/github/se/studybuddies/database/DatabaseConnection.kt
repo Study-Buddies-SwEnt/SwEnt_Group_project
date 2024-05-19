@@ -710,9 +710,9 @@ class DatabaseConnection {
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher,
-      onUpdate: (Group) -> Unit
+      onUpdate: (TimerState) -> Unit
   ) {
-    val docRef = groupDataCollection.document(groupUID)
+    val docRef = FirebaseFirestore.getInstance().collection("groupData").document(groupUID)
     docRef.addSnapshotListener { snapshot, e ->
       if (e != null) {
         Log.w("DatabaseConnection", "Listen failed.", e)
@@ -720,10 +720,11 @@ class DatabaseConnection {
       }
       if (snapshot != null && snapshot.exists()) {
         scope.launch(ioDispatcher) {
-          val group = snapshot.toObject(Group::class.java)
-          if (group != null) {
-            withContext(mainDispatcher) { onUpdate(group) }
-          }
+          val timerStateMap = snapshot.get("timerState") as? Map<String, Any>
+          val endTime = timerStateMap?.get("endTime") as? Long ?: 0L
+          val isRunning = timerStateMap?.get("isRunning") as? Boolean ?: false
+          val timerState = TimerState(endTime, isRunning)
+          withContext(mainDispatcher) { onUpdate(timerState) }
         }
       }
     }
