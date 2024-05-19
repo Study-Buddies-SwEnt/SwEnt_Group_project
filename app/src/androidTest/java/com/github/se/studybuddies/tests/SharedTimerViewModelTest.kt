@@ -5,7 +5,7 @@ import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -26,7 +26,7 @@ class SharedTimerViewModelTest {
   }
 
   @Test
-  fun addSeconds_increases_timer_by_specified_seconds() = runBlockingTest {
+  fun addSeconds_increases_timer_by_specified_seconds() = runTest {
     // Arrange
     val secondsToAdd = 10L
     val expectedMilliseconds = secondsToAdd * 1000
@@ -40,7 +40,7 @@ class SharedTimerViewModelTest {
   }
 
   @Test
-  fun addMinutes_increases_timer_by_specified_minutes() = runBlockingTest {
+  fun addMinutes_increases_timer_by_specified_minutes() = runTest {
     // Arrange
     val minutesToAdd = 1L
     val expectedMilliseconds = minutesToAdd * 60 * 1000
@@ -54,7 +54,7 @@ class SharedTimerViewModelTest {
   }
 
   @Test
-  fun addHours_increases_timer_by_specified_hours() = runBlockingTest {
+  fun addHours_increases_timer_by_specified_hours() = runTest {
     // Arrange
     val hoursToAdd = 1L
     val expectedMilliseconds = hoursToAdd * 3600 * 1000
@@ -68,7 +68,7 @@ class SharedTimerViewModelTest {
   }
 
   @Test
-  fun resetTimer_sets_value_to_zero() = runBlockingTest {
+  fun resetTimer_sets_value_to_zero() = runTest {
     // Arrange
     viewModel.addSeconds(150) // Set some random time
 

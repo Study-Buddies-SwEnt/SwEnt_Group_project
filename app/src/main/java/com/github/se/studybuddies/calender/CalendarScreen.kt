@@ -43,10 +43,7 @@ import java.time.YearMonth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarApp(
-    viewModel: CalendarViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    navigationActions: NavigationActions
-) {
+fun CalendarApp(viewModel: CalendarViewModel, navigationActions: NavigationActions) {
   val uiState by viewModel.uiState.collectAsState()
 
   Scaffold(
@@ -68,8 +65,8 @@ fun CalendarApp(
               dates = uiState.dates,
               onPreviousMonthButtonClicked = { prevMonth -> viewModel.toPreviousMonth(prevMonth) },
               onNextMonthButtonClicked = { nextMonth -> viewModel.toNextMonth(nextMonth) },
-              onDateClickListener = {
-                //  will do later on
+              onDateClickListener = { date ->
+                navigationActions.navigateTo("${Route.DAILYPLANNER}/$date")
               })
         }
   }

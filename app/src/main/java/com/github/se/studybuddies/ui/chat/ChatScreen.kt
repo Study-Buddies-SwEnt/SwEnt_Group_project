@@ -1,7 +1,9 @@
 package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,6 +11,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,6 +70,7 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
@@ -91,6 +95,9 @@ fun ChatScreen(
   val showEditDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
   val showAddImage = remember { mutableStateOf(false) }
+  val showAddLink = remember { mutableStateOf(false) }
+  val showAddFile = remember { mutableStateOf(false) }
+
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
   val listState = rememberLazyListState()
 
@@ -105,9 +112,11 @@ fun ChatScreen(
   }
   selectedMessage?.let { EditDialog(viewModel, it, showEditDialog) }
 
-  IconsOptionsList(showIconsOptions, showAddImage)
+  IconsOptionsList(showIconsOptions, showAddImage, showAddLink, showAddFile)
 
   SendPhotoMessage(viewModel, showAddImage)
+  SendLinkMessage(viewModel, showAddLink)
+  SendFileMessage(viewModel, showAddFile)
 
   Column(
       modifier =
@@ -157,6 +166,10 @@ fun ChatScreen(
 
 @Composable
 fun TextBubble(message: Message, displayName: Boolean = false) {
+  val browserLauncher =
+      rememberLauncherForActivityResult(
+          contract = ActivityResultContracts.StartActivityForResult()) {}
+
   Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
     if (displayName) {
       Image(
@@ -202,6 +215,52 @@ fun TextBubble(message: Message, displayName: Boolean = false) {
                             .clip(RoundedCornerShape(20.dp))
                             .testTag("chat_message_image"),
                     contentScale = ContentScale.Crop)
+              }
+              is Message.LinkMessage -> {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  Icon(
+                      painter = painterResource(id = R.drawable.link_24px),
+                      contentDescription = stringResource(R.string.app_name),
+                      tint = Blue)
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Text(
+                      text = message.linkName,
+                      style = TextStyle(color = Blue),
+                      modifier =
+                          Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
+                                browserLauncher.launch(intent)
+                              }
+                              .testTag("chat_message_link"))
+                }
+              }
+              is Message.FileMessage -> {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  Icon(
+                      painter = painterResource(id = R.drawable.picture_as_pdf_24px),
+                      contentDescription = stringResource(R.string.app_name),
+                      tint = Blue)
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Text(
+                      text = message.fileName,
+                      style = TextStyle(color = Blue),
+                      modifier =
+                          Modifier.clickable {
+                                val intent =
+                                    Intent().apply {
+                                      action = Intent.ACTION_VIEW
+                                      setDataAndType(message.fileUri, MessageVal.FILE_TYPE)
+                                      flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                    }
+                                browserLauncher.launch(
+                                    Intent.createChooser(
+                                        intent,
+                                        "Open with") // I tried to extract the string resource but
+                                    // it didn't work
+                                    )
+                              }
+                              .testTag("chat_message_file"))
+                }
               }
               else -> {
                 Text(
@@ -294,19 +353,24 @@ fun OptionsDialog(
             Text(text = selectedMessage.getDate())
             if (viewModel.isUserMessageSender(selectedMessage)) {
               Spacer(modifier = Modifier.height(8.dp))
-              if (selectedMessage is Message.TextMessage) {
-                Button(
-                    modifier = Modifier.testTag("option_dialog_edit"),
-                    onClick = {
-                      showEditDialog.value = true
-                      showOptionsDialog.value = false
-                    }) {
-                      Text(
-                          text = stringResource(R.string.edit),
-                          style = TextStyle(color = White),
-                      )
-                    }
-                Spacer(modifier = Modifier.height(8.dp))
+              when (selectedMessage) {
+                // LinkMessage is commented due to the lack of update of the linkName field yet
+                // (only the linkUri field is updated)
+                is Message.TextMessage /*, is Message.LinkMessage*/ -> {
+                  Button(
+                      modifier = Modifier.testTag("option_dialog_edit"),
+                      onClick = {
+                        showEditDialog.value = true
+                        showOptionsDialog.value = false
+                      }) {
+                        Text(
+                            text = stringResource(R.string.edit),
+                            style = TextStyle(color = White),
+                        )
+                      }
+                  Spacer(modifier = Modifier.height(8.dp))
+                }
+                else -> {}
               }
               Button(
                   modifier = Modifier.testTag("option_dialog_delete"),
@@ -362,16 +426,26 @@ fun EditDialog(
         onDismissRequest = { showEditDialog.value = false },
         title = { Text(text = stringResource(R.string.edit)) },
         text = {
-          if (selectedMessage is Message.TextMessage) {
-            Column(modifier = Modifier.testTag("edit_dialog")) {
-              MessageTextFields(
-                  onSend = {
-                    viewModel.editMessage(selectedMessage, it)
-                    showEditDialog.value = false
-                  },
-                  defaultText = selectedMessage.text,
-                  mutableStateOf(false))
-            }
+          val selectedMessageText =
+              when (selectedMessage) {
+                is Message.TextMessage -> {
+                  selectedMessage.text
+                }
+                is Message.LinkMessage -> {
+                  selectedMessage.linkUri.toString()
+                }
+                else -> {
+                  ""
+                }
+              }
+          Column(modifier = Modifier.testTag("edit_dialog")) {
+            MessageTextFields(
+                onSend = {
+                  viewModel.editMessage(selectedMessage, it)
+                  showEditDialog.value = false
+                },
+                defaultText = selectedMessageText,
+                mutableStateOf(false))
           }
         },
         confirmButton = {
@@ -421,7 +495,12 @@ fun PrivateChatTitle(chat: Chat) {
 }
 
 @Composable
-fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: MutableState<Boolean>) {
+fun IconsOptionsList(
+    showIconsOptions: MutableState<Boolean>,
+    showAddImage: MutableState<Boolean>,
+    showAddLink: MutableState<Boolean>,
+    showAddFile: MutableState<Boolean>
+) {
   if (showIconsOptions.value) {
     AlertDialog(
         onDismissRequest = { showIconsOptions.value = false },
@@ -429,32 +508,46 @@ fun IconsOptionsList(showIconsOptions: MutableState<Boolean>, showAddImage: Muta
           Column {
             LazyRow {
               items(3) {
-                if (it == 0) {
-                  IconButton(
-                      onClick = {
-                        showIconsOptions.value = false
-                        showAddImage.value = true
-                      },
-                      modifier = Modifier.padding(8.dp)) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.image_24px),
-                            contentDescription = stringResource(R.string.app_name),
-                            tint = Blue)
-                      }
-                } else {
-                  //                                IconButton(
-                  //                                    onClick = {
-                  //                                        showIconsOptions.value = false
-                  //                                    },
-                  //                                    modifier = Modifier.padding(8.dp)
-                  //                                ) {
-                  //                                    Icon(
-                  //                                        imageVector = Icons.Outlined.Send,
-                  //                                        contentDescription =
-                  // stringResource(R.string.app_name),
-                  //                                        tint = Blue
-                  //                                    )
-                  //                                }
+                when (it) {
+                  0 -> {
+                    IconButton(
+                        onClick = {
+                          showIconsOptions.value = false
+                          showAddImage.value = true
+                        },
+                        modifier = Modifier.padding(8.dp)) {
+                          Icon(
+                              painter = painterResource(id = R.drawable.image_24px),
+                              contentDescription = stringResource(R.string.app_name),
+                              tint = Blue)
+                        }
+                  }
+                  1 -> {
+                    IconButton(
+                        onClick = {
+                          showIconsOptions.value = false
+                          showAddLink.value = true
+                        },
+                        modifier = Modifier.padding(8.dp)) {
+                          Icon(
+                              painter = painterResource(id = R.drawable.link_24px),
+                              contentDescription = stringResource(R.string.app_name),
+                              tint = Blue)
+                        }
+                  }
+                  2 -> {
+                    IconButton(
+                        onClick = {
+                          showIconsOptions.value = false
+                          showAddFile.value = true
+                        },
+                        modifier = Modifier.padding(8.dp)) {
+                          Icon(
+                              painter = painterResource(id = R.drawable.picture_as_pdf_24px),
+                              contentDescription = stringResource(R.string.app_name),
+                              tint = Blue)
+                        }
+                  }
                 }
               }
             }
@@ -506,6 +599,115 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
             messageViewModel.sendPhotoMessage(photoState.value)
             showAddImage.value = false
             photoState.value = Uri.EMPTY
+          }
+        })
+  }
+}
+
+@Composable
+fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableState<Boolean>) {
+  val linkState = remember { mutableStateOf("") }
+  val linkName = remember { mutableStateOf("") }
+
+  if (showAddLink.value) {
+    AlertDialog(
+        onDismissRequest = { showAddLink.value = false },
+        text = {
+          Box(
+              contentAlignment = Alignment.Center,
+              modifier = Modifier.padding(8.dp).fillMaxWidth()) {
+                OutlinedTextField(
+                    value = linkState.value,
+                    onValueChange = { linkState.value = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(color = Black),
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.enter_link)) },
+                )
+              }
+        },
+        confirmButton = {
+          SaveButton(linkState.value.isNotBlank()) {
+            val uriString = linkState.value.trim()
+            val uri =
+                if (!isValidUrl(uriString)) {
+                  Uri.parse("https://$uriString")
+                } else {
+                  Uri.parse(uriString)
+                }
+            linkName.value = uriString.substringAfter("//")
+
+            messageViewModel.sendLinkMessage(linkName.value, uri)
+            showAddLink.value = false
+            linkState.value = ""
+            linkName.value = ""
+          }
+        })
+  }
+}
+
+fun isValidUrl(url: String): Boolean {
+  return try {
+    val uri = Uri.parse(url)
+    uri.scheme == "http" || uri.scheme == "https"
+  } catch (e: Exception) {
+    false
+  }
+}
+
+@Composable
+fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableState<Boolean>) {
+  val fileState = remember { mutableStateOf(Uri.EMPTY) }
+  val fileName = remember { mutableStateOf("") }
+  val context = LocalContext.current
+
+  val getContent =
+      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { fileUri ->
+          fileState.value = fileUri
+          context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && nameIndex != -1) {
+              fileName.value = cursor.getString(nameIndex)
+            }
+          }
+        }
+      }
+  val fileInput = MessageVal.FILE_TYPE
+
+  val requestPermissionLauncher =
+      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+          getContent.launch(fileInput)
+        }
+      }
+  val permission = imagePermissionVersion()
+
+  if (showAddFile.value) {
+    AlertDialog(
+        onDismissRequest = { showAddFile.value = false },
+        text = {
+          Box(
+              contentAlignment = Alignment.Center,
+              modifier =
+                  Modifier.padding(8.dp).fillMaxWidth().clickable {
+                    checkPermission(context, permission, requestPermissionLauncher) {
+                      getContent.launch(fileInput)
+                    }
+                  }) {
+                if (fileState.value == Uri.EMPTY) {
+                  Text(text = stringResource(R.string.select_a_file))
+                } else {
+                  Text(text = fileName.value)
+                }
+              }
+        },
+        confirmButton = {
+          SaveButton(fileState.value.toString().isNotBlank()) {
+            messageViewModel.sendFileMessage(fileName.value, fileState.value)
+            showAddFile.value = false
+            fileState.value = Uri.EMPTY
+            fileName.value = ""
           }
         })
   }

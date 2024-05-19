@@ -52,6 +52,7 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
@@ -61,7 +62,8 @@ fun DirectMessageScreen(
     viewModel: DirectMessageViewModel,
     chatViewModel: ChatViewModel,
     usersViewModel: UsersViewModel,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    contactsViewModel: ContactsViewModel
 ) {
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
@@ -72,7 +74,7 @@ fun DirectMessageScreen(
       content = { innerPadding ->
         if (showAddPrivateMessageList.value) {
           Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel)
+            ListAllUsers(showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
           }
         } else {
           if (chats.isEmpty()) {
@@ -161,7 +163,8 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
     viewModel: DirectMessageViewModel,
-    usersViewModel: UsersViewModel
+    usersViewModel: UsersViewModel,
+    contactsViewModel: ContactsViewModel
 ) {
   val friends = usersViewModel.friends.collectAsState(initial = emptyList()).value
   var isLoading by remember { mutableStateOf(true) }
@@ -190,7 +193,9 @@ fun ListAllUsers(
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(friends) { friend -> UserItem(friend, viewModel, showAddPrivateMessageList) }
+        items(friends) { friend ->
+          UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
+        }
       }
     }
   }
@@ -201,7 +206,8 @@ fun ListAllUsers(
 fun UserItem(
     user: User,
     viewModel: DirectMessageViewModel,
-    showAddPrivateMessageList: MutableState<Boolean>
+    showAddPrivateMessageList: MutableState<Boolean>,
+    contactsViewModel: ContactsViewModel
 ) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
@@ -212,6 +218,7 @@ fun UserItem(
                   onClick = {
                     viewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
+                    contactsViewModel.createContact(user.uid)
                   })) {
         Image(
             painter = rememberAsyncImagePainter(user.photoUrl),
