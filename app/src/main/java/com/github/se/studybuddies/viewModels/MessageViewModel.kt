@@ -29,7 +29,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   }
 
   private fun getMessage() {
-    db.getMessages(chat, _messages, Dispatchers.IO, Dispatchers.Main)
+    db.fetchChatMessages(chat, _messages, Dispatchers.IO, Dispatchers.Main)
   }
 
   private fun getCurrentUser() {

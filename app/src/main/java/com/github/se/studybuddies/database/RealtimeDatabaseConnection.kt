@@ -12,12 +12,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class RealtimeDatabaseConnection {
   private val rtDb =
@@ -115,7 +115,7 @@ class RealtimeDatabaseConnection {
     }
   }
 
-  fun getMessages(
+  fun fetchChatMessages(
       chat: Chat,
       liveData: MutableStateFlow<List<Message>>,
       ioDispatcher: CoroutineDispatcher,
