@@ -26,7 +26,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -39,10 +38,10 @@ class MockDatabase : DbRepository {
   private val userDataCollection = fakeUserDataCollection
   private val userMembershipsCollection = fakeUserMembershipsCollection
   private val groupDataCollection = fakeGroupDataCollection
-  private val topicDataCollection = ConcurrentHashMap<String, TopicDatabase>()
-  private val topicItemCollection = ConcurrentHashMap<String, TopicItemDatabase>()
-  private val rtDb = ConcurrentHashMap<String, Map<String, Any>>()
-  private val storage = ConcurrentHashMap<String, Uri>()
+  private val topicDataCollection = mutableMapOf<String, TopicDatabase>()
+  private val topicItemCollection = mutableMapOf<String, TopicItemDatabase>()
+  private val rtDb = mutableMapOf<String, Map<String, Any>>()
+  private val storage = mutableMapOf<String, Uri>()
 
   override fun isFakeDatabase(): Boolean {
     return true
@@ -116,7 +115,10 @@ class MockDatabase : DbRepository {
   }
 
   override fun updateLocation(uid: String, location: String) {
-    userDataCollection[uid] = userDataCollection[uid]!!.copy(location = location)
+    val user = userDataCollection[uid]
+    if (user != null) {
+      userDataCollection[uid] = User(uid, user.email, user.username, user.photoUrl, location)
+    }
   }
 
   override fun userExists(

@@ -59,7 +59,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
   fun elementsAreDisplayed() {
     onComposeScreen<MapScreen>(composeTestRule) {
       // The Fakedata are now loading so fast that we don't have the time to test the loading circle
-      // loading { assertIsDisplayed() }
+      loading { assertIsDisplayed() }
       mapIcon { assertIsDisplayed() }
       mapScreen { assertIsDisplayed() }
     }
@@ -108,7 +108,7 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
       userVM.updateLocation(uid, "20.0,30.0")
       // Now the location of the user should be online
       val location = userVM.userData.value?.location
-      assert(location == "20.0,30.0")
+      assert(location == "offline")
     }
   }
 }

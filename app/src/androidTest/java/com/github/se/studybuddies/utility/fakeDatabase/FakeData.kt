@@ -4,9 +4,6 @@ import android.net.Uri
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.User
-import java.util.concurrent.ConcurrentHashMap
-
-class FakeData {}
 
 var fakeUser1 =
     User(
@@ -34,15 +31,15 @@ val fakeGroup1 =
     )
 
 val fakeUserDataCollection =
-    ConcurrentHashMap<String, User>().apply {
+    mutableMapOf<String, User>().apply {
       put(fakeUser1.uid, fakeUser1)
       put(fakeUser2.uid, fakeUser2)
     }
 
 val fakeUserMembershipsCollection =
-    ConcurrentHashMap<String, MutableList<String>>().apply {
+    mutableMapOf<String, MutableList<String>>().apply {
       put(fakeUser1.uid, mutableListOf(fakeGroup1.uid))
     }
 
 val fakeGroupDataCollection =
-    ConcurrentHashMap<String, Group>().apply { put(fakeGroup1.uid, fakeGroup1) }
+    mutableMapOf<String, Group>().apply { put(fakeGroup1.uid, fakeGroup1) }
