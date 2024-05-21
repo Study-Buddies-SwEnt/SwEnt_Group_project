@@ -37,7 +37,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
   // userTest
   // aloneUserTest
-  val uid = "aloneUserTest"
+  val uid = "userTest2"
   private val db = MockDatabase()
 
   @Before
@@ -45,13 +45,12 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid, db), mockNavActions, db) }
   }
 
-  /*
   @Test
   fun assessEmptyGroup() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupBox { assertIsDisplayed() }
-      circularLoading { assertIsDisplayed() }
-      Thread.sleep(4000)
+      // As the tests don't have waiting time, the circular loading is never displayed
+      groupBox { assertDoesNotExist() }
+      circularLoading { assertDoesNotExist() }
       groupScreenEmpty { assertIsDisplayed() }
       emptyGroupText { assertIsDisplayed() }
     }
@@ -60,27 +59,25 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @Test
   fun buttonCorrectlyDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      Thread.sleep(4000)
       addButtonRow { assertIsDisplayed() }
       addButton {
         assertIsDisplayed()
         assertHasClickAction()
       }
-      // addButtonIcon { assertIsDisplayed() }
+      // addButtonIcon { assertExists() }
 
       addLinkRow { assertIsDisplayed() }
       addLinkButton {
         assertIsDisplayed()
         assertHasClickAction()
       }
-      // addLinkIcon { assertIsDisplayed() }
+      // addLinkIcon { assertExists() }
     }
   }
 
   @Test
   fun buttonAreWorking() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      Thread.sleep(4000)
       addButton {
         assertIsDisplayed()
         assertHasClickAction()
@@ -95,7 +92,7 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         performClick()
       }
     }
-  }*/
+  }
 
   @Test
   fun testDrawerGroup() {
@@ -180,7 +177,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   private val db = MockDatabase()
 
   // Use a user that have friends
-  private val uid = "cYD8bTcYDyX3ngzssP22GYedcsh2"
+  private val uid = "userTest1"
   private val groupHomeVM = GroupsHomeViewModel(uid, db)
 
   @Before
@@ -191,12 +188,11 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun groupList() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupBox { assertIsDisplayed() }
-      circularLoading { assertIsDisplayed() }
-      // runBlocking { delay(4000) }
-      // groupScreen { assertIsDisplayed() }
-      // addButton { assertIsDisplayed() }
-      // addLinkButton { assertIsDisplayed() }
+      groupBox { assertDoesNotExist() }
+      circularLoading { assertDoesNotExist() }
+      groupScreen { assertIsDisplayed() }
+      addButton { assertExists() }
+      addLinkButton { assertExists() }
     }
   }
 }
