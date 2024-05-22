@@ -104,6 +104,11 @@ android {
 
 
 dependencies {
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
     implementation("com.google.code.gson:gson:2.8.8")
     implementation( "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0")

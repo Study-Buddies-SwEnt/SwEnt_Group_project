@@ -1,6 +1,8 @@
 package com.github.se.studybuddies.ui.todo
 
 // import com.github.se.studybuddies.viewModels.ToDoViewModel
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +25,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: NavigationActions) {
   val titleState = remember { mutableStateOf("") }
@@ -53,6 +56,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                             description = descriptionState.value,
                             dueDate = selectedDate.value,
                             status = ToDoStatus.CREATED)
+                      Log.d("time", "CreateToDo ${newTodo.dueDate}")
                     todoListViewModel.addToDo(newTodo)
                     navigationActions.goBack()
                   }

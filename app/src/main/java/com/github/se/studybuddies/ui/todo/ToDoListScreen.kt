@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.todo
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -142,7 +143,9 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
               modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("todoList"),
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
               horizontalAlignment = Alignment.Start,
-              content = { items(todoList.value) { todo -> ToDoItem(todo, navigationActions) } })
+              content = { items(todoList.value) { todo -> ToDoItem(todo, navigationActions);
+                  Log.d("time", "x ${todo.dueDate}")} }
+                      )
         }
       })
 }
@@ -163,6 +166,7 @@ fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
               }
               .testTag("todoListItem")) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Log.d("time", "b ${todo.dueDate}")
           Text(
               text = formatDate(todo.dueDate),
               style = TextStyle(fontSize = 12.sp),
@@ -254,6 +258,8 @@ fun CustomSearchBar(
 
 private fun formatDate(date: LocalDate): String {
   val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    Log.d("time", "c $formatter")
+    Log.d("time", "d ${date.format(formatter)}")
   return date.format(formatter)
 }
 /*

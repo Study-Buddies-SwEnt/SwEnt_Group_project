@@ -9,6 +9,8 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.9.0" apply false
     id("com.google.gms.google-services") version "4.4.1" apply false
     id("org.sonarqube") version "4.4.1.3373"
+    kotlin("jvm") version "1.8.0" // Adjust to your Kotlin version
+    kotlin("plugin.serialization") version "1.8.0" // Same version as Kotlin
 }
 
 sonar {
