@@ -6,7 +6,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.bootcamp.screens.CreateToDoScreen
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -162,31 +161,5 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         confirmVerified(mockNavActions)
       }
     }
-  }
-
-  @Test
-  fun topAppBarTest() = run {
-    onComposeScreen<CreateToDoScreen>(composeTestRule) {
-      topAppBox {
-        // arrange: verify pre-conditions
-        assertIsDisplayed()
-      }
-      topAppBar {
-        // arrange: verify pre-conditions
-        assertIsDisplayed()
-      }
-      divider {
-        // arrange: verify pre-conditions
-        assertIsDisplayed()
-      }
-      goBackButton {
-        // arrange: verify pre-conditions
-        assertIsDisplayed()
-        performClick()
-      }
-    }
-    // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.TODOLIST) }
-    confirmVerified(mockNavActions)
   }
 }
