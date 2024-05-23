@@ -5,5 +5,3 @@ enum class ToDoStatus {
   STARTED,
   DONE,
 }
-
-

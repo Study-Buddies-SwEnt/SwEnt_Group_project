@@ -42,48 +42,46 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
   val selectedDate = remember { mutableStateOf(LocalDate.now()) }
   val isOpen = remember { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize().background(White),
-        topBar = {
-            TopNavigationBar(
-                title = { Sub_title(stringResource(R.string.add_a_new_task)) },
-                navigationIcon = {
-                    GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
-                },
-                actions = {})
-        }) {
-            LazyColumn(
-                modifier =
-                Modifier.fillMaxSize().background(White)
+  Scaffold(
+      modifier = Modifier.fillMaxSize().background(White),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(stringResource(R.string.add_a_new_task)) },
+            navigationIcon = {
+              GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
+            },
+            actions = {})
+      }) {
+        LazyColumn(
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(White)
                     .padding(horizontal = 20.dp, vertical = 80.dp)
                     .testTag("create_toDo_column"),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                        TodoSaveButton(titleState) {
-                            val randomUID = UUID.randomUUID().toString()
-                            val newTodo =
-                                ToDo(
-                                    uid = randomUID,
-                                    name = titleState.value,
-                                    description = descriptionState.value,
-                                    dueDate = selectedDate.value,
-                                    status = ToDoStatus.CREATED
-                                )
-                            Log.d("time", "CreateToDo ${newTodo.dueDate}")
-                            todoListViewModel.addToDo(newTodo)
-                            navigationActions.goBack()
-                        }
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+              item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                      TodoFields(titleState, descriptionState, selectedDate, isOpen)
+                      TodoSaveButton(titleState) {
+                        val randomUID = UUID.randomUUID().toString()
+                        val newTodo =
+                            ToDo(
+                                uid = randomUID,
+                                name = titleState.value,
+                                description = descriptionState.value,
+                                dueDate = selectedDate.value,
+                                status = ToDoStatus.CREATED)
+                        Log.d("time", "CreateToDo ${newTodo.dueDate}")
+                        todoListViewModel.addToDo(newTodo)
+                        navigationActions.goBack()
+                      }
                     }
-                }
+              }
             }
-        }
+      }
   if (isOpen.value) {
     CustomDatePickerDialog(
         onAccept = {

@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.data.todo
 
-import androidx.compose.ui.graphics.Color
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import java.time.LocalDate
 import kotlinx.serialization.Serializable
@@ -14,10 +13,10 @@ data class ToDo(
     var status: ToDoStatus
 )
 
-fun nextStatus (toDo: ToDo) {
-    when (toDo.status) {
-        ToDoStatus.CREATED -> toDo.status = ToDoStatus.STARTED
-        ToDoStatus.STARTED -> toDo.status = ToDoStatus.DONE
-        ToDoStatus.DONE -> toDo.status = ToDoStatus.CREATED
-    }
+fun nextStatus(toDo: ToDo) {
+  when (toDo.status) {
+    ToDoStatus.CREATED -> toDo.status = ToDoStatus.STARTED
+    ToDoStatus.STARTED -> toDo.status = ToDoStatus.DONE
+    ToDoStatus.DONE -> toDo.status = ToDoStatus.CREATED
+  }
 }

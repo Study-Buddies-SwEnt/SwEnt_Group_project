@@ -41,27 +41,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     fetchAllTodos()
   }
 
-  /*
-    private fun readToDoListFromFile(): MutableMap<String, ToDo> {
-      if (!toDoFile.exists()) {
-        return mutableMapOf() // Return an empty map if file doesn't exist yet
-      }
-
-      val json = toDoFile.readText()
-      // Check if the json is a string representation of an object
-      if (json.startsWith("{") && json.endsWith("}")) {
-        // Deserialize JSON string to map of ToDo objects
-        val type: Type = object : TypeToken<Map<String, ToDo>>() {}.type
-        Log.d("time", "readToDoListFromFile $json")
-
-        return gson.fromJson(json, type) ?: mutableMapOf()
-      } else {
-        // Handle case where json is not an object but a string, perhaps log the issue
-        Log.e("JsonError", "JSON data is not a valid object: $json")
-        return mutableMapOf()
-      }
-    }
-  */
   private fun readToDoListFromFile(): MutableMap<String, ToDo> {
     if (!toDoFile.exists()) {
       return mutableMapOf() // Return an empty map if the file doesn't exist yet
@@ -81,17 +60,6 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       mutableMapOf()
     }
   }
-
-  /*
-   private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
-     // Serialize the map of ToDo objects to JSON
-     val json = gson.toJson(todoList)
-     toDoFile.writeText(json)
-
-     Log.d("time", "writeToDoListToFile $json")
-     // encryption.encryptAndSaveFile(toDoFile)
-   }
-  */
 
   private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
     val jsonString = json.encodeToString(todoList)
