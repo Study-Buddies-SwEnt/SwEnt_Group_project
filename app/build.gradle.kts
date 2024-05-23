@@ -10,6 +10,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.secrets_gradle_plugin") version "0.6"
     id("kotlin-kapt")
+    kotlin("plugin.serialization") version "1.8.0"
 }
 android {
     namespace = "com.github.se.studybuddies"
