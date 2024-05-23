@@ -25,6 +25,7 @@
     <string name="map">Map</string>
     <string name="group_option">Group Option</string>
     <string name="group_picture">Group picture</string>
+    <string name="user_picture">User picture</string>
     <string name="in_group_with_uid">In group %1$s with uid %2$s</string>
     <string name="join_or_create_a_new_group">Join or create a new group</string>
     <string name="dots_menu">Dots Menu</string>

@@ -21,7 +21,9 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
     ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
+  private val _member = MutableLiveData(User.empty())
   val members: LiveData<List<User>> = _members
+  val member: LiveData<User> = _member
   val group: LiveData<Group> = _group
   private val _topics = MutableStateFlow(TopicList(emptyList()))
   val topics = _topics.asStateFlow()
@@ -36,6 +38,10 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
 
   fun fetchGroupData(uid: String) {
     viewModelScope.launch { _group.value = db.getGroup(uid) }
+  }
+
+  fun fetchUserData(uid: String) {
+    viewModelScope.launch { _member.value = db.getUser(uid) }
   }
 
   private fun subscribeToTopics(uid: String) {
