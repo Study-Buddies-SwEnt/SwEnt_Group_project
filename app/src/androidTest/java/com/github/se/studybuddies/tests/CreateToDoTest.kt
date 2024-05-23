@@ -33,7 +33,8 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   @Before
-  fun testSetup(app: LocationApp) {
+  fun testSetup() {
+    val app = LocationApp()
     val vm = ToDoListViewModel(app)
     composeTestRule.setContent { CreateToDo(vm, mockNavActions) }
   }

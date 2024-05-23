@@ -65,7 +65,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   }
 
   @Test
-  fun saveToDoDoesNotWorkWithEmptyTitle() = run {
+  fun saveGroupDoesNotWorkWithEmptyTitle() = run {
     onComposeScreen<CreateGroupScreen>(composeTestRule) {
       step("Open group screen") {
         groupField {
