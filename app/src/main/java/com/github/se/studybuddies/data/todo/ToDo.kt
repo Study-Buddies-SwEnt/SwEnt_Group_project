@@ -1,8 +1,8 @@
 package com.github.se.studybuddies.data.todo
 
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
-import kotlinx.serialization.Serializable
 import java.time.LocalDate
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class ToDo(

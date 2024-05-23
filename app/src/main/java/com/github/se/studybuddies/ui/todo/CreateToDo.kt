@@ -56,7 +56,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                             description = descriptionState.value,
                             dueDate = selectedDate.value,
                             status = ToDoStatus.CREATED)
-                      Log.d("time", "CreateToDo ${newTodo.dueDate}")
+                    Log.d("time", "CreateToDo ${newTodo.dueDate}")
                     todoListViewModel.addToDo(newTodo)
                     navigationActions.goBack()
                   }

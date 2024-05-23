@@ -7,11 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.data.todo.ToDoStatus
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.io.File
-import java.lang.reflect.Type
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,13 +17,10 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import java.time.format.DateTimeFormatter
-
 
 class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
 
@@ -35,10 +30,8 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   private val _todo = MutableStateFlow(emptyToDo())
   val todo: StateFlow<ToDo> = _todo
 
-
   private val json = Json { prettyPrint = true }
-  //private val gson = Gson()
-
+  // private val gson = Gson()
 
   private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
 
@@ -49,26 +42,26 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   }
 
   /*
-  private fun readToDoListFromFile(): MutableMap<String, ToDo> {
-    if (!toDoFile.exists()) {
-      return mutableMapOf() // Return an empty map if file doesn't exist yet
-    }
+    private fun readToDoListFromFile(): MutableMap<String, ToDo> {
+      if (!toDoFile.exists()) {
+        return mutableMapOf() // Return an empty map if file doesn't exist yet
+      }
 
-    val json = toDoFile.readText()
-    // Check if the json is a string representation of an object
-    if (json.startsWith("{") && json.endsWith("}")) {
-      // Deserialize JSON string to map of ToDo objects
-      val type: Type = object : TypeToken<Map<String, ToDo>>() {}.type
-      Log.d("time", "readToDoListFromFile $json")
+      val json = toDoFile.readText()
+      // Check if the json is a string representation of an object
+      if (json.startsWith("{") && json.endsWith("}")) {
+        // Deserialize JSON string to map of ToDo objects
+        val type: Type = object : TypeToken<Map<String, ToDo>>() {}.type
+        Log.d("time", "readToDoListFromFile $json")
 
-      return gson.fromJson(json, type) ?: mutableMapOf()
-    } else {
-      // Handle case where json is not an object but a string, perhaps log the issue
-      Log.e("JsonError", "JSON data is not a valid object: $json")
-      return mutableMapOf()
+        return gson.fromJson(json, type) ?: mutableMapOf()
+      } else {
+        // Handle case where json is not an object but a string, perhaps log the issue
+        Log.e("JsonError", "JSON data is not a valid object: $json")
+        return mutableMapOf()
+      }
     }
-  }
-*/
+  */
   private fun readToDoListFromFile(): MutableMap<String, ToDo> {
     if (!toDoFile.exists()) {
       return mutableMapOf() // Return an empty map if the file doesn't exist yet
@@ -89,16 +82,16 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     }
   }
 
-/*
-  private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
-    // Serialize the map of ToDo objects to JSON
-    val json = gson.toJson(todoList)
-    toDoFile.writeText(json)
+  /*
+   private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
+     // Serialize the map of ToDo objects to JSON
+     val json = gson.toJson(todoList)
+     toDoFile.writeText(json)
 
-    Log.d("time", "writeToDoListToFile $json")
-    // encryption.encryptAndSaveFile(toDoFile)
-  }
- */
+     Log.d("time", "writeToDoListToFile $json")
+     // encryption.encryptAndSaveFile(toDoFile)
+   }
+  */
 
   private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
     val jsonString = json.encodeToString(todoList)
@@ -180,12 +173,11 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
     return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
 
-
   object LocalDateSerializer : KSerializer<LocalDate> {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     override val descriptor: SerialDescriptor =
-      PrimitiveSerialDescriptor("LocalDate", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("LocalDate", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: LocalDate) {
       val string = value.format(formatter)
@@ -197,6 +189,4 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
       return LocalDate.parse(string, formatter)
     }
   }
-
-
 }

@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.tests
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.espresso.action.ViewActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.bootcamp.screens.CreateToDoScreen
 import com.github.se.studybuddies.mapService.LocationApp
