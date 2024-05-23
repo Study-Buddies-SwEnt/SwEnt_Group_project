@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.todo
 
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,10 +44,16 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.Sub_title
+import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import java.time.Instant
 import java.time.ZoneId
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EditToDoScreen(
     todoUID: String,
@@ -75,11 +84,20 @@ fun EditToDoScreen(
     val isOpen = remember { mutableStateOf(false) }
     val expanded = remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize().testTag("editScreen")) {
-      TodoTopBar(navigationActions, "Edit task")
+    Scaffold(
+          modifier = Modifier.fillMaxSize().background(White),
+          topBar = {
+              TopNavigationBar(
+                  title = { Sub_title(stringResource(R.string.edit_task)) },
+                  navigationIcon = {
+                      GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
+                  },
+                  actions = {})
+          }) {
       LazyColumn(
-          modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
-          verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+          modifier = Modifier.fillMaxSize().background(White)
+              .padding(horizontal = 20.dp, vertical = 80.dp),
+          verticalArrangement = Arrangement.spacedBy(20.dp),
           horizontalAlignment = Alignment.CenterHorizontally,
           content = {
             item {
@@ -87,40 +105,6 @@ fun EditToDoScreen(
                   modifier = Modifier.fillMaxWidth(),
                   verticalArrangement = Arrangement.spacedBy(20.dp)) {
                     TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                    Button(
-                        onClick = { expanded.value = true },
-                        modifier =
-                            Modifier.padding(0.dp)
-                                .width(300.dp)
-                                .height(45.dp)
-                                .background(Color.Transparent, shape = RoundedCornerShape(10.dp)),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        border = BorderStroke(1.dp, statusColor(statusState.value))) {
-                          Text(
-                              text = statusState.value.name, color = statusColor(statusState.value))
-                        }
-                    DropdownMenu(
-                        expanded = expanded.value,
-                        onDismissRequest = { expanded.value = false },
-                        modifier =
-                            Modifier.width(300.dp)
-                                .padding(horizontal = 16.dp)
-                                .background(
-                                    color = Color.Transparent, shape = RoundedCornerShape(10.dp))) {
-                          for (status in ToDoStatus.entries) {
-                            DropdownMenuItem(
-                                text = {
-                                  Text(
-                                      status.name,
-                                      textAlign = TextAlign.Center,
-                                      modifier = Modifier.fillMaxWidth())
-                                },
-                                onClick = {
-                                  statusState.value = status
-                                  expanded.value = false
-                                })
-                          }
-                        }
                     TodoSaveButton(titleState) {
                       val updatedTodo =
                           ToDo(

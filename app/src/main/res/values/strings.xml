@@ -115,4 +115,6 @@
     <string name="hour">Hour</string>
     <string name="minute">Minute</string>
     <string name="ok">OK</string>
+    <string name="add_a_new_task">Add a new task</string>
+    <string name="edit_task">Edit task</string>
 </resources>

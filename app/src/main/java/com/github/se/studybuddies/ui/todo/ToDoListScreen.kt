@@ -1,6 +1,8 @@
 package com.github.se.studybuddies.ui.todo
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -47,16 +50,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
+import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.LightBlue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -114,18 +122,6 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
                   onClearAction = { setSearchQuery("") },
                   noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())
             })
-        /*CustomSearchBar(
-        searchQuery = searchQuery,
-        onSearchQueryChange = setSearchQuery,
-        onSearchAction = {
-          if (searchQuery.isNotEmpty()) {
-            todoList.value = todos.getFilteredTasks(searchQuery)
-          } else {
-            todoList.value = todos.getAllTasks()
-          }
-        },
-        onClearAction = { setSearchQuery("") },
-        noResultFound = todoList.value.isEmpty() && searchQuery.isNotEmpty())*/
       },
       content = { innerPadding ->
         if (todoList.value.isEmpty()) {
@@ -140,9 +136,12 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
               textAlign = TextAlign.Center)
         } else {
           LazyColumn(
-              modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("todoList"),
-              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-              horizontalAlignment = Alignment.Start,
+              modifier = Modifier.padding(innerPadding)
+                  .fillMaxSize()
+                  .background(LightBlue)
+                  .testTag("todoList"),
+              verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.Top),
+              horizontalAlignment = Alignment.CenterHorizontally,
               content = {
                 items(todoList.value) { todo ->
                   ToDoItem(todo, navigationActions)
@@ -157,7 +156,9 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
 fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
   Box(
       modifier =
-          Modifier.fillMaxWidth()
+          Modifier
+              .background(color = White)
+              .border(color = Blue, width = 2*Dp.Hairline, shape = RoundedCornerShape(size = 10.dp))
               .clickable {
                 val todoUID = todo.uid
                 navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
@@ -181,16 +182,12 @@ fun ToDoItem(todo: ToDo, navigationActions: NavigationActions) {
               lineHeight = 28.sp,
               modifier = Modifier.align(Alignment.Start))
         }
-        Row(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
+        Row(modifier = Modifier.align(AbsoluteAlignment.CenterRight).clickable { todo.status = ToDoStatus.ENDED }
+        ) {
           Text(
               text = todo.status.name,
-              style = TextStyle(fontSize = 11.sp, color = statusColor(todo.status)),
+              style = TextStyle(fontSize = 18.sp, color = statusColor(todo.status)),
           )
-          Spacer(Modifier.width(10.dp))
-          Icon(
-              painter = painterResource(R.drawable.arrow_right_24px),
-              contentDescription = null,
-              modifier = Modifier.size(28.dp))
         }
       }
 }
@@ -259,16 +256,10 @@ fun CustomSearchBar(
       })
 }
 
+
 private fun formatDate(date: LocalDate): String {
   val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
   Log.d("time", "c $formatter")
   Log.d("time", "d ${date.format(formatter)}")
   return date.format(formatter)
 }
-/*
-@Preview(showBackground = true)
-@Composable
-fun OverviewPreview() {
-    Overview()
-}
- */

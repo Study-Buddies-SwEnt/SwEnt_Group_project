@@ -10,5 +10,5 @@ data class ToDo(
     val name: String,
     @Serializable(with = ToDoListViewModel.LocalDateSerializer::class) val dueDate: LocalDate,
     val description: String,
-    val status: ToDoStatus
+    var status: ToDoStatus
 )

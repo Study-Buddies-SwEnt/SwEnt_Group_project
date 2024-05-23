@@ -167,10 +167,11 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
 
 @Composable
 fun statusColor(status: ToDoStatus): Color {
-  return when (status) {
-    ToDoStatus.CREATED -> Color(0xFF9BC5C5)
-    ToDoStatus.STARTED -> Color(0xFFFB9905)
-    ToDoStatus.ENDED -> Color(0xFF1FC959)
-    ToDoStatus.ARCHIVED -> Color(0xFF808080)
-  }
+    return when (status) {
+        ToDoStatus.CREATED -> Color(0xFF9BC5C5)
+        ToDoStatus.STARTED -> Color(0xFFFB9905)
+        ToDoStatus.ENDED -> Color(0xFF1FC959)
+        ToDoStatus.ARCHIVED -> Color(0xFF808080)
+    }
 }
+
