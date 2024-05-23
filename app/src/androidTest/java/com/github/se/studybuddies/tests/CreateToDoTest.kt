@@ -1,9 +1,12 @@
 package com.github.se.studybuddies.tests
 
+import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.ActivityTestRule
 import com.github.se.bootcamp.screens.CreateToDoScreen
-import com.github.se.studybuddies.mapService.LocationApp
+import com.github.se.studybuddies.MainActivity
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
@@ -32,11 +35,17 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   // Relaxed mocks methods have a default implementation returning values
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
+  @get:Rule var activityRule = ActivityTestRule(MainActivity::class.java)
+
+  private lateinit var toDoListViewModel: ToDoListViewModel
+  private lateinit var application: Application
+
   @Before
   fun testSetup() {
-    val app = LocationApp()
-    val vm = ToDoListViewModel(app)
-    composeTestRule.setContent { CreateToDo(vm, mockNavActions) }
+    application =
+        InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as Application
+    toDoListViewModel = ToDoListViewModel(application)
+    composeTestRule.setContent { CreateToDo(toDoListViewModel, mockNavActions) }
   }
 
   @Test
