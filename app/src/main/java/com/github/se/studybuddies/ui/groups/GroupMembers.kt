@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -79,22 +80,28 @@ fun GroupMembers(
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val members = remember { groupData?.let { mutableStateOf(it.members) } }
 
+  var nbMember = 0
   groupData?.let {
     nameState.value = it.name
     if (members != null) {
       members.value = it.members
+      nbMember = members.value.size
     }
   }
 
   val userDatas = remember { mutableStateOf(mutableListOf<User>()) }
 
   if (members != null) {
-    for (member in members.value) {
-      groupViewModel.fetchUserData(member)
+    for (i in 0 until nbMember) {
+      Log.d("memberCheck", "$nbMember")
+      groupViewModel.fetchUserData(members.value[i])
       val userData by groupViewModel.member.observeAsState()
-      userData?.let { userDatas.value.add(it) }
+      if (userData?.username?.isNotBlank() == true) {
+        userData?.let { userDatas.value.add(it) }
+      }
     }
   }
+  userDatas.value = userDatas.value.toSet().toMutableList()
 
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("members_scaffold"),
@@ -120,7 +127,7 @@ fun GroupMembers(
                     item { Spacer(modifier = Modifier.padding(10.dp)) }
                     if (members != null) {
                       items(userDatas.value) { member ->
-                        MemberItem(groupUID, member, navigationActions, db)
+                        MemberItem(groupUID, member, navigationActions, db, userDatas.value.size)
                       }
                     } else { // Should never happen
                       item {
@@ -150,7 +157,8 @@ fun MemberItem(
     groupUID: String,
     user: User,
     navigationActions: NavigationActions,
-    db: DbRepository
+    db: DbRepository,
+    membersCount: Int
 ) {
   Box(
       modifier =
@@ -177,7 +185,7 @@ fun MemberItem(
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          MemberOptionButton(groupUID, user.uid, user.username, navigationActions, db)
+          MemberOptionButton(groupUID, user.uid, user.username, navigationActions, db, membersCount)
         }
       }
 }
@@ -188,7 +196,8 @@ fun MemberOptionButton(
     userUID: String,
     username: String,
     navigationActions: NavigationActions,
-    db: DbRepository
+    db: DbRepository,
+    membersCount: Int
 ) {
   var isRemoveUserDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
@@ -242,7 +251,13 @@ fun MemberOptionButton(
                         Button(
                             onClick = {
                               groupViewModel.leaveGroup(groupUID, userUID)
-                              navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
+                              if (membersCount > 1) {
+                                navigationActions.navigateTo(
+                                    Route.GROUPSHOME) // To show the member has left
+                                // navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
+                              } else {
+                                navigationActions.navigateTo(Route.GROUPSHOME)
+                              }
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
