@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +74,8 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -112,7 +115,7 @@ fun GroupsHome(
           isLoading = false // Ensure isLoading is set to false after the original delay
           handler.removeCallbacks(runnable) // Stop any further checks if time expires
         },
-        10000)
+        2000)
   }
 
   MainScreenScaffold(
@@ -166,9 +169,9 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
   val groupViewModel = GroupViewModel(groupUID, db)
-  Row {
+  Row(modifier = Modifier.testTag(groupUID+ "_settings_row")) {
     IconButton(
-        modifier = Modifier.testTag("GroupsSettingsButton"),
+        modifier = Modifier.testTag(groupUID + "_settings_button"),
         onClick = { expandedState.value = true },
     ) {
       Icon(
@@ -327,7 +330,6 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
               .background(Color.White)
               .clickable {
                 val groupUid = group.uid
-                Log.d("GROUPEDITCLICK", "Tapped on group")
                 navigationActions.navigateTo("${Route.GROUP}/$groupUid")
               }
               .drawBehind {
@@ -335,19 +337,19 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
-              .testTag(group.name + "_box")) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+              .testTag(group.uid + "_box")) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(group.name + "_row")) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent).testTag(group.uid + "_box_picture")) {
             Image(
                 painter = rememberImagePainter(group.picture),
                 contentDescription = stringResource(id = R.string.group_picture),
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().testTag(group.uid + "_picture"),
                 contentScale = ContentScale.Crop)
           }
           Spacer(modifier = Modifier.size(16.dp))
           Text(
               text = group.name,
-              modifier = Modifier.align(Alignment.CenterVertically),
+              modifier = Modifier.align(Alignment.CenterVertically).testTag(group.uid + "_text"),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
@@ -384,6 +386,7 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var showError by remember { mutableStateOf(false) }
   var showSucces by remember { mutableStateOf(false) }
+  val scope = rememberCoroutineScope()
 
   Row(
       modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddLinkRow"),
@@ -408,7 +411,8 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
-        modifier = Modifier.fillMaxSize().padding(16.dp).testTag("AddLinkTextField"),
+        modifier =
+            Modifier.fillMaxWidth().height(100.dp).padding(16.dp).testTag("AddLinkTextField"),
         singleLine = true,
         colors =
             TextFieldDefaults.colors(
@@ -423,23 +427,48 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
-                  val groupVM = GroupViewModel(groupUID, db)
-                  groupVM.addUserToGroup(groupUID)
-                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                  scope.launch {
+                    db.groupExists(
+                        groupUID = groupUID,
+                        onSuccess = {
+                          if (it) {
+                            showSucces = true
+                            val groupVM = GroupViewModel(groupUID, db)
+                            groupVM.addUserToGroup(groupUID)
+                            navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                          } else {
+                            showError = true
+                            scope.launch {
+                              delay(2000)
+                              showError = false
+                                //Reset the text field if the entry is wrong
+                                text = ""
+                            }
+                          }
+                        },
+                        onFailure = {
+                          showError = true
+                          scope.launch {
+                            delay(2000)
+                            showError = false
+                              text = ""
+                          }
+                        })
+                  }
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
   }
 
   if (showError) {
     Snackbar(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("ErrorSnackbar"),
         action = { TextButton(onClick = { showError = false }) {} }) {
           Text(stringResource(R.string.the_link_entered_is_invalid))
         }
   }
   if (showSucces) {
     Snackbar(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("SuccessSnackbar"),
         action = { TextButton(onClick = { showSucces = false }) {} }) {
           Text(stringResource(R.string.you_have_been_successfully_added_to_the_group))
         }

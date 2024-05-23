@@ -125,6 +125,14 @@ class MockDatabase : DbRepository {
     userDataCollection[uid]?.let { onSuccess(true) } ?: onSuccess(false)
   }
 
+  override fun groupExists(
+      groupUID: String,
+      onSuccess: (Boolean) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    groupDataCollection[groupUID]?.let { onSuccess(true) } ?: onSuccess(false)
+  }
+
   override suspend fun getAllGroups(uid: String): GroupList {
     val groupUIDs = userMembershipsCollection[uid]
     return if (groupUIDs == null) {

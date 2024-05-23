@@ -8,10 +8,24 @@ package com.github.se.studybuddies.tests
 // ***                                                                       *** //
 // ***************************************************************************** //
 
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.assertAny
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.screens.GroupsHomeList
 import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
@@ -24,6 +38,8 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -91,6 +107,53 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         assertHasClickAction()
         performClick()
       }
+      addLinkTextField {
+        assertIsDisplayed()
+        assertIsEnabled()
+      }
+    }
+  }
+
+  @Test
+  fun enterWrongLink() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      addLinkButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+      addLinkTextField {
+        assertIsDisplayed()
+        assertIsEnabled()
+        performTextInput("https://www.wronglink.com")
+        performImeAction() // Simulate pressing the enter key
+      }
+      errorSnackbar {
+        assertIsDisplayed()
+      }
+    }
+  }
+
+  @Test
+  fun enterCorrectLink() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      addLinkButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+      val link = "studybuddiesJoinGroup=TestGroup1/groupTest1"
+      addLinkTextField {
+        assertIsDisplayed()
+        assertIsEnabled()
+        performTextInput(link)
+        performImeAction() // Simulate pressing the enter key
+      }
+      successSnackbar {
+        assertIsDisplayed()
+      }
+      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+      confirmVerified(mockNavActions)
     }
   }
 
@@ -185,14 +248,41 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions, db) }
   }
 
+
   @Test
-  fun groupList() {
+  fun groupListElementDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupBox { assertDoesNotExist() }
-      circularLoading { assertDoesNotExist() }
-      groupScreen { assertIsDisplayed() }
-      addButton { assertExists() }
-      addLinkButton { assertExists() }
+      groupList {
+        assertIsDisplayed()
+      }
+      testGroup1Box {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+    }
+  }
+
+  @Test
+  fun groupList(){
+    ComposeScreen.onComposeScreen<GroupsHomeList>(composeTestRule) {
+      testGroup1Box {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+    }
+  }
+
+  @Test
+  fun clickOnGroup() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+        testGroup1Box {
+          assertIsDisplayed()
+          assertHasClickAction()
+          performClick()
+        }
+      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+      confirmVerified(mockNavActions)
     }
   }
 }
+
