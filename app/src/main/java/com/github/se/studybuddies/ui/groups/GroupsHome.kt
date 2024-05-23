@@ -182,11 +182,11 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
     DropdownMenu(
         expanded = expandedState.value,
         onDismissRequest = { expandedState.value = false },
-        modifier = Modifier.testTag("DropDownMenuText")) {
+        modifier = Modifier.testTag(groupUID + "_dropDownMenu")) {
           GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
             DropdownMenuItem(
                 modifier =
-                    Modifier.testTag("DropDownMenuItemText"), // "DropDownMenuItem${item.route}"
+                    Modifier.testTag(groupUID + "_"+ item.textId + "_item"), // "DropDownMenuItem${item.route}"
                 onClick = {
                   expandedState.value = false
                   when (item.route) {
@@ -202,7 +202,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                   }
                 }) {
                   Spacer(modifier = Modifier.size(16.dp))
-                  Text(item.textId)
+                  Text(item.textId,modifier = Modifier.testTag(groupUID + "_"+ item.textId + "_text"))
                 }
           }
         }
@@ -214,18 +214,19 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
               Modifier.width(280.dp)
                   .height(140.dp)
                   .clip(RoundedCornerShape(10.dp))
-                  .background(Color.White)) {
+                  .background(Color.White)
+                  .testTag(groupUID + "_leave_box")) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(16.dp).testTag(groupUID + "_leave_column"),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
                       text = stringResource(R.string.warning_leave_group),
                       color = Blue,
-                      modifier = Modifier.testTag("LeaveGroupDialogText"))
+                      modifier = Modifier.testTag(groupUID + "_leave_text"))
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
-                      modifier = Modifier.fillMaxWidth(),
+                      modifier = Modifier.fillMaxWidth().testTag(groupUID + "_leave_row"),
                       horizontalArrangement = Arrangement.SpaceEvenly) {
                         Button(
                             onClick = {
@@ -237,11 +238,11 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                                 Modifier.clip(RoundedCornerShape(4.dp))
                                     .width(80.dp)
                                     .height(40.dp)
-                                    .testTag("LeaveGroupDialogYesButton"),
+                                    .testTag(groupUID + "_leave_yes_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
-                              Text(text = stringResource(R.string.yes))
+                              Text(text = stringResource(R.string.yes),modifier = Modifier.testTag(groupUID + "_leave_yes_text"))
                             }
 
                         Button(
@@ -250,11 +251,11 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                                 Modifier.clip(RoundedCornerShape(4.dp))
                                     .width(80.dp)
                                     .height(40.dp)
-                                    .testTag("LeaveGroupDialogNoButton"),
+                                    .testTag(groupUID + "_leave_no_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
-                              Text(text = stringResource(R.string.no))
+                              Text(text = stringResource(R.string.no),modifier = Modifier.testTag(groupUID + "_leave_no_text"))
                             }
                       }
                 }
@@ -338,7 +339,8 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
               .testTag(group.uid + "_box")) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(group.name + "_row")) {
+
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(group.uid + "_row")) {
           Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent).testTag(group.uid + "_box_picture")) {
             Image(
                 painter = rememberImagePainter(group.picture),

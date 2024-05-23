@@ -34,7 +34,7 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val groupList: KNode = groupScreen.child { hasTestTag("GroupsList") }
 
   val testGroup1Box: KNode = groupList.child { hasTestTag("groupTest1_box") }
-  val testGroup1Row : KNode = onNode { hasTestTag("TestGroup1_row") }
+  val testGroup1Row : KNode = onNode  { hasTestTag("groupTest1_row") }
   val testGroup1BoxPicture : KNode = testGroup1Row.child { hasTestTag("groupTest1_box_picture") }
   val testGroup1Picture : KNode = testGroup1BoxPicture.child { hasTestTag("groupTest1_picture") }
   val testGroup1Text : KNode = testGroup1BoxPicture.child { hasTestTag("groupTest1_text") }
@@ -65,14 +65,5 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val groupsBottom: KNode = onNode { hasTestTag("Groups_item") }
   val messagesBottom: KNode = onNode { hasTestTag("Messages_item") }
   val mapBottom: KNode = onNode { hasTestTag("Map_item") }
-}
-
-class GroupsHomeList(semanticsProvider: SemanticsNodeInteractionsProvider) :
-  ComposeScreen<GroupsHomeList>(
-    semanticsProvider = semanticsProvider,
-    viewBuilderAction = { hasTestTag("GroupsList") }) {
-  val testGroup1Box: KNode = onNode { hasTestTag("groupTest1_box") }
-
-
 }
 
