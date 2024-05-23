@@ -116,4 +116,6 @@
     <string name="hour">Hour</string>
     <string name="minute">Minute</string>
     <string name="ok">OK</string>
+    <string name="members">Members</string>
+    <string name="error_no_member_found_for_this_group">Error, no member found for this group</string>
 </resources>
