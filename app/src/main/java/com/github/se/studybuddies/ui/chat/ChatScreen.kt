@@ -1,11 +1,15 @@
 package com.github.se.studybuddies.ui.chat
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,6 +71,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -83,8 +88,13 @@ import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
+import com.github.se.studybuddies.utils.SaveType
+import com.github.se.studybuddies.utils.saveToStorage
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -111,17 +121,18 @@ fun ChatScreen(
   }
 
   selectedMessage?.let {
-    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions, db)
+    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
   }
 
   IconsOptionsList(viewModel, showIconsOptions, showAddImage, showAddLink, showAddFile)
 
   Column(
       modifier =
-          Modifier.fillMaxSize()
-              .background(LightBlue)
-              .navigationBarsPadding()
-              .testTag("chat_screen")) {
+      Modifier
+          .fillMaxSize()
+          .background(LightBlue)
+          .navigationBarsPadding()
+          .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
           when (viewModel.chat.type) {
             ChatType.GROUP,
@@ -129,21 +140,24 @@ fun ChatScreen(
             ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
           }
         }
-        LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
+        LazyColumn(state = listState, modifier = Modifier
+            .weight(1f)
+            .padding(8.dp)) {
           items(messages) { message ->
             val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
             val displayName = viewModel.chat.type != ChatType.PRIVATE && !isCurrentUserMessageSender
             Row(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(2.dp)
-                        .combinedClickable(
-                            onClick = {},
-                            onLongClick = {
-                              selectedMessage = message
-                              showOptionsDialog.value = true
-                            })
-                        .testTag("chat_message_row"),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            selectedMessage = message
+                            showOptionsDialog.value = true
+                        })
+                    .testTag("chat_message_row"),
                 horizontalArrangement =
                     if (isCurrentUserMessageSender) {
                       Arrangement.End
@@ -168,17 +182,20 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.StartActivityForResult()) {}
 
-  Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
+  Row(modifier = Modifier
+      .padding(1.dp)
+      .testTag("chat_text_bubble")) {
     if (displayName) {
       Image(
           painter = rememberAsyncImagePainter(message.sender.photoUrl.toString()),
           contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
           modifier =
-              Modifier.size(40.dp)
-                  .clip(CircleShape)
-                  .border(2.dp, Gray, CircleShape)
-                  .align(Alignment.CenterVertically)
-                  .testTag("chat_user_profile_picture"),
+          Modifier
+              .size(40.dp)
+              .clip(CircleShape)
+              .border(2.dp, Gray, CircleShape)
+              .align(Alignment.CenterVertically)
+              .testTag("chat_user_profile_picture"),
           contentScale = ContentScale.Crop)
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -186,9 +203,10 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
 
     Box(
         modifier =
-            Modifier.background(White, RoundedCornerShape(20.dp))
-                .padding(1.dp)
-                .testTag("chat_text_bubble_box")) {
+        Modifier
+            .background(White, RoundedCornerShape(20.dp))
+            .padding(1.dp)
+            .testTag("chat_text_bubble_box")) {
           Column(modifier = Modifier.padding(8.dp)) {
             if (displayName) {
               Text(
@@ -209,9 +227,10 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                     painter = rememberAsyncImagePainter(message.photoUri.toString()),
                     contentDescription = stringResource(R.string.contentDescription_photo),
                     modifier =
-                        Modifier.size(200.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .testTag("chat_message_image"),
+                    Modifier
+                        .size(200.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .testTag("chat_message_image"),
                     contentScale = ContentScale.Crop)
               }
               is Message.LinkMessage -> {
@@ -225,11 +244,12 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                       text = message.linkName,
                       style = TextStyle(color = Blue),
                       modifier =
-                          Modifier.clickable {
-                                val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
-                                browserLauncher.launch(intent)
-                              }
-                              .testTag("chat_message_link"))
+                      Modifier
+                          .clickable {
+                              val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
+                              browserLauncher.launch(intent)
+                          }
+                          .testTag("chat_message_link"))
                 }
               }
               is Message.FileMessage -> {
@@ -243,21 +263,23 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                       text = message.fileName,
                       style = TextStyle(color = Blue),
                       modifier =
-                          Modifier.clickable {
-                                val intent =
-                                    Intent().apply {
+                      Modifier
+                          .clickable {
+                              val intent =
+                                  Intent().apply {
                                       action = Intent.ACTION_VIEW
                                       setDataAndType(message.fileUri, MessageVal.FILE_TYPE)
                                       flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    }
-                                browserLauncher.launch(
-                                    Intent.createChooser(
-                                        intent,
-                                        "Open with") // I tried to extract the string resource but
-                                    // it didn't work
-                                    )
-                              }
-                              .testTag("chat_message_file"))
+                                  }
+                              browserLauncher.launch(
+                                  Intent.createChooser(
+                                      intent,
+                                      "Open with"
+                                  ) // I tried to extract the string resource but
+                                  // it didn't work
+                              )
+                          }
+                          .testTag("chat_message_file"))
                 }
               }
             }
@@ -281,10 +303,11 @@ fun MessageTextFields(
       value = textToSend,
       onValueChange = { textToSend = it },
       modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .background(White, RoundedCornerShape(20.dp))
-              .testTag("chat_text_field"),
+      Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .background(White, RoundedCornerShape(20.dp))
+          .testTag("chat_text_field"),
       shape = RoundedCornerShape(20.dp),
       textStyle = TextStyle(color = Black),
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
@@ -298,7 +321,10 @@ fun MessageTextFields(
               }),
       leadingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("icon_more_messages_types"),
+            modifier = Modifier
+                .size(48.dp)
+                .padding(6.dp)
+                .testTag("icon_more_messages_types"),
             onClick = {
               showIconsOptions.value = !showIconsOptions.value
               Log.d("MyPrint", "Icon clicked, showIconsOptions.value: ${showIconsOptions.value}")
@@ -311,7 +337,10 @@ fun MessageTextFields(
       },
       trailingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("chat_send_button"),
+            modifier = Modifier
+                .size(48.dp)
+                .padding(6.dp)
+                .testTag("chat_send_button"),
             onClick = {
               if (textToSend.isNotBlank()) {
                 onSend(textToSend)
@@ -334,7 +363,6 @@ fun OptionsDialog(
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
-    db: DbRepository
 ) {
 
   ShowAlertDialog(
@@ -360,8 +388,9 @@ fun OptionDialogContent(
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions
 ) {
+
   Column(modifier = Modifier.testTag("option_dialog")) {
-    Text(text = selectedMessage.getDate())
+    CommonOptions(selectedMessage, showOptionsDialog)
     if (viewModel.isUserMessageSender(selectedMessage)) {
       UserMessageOptions(
           viewModel = viewModel,
@@ -376,6 +405,43 @@ fun OptionDialogContent(
           navigationActions = navigationActions)
     }
   }
+}
+
+@Composable
+fun CommonOptions(
+    selectedMessage: Message,
+    showOptionsDialog: MutableState<Boolean>
+) {
+    Text(text = selectedMessage.getDate())
+    val context = LocalContext.current
+    when (selectedMessage) {
+        is Message.PhotoMessage -> {
+            SaveMessageButton {
+                val name = selectedMessage.getDate()+ "_" + selectedMessage.getTime()+ "_" + selectedMessage.uid + ".jpg"
+                CoroutineScope(Dispatchers.Main).launch {
+                    saveToStorage(
+                        context,
+                        selectedMessage.photoUri,
+                        name,
+                        SaveType.Photo())
+                }
+                showOptionsDialog.value = false
+            }
+        }
+        is Message.FileMessage -> {
+            SaveMessageButton {
+                CoroutineScope(Dispatchers.Main).launch {
+                    saveToStorage(
+                        context,
+                        selectedMessage.fileUri,
+                        selectedMessage.fileName,
+                        SaveType.PDF())
+                }
+                showOptionsDialog.value = false
+            }
+        }
+        else -> {}
+    }
 }
 
 @Composable
@@ -440,6 +506,58 @@ fun NonUserMessageOptions(
       }
 }
 
+@Composable
+fun SaveMessageButton(onClickAction: () -> Unit,){
+    val context = LocalContext.current
+    var hasWritePermission by remember { mutableStateOf(false) }
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        hasWritePermission = isGranted
+    }
+
+    LaunchedEffect(Unit) {
+        Toast.makeText(context, "Checking permission...", Toast.LENGTH_SHORT).show()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Request permission for Android 33 and above
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES)
+                != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "Requesting permission...", Toast.LENGTH_SHORT).show()
+                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+            } else {
+                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                hasWritePermission = true
+            }
+        } else {
+            // For older Android versions, use WRITE_EXTERNAL_STORAGE permission
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "Requesting permission...", Toast.LENGTH_SHORT).show()
+                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            } else {
+                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                hasWritePermission = true
+            }
+        }
+    }
+
+    if (hasWritePermission) {
+        Button(
+            modifier = Modifier.testTag("option_dialog_download"),
+            onClick = {
+                onClickAction()
+            }) {
+            Text(
+                text = stringResource(R.string.download),
+                style = TextStyle(color = White),
+            )
+        }
+    } else {
+        Text("Waiting for permission...")
+    }
+}
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun EditDialog(
@@ -477,7 +595,10 @@ fun ChatGroupTitle(chat: Chat) {
   Image(
       painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
+      modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
@@ -488,7 +609,9 @@ fun ChatGroupTitle(chat: Chat) {
       items(chat.members) { member ->
         Text(
             text = member.username,
-            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .testTag("group_title_member_name"),
             style = TextStyle(color = Gray),
             maxLines = 1)
       }
@@ -501,7 +624,10 @@ fun PrivateChatTitle(chat: Chat) {
   Image(
       painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = "User profile picture",
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
+      modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .testTag("private_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
@@ -628,7 +754,10 @@ fun ImagePickerBox(
   val context = LocalContext.current
   Box(
       contentAlignment = Alignment.Center,
-      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
+      modifier = Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .testTag("add_image_box")) {
         SetPicture(photoState) {
           checkPermission(context, permission, requestPermissionLauncher) {
             getContent.launch("image/*")
@@ -650,11 +779,16 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
       content = {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_link_box")) {
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .testTag("add_link_box")) {
               OutlinedTextField(
                   value = linkState.value,
                   onValueChange = { linkState.value = it },
-                  modifier = Modifier.fillMaxWidth().testTag("add_link_text_field"),
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .testTag("add_link_text_field"),
                   textStyle = TextStyle(color = Black),
                   singleLine = true,
                   placeholder = { Text(stringResource(R.string.enter_link)) },
@@ -764,14 +898,15 @@ fun FilePickerBox(
   Box(
       contentAlignment = Alignment.Center,
       modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .clickable {
-                checkPermission(context, permission, requestPermissionLauncher) {
+      Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .clickable {
+              checkPermission(context, permission, requestPermissionLauncher) {
                   getContent.launch(MessageVal.FILE_TYPE)
-                }
               }
-              .testTag("add_file_box")) {
+          }
+          .testTag("add_file_box")) {
         if (fileState.value == Uri.EMPTY) {
           Text(
               text = stringResource(R.string.select_a_file),
