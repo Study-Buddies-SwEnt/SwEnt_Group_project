@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.ui.groups
 
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -251,17 +253,12 @@ fun MemberOptionButton(
                         Button(
                             onClick = {
                               groupViewModel.leaveGroup(groupUID, userUID)
-                              if (membersCount > 1) {
-                                navigationActions.navigateTo(
-                                    Route.GROUPSHOME) // To show the member has left
-                                // navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
-                              } else {
-                                navigationActions.navigateTo(Route.GROUPSHOME)
-                              }
+                              // navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
+                              navigationActions.navigateTo(Route.GROUPSHOME)
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -271,7 +268,7 @@ fun MemberOptionButton(
                         Button(
                             onClick = { isRemoveUserDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
