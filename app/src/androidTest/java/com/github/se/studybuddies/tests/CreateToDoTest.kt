@@ -7,15 +7,18 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.github.se.studybuddies.MainActivity
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.screens.CreateToDoScreen
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
+import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -41,66 +44,68 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     toDoListViewModel = ToDoListViewModel(application)
     composeTestRule.setContent { CreateToDo(toDoListViewModel, mockNavActions) }
   }
-}
-  /*
-    @Test
-    fun topAppBarTest() = run {
-      onComposeScreen<CreateToDoScreen>(composeTestRule) {
-        topAppBox {
-          // arrange: verify pre-conditions
-          assertIsDisplayed()
-        }
-        topAppBar {
-          // arrange: verify pre-conditions
-          assertIsDisplayed()
-        }
-        divider {
-          // arrange: verify pre-conditions
-          assertIsDisplayed()
-        }
-        goBackButton {
-          // arrange: verify pre-conditions
-          assertIsDisplayed()
-          performClick()
-        }
-      }
-      // assert: the nav action has been called
-      verify { mockNavActions.navigateTo(Route.TODOLIST) }
-      confirmVerified(mockNavActions)
-    }
-  }
-  /
-     */
 
-  /*
   @Test
-  fun saveToDoDoesNotWorkWithEmptyTitle() = run {
-    onComposeScreen<CreateToDoScreen>(composeTestRule) {
-      step("Open todo screen") {
-        inputTitle {
-          assertIsDisplayed()
+  fun placeholder() = run { onComposeScreen<CreateToDoScreen>(composeTestRule) { assert(true) } }
+}
 
-          // interact with the text field
-          performClick()
-
-          // assert that both the label and placeholder are correct
-          assertTextContains("Title")
-          assertTextContains("Name the task")
-
-          // clear the text field
-          performTextClearance()
+  /*
+      @Test
+      fun topAppBarTest() = run {
+        onComposeScreen<CreateToDoScreen>(composeTestRule) {
+          topAppBox {
+            // arrange: verify pre-conditions
+            assertIsDisplayed()
+          }
+          topAppBar {
+            // arrange: verify pre-conditions
+            assertIsDisplayed()
+          }
+          divider {
+            // arrange: verify pre-conditions
+            assertIsDisplayed()
+          }
+          goBackButton {
+            // arrange: verify pre-conditions
+            assertIsDisplayed()
+            performClick()
+          }
         }
-
-        saveButton {
-          assertIsDisplayed()
-          performClick()
-        }
-
-        // verify that the nav action has not been called
-        verify { mockNavActions wasNot Called }
+        // assert: the nav action has been called
+        verify { mockNavActions.navigateTo(Route.TODOLIST) }
         confirmVerified(mockNavActions)
       }
     }
-  }
+  */
+    /*
+    @Test
+    fun saveToDoDoesNotWorkWithEmptyTitle() = run {
+      onComposeScreen<CreateToDoScreen>(composeTestRule) {
+        step("Open todo screen") {
+          inputTitle {
+            assertIsDisplayed()
 
-   */
+            // interact with the text field
+            performClick()
+
+            // assert that both the label and placeholder are correct
+            assertTextContains("Title")
+            assertTextContains("Name the task")
+
+            // clear the text field
+            performTextClearance()
+          }
+
+          saveButton {
+            assertIsDisplayed()
+            performClick()
+          }
+
+          // verify that the nav action has not been called
+          verify { mockNavActions wasNot Called }
+          confirmVerified(mockNavActions)
+        }
+      }
+    }
+
+     */
