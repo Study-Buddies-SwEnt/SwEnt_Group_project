@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -129,9 +131,9 @@ fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
               .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
-              containerColor = Color.Blue,
+              containerColor = Blue,
           )) {
-        Text("Save")
+        Text("Save", color = White)
       }
 }
 
@@ -168,10 +170,9 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
 @Composable
 fun statusColor(status: ToDoStatus): Color {
     return when (status) {
-        ToDoStatus.CREATED -> Color(0xFF9BC5C5)
+        ToDoStatus.CREATED -> Color(0xFFFFFFFF)
         ToDoStatus.STARTED -> Color(0xFFFB9905)
-        ToDoStatus.ENDED -> Color(0xFF1FC959)
-        ToDoStatus.ARCHIVED -> Color(0xFF808080)
+        ToDoStatus.DONE -> Color(0xFF1FC959)
     }
 }
 
