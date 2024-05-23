@@ -8,6 +8,7 @@ object Route {
   const val DELETEGROUP = "DeleteGroup"
   const val GROUPSETTING = "GroupSetting"
   const val LEAVEGROUP = "LeaveGroup"
+  const val GROUPMEMBERS = "GroupMembers"
   const val GROUP = "Group"
   const val CALENDAR = "Calendar"
   const val SETTINGS = "Settings"

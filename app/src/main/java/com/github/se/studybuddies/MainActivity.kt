@@ -32,6 +32,7 @@ import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
+import com.github.se.studybuddies.ui.groups.GroupMembers
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
@@ -236,6 +237,17 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }
+              composable(
+                  route = "${Route.GROUPMEMBERS}/{groupUID}",
+                  arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                      backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  ifNotNull(groupUID) { groupUID ->
+                      val groupViewModel = remember { GroupViewModel(groupUID, db) }
+                      GroupMembers(groupUID, groupViewModel, navigationActions, db)
+                      Log.d("MyPrint", "Successfully navigated to GroupMembers")
+                  }
+              }
             composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
