@@ -16,14 +16,15 @@ import io.github.kakaocup.compose.node.element.KNode
  */
 class CreateToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<CreateToDoScreen>(
-        semanticsProvider = semanticsProvider, viewBuilderAction = { hasTestTag("createScreen") }) {
+        semanticsProvider = semanticsProvider,
+        viewBuilderAction = { hasTestTag("create_todo_scaffold") }) {
 
   val screenTitle: KNode = onNode { hasTestTag("createTodoTitle") }
 
-  val goBackButton: KNode = onNode { hasTestTag("goBackButton") }
   val saveButton: KNode = onNode { hasTestTag("todoSave") }
   val topAppBox: KNode = child { hasTestTag("top_app_box") }
   val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
+  val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
   val divider: KNode = onNode { hasTestTag("divider") }
 
   val createTodoCol: KNode = child { hasTestTag("create_toDo_column") }

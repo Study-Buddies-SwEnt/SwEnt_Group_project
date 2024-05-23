@@ -43,7 +43,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
   val isOpen = remember { mutableStateOf(false) }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White),
+      modifier = Modifier.fillMaxSize().background(White).testTag("create_todo_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.add_a_new_task)) },
