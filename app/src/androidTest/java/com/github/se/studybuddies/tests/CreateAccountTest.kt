@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.account.CreateAccount
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -31,11 +32,11 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   val uid = "userTest"
-  var userVM = UserViewModel(uid)
+  private val db = MockDatabase()
+  var userVM = UserViewModel(uid, db)
 
   @Before
   fun testSetup() {
-    userVM = UserViewModel(uid)
     composeTestRule.setContent { CreateAccount(userVM, mockNavActions) }
   }
 

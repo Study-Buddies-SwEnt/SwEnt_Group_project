@@ -20,9 +20,9 @@ class ContactViewModel(private val contactID: String? = null) : ViewModel() {
   }
 
   fun getOtherUser(uid: String): String {
-    if ((contact.value?.members?.first ?: "") == uid) {
-      return contact.value?.members?.second ?: ""
-    } else return contact.value?.members?.first ?: ""
+    if ((contact.value?.members?.get(0) ?: "") == uid) {
+      return contact.value?.members?.get(1) ?: ""
+    } else return contact.value?.members?.get(0) ?: ""
   }
 
   fun fetchContactData(contactID: String) {

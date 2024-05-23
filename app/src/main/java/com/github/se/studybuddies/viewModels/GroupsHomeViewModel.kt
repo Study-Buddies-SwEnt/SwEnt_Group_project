@@ -7,10 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.launch
 
-class GroupsHomeViewModel(private val uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class GroupsHomeViewModel(
+    private val uid: String? = null,
+    private val db: DbRepository = DatabaseConnection()
+) : ViewModel() {
   private val _groups = MutableLiveData(GroupList(emptyList()))
   val groups: LiveData<GroupList> = _groups
 
