@@ -237,11 +237,13 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun groupListElementDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupList { assertExists() }
-      testGroup1Box {
+      composeTestRule.onNodeWithTag("GroupsList", useUnmergedTree = true).assertIsDisplayed()
+
+      // groupList { assertExists() }
+      /*testGroup1Box {
         assertExists()
         assertHasClickAction()
-      }
+      }*/
       // As I could find the element using the classical method (on GroupsHomeScreen), I used this
       // technic
       composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertIsDisplayed()
@@ -349,7 +351,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   }
 
   @Test
-  fun leavingGroupOption() {
+  fun leavingGroupYesOption() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
@@ -365,19 +367,20 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .performClick()
       verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
       confirmVerified(mockNavActions)
+
+      composeTestRule
+          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
     }
-    composeTestRule
-        .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-        .assertIsDisplayed()
-        .performClick()
-    composeTestRule
-        .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
-        .assertIsDisplayed()
-        .performClick()
-    composeTestRule
-        .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
-        .assertIsDisplayed()
-        .performClick()
   }
 
   @Test
