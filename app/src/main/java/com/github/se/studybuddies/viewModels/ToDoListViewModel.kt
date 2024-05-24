@@ -1,9 +1,7 @@
 package com.github.se.studybuddies.viewModels
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.todo.ToDo
@@ -36,7 +34,6 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
   // private val gson = Gson()
 
   private val toDoFile = File(context.filesDir, "ToDoList.json")
-
 
   init {
     fetchAllTodos()
