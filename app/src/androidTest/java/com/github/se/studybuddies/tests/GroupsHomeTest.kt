@@ -235,13 +235,17 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   }
 
   @Test
-  fun groupListElementDisplay() {
+  fun groupListElementsDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       // groupList { assertExists() }
+
       testGroup1Box {
         assertIsDisplayed()
+        assertHasClickAction()
         performClick()
       }
+      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+      confirmVerified(mockNavActions)
       /*
       // As I could find the element using the classical method (on GroupsHomeScreen), I used this
       // technic
