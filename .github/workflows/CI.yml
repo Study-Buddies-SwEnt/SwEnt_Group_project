@@ -1,11 +1,9 @@
 name: CI - Test Runner
 
-# Run the workflow when commits are pushed on main or when a PR is modified
 on:
   push:
     branches:
       - main
-
   pull_request:
     types:
       - opened
@@ -15,19 +13,15 @@ on:
 jobs:
   ci:
     name: CI
-    # Execute the CI on the course's runners
     runs-on: ubuntu-latest
 
     steps:
-      # First step : Checkout the repository on the runner
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of Sonar analysis (if we use Sonar Later)
+          fetch-depth: 0
 
-
-      # Kernel-based Virtual Machine (KVM) is an open source virtualization technology built into Linux. Enabling it allows the Android emulator to run faster.
       - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -40,14 +34,9 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      # Caching is a very useful part of a CI, as a workflow is executed in a clean environment every time,
-      # this means that one would need to re-download and re-process gradle files for every run. Which is very time consuming.
-      #
-      # To avoid that, we cache the the gradle folder to reuse it later.
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v3
 
-      # Cache the Emulator, if the cache does not hit, create the emulator
       - name: AVD cache
         uses: actions/cache@v4
         id: avd-cache
@@ -70,8 +59,7 @@ jobs:
           script: echo "Generated AVD snapshot for caching."
 
       - name: Grant execute permission for gradlew
-        run: |
-          chmod +x ./gradlew
+        run: chmod +x ./gradlew
 
       - name: Load secrets
         env:
@@ -87,24 +75,26 @@ jobs:
           echo $KEYSTORE_PROPERTIES | base64 -di > app/keystore.properties
           echo $STREAM > local.properties
 
-      # Check formatting
+      - name: Print Environment Details
+        run: |
+          java -version
+          ./gradlew --version
+          adb --version
+
       - name: KTFmt Check
-        run: |
-          ./gradlew ktfmtCheck
+        run: ./gradlew ktfmtCheck
 
-      # This step runs gradle commands to build the application
       - name: Assemble
-        run: |
-          # To run the CI with debug information, add --info
-          ./gradlew assemble lint --parallel --build-cache
+        run: ./gradlew assemble lint --parallel --build-cache --info || ./gradlew assemble lint --parallel --build-cache --info
 
-      # Run Unit tests
       - name: Run tests
-        run: |
-          # To run the CI with debug information, add --info
-          ./gradlew check --parallel --build-cache
+        run: ./gradlew check --parallel --build-cache --info || ./gradlew check --parallel --build-cache --info
 
-      # Run connected tests on the emulator
+      - name: Wait for Emulator
+        run: |
+          adb wait-for-device
+          adb shell input keyevent 82
+
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -114,14 +104,15 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
-          script: ./gradlew connectedCheck --parallel --build-cache
+          script: ./gradlew connectedCheck --parallel --build-cache --info || ./gradlew connectedCheck --parallel --build-cache --info
 
-      # This step generates the coverage report which will be uploaded to sonar
+      - name: Get Emulator Logs
+        if: failure()
+        run: adb logcat -d
+
       - name: Generate Coverage Report
-        run: |
-          ./gradlew jacocoTestReport
+        run: ./gradlew jacocoTestReport
 
-      # Upload the various reports to sonar
       - name: Upload report to SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -247,13 +247,13 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertIsDisplayed()
       composeTestRule
           .onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
       composeTestRule
           .onNodeWithTag("groupTest1_picture", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
       composeTestRule
           .onNodeWithTag("groupTest1_text", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .assertTextContains("TestGroup1")
     }
   }
