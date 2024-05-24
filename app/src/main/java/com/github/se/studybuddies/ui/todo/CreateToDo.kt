@@ -52,18 +52,14 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
             },
             actions = {})
       }) {
-        LazyColumn(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(White)
-                    .padding(horizontal = 20.dp, vertical = 80.dp)
-                    .testTag("create_toDo_column"),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-              item {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    modifier =
+                    Modifier.fillMaxSize()
+                        .background(White)
+                        .padding(horizontal = 20.dp, vertical = 80.dp)
+                        .testTag("create_toDo_column"),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                       TodoFields(titleState, descriptionState, selectedDate, isOpen)
                       TodoSaveButton(titleState) {
                         val randomUID = UUID.randomUUID().toString()
@@ -80,8 +76,6 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                       }
                     }
               }
-            }
-      }
   if (isOpen.value) {
     CustomDatePickerDialog(
         onAccept = {
