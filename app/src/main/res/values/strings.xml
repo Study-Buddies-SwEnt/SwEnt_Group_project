@@ -43,6 +43,7 @@
     <string name="picture">Picture</string>
     <string name="select_a_profile_picture">Select a profile picture</string>
     <string name="select_a_picture">Select a picture</string>
+    <string name="select_a_file">Select a file</string>
     <string name="flash_card">Flash Card</string>
     <string name="todo_list">Todo List</string>
     <string name="focus_mode">Focus Mode</string>
@@ -87,6 +88,10 @@
     <string name="create_account">Create Account</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
+    <string name="call_lobby">Call Lobby</string>
+    <string name="preview_of_your_call_setup">Preview of your call setup</string>
+    <string name="join_call">Join call</string>
+    <string name="phone_icon">Phone icon</string>
     <string name="warning_1_group_deletion">Are you sure you want to delete the group ?</string>
     <string name="warning_2_group_deletion">This will delete the group and all its content for all members</string>
     <string name="yes">Yes</string>
@@ -94,5 +99,20 @@
     <string name="warning_leave_group">Are you sure you want to leave the group ?</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
+    <!-- Strings for DailyPlannerScreen -->
+    <string name="daily_planner_title">Daily Planner</string>
+    <string name="todays_goals">Today\'s Goals</string>
+    <string name="notes">Notes</string>
+    <string name="appointments">Appointments</string>
+    <string name="add_goal">Add Goal</string>
+    <string name="goal">Goal</string>
+    <string name="add">Add</string>
+
+    <string name="add_note">Add Note</string>
+    <string name="note">Note</string>
+    <string name="add_appointment">Add Appointment</string>
+    <string name="appointment_title">Appointment Title</string>
+    <string name="hour">Hour</string>
+    <string name="minute">Minute</string>
     <string name="ok">OK</string>
 </resources>

@@ -113,7 +113,6 @@ fun TimerScreen(
           Row(
               modifier = Modifier.fillMaxWidth().padding(16.dp),
               horizontalArrangement = Arrangement.SpaceEvenly) {
-                TimerButton(onClick = onPause, "Pause")
                 TimerButton(
                     onClick =
                         if (timerValue > 0) {
@@ -122,6 +121,7 @@ fun TimerScreen(
                           onReset
                         },
                     "Start")
+                TimerButton(onClick = onPause, "Pause")
                 TimerButton(onClick = onReset, "Reset")
               }
           Row(

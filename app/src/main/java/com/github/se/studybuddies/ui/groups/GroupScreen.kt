@@ -21,20 +21,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,11 +45,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -65,30 +64,26 @@ import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupScreen(
     groupUID: String,
     groupViewModel: GroupViewModel,
     chatViewModel: ChatViewModel,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    db: DbRepository
 ) {
   val group by groupViewModel.group.observeAsState()
-  val topics by groupViewModel.topics.observeAsState()
-  val coroutineScope = rememberCoroutineScope()
+  val topics by groupViewModel.topics.collectAsState()
 
   val nameState = remember { mutableStateOf(group?.name ?: "") }
   val pictureState = remember { mutableStateOf(group?.picture ?: Uri.EMPTY) }
   val membersState = remember { mutableStateOf(group?.members ?: emptyList()) }
-  val topicList = remember { mutableStateOf(topics?.getAllTopics() ?: emptyList()) }
 
   group?.let {
     nameState.value = it.name
     pictureState.value = it.picture
     membersState.value = it.members
   }
-
-  topics?.let { topicList.value = it.getAllTopics() }
 
   Scaffold(
       modifier = Modifier.fillMaxSize().testTag("GroupScreen"),
@@ -98,12 +93,7 @@ fun GroupScreen(
             navigationIcon = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
-            actions = {
-              Icon(
-                  imageVector = Icons.Default.MoreVert,
-                  tint = Blue,
-                  contentDescription = stringResource(R.string.group_option))
-            })
+            actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
       },
       floatingActionButton = {
         Row(
@@ -127,7 +117,7 @@ fun GroupScreen(
             destinations =
                 listOf(
                     Destination(
-                        route = Route.VIDEOCALL,
+                        route = "${Route.CALLLOBBY}/$groupUID",
                         icon = R.drawable.video_call,
                         textId = "Video Call"),
                     Destination(
@@ -166,7 +156,7 @@ fun GroupScreen(
                       modifier =
                           Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
                         Image(
-                            painter = rememberImagePainter(pictureState.value),
+                            painter = rememberAsyncImagePainter(pictureState.value),
                             contentDescription = stringResource(R.string.group_picture),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop)
@@ -178,14 +168,14 @@ fun GroupScreen(
                       style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
                 }
               }
-          Divider(color = Blue, thickness = 4.dp)
+          HorizontalDivider(thickness = 4.dp, color = Blue)
           LazyColumn(
               modifier = Modifier.fillMaxSize(),
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
               horizontalAlignment = Alignment.Start,
-              content = {
-                items(topicList.value) { topic -> TopicItem(groupUID, topic, navigationActions) }
-              })
+          ) {
+            items(topics.getAllTopics()) { topic -> TopicItem(groupUID, topic, navigationActions) }
+          }
         }
       }
 }

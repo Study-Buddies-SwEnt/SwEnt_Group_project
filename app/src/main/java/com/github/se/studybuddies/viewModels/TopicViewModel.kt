@@ -6,12 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class TopicViewModel(private val uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class TopicViewModel(
+    private val uid: String? = null,
+    private val db: DbRepository = DatabaseConnection()
+) : ViewModel() {
   private val _topic = MutableStateFlow<Topic>(Topic.empty())
   val topic: StateFlow<Topic> = _topic
 

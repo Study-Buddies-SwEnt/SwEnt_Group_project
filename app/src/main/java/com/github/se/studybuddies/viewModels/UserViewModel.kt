@@ -8,13 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class UserViewModel(val uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class UserViewModel(val uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
+    ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
 
@@ -38,7 +39,9 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
-    return withContext(Dispatchers.IO) { db.getDefaultProfilePicture() }
+    if (db.isFakeDatabase()) {
+      return db.getDefaultPicture()
+    } else return withContext(Dispatchers.IO) { db.getDefaultProfilePicture() }
   }
 
   fun createUser(
@@ -62,5 +65,9 @@ class UserViewModel(val uid: String? = null) : ViewModel() {
 
   fun signOut() {
     viewModelScope.cancel()
+  }
+
+  fun isFakeDatabase(): Boolean {
+    return db.isFakeDatabase()
   }
 }
