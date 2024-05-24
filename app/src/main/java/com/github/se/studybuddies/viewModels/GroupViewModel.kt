@@ -54,6 +54,13 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
     }
   }
 
+  fun getAllFriends(uid: String) {
+    viewModelScope.launch {
+      val friends = db.getAllFriends(uid)
+      _members.postValue(friends)
+    }
+  }
+
   fun createGroup(name: String, photoUri: Uri) {
     viewModelScope.launch { db.createGroup(name, photoUri) }
   }
