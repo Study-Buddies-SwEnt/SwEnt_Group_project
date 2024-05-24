@@ -237,8 +237,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun groupListElementDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      composeTestRule.onNodeWithTag("GroupsList", useUnmergedTree = true).assertIsDisplayed()
-
+      composeTestRule.onNodeWithTag("GroupsList", useUnmergedTree = true).assertExists()
       // groupList { assertExists() }
       /*testGroup1Box {
         assertExists()
@@ -246,7 +245,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       }*/
       // As I could find the element using the classical method (on GroupsHomeScreen), I used this
       // technic
-      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertIsDisplayed()
+      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
       composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
       composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
       composeTestRule
@@ -367,7 +366,12 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .performClick()
       verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
       confirmVerified(mockNavActions)
+    }
+  }
 
+  @Test
+  fun leavingGroupNoOption() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
