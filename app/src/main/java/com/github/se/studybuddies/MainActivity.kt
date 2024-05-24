@@ -150,9 +150,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions, db)
+                    GroupScreen(groupUid, groupViewModel, chatViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -161,8 +161,8 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  ifNotNull(backRoute) { backRoute ->
-                    Settings(backRoute, navigationActions)
+                  ifNotNull(backRoute) {
+                    Settings(it, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
@@ -231,9 +231,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupSetting(groupUID, groupViewModel, navigationActions, db)
+                    GroupSetting(groupUid, groupViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }
@@ -242,9 +242,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupMembers(groupUID, groupViewModel, navigationActions, db)
+                    GroupMembers(groupUid, groupViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupMembers")
                   }
                 }
@@ -345,9 +345,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
-                    val viewModel2 = remember { SharedTimerViewModel(groupUID, db) }
-                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
+                  ifNotNull(groupUID) { groupUid ->
+                    val viewModel2 = remember { SharedTimerViewModel(groupUid, db) }
+                    SharedTimerScreen(navigationActions, viewModel2, groupUid)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }

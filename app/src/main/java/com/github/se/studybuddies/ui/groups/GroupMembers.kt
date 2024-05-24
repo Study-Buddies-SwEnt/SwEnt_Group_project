@@ -1,7 +1,5 @@
 package com.github.se.studybuddies.ui.groups
 
-//noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -21,14 +19,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DbRepository
@@ -174,7 +172,7 @@ fun MemberItem(
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
-                painter = rememberImagePainter(user.photoUrl),
+                painter = rememberAsyncImagePainter(user.photoUrl),
                 contentDescription = stringResource(id = R.string.user_picture),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop)
@@ -223,10 +221,11 @@ fun MemberOptionButton(
                       isRemoveUserDialogVisible = true
                     }
                   }
-                }) {
+                },
+                text = {
                   Spacer(modifier = Modifier.size(16.dp))
                   Text(item.textId)
-                }
+                })
           }
         }
   }
@@ -252,9 +251,11 @@ fun MemberOptionButton(
                         Button(
                             onClick = {
                               groupViewModel.leaveGroup(groupUID, userUID)
-                              // navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
-                              navigationActions.navigateTo(Route.GROUPSHOME)
-                              isRemoveUserDialogVisible = false
+                              if (membersCount > 1) {
+                                navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
+                              } else {
+                                navigationActions.navigateTo(Route.GROUPSHOME)
+                              }
                             },
                             modifier =
                                 Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
