@@ -132,6 +132,8 @@ interface DbRepository {
   // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String): Topic
 
+  suspend fun getTopicFile(id: String): TopicFile
+
   suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem>
 
   fun createTopic(name: String, callBack: (String) -> Unit)
@@ -152,6 +154,9 @@ interface DbRepository {
 
   fun updateTopicItem(item: TopicItem)
 
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean)
+
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
@@ -164,7 +169,7 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-  companion object {
+    companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

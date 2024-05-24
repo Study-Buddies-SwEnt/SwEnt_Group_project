@@ -45,6 +45,7 @@ import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
+import com.github.se.studybuddies.ui.topics.TopicResources
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
@@ -374,6 +375,21 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
+
+              composable(
+                  route = "${Route.TOPICRESOURCES}/{topicFileID}/{topicID}",
+                  arguments = listOf(
+                      navArgument("topicFileID") { type = NavType.StringType },
+                      navArgument("topicID") { type = NavType.StringType })) {
+                      backStackEntry ->
+                  val topicFileID = backStackEntry.arguments?.getString("topicFileID")
+                  val topicID = backStackEntry.arguments?.getString("topicID")
+                  if (topicFileID != null && topicID != null) {
+                      val topicViewModel = remember { TopicViewModel(topicID, db) }
+                      TopicResources(topicFileID, topicID, topicViewModel, navigationActions)
+                      Log.d("MyPrint", "Successfully navigated to TopicResources")
+                  }
+              }
 
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }

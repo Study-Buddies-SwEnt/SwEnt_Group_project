@@ -34,6 +34,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -187,6 +188,7 @@ fun TopicScreen(
         }
       },
       floatingActionButtonPosition = FabPosition.End) {
+
         Column(
             modifier = Modifier.fillMaxSize().padding(it),
             horizontalAlignment = Alignment.Start,
@@ -277,12 +279,22 @@ fun TopicScreen(
                     if (areaState.value == ItemArea.EXERCISES) {
                       items(exercisesState) { topicItem ->
                         TopicContentItem(
-                            topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
+                            topicItem,
+                            folderFieldVisible,
+                            fileFieldVisible,
+                            parentUID,
+                            0,
+                            topicViewModel)
                       }
                     } else if (areaState.value == ItemArea.THEORY) {
                       items(theoryState.value) { topicItem ->
                         TopicContentItem(
-                            topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
+                            topicItem,
+                            folderFieldVisible,
+                            fileFieldVisible,
+                            parentUID,
+                            0,
+                            topicViewModel)
                       }
                     }
                   })
@@ -334,20 +346,23 @@ fun TopicContentItem(
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
     parentUID: MutableState<String>,
-    depth: Int
+    depth: Int,
+    topicViewModel: TopicViewModel
 ) {
   when (topicItem) {
     is TopicFolder -> {
-      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, depth)
+      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, depth, topicViewModel)
     }
     is TopicFile -> {
-      FileItem(topicItem, depth)
+      FileItem(topicItem, depth, topicViewModel)
     }
   }
 }
 
 @Composable
-fun FileItem(fileItem: TopicFile, depth: Int) {
+fun FileItem(fileItem: TopicFile, depth: Int, topicViewModel: TopicViewModel) {
+  val isUserStrong = remember { mutableStateOf(false) }
+  topicViewModel.getIsUserStrong(fileItem.uid) { isUserStrong.value = it }
   Box(
       modifier =
           Modifier.fillMaxWidth()
@@ -359,7 +374,9 @@ fun FileItem(fileItem: TopicFile, depth: Int) {
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
               .clickable {
-                // TODO: implement strong users and resources
+                  val newValue = !isUserStrong.value
+                  isUserStrong.value = newValue
+                  topicViewModel.updateStrongUser(fileItem.uid, newValue)
               }) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Spacer(modifier = Modifier.size(20.dp))
@@ -368,6 +385,14 @@ fun FileItem(fileItem: TopicFile, depth: Int) {
               modifier = Modifier.align(Alignment.CenterVertically),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
+          RadioButton(
+              selected = isUserStrong.value,
+              onClick = {
+                  val newValue = !isUserStrong.value
+                  isUserStrong.value = newValue
+                  topicViewModel.updateStrongUser(fileItem.uid, newValue)
+            }
+          )
         }
       }
 }
@@ -379,7 +404,8 @@ fun FolderItem(
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
     parentUID: MutableState<String>,
-    depth: Int
+    depth: Int,
+    topicViewModel: TopicViewModel
 ) {
   val isExpanded = remember { mutableStateOf(false) }
 
@@ -394,9 +420,7 @@ fun FolderItem(
                   val y = size.height - strokeWidth / 2
                   drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
                 }
-                .combinedClickable(
-                    onClick = { isExpanded.value = !isExpanded.value },
-                    onLongClick = { Log.d("MyPrint", "long pressed") })) {
+                .clickable { isExpanded.value = !isExpanded.value }) {
           Row(
               modifier = Modifier.fillMaxWidth().padding(6.dp),
               verticalAlignment = Alignment.CenterVertically) {
@@ -423,7 +447,8 @@ fun FolderItem(
     if (isExpanded.value) {
       Log.d("MyPrint", "isExpanded")
       folderItem.items.forEach { child ->
-        TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID, depth + 1)
+        TopicContentItem(
+            child, folderFieldVisible, fileFieldVisible, parentUID, depth + 1, topicViewModel)
       }
     }
   }

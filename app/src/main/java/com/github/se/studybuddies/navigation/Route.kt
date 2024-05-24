@@ -25,6 +25,7 @@ object Route {
   const val CREATETODO = "CreateToDo"
   const val EDITTODO = "EditToDo"
   const val TOPIC = "Topic"
+  const val TOPICRESOURCES = "Topic resources"
   const val TOPIC_SETTINGS = "Topic settings"
   const val CHAT = "Chat"
   const val TOPICCREATION = " TopicCreaction"

@@ -7,7 +7,13 @@ data class TopicFile(
     val fileName: String,
     val strongUsers: List<String>,
     override val parentUID: String
-) : TopicItem(uid, fileName, parentUID)
+) : TopicItem(uid, fileName, parentUID) {
+    companion object {
+        fun empty(): TopicFile {
+            return TopicFile("", "", emptyList(), "")
+        }
+    }
+}
 
 data class TopicFolder(
     override val uid: String,
@@ -23,7 +29,7 @@ data class TopicItemDatabase(
     val type: ItemType,
     val fileName: String,
     val folderName: String,
-    val strongUsers: List<String>,
+    var strongUsers: List<String>,
     val items: List<String>
 )
 
@@ -42,4 +48,9 @@ enum class ItemType {
 enum class ItemArea {
   EXERCISES,
   THEORY
+}
+
+enum class FileArea {
+    RESOURCES,
+    STRONG_USERS
 }

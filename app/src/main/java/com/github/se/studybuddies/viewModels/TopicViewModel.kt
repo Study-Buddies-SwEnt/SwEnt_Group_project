@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.Topic
+import com.github.se.studybuddies.data.TopicFile
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,9 @@ class TopicViewModel(
 ) : ViewModel() {
   private val _topic = MutableStateFlow<Topic>(Topic.empty())
   val topic: StateFlow<Topic> = _topic
+
+  private val _topicFile = MutableStateFlow<TopicFile>(TopicFile.empty())
+  val topicFile: StateFlow<TopicFile> = _topicFile
 
   init {
     if (uid != null) {
@@ -45,6 +49,12 @@ class TopicViewModel(
       task.sortItems()
       _topic.value = task
       Log.d("MyPrint", "Topic data fetched")
+    }
+  }
+
+  fun fetchTopicFile(id: String) {
+    viewModelScope.launch {
+      val task = db.getTopicFile(id)
     }
   }
 
@@ -100,5 +110,13 @@ class TopicViewModel(
       db.updateTopicName(uid, name)
       fetchTopicData(uid)
     }
+  }
+
+  fun getIsUserStrong(uid: String, callBack: (Boolean) -> Unit) {
+    viewModelScope.launch { db.getIsUserStrong(uid) { isUserStrong -> callBack(isUserStrong) } }
+  }
+
+  fun updateStrongUser(uid: String, newValue: Boolean) {
+    viewModelScope.launch { db.updateStrongUser(uid, newValue) }
   }
 }

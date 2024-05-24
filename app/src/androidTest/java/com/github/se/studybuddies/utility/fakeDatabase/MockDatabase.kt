@@ -25,6 +25,7 @@ import com.github.se.studybuddies.database.DbRepository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FieldValue
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +33,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class MockDatabase : DbRepository {
@@ -764,6 +766,24 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] =
         TopicItemDatabase(
             item.uid, item.name, item.parentUID, type, "", "", strongUsers, folderItems)
+  }
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection[fileID]
+    val strongUsers = document?.strongUsers
+    val currentUser = getCurrentUserUID()
+    callBack(strongUsers!!.contains(currentUser))
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    val strongUsers = topicItemCollection[fileID]?.strongUsers?.toMutableList()
+    if (newValue) {
+      strongUsers?.add(currentUser)
+      topicItemCollection[fileID]?.strongUsers = strongUsers!!.toList()
+    } else {
+      strongUsers?.remove(currentUser)
+      topicItemCollection[fileID]?.strongUsers = strongUsers!!.toList()
+    }
   }
 
   override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
