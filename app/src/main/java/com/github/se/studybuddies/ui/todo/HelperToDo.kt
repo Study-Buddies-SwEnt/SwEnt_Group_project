@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -85,7 +87,12 @@ fun TodoFields(
       label = { Text("Title") },
       placeholder = { Text("Name the task") },
       singleLine = true,
-      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("inputTodoTitle"))
+      modifier =
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(65.dp)
+              .testTag("inputTodoTitle")
+              .testTag("toDo_name_field"))
   OutlinedTextField(
       value = descriptionState.value,
       onValueChange = { descriptionState.value = it },
@@ -124,9 +131,9 @@ fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
               .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
-              containerColor = Color.Blue,
+              containerColor = Blue,
           )) {
-        Text("Save")
+        Text("Save", color = White)
       }
 }
 
@@ -137,9 +144,25 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
   DatePickerDialog(
       onDismissRequest = {},
       confirmButton = {
-        Button(onClick = { onAccept(state.selectedDateMillis) }) { Text("Confirm") }
+        Button(
+            onClick = { onAccept(state.selectedDateMillis) },
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.Blue,
+                )) {
+              Text("Confirm")
+            }
       },
-      dismissButton = { Button(onClick = onCancel) { Text("Cancel") } }) {
+      dismissButton = {
+        Button(
+            onClick = onCancel,
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.Blue,
+                )) {
+              Text("Cancel")
+            }
+      }) {
         DatePicker(state = state)
       }
 }
@@ -147,9 +170,8 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
 @Composable
 fun statusColor(status: ToDoStatus): Color {
   return when (status) {
-    ToDoStatus.CREATED -> Color(0xFF9BC5C5)
+    ToDoStatus.CREATED -> Color(0xFFFFFFFF)
     ToDoStatus.STARTED -> Color(0xFFFB9905)
-    ToDoStatus.ENDED -> Color(0xFF1FC959)
-    ToDoStatus.ARCHIVED -> Color(0xFF808080)
+    ToDoStatus.DONE -> Color(0xFF1FC959)
   }
 }
