@@ -5,7 +5,7 @@ sealed class TopicItem(open val uid: String, val name: String, open val parentUI
 data class TopicFile(
     override val uid: String,
     val fileName: String,
-    val strongUsers: List<String>,
+    var strongUsers: List<String>,
     override val parentUID: String
 ) : TopicItem(uid, fileName, parentUID) {
   companion object {
