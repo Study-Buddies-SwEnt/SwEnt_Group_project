@@ -23,6 +23,8 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +40,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -54,9 +58,11 @@ import kotlin.math.*
 @Composable
 fun DailyPlannerScreen(
     date: String,
-    viewModel: CalendarViewModel,
+    viewModelFactory: ViewModelProvider.Factory,
     navigationActions: NavigationActions
 ) {
+  val viewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
+
   LaunchedEffect(date) { viewModel.refreshDailyPlanners() }
 
   val planner by viewModel.getDailyPlanner(date).collectAsState()
@@ -72,6 +78,7 @@ fun DailyPlannerScreen(
   }
 
   var dialogState by remember { mutableStateOf<DialogState?>(null) }
+  var deleteMode by remember { mutableStateOf(false) }
 
   Scaffold(
       modifier = Modifier.fillMaxSize(),
@@ -79,7 +86,11 @@ fun DailyPlannerScreen(
         TopNavigationBar(
             title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
             navigationIcon = { GoBackRouteButton(navigationActions, Route.CALENDAR) },
-            actions = {})
+            actions = {
+              IconButton(onClick = { deleteMode = !deleteMode }) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
+              }
+            })
       },
       floatingActionButton = {
         SaveButton(enabled = true) {
@@ -97,18 +108,33 @@ fun DailyPlannerScreen(
               PlannerSection(
                   title = stringResource(id = R.string.todays_goals),
                   items = goals,
-                  onAddItemClick = { dialogState = DialogState.AddGoal })
+                  onAddItemClick = { dialogState = DialogState.AddGoal },
+                  onDeleteItemClick = { goal ->
+                    viewModel.deleteGoal(date, goal)
+                    goals = goals.filter { it != goal }
+                  },
+                  deleteMode = deleteMode)
               Spacer(modifier = Modifier.height(16.dp))
               PlannerSection(
                   title = stringResource(id = R.string.notes),
                   items = notes,
-                  onAddItemClick = { dialogState = DialogState.AddNote })
+                  onAddItemClick = { dialogState = DialogState.AddNote },
+                  onDeleteItemClick = { note ->
+                    viewModel.deleteNote(date, note)
+                    notes = notes.filter { it != note }
+                  },
+                  deleteMode = deleteMode)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
               AppointmentsSection(
                   appointments = appointments,
-                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment })
+                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment },
+                  onDeleteAppointmentClick = { time ->
+                    viewModel.deleteAppointment(date, time)
+                    appointments = appointments.filterKeys { it != time }.toSortedMap()
+                  },
+                  deleteMode = deleteMode)
             }
           }
         }
@@ -138,7 +164,13 @@ fun DailyPlannerScreen(
 }
 
 @Composable
-fun PlannerSection(title: String, items: List<String>, onAddItemClick: () -> Unit) {
+fun PlannerSection(
+    title: String,
+    items: List<String>,
+    onAddItemClick: () -> Unit,
+    onDeleteItemClick: (String) -> Unit,
+    deleteMode: Boolean
+) {
   Column {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Text(
@@ -153,28 +185,29 @@ fun PlannerSection(title: String, items: List<String>, onAddItemClick: () -> Uni
     }
     Spacer(modifier = Modifier.height(8.dp))
     items.forEachIndexed { _, item ->
-      TextFieldWithLines(
-          value = item, singleLine = false // Allow multi-line input
-          )
+      Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        TextFieldWithLines(
+            value = item,
+            singleLine = false, // Allow multi-line input
+            modifier = Modifier.weight(1f))
+        if (deleteMode) {
+          IconButton(onClick = { onDeleteItemClick(item) }) {
+            Icon(Icons.Default.Close, contentDescription = "Delete", tint = Blue)
+          }
+        }
+      }
       Spacer(modifier = Modifier.height(8.dp))
     }
   }
 }
 
 @Composable
-fun TextFieldWithLines(value: String, singleLine: Boolean = true) {
-  Column {
-    Text(
-        text = value,
-        color = Blue,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 20.dp),
-        maxLines = if (singleLine) 1 else Int.MAX_VALUE)
-    Divider(color = Blue, thickness = 1.dp)
-  }
-}
-
-@Composable
-fun AppointmentsSection(appointments: Map<String, String>, onAddAppointmentClick: () -> Unit) {
+fun AppointmentsSection(
+    appointments: Map<String, String>,
+    onAddAppointmentClick: () -> Unit,
+    onDeleteAppointmentClick: (String) -> Unit,
+    deleteMode: Boolean
+) {
   Column {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Text(
@@ -192,10 +225,27 @@ fun AppointmentsSection(appointments: Map<String, String>, onAddAppointmentClick
     appointments.forEach { (time, appointment) ->
       Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(time, color = Blue, modifier = Modifier.width(80.dp))
-        TextFieldWithLines(value = appointment, singleLine = false)
+        TextFieldWithLines(value = appointment, singleLine = false, modifier = Modifier.weight(1f))
+        if (deleteMode) {
+          IconButton(onClick = { onDeleteAppointmentClick(time) }) {
+            Icon(Icons.Default.Close, contentDescription = "Delete", tint = Blue)
+          }
+        }
       }
       Spacer(modifier = Modifier.height(8.dp))
     }
+  }
+}
+
+@Composable
+fun TextFieldWithLines(value: String, singleLine: Boolean = true, modifier: Modifier = Modifier) {
+  Column(modifier = modifier) {
+    Text(
+        text = value,
+        color = Blue,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 20.dp),
+        maxLines = if (singleLine) 1 else Int.MAX_VALUE)
+    Divider(color = Blue, thickness = 1.dp)
   }
 }
 
