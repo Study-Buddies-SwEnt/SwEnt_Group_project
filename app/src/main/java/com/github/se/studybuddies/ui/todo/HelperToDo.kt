@@ -148,9 +148,9 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
             onClick = { onAccept(state.selectedDateMillis) },
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = Color.Blue,
+                    containerColor = Blue,
                 )) {
-              Text("Confirm")
+              Text("Confirm", color = White)
             }
       },
       dismissButton = {
@@ -158,9 +158,9 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
             onClick = onCancel,
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = Color.Blue,
+                    containerColor = Blue,
                 )) {
-              Text("Cancel")
+              Text("Cancel", color = White)
             }
       }) {
         DatePicker(state = state)
