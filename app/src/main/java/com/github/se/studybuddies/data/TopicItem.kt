@@ -22,24 +22,6 @@ data class TopicFolder(
     override val parentUID: String
 ) : TopicItem(uid, folderName, parentUID)
 
-data class TopicItemDatabase(
-    val uid: String,
-    val name: String,
-    val parentUID: String,
-    val type: ItemType,
-    val fileName: String,
-    val folderName: String,
-    var strongUsers: List<String>,
-    val items: List<String>
-)
-
-data class TopicDatabase(
-    val uid: String,
-    val name: String,
-    val exercises: List<TopicItem>,
-    val theory: List<TopicItem>,
-)
-
 enum class ItemType {
   FILE,
   FOLDER

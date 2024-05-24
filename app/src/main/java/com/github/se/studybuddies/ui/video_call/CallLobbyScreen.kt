@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.video_call
 
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +43,6 @@ fun CallLobbyScreen(
     callLobbyViewModel: CallLobbyViewModel,
     navigationActions: NavigationActions
 ) {
-  LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
   val call by remember { mutableStateOf(callLobbyViewModel.call) }
   val isLoading by callLobbyViewModel.isLoading.collectAsState()
   val isCameraEnabled by call.camera.isEnabled.collectAsState()
@@ -57,7 +55,7 @@ fun CallLobbyScreen(
         if (it.values.contains(false)) {
           Toast.makeText(
                   context,
-                  "Call permissions are required to join the call",
+                  "Camera and microphone permissions are required to join the call",
                   Toast.LENGTH_LONG,
               )
               .show()
@@ -67,6 +65,12 @@ fun CallLobbyScreen(
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("call_lobby")) {
+      if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center),
+            color = Blue,
+        )
+      }
       Column(
           modifier = Modifier.fillMaxSize().testTag("content"),
           horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,12 +105,6 @@ fun CallLobbyScreen(
             onClick = { navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID") }) {
               Text(stringResource(R.string.join_call))
             }
-      }
-      if (isLoading) {
-        CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center),
-            color = Blue,
-        )
       }
     }
   }

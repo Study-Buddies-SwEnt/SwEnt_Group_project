@@ -62,6 +62,8 @@ interface DbRepository {
 
   fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit)
 
+  fun groupExists(groupUID: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit)
+
   // using the groups & userMemberships collections
   suspend fun getAllGroups(uid: String): GroupList
 
