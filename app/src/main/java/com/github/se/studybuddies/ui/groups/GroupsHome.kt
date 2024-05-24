@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -169,7 +168,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
   val groupViewModel = GroupViewModel(groupUID, db)
-  Row(modifier = Modifier.testTag(groupUID+ "_settings_row")) {
+  Row(modifier = Modifier.testTag(groupUID + "_settings_row")) {
     IconButton(
         modifier = Modifier.testTag(groupUID + "_settings_button"),
         onClick = { expandedState.value = true },
@@ -186,7 +185,8 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
           GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
             DropdownMenuItem(
                 modifier =
-                    Modifier.testTag(groupUID + "_"+ item.textId + "_item"), // "DropDownMenuItem${item.route}"
+                    Modifier.testTag(
+                        groupUID + "_" + item.textId + "_item"), // "DropDownMenuItem${item.route}"
                 onClick = {
                   expandedState.value = false
                   when (item.route) {
@@ -202,7 +202,9 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                   }
                 }) {
                   Spacer(modifier = Modifier.size(16.dp))
-                  Text(item.textId,modifier = Modifier.testTag(groupUID + "_"+ item.textId + "_text"))
+                  Text(
+                      item.textId,
+                      modifier = Modifier.testTag(groupUID + "_" + item.textId + "_text"))
                 }
           }
         }
@@ -242,7 +244,9 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
-                              Text(text = stringResource(R.string.yes),modifier = Modifier.testTag(groupUID + "_leave_yes_text"))
+                              Text(
+                                  text = stringResource(R.string.yes),
+                                  modifier = Modifier.testTag(groupUID + "_leave_yes_text"))
                             }
 
                         Button(
@@ -255,7 +259,9 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
-                              Text(text = stringResource(R.string.no),modifier = Modifier.testTag(groupUID + "_leave_no_text"))
+                              Text(
+                                  text = stringResource(R.string.no),
+                                  modifier = Modifier.testTag(groupUID + "_leave_no_text"))
                             }
                       }
                 }
@@ -268,24 +274,25 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
               Modifier.width(300.dp)
                   .height(200.dp)
                   .clip(RoundedCornerShape(12.dp))
-                  .background(Color.White)) {
+                  .background(Color.White)
+                  .testTag(groupUID + "_delete_box")) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(16.dp).testTag(groupUID + "_delete_column"),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
                       text = stringResource(R.string.warning_1_group_deletion),
-                      modifier = Modifier.testTag("DeleteGroupDialogText"),
+                      modifier = Modifier.testTag(groupUID + "_delete_text1"),
                       color = Blue,
                       textAlign = TextAlign.Center)
                   Text(
                       text = stringResource(R.string.warning_2_group_deletion),
-                      modifier = Modifier.testTag("DeleteGroupDialogText2"),
+                      modifier = Modifier.testTag(groupUID + "_delete_text2"),
                       color = Blue,
                       textAlign = TextAlign.Center)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
-                      modifier = Modifier.fillMaxWidth(),
+                      modifier = Modifier.fillMaxWidth().testTag(groupUID + "_delete_row"),
                       horizontalArrangement = Arrangement.SpaceEvenly) {
                         Button(
                             onClick = {
@@ -297,11 +304,13 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                                 Modifier.clip(RoundedCornerShape(4.dp))
                                     .width(80.dp)
                                     .height(40.dp)
-                                    .testTag("DeleteGroupDialogYesButton"),
+                                    .testTag(groupUID + "_delete_yes_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
-                              Text(text = stringResource(R.string.yes))
+                              Text(
+                                  text = stringResource(R.string.yes),
+                                  modifier = Modifier.testTag(groupUID + "_delete_yes_text"))
                             }
 
                         Button(
@@ -310,11 +319,13 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                                 Modifier.clip(RoundedCornerShape(4.dp))
                                     .width(80.dp)
                                     .height(40.dp)
-                                    .testTag("DeleteGroupDialogNoButton"),
+                                    .testTag(groupUID + "_delete_no_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
-                              Text(text = stringResource(R.string.no))
+                              Text(
+                                  text = stringResource(R.string.no),
+                                  modifier = Modifier.testTag(groupUID + "_delete_no_text"))
                             }
                       }
                 }
@@ -339,15 +350,19 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
               .testTag(group.uid + "_box")) {
-
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(group.uid + "_row")) {
-          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent).testTag(group.uid + "_box_picture")) {
-            Image(
-                painter = rememberImagePainter(group.picture),
-                contentDescription = stringResource(id = R.string.group_picture),
-                modifier = Modifier.fillMaxSize().testTag(group.uid + "_picture"),
-                contentScale = ContentScale.Crop)
-          }
+          Box(
+              modifier =
+                  Modifier.size(52.dp)
+                      .clip(CircleShape)
+                      .background(Color.Transparent)
+                      .testTag(group.uid + "_box_picture")) {
+                Image(
+                    painter = rememberImagePainter(group.picture),
+                    contentDescription = stringResource(id = R.string.group_picture),
+                    modifier = Modifier.fillMaxSize().testTag(group.uid + "_picture"),
+                    contentScale = ContentScale.Crop)
+              }
           Spacer(modifier = Modifier.size(16.dp))
           Text(
               text = group.name,
@@ -429,34 +444,32 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
-                  scope.launch {
-                    db.groupExists(
-                        groupUID = groupUID,
-                        onSuccess = {
-                          if (it) {
-                            showSucces = true
-                            val groupVM = GroupViewModel(groupUID, db)
-                            groupVM.addUserToGroup(groupUID)
-                            navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                          } else {
-                            showError = true
-                            scope.launch {
-                              delay(2000)
-                              showError = false
-                                //Reset the text field if the entry is wrong
-                                text = ""
-                            }
-                          }
-                        },
-                        onFailure = {
+                  db.groupExists(
+                      groupUID = groupUID,
+                      onSuccess = {
+                        if (it) {
+                          showSucces = true
+                          val groupVM = GroupViewModel(groupUID, db)
+                          groupVM.addUserToGroup(groupUID)
+                          navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                        } else {
                           showError = true
                           scope.launch {
                             delay(2000)
                             showError = false
-                              text = ""
+                            // Reset the text field if the entry is wrong
+                            text = ""
                           }
-                        })
-                  }
+                        }
+                      },
+                      onFailure = {
+                        showError = true
+                        scope.launch {
+                          delay(2000)
+                          showError = false
+                          text = ""
+                        }
+                      })
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
   }

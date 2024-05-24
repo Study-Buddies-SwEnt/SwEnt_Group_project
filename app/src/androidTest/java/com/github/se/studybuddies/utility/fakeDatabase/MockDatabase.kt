@@ -287,22 +287,16 @@ class MockDatabase : DbRepository {
         } else {
           userUID
         }
-
     groupDataCollection[groupUID]?.let {
-      val updatedMembers = it.members - user
-      groupDataCollection[groupUID] = it.copy(members = updatedMembers)
+      val updatedList = it.members - user
+      groupDataCollection[groupUID] = it.copy(members = updatedList)
     }
 
     val document = groupDataCollection[groupUID]
-    val members = document?.members ?: emptyList()
+    val members = document?.members as? List<String> ?: emptyList()
 
     if (members.isEmpty()) {
-      groupDataCollection[groupUID] = Group.empty()
-    }
-
-    userMembershipsCollection[user]?.let {
-      val updatedList = it - groupUID
-      userMembershipsCollection[user] = updatedList.toMutableList()
+      groupDataCollection.remove(groupUID)
     }
   }
 
