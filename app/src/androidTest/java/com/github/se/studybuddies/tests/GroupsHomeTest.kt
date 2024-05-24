@@ -234,32 +234,6 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions, db) }
   }
 
-  /*
-  @Test
-  fun groupListElementsDisplay() {
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      // groupList { assertExists() }
-
-      testGroup1Box {
-        assertIsDisplayed()
-        assertHasClickAction()
-        performClick()
-      }
-      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
-      confirmVerified(mockNavActions)
-      /*
-      // As I could find the element using the classical method (on GroupsHomeScreen), I used this
-      // technic
-      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
-      composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
-      composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
-      composeTestRule
-          .onNodeWithTag("groupTest1_text", useUnmergedTree = true)
-          .assertExists()
-          .assertTextContains("TestGroup1")*/
-    }
-  }*/
-
   @Test
   fun listGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
@@ -373,6 +347,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     }
   }
 
+  /*
   @Test
   fun leavingGroupOptions() = run {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
@@ -406,6 +381,25 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
             .assertIsDisplayed()
             .performClick()
       }
+    }
+  }*/
+
+  @Test
+  fun leaveOptionsGroup() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      groupList { assertIsDisplayed() }
+      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
+      testGroup1Box {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
+      composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
+      composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
+      composeTestRule
+          .onNodeWithTag("groupTest1_text", useUnmergedTree = true)
+          .assertExists()
+          .assertTextContains("TestGroup1")
     }
   }
 
