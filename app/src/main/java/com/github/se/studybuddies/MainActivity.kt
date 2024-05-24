@@ -62,6 +62,7 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
+import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
@@ -376,20 +377,17 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-              composable(
-                  route = "${Route.TOPICRESOURCES}/{topicFileID}/{topicID}",
-                  arguments = listOf(
-                      navArgument("topicFileID") { type = NavType.StringType },
-                      navArgument("topicID") { type = NavType.StringType })) {
-                      backStackEntry ->
+            composable(
+                route = "${Route.TOPICRESOURCES}/{topicFileID}",
+                arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
+                    backStackEntry ->
                   val topicFileID = backStackEntry.arguments?.getString("topicFileID")
-                  val topicID = backStackEntry.arguments?.getString("topicID")
-                  if (topicFileID != null && topicID != null) {
-                      val topicViewModel = remember { TopicViewModel(topicID, db) }
-                      TopicResources(topicFileID, topicID, topicViewModel, navigationActions)
-                      Log.d("MyPrint", "Successfully navigated to TopicResources")
+                  if (topicFileID != null) {
+                    val topicFileViewModel = remember { TopicFileViewModel(topicFileID, db) }
+                    TopicResources(topicFileID, topicFileViewModel, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicResources")
                   }
-              }
+                }
 
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }

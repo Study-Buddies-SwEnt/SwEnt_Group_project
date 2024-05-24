@@ -155,6 +155,7 @@ interface DbRepository {
   fun updateTopicItem(item: TopicItem)
 
   suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
+
   suspend fun updateStrongUser(fileID: String, newValue: Boolean)
 
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
@@ -169,7 +170,7 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-    companion object {
+  companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"
