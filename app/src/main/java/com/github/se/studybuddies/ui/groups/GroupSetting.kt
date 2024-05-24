@@ -332,8 +332,8 @@ fun ShowContact(
     groupViewModel: GroupViewModel,
     isBoxVisible: MutableState<Boolean>
 ) {
-  groupViewModel.getAllFriends(groupViewModel.getCurrentUser())
-  val members by groupViewModel.members.observeAsState()
+  groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
+  val members by groupViewModel.membersGroup.observeAsState()
   members?.let {
     Box(modifier = Modifier.fillMaxSize()) {
       LazyColumn(modifier = Modifier.fillMaxSize()) {
