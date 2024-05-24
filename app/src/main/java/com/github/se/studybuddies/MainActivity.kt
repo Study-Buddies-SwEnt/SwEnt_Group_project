@@ -32,6 +32,7 @@ import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
+import com.github.se.studybuddies.ui.groups.GroupMembers
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
@@ -149,9 +150,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions, db)
+                    GroupScreen(groupUid, groupViewModel, chatViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -160,8 +161,8 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  ifNotNull(backRoute) { backRoute ->
-                    Settings(backRoute, navigationActions)
+                  ifNotNull(backRoute) {
+                    Settings(it, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
@@ -230,10 +231,21 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupSetting(groupUID, groupViewModel, navigationActions, db)
+                    GroupSetting(groupUid, groupViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                  }
+                }
+            composable(
+                route = "${Route.GROUPMEMBERS}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  ifNotNull(groupUID) { groupUid ->
+                    val groupViewModel = remember { GroupViewModel(groupUID, db) }
+                    GroupMembers(groupUid, groupViewModel, navigationActions, db)
+                    Log.d("MyPrint", "Successfully navigated to GroupMembers")
                   }
                 }
             composable(Route.CHAT) {
@@ -333,9 +345,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
-                    val viewModel2 = remember { SharedTimerViewModel(groupUID, db) }
-                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
+                  ifNotNull(groupUID) { groupUid ->
+                    val viewModel2 = remember { SharedTimerViewModel(groupUid, db) }
+                    SharedTimerScreen(navigationActions, viewModel2, groupUid)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }
