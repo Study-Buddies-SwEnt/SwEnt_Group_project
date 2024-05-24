@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,7 +60,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DbRepository
@@ -89,7 +87,7 @@ fun GroupSetting(
   if (groupUID.isEmpty()) return
   groupViewModel.fetchGroupData(groupUID)
   val groupData by groupViewModel.group.observeAsState()
-    val isBoxVisible = remember { mutableStateOf(false) }
+  val isBoxVisible = remember { mutableStateOf(false) }
 
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val photoState = remember { mutableStateOf(groupData?.picture ?: Uri.EMPTY) }
@@ -122,10 +120,7 @@ fun GroupSetting(
     permission = "android.permission.READ_EXTERNAL_STORAGE"
   }
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(White)
-          .testTag("modify_group_scaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.group_settings)) },
@@ -134,44 +129,45 @@ fun GroupSetting(
             },
             actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
-      if (isBoxVisible.value) { ShowContact(groupUID, groupViewModel, isBoxVisible) }
-      else {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top) {
-              LazyColumn(
-                  modifier =
-                  Modifier
-                      .fillMaxSize()
-                      .padding(paddingValues)
-                      .testTag("modify_group_column"),
-                  verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.CenterHorizontally) {
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item { ModifyName(nameState) }
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item {
-                      ModifyProfilePicture(photoState) {
-                        checkPermission(context, permission, requestPermissionLauncher) {
-                          getContent.launch(imageInput)
+        if (isBoxVisible.value) {
+          ShowContact(groupUID, groupViewModel, isBoxVisible)
+        } else {
+          Column(
+              modifier = Modifier.fillMaxSize(),
+              horizontalAlignment = Alignment.Start,
+              verticalArrangement = Arrangement.Top) {
+                LazyColumn(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues)
+                            .testTag("modify_group_column"),
+                    verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item { ModifyName(nameState) }
+                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item {
+                        ModifyProfilePicture(photoState) {
+                          checkPermission(context, permission, requestPermissionLauncher) {
+                            getContent.launch(imageInput)
+                          }
+                        }
+                      }
+                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item { AddMemberButtonUID(groupUID, groupViewModel) }
+                      item { AddMemberButtonList(isBoxVisible) }
+                      item { ShareLinkButton(groupLink.value) }
+                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item {
+                        SaveButton(nameState) {
+                          groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
+                          navigationActions.navigateTo(Route.GROUPSHOME)
                         }
                       }
                     }
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item { AddMemberButtonUID(groupUID, groupViewModel) }
-                  item { AddMemberButtonList(isBoxVisible) }
-                    item { ShareLinkButton(groupLink.value) }
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item {
-                      SaveButton(nameState) {
-                        groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
-                        navigationActions.navigateTo(Route.GROUPSHOME)
-                      }
-                    }
-                  }
-            }
-      }}
+              }
+        }
+      }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,10 +179,7 @@ fun ModifyName(nameState: MutableState<String>) {
       onValueChange = { nameState.value = it },
       singleLine = true,
       modifier =
-      Modifier
-          .padding(0.dp)
-          .clip(MaterialTheme.shapes.small)
-          .testTag("group_name_field"),
+          Modifier.padding(0.dp).clip(MaterialTheme.shapes.small).testTag("group_name_field"),
       colors =
           OutlinedTextFieldDefaults.colors(
               cursorColor = Blue,
@@ -198,18 +191,14 @@ fun ModifyName(nameState: MutableState<String>) {
 @Composable
 fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
-      painter = rememberImagePainter(photoState.value),
+      painter = rememberAsyncImagePainter(photoState.value),
       contentDescription = "Profile Picture",
-      modifier = Modifier
-          .size(200.dp)
-          .border(1.dp, Blue, RoundedCornerShape(5.dp)),
+      modifier = Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),
       contentScale = ContentScale.Crop)
   Spacer(Modifier.height(20.dp))
   Text(
       text = stringResource(R.string.modify_the_profile_picture),
-      modifier = Modifier
-          .clickable { onClick() }
-          .testTag("set_picture_button"))
+      modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
 @Composable
@@ -221,9 +210,11 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
 
   Column {
     Button(
-        onClick = { isTextFieldVisible = !isTextFieldVisible
-                  showSucces = false
-            showError = false },
+        onClick = {
+          isTextFieldVisible = !isTextFieldVisible
+          showSucces = false
+          showError = false
+        },
         shape = MaterialTheme.shapes.medium,
         colors =
             ButtonDefaults.buttonColors(
@@ -250,34 +241,34 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
             KeyboardActions(
                 onDone = {
                   // add the user to the database
-                    isTextFieldVisible = false
-                    if (text == "") text = "Error"
+                  isTextFieldVisible = false
+                  if (text == "") text = "Error"
                   groupViewModel.addUserToGroup(groupUID, text) { isError ->
                     if (isError) {
                       showError = true
-                        if (text == "Error") text = ""
+                      if (text == "Error") text = ""
                     } else {
                       showSucces = true
-                        text = ""
+                      text = ""
                     }
                   }
                 }))
   }
   if (showError) {
     Snackbar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        action = { TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showError = false }) {} }) {
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = {
+          TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showError = false }) {}
+        }) {
           Text(stringResource(R.string.can_t_find_a_member_with_this_uid))
         }
   }
   if (showSucces) {
     Snackbar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        action = { TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showSucces = false }) {} }) {
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        action = {
+          TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showSucces = false }) {}
+        }) {
           Text(stringResource(R.string.user_have_been_successfully_added_to_the_group))
         }
   }
@@ -322,86 +313,85 @@ fun ShareLinkButton(groupLink: String) {
 @Composable
 fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
 
-    Column {
-        Button(
-            onClick = { isBoxVisible.value = true },
-            shape = MaterialTheme.shapes.medium,
-            colors =
+  Column {
+    Button(
+        onClick = { isBoxVisible.value = true },
+        shape = MaterialTheme.shapes.medium,
+        colors =
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-            Text("Add member from list", color = Color.White)
+          Text("Add member from list", color = Color.White)
         }
-    }
+  }
 }
 
 @Composable
-fun ShowContact(groupUID: String, groupViewModel: GroupViewModel, isBoxVisible: MutableState<Boolean>) {
-    groupViewModel.getAllFriends(groupViewModel.getCurrentUser())
-    val members by groupViewModel.members.observeAsState()
-    members?.let {
-        Box (modifier = Modifier.fillMaxSize()){
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item {
-                    Spacer(modifier = Modifier.height(64.dp))
+fun ShowContact(
+    groupUID: String,
+    groupViewModel: GroupViewModel,
+    isBoxVisible: MutableState<Boolean>
+) {
+  groupViewModel.getAllFriends(groupViewModel.getCurrentUser())
+  val members by groupViewModel.members.observeAsState()
+  members?.let {
+    Box(modifier = Modifier.fillMaxSize()) {
+      LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item { Spacer(modifier = Modifier.height(64.dp)) }
+        item {
+          Box(modifier = Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = { isBoxVisible.value = false },
+                modifier = Modifier.align(Alignment.TopEnd)) {
+                  Icon(
+                      imageVector = Icons.Default.Close,
+                      modifier = Modifier.size(40.dp),
+                      contentDescription = "Close friends List",
+                  )
                 }
-                item {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        IconButton(
-                            onClick = { isBoxVisible.value = false },
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                modifier = Modifier.size(40.dp),
-                                contentDescription = "Close friends List",
-                            )
-                        }
-                    }
-                }
-                item {
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-                items(members!!) { member ->
-                    ShowOneUser(member, groupViewModel, groupUID, isBoxVisible)
-                }
-            }
+          }
         }
+        item { Spacer(modifier = Modifier.height(4.dp)) }
+        items(members!!) { member -> ShowOneUser(member, groupViewModel, groupUID, isBoxVisible) }
+      }
     }
+  }
 }
 
 @Composable
-fun ShowOneUser(user: User, groupViewModel: GroupViewModel, groupUID: String, isBoxVisible: MutableState<Boolean>) {
-    Box(
-        modifier =
-        Modifier.clickable { groupViewModel.addUserToGroup(groupUID, user.uid) {}
-            isBoxVisible.value = false}
-            .fillMaxWidth()
-            .background(Color.White)
-            .drawBehind {
+fun ShowOneUser(
+    user: User,
+    groupViewModel: GroupViewModel,
+    groupUID: String,
+    isBoxVisible: MutableState<Boolean>
+) {
+  Box(
+      modifier =
+          Modifier.clickable {
+                groupViewModel.addUserToGroup(groupUID, user.uid) {}
+                isBoxVisible.value = false
+              }
+              .fillMaxWidth()
+              .background(Color.White)
+              .drawBehind {
                 val strokeWidth = 4f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-            }) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-            Box(modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(Color.Transparent)) {
-                Image(
-                    painter = rememberAsyncImagePainter(user.photoUrl),
-                    contentDescription = stringResource(id = R.string.user_picture),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop)
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = user.username,
-                modifier = Modifier.align(Alignment.CenterVertically),
-                style = TextStyle(fontSize = 20.sp),
-                lineHeight = 28.sp)
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+            Image(
+                painter = rememberAsyncImagePainter(user.photoUrl),
+                contentDescription = stringResource(id = R.string.user_picture),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop)
+          }
+          Spacer(modifier = Modifier.size(16.dp))
+          Text(
+              text = user.username,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
         }
-    }
+      }
 }

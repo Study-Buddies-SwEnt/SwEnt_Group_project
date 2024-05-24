@@ -408,7 +408,7 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
                   val groupVM = GroupViewModel(groupUID, db)
-                  groupVM.addUserToGroup(groupUID){}
+                  groupVM.addUserToGroup(groupUID) {}
                   navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))

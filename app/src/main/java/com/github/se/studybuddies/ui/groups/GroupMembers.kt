@@ -92,6 +92,7 @@ fun GroupMembers(
   }
 
   val userDatas = remember { mutableStateOf(mutableListOf<User>()) }
+  val isBoxVisible = remember { mutableStateOf(false) }
 
   if (members != null) {
     for (i in 0 until nbMember) {
@@ -119,27 +120,33 @@ fun GroupMembers(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
         ) {
-          LazyColumn(
-              modifier =
-                  Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
-              verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
-              horizontalAlignment = Alignment.CenterHorizontally) {
-                item { Name(nameState) }
-                item { Spacer(modifier = Modifier.padding(5.dp)) }
-                if (members != null) {
-                  items(userDatas.value) { member ->
-                    MemberItem(groupUID, member, navigationActions, db, userDatas, currUser)
-                  }
-                } else { // Should never happen
-                  item {
-                    Text(
-                        stringResource(R.string.error_no_member_found_for_this_group),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.testTag("EmptyGroupMemberText"))
+          if (isBoxVisible.value) {
+            ShowContact(groupUID, groupViewModel, isBoxVisible)
+          } else {
+            LazyColumn(
+                modifier =
+                    Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
+                verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                  item { Name(nameState) }
+                  item { Spacer(modifier = Modifier.padding(5.dp)) }
+                  item { AddMemberButtonUID(groupUID, groupViewModel) }
+                  item { AddMemberButtonList(isBoxVisible) }
+                  item { Spacer(modifier = Modifier.padding(5.dp)) }
+                  if (members != null) {
+                    items(userDatas.value) { member ->
+                      MemberItem(groupUID, member, navigationActions, db, userDatas, currUser)
+                    }
+                  } else { // Should never happen
+                    item {
+                      Text(
+                          stringResource(R.string.error_no_member_found_for_this_group),
+                          textAlign = TextAlign.Center,
+                          modifier = Modifier.testTag("EmptyGroupMemberText"))
+                    }
                   }
                 }
-                // item { add member button } will be added later
-              }
+          }
         }
       }
 }
