@@ -45,7 +45,6 @@ fun VideoCallScreen(call: Call, onCallDisconnected: () -> Unit = {}) {
   val connection by call.state.connection.collectAsStateWithLifecycle()
   val context = LocalContext.current
 
-  LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
   LaunchedEffect(key1 = connection) {
     when (connection) {
       RealtimeConnection.Disconnected -> {

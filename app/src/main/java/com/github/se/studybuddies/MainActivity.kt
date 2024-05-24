@@ -295,9 +295,8 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  val activeCall = StreamVideo.instance().state.activeCall.value
                   ifNotNull(groupUID) { callId ->
-                    val call = startCall(activeCall, callId, callType)
+                    val call = startCall(StreamVideo.instance().state.activeCall.value, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
                     VideoCallScreen(call) {
                       navController.popBackStack("${Route.GROUP}/$groupUID", false)

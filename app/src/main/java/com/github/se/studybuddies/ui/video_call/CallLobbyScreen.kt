@@ -44,7 +44,6 @@ fun CallLobbyScreen(
     callLobbyViewModel: CallLobbyViewModel,
     navigationActions: NavigationActions
 ) {
-  LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
   val call by remember { mutableStateOf(callLobbyViewModel.call) }
   val isLoading by callLobbyViewModel.isLoading.collectAsState()
   val isCameraEnabled by call.camera.isEnabled.collectAsState()
@@ -67,6 +66,12 @@ fun CallLobbyScreen(
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("call_lobby")) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Blue,
+            )
+        }
       Column(
           modifier = Modifier.fillMaxSize().testTag("content"),
           horizontalAlignment = Alignment.CenterHorizontally,
@@ -102,12 +107,7 @@ fun CallLobbyScreen(
               Text(stringResource(R.string.join_call))
             }
       }
-      if (isLoading) {
-        CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center),
-            color = Blue,
-        )
-      }
+
     }
   }
 }
