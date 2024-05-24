@@ -393,13 +393,20 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         assertIsDisplayed()
         assertHasClickAction()
       }
-      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
-      composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
-      composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
       composeTestRule
-          .onNodeWithTag("groupTest1_text", useUnmergedTree = true)
-          .assertExists()
-          .assertTextContains("TestGroup1")
+          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
+      confirmVerified(mockNavActions)
     }
   }
 
