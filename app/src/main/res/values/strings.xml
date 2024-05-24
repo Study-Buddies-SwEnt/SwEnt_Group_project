@@ -118,4 +118,6 @@
     <string name="ok">OK</string>
     <string name="members">Members</string>
     <string name="error_no_member_found_for_this_group">Error, no member found for this group</string>
+    <string name="add_a_new_task">Add a new task</string>
+    <string name="edit_task">Edit task</string>
 </resources>
