@@ -261,6 +261,19 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   }*/
 
   @Test
+  fun listGroupDisplayed() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      testGroup1Box {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+      confirmVerified(mockNavActions)
+    }
+  }
+
+  @Test
   fun groupItemElementsDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
