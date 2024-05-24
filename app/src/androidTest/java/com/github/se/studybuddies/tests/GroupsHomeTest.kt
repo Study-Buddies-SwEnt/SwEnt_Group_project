@@ -263,6 +263,8 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun listGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      groupList { assertExists() }
+      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
       testGroup1Box {
         assertIsDisplayed()
         assertHasClickAction()
