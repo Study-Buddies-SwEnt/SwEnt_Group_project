@@ -316,7 +316,9 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null && StreamVideo.isInstalled) {
-                    val viewModel = remember { CallLobbyViewModel(groupUID, callType) }
+                    val viewModel: CallLobbyViewModel = remember {
+                      CallLobbyViewModel(groupUID, callType)
+                    }
                     Log.d("MyPrint", "Join VideoCall lobby")
                     CallLobbyScreen(groupUID, viewModel, navigationActions)
                   } else {
@@ -330,13 +332,14 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  val activeCall = StreamVideo.instance().state.activeCall.value
                   ifNotNull(groupUID) { callId ->
-                    val call = startCall(activeCall, callId, callType)
+                    val call =
+                        startCall(StreamVideo.instance().state.activeCall.value, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
-                    VideoCallScreen(call) {
-                      navController.popBackStack("${Route.GROUP}/$groupUID", false)
-                    }
+                    VideoCallScreen(
+                        call,
+                        { navigationActions.navigateTo("${Route.GROUP}/$callId") },
+                        { leaveCall(call, navController, callId) })
                   }
                 }
 
@@ -394,6 +397,12 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
+  }
+
+  private fun leaveCall(call: Call, navController: NavHostController, groupUID: String) {
+    StreamVideo.instance().state.activeCall.value?.leave()
+    call.leave()
+    navController.popBackStack("${Route.GROUP}/$groupUID", false)
   }
 
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
