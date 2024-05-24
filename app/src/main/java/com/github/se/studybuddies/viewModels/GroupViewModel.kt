@@ -44,6 +44,10 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
     viewModelScope.launch { _member.value = db.getUser(uid) }
   }
 
+  fun getCurrentUser(): String {
+    return db.getCurrentUserUID()
+  }
+
   private fun subscribeToTopics(uid: String) {
     db.getAllTopics(uid, viewModelScope, Dispatchers.IO, Dispatchers.Main) { topicList ->
       _topics.value = topicList

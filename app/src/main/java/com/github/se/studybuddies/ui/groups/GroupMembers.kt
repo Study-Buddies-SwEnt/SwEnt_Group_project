@@ -80,6 +80,8 @@ fun GroupMembers(
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val members = remember { groupData?.let { mutableStateOf(it.members) } }
 
+  val currUser = groupViewModel.getCurrentUser()
+
   var nbMember = 0
   groupData?.let {
     nameState.value = it.name
@@ -126,7 +128,7 @@ fun GroupMembers(
                 item { Spacer(modifier = Modifier.padding(5.dp)) }
                 if (members != null) {
                   items(userDatas.value) { member ->
-                    MemberItem(groupUID, member, navigationActions, db, userDatas.value.size)
+                    MemberItem(groupUID, member, navigationActions, db, userDatas, currUser)
                   }
                 } else { // Should never happen
                   item {
@@ -157,7 +159,8 @@ fun MemberItem(
     user: User,
     navigationActions: NavigationActions,
     db: DbRepository,
-    membersCount: Int
+    userDatas: MutableState<MutableList<User>>,
+    currUser: String
 ) {
   Box(
       modifier =
@@ -184,7 +187,8 @@ fun MemberItem(
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          MemberOptionButton(groupUID, user.uid, user.username, navigationActions, db, membersCount)
+          MemberOptionButton(
+              groupUID, user.uid, user.username, navigationActions, db, userDatas, currUser)
         }
       }
 }
@@ -196,7 +200,8 @@ fun MemberOptionButton(
     username: String,
     navigationActions: NavigationActions,
     db: DbRepository,
-    membersCount: Int
+    userDatas: MutableState<MutableList<User>>,
+    currUser: String
 ) {
   var isRemoveUserDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
@@ -251,11 +256,15 @@ fun MemberOptionButton(
                         Button(
                             onClick = {
                               groupViewModel.leaveGroup(groupUID, userUID)
-                              if (membersCount > 1) {
+                              if (userUID != currUser) {
+                                userDatas.value =
+                                    userDatas.value.filter { it.uid != userUID }.toMutableList()
+                                navigationActions.navigateTo(Route.GROUPSHOME)
                                 navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
                               } else {
                                 navigationActions.navigateTo(Route.GROUPSHOME)
                               }
+                              isRemoveUserDialogVisible = false
                             },
                             modifier =
                                 Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
