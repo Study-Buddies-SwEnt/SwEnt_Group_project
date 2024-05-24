@@ -24,7 +24,6 @@ import com.github.se.studybuddies.ui.chat.OptionsDialog
 import com.github.se.studybuddies.ui.chat.SendFileMessage
 import com.github.se.studybuddies.ui.chat.SendLinkMessage
 import com.github.se.studybuddies.ui.chat.SendPhotoMessage
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -48,7 +47,6 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
   private val groupUID = "automaticTestGroupUID"
-  private val db = MockDatabase()
 
   @Before
   fun setUp() {
@@ -80,14 +78,17 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendButton {
         assertIsDisplayed()
         assertHasClickAction()
       }
       textField { assertIsDisplayed() }
-      chatMessage { assertIsDisplayed() }
+      chatMessage {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
       messageMoreType { assertIsDisplayed() }
     }
   }
@@ -112,7 +113,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       chatMessage {
         assertIsDisplayed()
@@ -142,7 +143,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageMoreType { performClick() }
       sendMoreMessagesType { assertIsDisplayed() }
@@ -168,7 +169,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       chatGroupTitleImage { assertIsDisplayed() }
       chatGroupTitleText { assertIsDisplayed() }
@@ -198,7 +199,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       // Test the UI elements
       textField { performTextInput(messageToSend) }
@@ -225,7 +226,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             picture =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
     val vm = MessageViewModel(chat)
-    composeTestRule.setContent { ChatScreen(vm, mockNavActions, db) }
+    composeTestRule.setContent { ChatScreen(vm, mockNavActions) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       chatPrivateTitleImage { assertIsDisplayed() }
       chatPrivateTitleText { assertIsDisplayed() }
@@ -371,7 +372,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   }
 
   @Test
-  fun testOptionDialog() {
+  fun testOptionDialogOwn() {
     composeTestRule.setContent {
       val chat =
           Chat(
@@ -389,7 +390,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
       val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions, db)
+      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       optionDialog { assertIsDisplayed() }
@@ -405,7 +406,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   }
 
   @Test
-  fun testOptionDialog2() {
+  fun testOptionDialogOtherOwner() {
     composeTestRule.setContent {
       val chat =
           Chat(
@@ -422,7 +423,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
       val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions, db)
+      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       optionDialog { assertIsDisplayed() }
@@ -442,12 +443,13 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
           picture = Uri.EMPTY)
 
   @Test
-  fun testEditDialog() {
+  fun testEditDialogText() {
+    val text = "Hello, World!"
     composeTestRule.setContent {
       val vm = MessageViewModel(chat)
       val message =
           Message.TextMessage(
-              text = "Hello, World!",
+              text = text,
               sender =
                   User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
               timestamp = System.currentTimeMillis())
@@ -456,7 +458,34 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       editDialog { assertIsDisplayed() }
-      editDialogTextField { assertIsDisplayed() }
+      editDialogTextField {
+        assertIsDisplayed()
+        assertTextEquals(text)
+      }
+    }
+  }
+
+  @Test
+  fun testEditDialogLink() {
+    val text = "https://www.epfl.ch"
+    composeTestRule.setContent {
+      val vm = MessageViewModel(chat)
+      val message =
+          Message.LinkMessage(
+              linkUri = Uri.parse(text),
+              linkName = "Test Link",
+              sender =
+                  User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
+              timestamp = System.currentTimeMillis())
+      val showEditDialog = remember { mutableStateOf(true) }
+      EditDialog(vm, message, showEditDialog)
+    }
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      editDialog { assertIsDisplayed() }
+      editDialogTextField {
+        assertIsDisplayed()
+        assertTextEquals(text)
+      }
     }
   }
 
@@ -467,7 +496,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       val showAddImage = remember { mutableStateOf(false) }
       val showAddLink = remember { mutableStateOf(false) }
       val showAddFile = remember { mutableStateOf(false) }
-      IconsOptionsList(showIconsOptions, showAddImage, showAddLink, showAddFile)
+      val chat =
+          Chat(
+              uid = groupUID,
+              type = ChatType.GROUP,
+              name = "Test Group",
+              members = emptyList(),
+              picture = Uri.EMPTY)
+      val vm = MessageViewModel(chat)
+      IconsOptionsList(vm, showIconsOptions, showAddImage, showAddLink, showAddFile)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendMoreMessagesType { assertIsDisplayed() }

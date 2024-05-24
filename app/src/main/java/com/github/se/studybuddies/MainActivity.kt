@@ -251,7 +251,7 @@ class MainActivity : ComponentActivity() {
             composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
-              ChatScreen(messageViewModel, navigationActions, db)
+              ChatScreen(messageViewModel, navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
               ifNotNull(auth.currentUser) { _ ->
