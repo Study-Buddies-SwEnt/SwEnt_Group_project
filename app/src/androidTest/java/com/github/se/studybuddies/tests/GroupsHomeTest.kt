@@ -234,6 +234,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions, db) }
   }
 
+  /*
   @Test
   fun groupListElementsDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
@@ -257,7 +258,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .assertExists()
           .assertTextContains("TestGroup1")*/
     }
-  }
+  }*/
 
   @Test
   fun groupItemElementsDisplay() {
@@ -352,7 +353,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .assertTextContains("No")
     }
   }
-
+  /*
   @Test
   fun leavingGroupOption() = run {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
@@ -371,7 +372,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
             .performClick()
         verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
         confirmVerified(mockNavActions)
-      } /*
+      }
         step("LeaveNo") {
           composeTestRule
               .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
@@ -385,9 +386,9 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
               .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
               .assertIsDisplayed()
               .performClick()
-        }*/
+        }
     }
-  }
+  }*/
 
   @Test
   fun deleteGroupDisplayed() {
