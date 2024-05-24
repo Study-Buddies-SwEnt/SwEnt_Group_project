@@ -79,8 +79,8 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
     viewModelScope.launch { db.deleteGroup(groupUID) }
   }
 
-  fun addUserToGroup(groupUID: String, text: String = "") {
-    viewModelScope.launch { db.addUserToGroup(groupUID, text) }
+  fun addUserToGroup(groupUID: String, text: String = "", callBack: (Boolean) -> Unit) {
+    viewModelScope.launch { db.addUserToGroup(groupUID, text) {isError -> callBack(isError)} }
   }
 
   fun updateGroup(groupUID: String, name: String, photoURI: Uri?) {

@@ -134,9 +134,9 @@ fun GroupSetting(
                         }
                       }
                     }
-                    item { Spacer(modifier = Modifier.padding(20.dp)) }
-                    item { AddMemberButton(groupUID, groupViewModel) }
-                    item { Spacer(modifier = Modifier.padding(0.dp)) }
+                    item { Spacer(modifier = Modifier.padding(10.dp)) }
+                    item { AddMemberButtonUID(groupUID, groupViewModel) }
+                  item { AddMemberButtonList(groupUID, groupViewModel) }
                     item { ShareLinkButton(groupLink.value) }
                     item { Spacer(modifier = Modifier.padding(10.dp)) }
                     item {
@@ -182,7 +182,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
+fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
@@ -190,13 +190,15 @@ fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
 
   Column {
     Button(
-        onClick = { isTextFieldVisible = !isTextFieldVisible },
+        onClick = { isTextFieldVisible = !isTextFieldVisible
+                  showSucces = false
+            showError = false },
         shape = MaterialTheme.shapes.medium,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text(stringResource(R.string.add_members), color = Color.White)
+          Text("Add member with UID", color = Color.White)
         }
   }
 
@@ -217,24 +219,49 @@ fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
             KeyboardActions(
                 onDone = {
                   // add the user to the database
-                  isTextFieldVisible = false
-                  groupViewModel.addUserToGroup(groupUID, text)
+                    isTextFieldVisible = false
+                    if (text == "") text = "Error"
+                  groupViewModel.addUserToGroup(groupUID, text) { isError ->
+                    if (isError) {
+                      showError = true
+                        if (text == "Error") text = ""
+                    } else {
+                      showSucces = true
+                        text = ""
+                    }
+                  }
                 }))
   }
   if (showError) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        action = { TextButton(onClick = { showError = false }) {} }) {
+        action = { TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showError = false }) {} }) {
           Text(stringResource(R.string.can_t_find_a_member_with_this_uid))
         }
   }
   if (showSucces) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        action = { TextButton(onClick = { showSucces = false }) {} }) {
+        action = { TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showSucces = false }) {} }) {
           Text(stringResource(R.string.user_have_been_successfully_added_to_the_group))
         }
   }
+}
+
+@Composable
+fun AddMemberButtonList(groupUID: String, groupViewModel: GroupViewModel) {
+
+    Column {
+        Button(
+            onClick = {},//todo
+            shape = MaterialTheme.shapes.medium,
+            colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Blue,
+            )) {
+            Text("Add member from list", color = Color.White)
+        }
+    }
 }
 
 @Composable
