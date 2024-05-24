@@ -17,11 +17,7 @@ fun imagePermissionVersion(): String {
 }
 
 fun getStoragePermission(): String {
-  return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    Manifest.permission.WRITE_EXTERNAL_STORAGE
-  } else {
-    Manifest.permission.READ_MEDIA_IMAGES // Adjust this based on actual requirement
-  }
+  return Manifest.permission.WRITE_EXTERNAL_STORAGE
 }
 
 // Function to check and request a single permission.
