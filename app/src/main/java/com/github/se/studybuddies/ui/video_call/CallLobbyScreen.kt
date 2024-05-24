@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.video_call
 
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,7 +55,7 @@ fun CallLobbyScreen(
         if (it.values.contains(false)) {
           Toast.makeText(
                   context,
-                  "Call permissions are required to join the call",
+                  "Camera and microphone permissions are required to join the call",
                   Toast.LENGTH_LONG,
               )
               .show()
@@ -66,12 +65,12 @@ fun CallLobbyScreen(
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("call_lobby")) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Blue,
-            )
-        }
+      if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center),
+            color = Blue,
+        )
+      }
       Column(
           modifier = Modifier.fillMaxSize().testTag("content"),
           horizontalAlignment = Alignment.CenterHorizontally,
@@ -107,7 +106,6 @@ fun CallLobbyScreen(
               Text(stringResource(R.string.join_call))
             }
       }
-
     }
   }
 }

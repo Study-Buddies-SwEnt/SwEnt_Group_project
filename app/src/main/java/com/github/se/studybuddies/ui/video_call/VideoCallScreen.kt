@@ -1,8 +1,6 @@
 package com.github.se.studybuddies.ui.video_call
 
-import android.content.res.Configuration
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +15,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.activecall.CallContent
 import io.getstream.video.android.compose.ui.components.call.controls.ControlActions
@@ -33,57 +29,20 @@ import io.getstream.video.android.compose.ui.components.call.renderer.Participan
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 import io.getstream.video.android.compose.ui.components.call.renderer.RegularVideoRendererStyle
 import io.getstream.video.android.core.Call
-import io.getstream.video.android.core.RealtimeConnection
 import io.getstream.video.android.core.StreamVideo
 
 // Design UI elements using Jetpack Compose
 @Composable
-fun VideoCallScreen(call: Call, onCallDisconnected: () -> Unit = {}) {
+fun VideoCallScreen(
+    call: Call,
+    keepCallConnected: () -> Unit = {},
+    onCallDisconnected: () -> Unit = {}
+) {
   val isCameraEnabled by call.camera.isEnabled.collectAsState()
   val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
   val layout by remember { mutableStateOf(LayoutType.DYNAMIC) }
-  val connection by call.state.connection.collectAsStateWithLifecycle()
-  val context = LocalContext.current
 
-  LaunchedEffect(key1 = connection) {
-    when (connection) {
-      RealtimeConnection.Disconnected -> {
-        Toast.makeText(
-                context,
-                "Call connection disconnected (${(connection as RealtimeConnection.Failed).error}",
-                Toast.LENGTH_LONG,
-            )
-            .show()
-        onCallDisconnected.invoke()
-      }
-      RealtimeConnection.Failed("connection") -> {
-        Toast.makeText(
-                context,
-                "Call connection failed (${(connection as RealtimeConnection.Failed).error}",
-                Toast.LENGTH_LONG,
-            )
-            .show()
-        onCallDisconnected.invoke()
-      }
-      else -> {
-        if (StreamVideo.instance().state.activeCall.value == call) {
-          Log.d("MyPrint", "Active call is the same as the call we are trying to join")
-        } else {
-          try {
-            call.join()
-            Log.d("MyPrint", "Trying to join call")
-          } catch (e: Exception) {
-            Log.d("MyPrint", "Trying to join call got exception, leave call")
-            // call.leave()
-            // call.join()
-          } finally {
-            Log.d("MyPrint", "Keeping active call")
-            keepActiveCall(call)
-          }
-        }
-      }
-    }
-  }
+  JoinCall(call)
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("video_call_screen")) {
@@ -95,10 +54,7 @@ fun VideoCallScreen(call: Call, onCallDisconnected: () -> Unit = {}) {
           call = call,
           enableInPictureInPicture = true,
           layout = layout,
-          onBackPressed = {
-            leaveCall(call)
-            onCallDisconnected.invoke()
-          },
+          onBackPressed = { keepCallConnected.invoke() },
           videoContent = {
             ParticipantsLayout(
                 call = call,
@@ -157,6 +113,27 @@ fun VideoCallScreen(call: Call, onCallDisconnected: () -> Unit = {}) {
                     ))
           },
       )
+    }
+  }
+}
+
+@Composable
+private fun JoinCall(call: Call) {
+  LaunchedEffect(call) {
+    if (StreamVideo.instance().state.activeCall.value == call) {
+      Log.d("MyPrint", "Active call is the same as the call we are trying to join")
+    } else {
+      try {
+        call.join()
+        Log.d("MyPrint", "Trying to join call")
+      } catch (e: Exception) {
+        Log.d("MyPrint", "Trying to join call got exception, leave call")
+        call.leave()
+        call.join()
+      } finally {
+        Log.d("MyPrint", "Keeping active call")
+        keepActiveCall(call)
+      }
     }
   }
 }
