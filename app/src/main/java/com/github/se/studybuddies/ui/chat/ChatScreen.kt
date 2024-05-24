@@ -387,60 +387,48 @@ fun CommonOptions(
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
 ) {
-  Text(text = selectedMessage.getDate())
   val context = LocalContext.current
+  Text(text = selectedMessage.getDate())
+  when (selectedMessage) {
+    is Message.PhotoMessage -> {
+      DownloadButton(permission = imagePermissionVersion(), context) {
+        val name = selectedMessage.uid
+        CoroutineScope(Dispatchers.Main).launch {
+          saveToStorage(context, selectedMessage.photoUri, name, SaveType.Photo())
+        }
+        showOptionsDialog.value = false
+      }
+    }
+    is Message.FileMessage -> {
+      DownloadButton(permission = getStoragePermission(), context) {
+        val name = selectedMessage.fileName
+        CoroutineScope(Dispatchers.Main).launch {
+          saveToStorage(context, selectedMessage.fileUri, name, SaveType.PDF())
+        }
+        showOptionsDialog.value = false
+      }
+    }
+    else -> {}
+  }
+}
+
+@Composable
+fun DownloadButton(permission: String, context: Context, onClick: () -> Unit) {
   var hasPermission by remember { mutableStateOf(false) }
   val requestPermissionLauncher =
       rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         hasPermission = isGranted
       }
-  when (selectedMessage) {
-    is Message.PhotoMessage -> {
-      val permission = imagePermissionVersion()
-      LaunchedEffect(key1 = Unit) {
-        checkPermission(context, permission, requestPermissionLauncher) { hasPermission = true }
-      }
-
-      if (hasPermission) {
-        Button(
-            modifier = Modifier.testTag("option_dialog_download"),
-            onClick = {
-              val name = selectedMessage.uid
-              CoroutineScope(Dispatchers.Main).launch {
-                saveToStorage(context, selectedMessage.photoUri, name, SaveType.Photo())
-              }
-              showOptionsDialog.value = false
-            }) {
-              Text(
-                  text = stringResource(R.string.download),
-                  style = TextStyle(color = White),
-              )
-            }
-      }
+  LaunchedEffect(key1 = Unit) {
+    checkPermission(context, permission, requestPermissionLauncher) { hasPermission = true }
+  }
+  if (hasPermission) {
+    Button(modifier = Modifier.testTag("option_dialog_download"), onClick = { onClick() }) {
+      Text(
+          text = stringResource(R.string.download),
+          style = TextStyle(color = White),
+      )
     }
-    is Message.FileMessage -> {
-      val permission = getStoragePermission()
-      LaunchedEffect(key1 = Unit) {
-        checkPermission(context, permission, requestPermissionLauncher) { hasPermission = true }
-      }
-      if (hasPermission) {
-        Button(
-            modifier = Modifier.testTag("option_dialog_download"),
-            onClick = {
-              CoroutineScope(Dispatchers.Main).launch {
-                saveToStorage(
-                    context, selectedMessage.fileUri, selectedMessage.fileName, SaveType.PDF())
-              }
-              showOptionsDialog.value = false
-            }) {
-              Text(
-                  text = stringResource(R.string.download),
-                  style = TextStyle(color = White),
-              )
-            }
-      }
-    }
-    else -> {}
   }
 }
 
