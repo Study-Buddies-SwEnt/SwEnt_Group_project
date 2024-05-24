@@ -362,7 +362,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
             .assertIsDisplayed()
             .performClick()
         composeTestRule
-            .onNodeWithTag("groupTest1_delete_yes_button", useUnmergedTree = true)
+            .onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
         verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
