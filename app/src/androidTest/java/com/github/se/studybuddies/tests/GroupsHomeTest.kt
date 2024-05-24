@@ -263,12 +263,19 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun listGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupList { assertExists() }
+      groupList { assertIsDisplayed() }
       composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
       testGroup1Box {
         assertIsDisplayed()
         assertHasClickAction()
       }
+      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
+      composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
+      composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
+      composeTestRule
+          .onNodeWithTag("groupTest1_text", useUnmergedTree = true)
+          .assertExists()
+          .assertTextContains("TestGroup1")
     }
   }
 
@@ -365,9 +372,9 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .assertTextContains("No")
     }
   }
-  /*
+
   @Test
-  fun leavingGroupOption() = run {
+  fun leavingGroupOptions() = run {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       step("LeaveYes") {
         composeTestRule
@@ -385,22 +392,22 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
         confirmVerified(mockNavActions)
       }
-        step("LeaveNo") {
-          composeTestRule
-              .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-              .assertIsDisplayed()
-              .performClick()
-          composeTestRule
-              .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
-              .assertIsDisplayed()
-              .performClick()
-          composeTestRule
-              .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
-              .assertIsDisplayed()
-              .performClick()
-        }
+      step("LeaveNo") {
+        composeTestRule
+            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+        composeTestRule
+            .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+        composeTestRule
+            .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+      }
     }
-  }*/
+  }
 
   @Test
   fun deleteGroupDisplayed() {
