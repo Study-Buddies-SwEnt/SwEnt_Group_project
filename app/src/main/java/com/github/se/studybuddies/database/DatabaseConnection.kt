@@ -297,6 +297,18 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e -> onFailure(e) }
   }
 
+  override fun groupExists(
+      groupUID: String,
+      onSuccess: (Boolean) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    groupDataCollection
+        .document(groupUID)
+        .get()
+        .addOnSuccessListener { document -> onSuccess(document.exists()) }
+        .addOnFailureListener { e -> onFailure(e) }
+  }
+
   // using the groups & userMemberships collections
   override suspend fun getAllGroups(uid: String): GroupList {
     try {
