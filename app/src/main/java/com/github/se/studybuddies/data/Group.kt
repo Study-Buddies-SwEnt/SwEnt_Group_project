@@ -27,6 +27,14 @@ class GroupList(private val groups: List<Group>) {
   fun getAllTasks(): List<Group> {
     return groups
   }
+    fun isGroupInside(groupUID: String): Boolean {
+    return groups.any { group -> group.uid == groupUID }
+    }
+
+    fun isEmpty(): Boolean {
+    return groups.isEmpty()
+
+    }
 
   fun getFilteredTasks(searchQuery: String): List<Group> {
     val filteredGroups =

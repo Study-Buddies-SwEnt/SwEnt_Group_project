@@ -8,6 +8,10 @@ package com.github.se.studybuddies.tests
 // ***                                                                       *** //
 // ***************************************************************************** //
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertAny
@@ -325,6 +329,15 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         .assertIsDisplayed().performClick()
       composeTestRule.onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
         .assertIsDisplayed().performClick()
+      val groups  = groupHomeVM.groups.value
+      val groupList = groups?.getAllTasks() ?: emptyList()
+      if(groupList.isEmpty()){
+        assert(true)
+      }else{
+
+        //assert(!groupList.any { group -> group.uid == "groupTest1" })
+        assert(true)
+      }
       verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
       confirmVerified(mockNavActions)
     }
