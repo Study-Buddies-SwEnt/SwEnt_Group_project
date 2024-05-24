@@ -1,8 +1,10 @@
 package com.github.se.studybuddies.viewModels
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoList
@@ -22,7 +24,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
-class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddies) {
+class ToDoListViewModel(private val context: Context) : ViewModel() {
 
   private val _todos = MutableStateFlow(ToDoList(emptyList()))
   val todos: StateFlow<ToDoList> = _todos
@@ -33,9 +35,8 @@ class ToDoListViewModel(studyBuddies: Application) : AndroidViewModel(studyBuddi
   private val json = Json { prettyPrint = true }
   // private val gson = Gson()
 
-  private val toDoFile = File(studyBuddies.filesDir, "ToDoList.json")
+  private val toDoFile = File(context.filesDir, "ToDoList.json")
 
-  // val encryption = Encryption(studyBuddies)
 
   init {
     fetchAllTodos()

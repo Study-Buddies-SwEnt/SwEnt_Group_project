@@ -22,7 +22,7 @@ class CreateToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val screenTitle: KNode = onNode { hasTestTag("createTodoTitle") }
 
   val saveButton: KNode = onNode { hasTestTag("todoSave") }
-  val topAppBox: KNode = child { hasTestTag("top_app_box") }
+  val topAppBox: KNode = onNode { hasTestTag("top_app_box") }
   val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
   val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
   val divider: KNode = onNode { hasTestTag("divider") }
