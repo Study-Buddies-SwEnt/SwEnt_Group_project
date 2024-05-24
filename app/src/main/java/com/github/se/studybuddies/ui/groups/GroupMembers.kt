@@ -77,18 +77,13 @@ fun GroupMembers(
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val currUser = groupViewModel.getCurrentUser()
   val isBoxVisible = remember { mutableStateOf(false) }
-    groupData?.let {
-    nameState.value = it.name
-    }
+  groupData?.let { nameState.value = it.name }
 
   groupViewModel.fetchUsers()
   val userData by groupViewModel.members.observeAsState()
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(White)
-          .testTag("members_scaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("members_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.members)) },
@@ -106,10 +101,7 @@ fun GroupMembers(
           } else {
             LazyColumn(
                 modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .testTag("draw_member_column"),
+                    Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
                 verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   item { Name(nameState) }
@@ -155,22 +147,16 @@ fun MemberItem(
 ) {
   Box(
       modifier =
-      Modifier
-          .fillMaxWidth()
-          .background(Color.White)
-          .drawBehind {
-              val strokeWidth = 1f
-              val y = size.height - strokeWidth / 2
-              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-          }
-          .testTag(userData.username + "_box")) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-          Box(modifier = Modifier
-              .size(52.dp)
-              .clip(CircleShape)
-              .background(Color.Transparent)) {
+          Modifier.fillMaxWidth()
+              .background(Color.White)
+              .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              }
+              .testTag(userData.username + "_box")) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
                 painter = rememberAsyncImagePainter(userData.photoUrl),
                 contentDescription = stringResource(id = R.string.user_picture),
@@ -234,11 +220,10 @@ fun MemberOptionButton(
     Dialog(onDismissRequest = { isRemoveUserDialogVisible = false }) {
       Box(
           modifier =
-          Modifier
-              .width(280.dp)
-              .height(140.dp)
-              .clip(RoundedCornerShape(10.dp))
-              .background(Color.White)) {
+              Modifier.width(280.dp)
+                  .height(140.dp)
+                  .clip(RoundedCornerShape(10.dp))
+                  .background(Color.White)) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.Center,
@@ -255,14 +240,14 @@ fun MemberOptionButton(
                               groupViewModel.leaveGroup(groupUID, userUID)
                               if (userUID == currUser) {
                                 navigationActions.navigateTo(Route.GROUPSHOME)
+                              } else {
+                                navigationActions.navigateTo(Route.GROUPSHOME)
+                                navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
                               }
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
-                            Modifier
-                                .clip(RoundedCornerShape(5.dp))
-                                .width(80.dp)
-                                .height(40.dp),
+                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -272,10 +257,7 @@ fun MemberOptionButton(
                         Button(
                             onClick = { isRemoveUserDialogVisible = false },
                             modifier =
-                            Modifier
-                                .clip(RoundedCornerShape(5.dp))
-                                .width(80.dp)
-                                .height(40.dp),
+                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
