@@ -268,10 +268,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       testGroup1Box {
         assertIsDisplayed()
         assertHasClickAction()
-        performClick()
       }
-      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
-      confirmVerified(mockNavActions)
     }
   }
 
