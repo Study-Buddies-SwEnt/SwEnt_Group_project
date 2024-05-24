@@ -347,52 +347,9 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     }
   }
 
-  /*
-  @Test
-  fun leavingGroupOptions() = run {
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      step("LeaveYes") {
-        composeTestRule
-            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule
-            .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule
-            .onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
-        confirmVerified(mockNavActions)
-      }
-      step("LeaveNo") {
-        composeTestRule
-            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule
-            .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule
-            .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-      }
-    }
-  }*/
-
   @Test
   fun leaveOptionsGroup() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupList { assertIsDisplayed() }
-      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
-      testGroup1Box {
-        assertIsDisplayed()
-        assertHasClickAction()
-      }
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -407,6 +364,18 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .performClick()
       verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
       confirmVerified(mockNavActions)
+      composeTestRule
+          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
     }
   }
 
