@@ -94,7 +94,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
               Spacer(modifier = Modifier.padding(10.dp))
               SaveButton(nameState.value.isNotBlank()) {
                 groupViewModel.createGroup(nameState.value, photoState.value)
-                navigationActions.navigateTo(Route.GROUPSHOME)
+                  navigationActions.goBack()
               }
             }
       }

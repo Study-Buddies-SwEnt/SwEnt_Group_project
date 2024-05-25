@@ -98,13 +98,35 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         assertIsEnabled()
         performClick()
       }
-      //verify { mockNavActions.navigateTo(Route.TODOLIST) }
-      //confirmVerified(mockNavActions)
+      verify { mockNavActions.goBack() }
+      confirmVerified(mockNavActions)
     }
   }
 
-    @Test
-    fun saveTaskDoesNotWorkWithEmptyTitle() = run {
+  @Test
+  fun inputDescription() {
+    onComposeScreen<CreateToDoScreen>(
+      composeTestRule
+    ) {
+      saveButton { assertIsNotEnabled() }
+      todoDescriptionField {
+        performTextClearance()
+        performTextInput("Official Task Testing")
+        assertTextContains("Official Task Testing")
+      }
+      ViewActions.closeSoftKeyboard()
+      saveButton {
+        assertIsEnabled()
+        performClick()
+      }
+      verify { mockNavActions.goBack() }
+      confirmVerified(mockNavActions)
+    }
+  }
+
+
+  @Test
+  fun saveTaskDoesNotWorkWithEmptyTitle() = run {
       onComposeScreen<CreateToDoScreen>(composeTestRule) {
         step("Open createToDo screen") {
           todoNameField {

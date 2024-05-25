@@ -49,7 +49,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateGroupScreen>(
         composeTestRule) {
           saveButton { assertIsNotEnabled() }
-          groupField {
+          groupNameField {
             performTextClearance()
             performTextInput("Official Group Testing")
             assertTextContains("Official Group Testing")
@@ -59,7 +59,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
               assertIsEnabled()
               performClick()
             }
-          verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
+          verify { mockNavActions.goBack()}
           confirmVerified(mockNavActions)
         }
   }
@@ -68,7 +68,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun saveGroupDoesNotWorkWithEmptyTitle() = run {
     onComposeScreen<CreateGroupScreen>(composeTestRule) {
       step("Open group screen") {
-        groupField {
+        groupNameField {
           assertIsDisplayed()
           // interact with the text field
           performClick()
@@ -99,8 +99,8 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           runBlocking {
             delay(6000) // Adjust the delay time as needed
           }
-          // content { assertIsDisplayed() }
-          // groupNameField { assertIsDisplayed() }
+          groupNameField { assertIsDisplayed()
+            assertHasClickAction()}
           profileButton {
             assertIsDisplayed()
             assertHasClickAction()

@@ -40,8 +40,3 @@ fun GroupFields(nameState: MutableState<String>) {
           TextFieldDefaults.outlinedTextFieldColors(
               focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))
 }
-
-@Composable
-fun GroupTitle(title: String) {
-  Text(title, modifier = Modifier.padding(0.dp).testTag("todoTitle"), color = Red)
-}
