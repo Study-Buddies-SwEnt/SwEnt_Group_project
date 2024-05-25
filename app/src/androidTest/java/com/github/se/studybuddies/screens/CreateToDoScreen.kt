@@ -32,4 +32,7 @@ class CreateToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val todoDateField: KNode = createTodoCol.child { hasTestTag("todo_date_field") }
   val saveButton: KNode = createTodoCol.child { hasTestTag("save_button") }
 
+  val datePicker: KNode = onNode { hasTestTag("date_picker") }
+  val dateConfirmButton: KNode = onNode { hasTestTag("date_confirm_button") }
+  val dateDismissButton: KNode = onNode { hasTestTag("date_dismiss_button") }
 }

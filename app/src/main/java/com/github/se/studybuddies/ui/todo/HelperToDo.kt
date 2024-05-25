@@ -87,11 +87,7 @@ fun TodoFields(
       label = { Text("Title") },
       placeholder = { Text("Name the task") },
       singleLine = true,
-      modifier =
-          Modifier.padding(0.dp)
-              .width(300.dp)
-              .height(65.dp)
-              .testTag("todo_name_field"))
+      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("todo_name_field"))
   OutlinedTextField(
       value = descriptionState.value,
       onValueChange = { descriptionState.value = it },
@@ -141,9 +137,11 @@ fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
 fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
   val state = rememberDatePickerState()
   DatePickerDialog(
+      modifier = Modifier.testTag("date_picker"),
       onDismissRequest = {},
       confirmButton = {
         Button(
+            modifier = Modifier.testTag("date_confirm_button"),
             onClick = { onAccept(state.selectedDateMillis) },
             colors =
                 ButtonDefaults.buttonColors(
@@ -154,6 +152,7 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
       },
       dismissButton = {
         Button(
+            modifier = Modifier.testTag("date_dismiss_button"),
             onClick = onCancel,
             colors =
                 ButtonDefaults.buttonColors(

@@ -55,11 +55,11 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
             assertTextContains("Official Group Testing")
           }
           closeSoftKeyboard()
-            saveButton {
-              assertIsEnabled()
-              performClick()
-            }
-          verify { mockNavActions.goBack()}
+          saveButton {
+            assertIsEnabled()
+            performClick()
+          }
+          verify { mockNavActions.goBack() }
           confirmVerified(mockNavActions)
         }
   }
@@ -99,8 +99,10 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           runBlocking {
             delay(6000) // Adjust the delay time as needed
           }
-          groupNameField { assertIsDisplayed()
-            assertHasClickAction()}
+          groupNameField {
+            assertIsDisplayed()
+            assertHasClickAction()
+          }
           profileButton {
             assertIsDisplayed()
             assertHasClickAction()

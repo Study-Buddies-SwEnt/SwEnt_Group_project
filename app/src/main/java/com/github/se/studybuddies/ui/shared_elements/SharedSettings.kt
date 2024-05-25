@@ -59,29 +59,25 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
-
 @Composable
 fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
-    val enabled = usernameState.value.isNotEmpty()
-    Button(
-        onClick = save,
-        enabled = enabled,
-        modifier =
-        Modifier.padding(10.dp)
-            .width(300.dp)
-            .height(50.dp)
-            .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-            .testTag("save_button"),
-        colors =
-        ButtonDefaults.buttonColors(
-            containerColor = Blue,
-        )
-    ) {
+  val enabled = usernameState.value.isNotEmpty()
+  Button(
+      onClick = save,
+      enabled = enabled,
+      modifier =
+          Modifier.padding(10.dp)
+              .width(300.dp)
+              .height(50.dp)
+              .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
+              .testTag("save_button"),
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = Blue,
+          )) {
         Text(
             stringResource(R.string.save),
             color = White,
-            modifier = Modifier.testTag("save_button_text")
-        )
-    }
+            modifier = Modifier.testTag("save_button_text"))
+      }
 }
-

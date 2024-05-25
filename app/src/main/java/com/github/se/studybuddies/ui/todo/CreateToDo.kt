@@ -7,9 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -53,30 +51,30 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
             },
             actions = {})
       }) {
-                Column(
-                    modifier =
-                    Modifier.fillMaxSize()
-                        .background(White)
-                        .padding(horizontal = 20.dp, vertical = 80.dp)
-                        .testTag("create_todo_column"),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                      TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                      SaveButton(titleState.value.isNotEmpty()) {
-                        val randomUID = UUID.randomUUID().toString()
-                        val newTodo =
-                            ToDo(
-                                uid = randomUID,
-                                name = titleState.value,
-                                description = descriptionState.value,
-                                dueDate = selectedDate.value,
-                                status = ToDoStatus.CREATED)
-                        Log.d("time", "CreateToDo ${newTodo.dueDate}")
-                        todoListViewModel.addToDo(newTodo)
-                        navigationActions.goBack()
-                      }
-                    }
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(White)
+                    .padding(horizontal = 20.dp, vertical = 80.dp)
+                    .testTag("create_todo_column"),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+              TodoFields(titleState, descriptionState, selectedDate, isOpen)
+              SaveButton(titleState.value.isNotEmpty()) {
+                val randomUID = UUID.randomUUID().toString()
+                val newTodo =
+                    ToDo(
+                        uid = randomUID,
+                        name = titleState.value,
+                        description = descriptionState.value,
+                        dueDate = selectedDate.value,
+                        status = ToDoStatus.CREATED)
+                Log.d("time", "CreateToDo ${newTodo.dueDate}")
+                todoListViewModel.addToDo(newTodo)
+                navigationActions.goBack()
               }
+            }
+      }
   if (isOpen.value) {
     CustomDatePickerDialog(
         onAccept = {

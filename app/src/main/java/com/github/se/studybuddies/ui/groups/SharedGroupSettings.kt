@@ -18,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.theme.Red
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

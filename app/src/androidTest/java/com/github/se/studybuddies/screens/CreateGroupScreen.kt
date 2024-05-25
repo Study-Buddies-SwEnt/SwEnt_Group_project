@@ -20,5 +20,4 @@ class CreateGroupScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val groupNameField: KNode = createGroupCol.child { hasTestTag("group_name_field") }
   val saveButton: KNode = createGroupCol.child { hasTestTag("save_button") }
   val profileButton: KNode = createGroupCol.child { hasTestTag("set_picture_button") }
-
 }

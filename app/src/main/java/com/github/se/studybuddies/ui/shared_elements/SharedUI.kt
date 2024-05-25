@@ -339,27 +339,26 @@ private fun MenuButton(onClick: () -> Unit) {
       }
 }
 
-
 @Composable
 fun SaveButton(enabled: Boolean, save: () -> Unit) {
-    Button(
-        onClick = save,
-        enabled = enabled,
-        modifier =
-        Modifier.padding(0.dp)
-            .width(300.dp)
-            .height(50.dp)
-            .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-            .testTag("save_button"),
-        colors =
-        ButtonDefaults.buttonColors(
-            containerColor = Blue,
-        )) {
+  Button(
+      onClick = save,
+      enabled = enabled,
+      modifier =
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(50.dp)
+              .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
+              .testTag("save_button"),
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = Blue,
+          )) {
         Text(
             stringResource(R.string.save),
             color = White,
             modifier = Modifier.testTag("save_button_text"))
-    }
+      }
 }
 
 /*
