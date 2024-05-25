@@ -106,7 +106,7 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     @Test
     fun saveTaskDoesNotWorkWithEmptyTitle() = run {
       onComposeScreen<CreateToDoScreen>(composeTestRule) {
-        step("Open group screen") {
+        step("Open createToDo screen") {
           todoNameField {
             assertIsDisplayed()
             // interact with the text field

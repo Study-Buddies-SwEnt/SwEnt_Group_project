@@ -85,20 +85,14 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           // act: click on the save button
           performClick()
         }
-        /*
-        saveButtonText {
-          assertIsDisplayed()
-          assertTextEquals("Save")
-        }
-        */
 
-        // verify that the nav action has not been called
         verify { mockNavActions wasNot Called }
         confirmVerified(mockNavActions)
       }
     }
   }
 
+  @Test
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateGroupScreen>(
         composeTestRule) {
@@ -114,6 +108,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
           saveButton {
             assertIsDisplayed()
             assertHasClickAction()
+            assertTextEquals("Save")
           }
         }
   }
