@@ -42,6 +42,7 @@ import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
@@ -81,7 +82,7 @@ fun EditToDoScreen(
     val expanded = remember { mutableStateOf(false) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().background(White),
+        modifier = Modifier.fillMaxSize().background(White).testTag("edit_todo_scaffold"),
         topBar = {
           TopNavigationBar(
               title = { Sub_title(stringResource(R.string.edit_task)) },
@@ -90,20 +91,17 @@ fun EditToDoScreen(
               },
               actions = {})
         }) {
-          LazyColumn(
-              modifier =
-                  Modifier.fillMaxSize()
-                      .background(White)
-                      .padding(horizontal = 20.dp, vertical = 80.dp),
-              verticalArrangement = Arrangement.spacedBy(20.dp),
-              horizontalAlignment = Alignment.CenterHorizontally,
-              content = {
-                item {
                   Column(
-                      modifier = Modifier.fillMaxWidth(),
-                      verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                      modifier =
+                      Modifier.fillMaxSize()
+                          .background(White)
+                          .padding(horizontal = 20.dp, vertical = 80.dp)
+                          .testTag("edit_todo_column"),
+                      verticalArrangement = Arrangement.spacedBy(20.dp),
+                      horizontalAlignment = Alignment.CenterHorizontally,
+                      content = {
                         TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                        TodoSaveButton(titleState) {
+                        SaveButton(titleState) {
                           val updatedTodo =
                               ToDo(
                                   uid = todoUID,
@@ -125,7 +123,7 @@ fun EditToDoScreen(
                                     .height(45.dp)
                                     .background(
                                         Color.Transparent, shape = RoundedCornerShape(10.dp))
-                                    .testTag("todoDelete"),
+                                    .testTag("todo_delete"),
                             colors =
                                 ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
                               Icon(
@@ -136,9 +134,7 @@ fun EditToDoScreen(
                               Spacer(modifier = Modifier.width(8.dp))
                               Text("Delete", color = Color.Red)
                             }
-                      }
-                }
-              })
+                      })
         }
     if (isOpen.value) {
       CustomDatePickerDialog(
