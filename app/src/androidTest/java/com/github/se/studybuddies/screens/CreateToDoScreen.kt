@@ -21,16 +21,18 @@ class CreateToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
 
   val screenTitle: KNode = onNode { hasTestTag("createTodoTitle") }
 
-  val saveButton: KNode = onNode { hasTestTag("todoSave") }
   val topAppBox: KNode = onNode { hasTestTag("top_app_box") }
   val topAppBar: KNode = topAppBox.child { hasTestTag("top_app_bar") }
   val goBackButton: KNode = topAppBar.child { hasTestTag("go_back_button") }
   val divider: KNode = onNode { hasTestTag("divider") }
 
-  val createTodoCol: KNode = child { hasTestTag("create_toDo_column") }
-  val todoFields: KNode = createTodoCol.child { hasTestTag("toDo_name_field") }
+  val createTodoCol: KNode = onNode { hasTestTag("create_todo_column") }
+  val todoNameField: KNode = createTodoCol.child { hasTestTag("todo_name_field") }
+  val todoDescriptionField: KNode = createTodoCol.child { hasTestTag("todo_description_field") }
+  val todoDateField: KNode = createTodoCol.child { hasTestTag("todo_date_field") }
+  val saveButton: KNode = createTodoCol.child { hasTestTag("save_button") }
 
-  val inputTitle: KNode = onNode { hasTestTag("inputTodoTitle") }
+  val inputName: KNode = onNode { hasTestTag("inputTodoName") }
   val inputDescription: KNode = onNode { hasTestTag("inputTodoDescription") }
   val inputDueDate: KNode = onNode { hasTestTag("inputTodoDate") }
 

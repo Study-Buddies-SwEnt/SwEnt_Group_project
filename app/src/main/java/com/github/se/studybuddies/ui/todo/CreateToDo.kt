@@ -25,6 +25,7 @@ import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
@@ -57,11 +58,11 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
                     Modifier.fillMaxSize()
                         .background(White)
                         .padding(horizontal = 20.dp, vertical = 80.dp)
-                        .testTag("create_toDo_column"),
+                        .testTag("create_todo_column"),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
                       TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                      TodoSaveButton(titleState) {
+                      SaveButton(titleState.value.isNotEmpty()) {
                         val randomUID = UUID.randomUUID().toString()
                         val newTodo =
                             ToDo(

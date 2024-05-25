@@ -55,13 +55,12 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
             assertTextContains("Official Group Testing")
           }
           closeSoftKeyboard()
-          /*
             saveButton {
               assertIsEnabled()
               performClick()
             }
           verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
-          confirmVerified(mockNavActions)*/
+          confirmVerified(mockNavActions)
         }
   }
 

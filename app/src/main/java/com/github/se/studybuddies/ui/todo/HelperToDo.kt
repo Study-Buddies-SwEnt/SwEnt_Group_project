@@ -91,22 +91,21 @@ fun TodoFields(
           Modifier.padding(0.dp)
               .width(300.dp)
               .height(65.dp)
-              .testTag("inputTodoTitle")
-              .testTag("toDo_name_field"))
+              .testTag("todo_name_field"))
   OutlinedTextField(
       value = descriptionState.value,
       onValueChange = { descriptionState.value = it },
       label = { Text("Description") },
       placeholder = { Text("Describe the task") },
       modifier =
-          Modifier.padding(0.dp).width(300.dp).height(150.dp).testTag("inputTodoDescription"))
+          Modifier.padding(0.dp).width(300.dp).height(150.dp).testTag("todo_description_field"))
   Box() {
     OutlinedTextField(
         readOnly = true,
         value = selectedDate.value.format(DateTimeFormatter.ISO_DATE),
         label = { Text("Due date") },
         onValueChange = {},
-        modifier = Modifier.width(300.dp).height(65.dp).testTag("inputTodoDate"),
+        modifier = Modifier.width(300.dp).height(65.dp).testTag("todo_date_field"),
         leadingIcon = {
           Icon(
               painterResource(R.drawable.calendar),
