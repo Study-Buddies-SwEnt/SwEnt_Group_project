@@ -1,10 +1,12 @@
 package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -71,25 +73,29 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
-import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
+import com.github.se.studybuddies.permissions.getStoragePermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
+import com.github.se.studybuddies.utils.SaveType
+import com.github.se.studybuddies.utils.saveToStorage
 import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
     viewModel: MessageViewModel,
     navigationActions: NavigationActions,
-    db: DbRepository
 ) {
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
   val showOptionsDialog = remember { mutableStateOf(false) }
@@ -109,15 +115,10 @@ fun ChatScreen(
   }
 
   selectedMessage?.let {
-    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions, db)
+    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
   }
-  selectedMessage?.let { EditDialog(viewModel, it, showEditDialog) }
 
-  IconsOptionsList(showIconsOptions, showAddImage, showAddLink, showAddFile)
-
-  SendPhotoMessage(viewModel, showAddImage)
-  SendLinkMessage(viewModel, showAddLink)
-  SendFileMessage(viewModel, showAddFile)
+  IconsOptionsList(viewModel, showIconsOptions, showAddImage, showAddLink, showAddFile)
 
   Column(
       modifier =
@@ -128,7 +129,7 @@ fun ChatScreen(
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
           when (viewModel.chat.type) {
             ChatType.GROUP,
-            ChatType.TOPIC -> ChatGroupTitle(viewModel.chat)
+            ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)
             ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
           }
         }
@@ -263,12 +264,6 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                               .testTag("chat_message_file"))
                 }
               }
-              else -> {
-                Text(
-                    text = stringResource(R.string.unsupported_messageType),
-                    style = TextStyle(color = Black),
-                )
-              }
             }
             Text(
                 text = message.getTime(),
@@ -283,7 +278,7 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
 fun MessageTextFields(
     onSend: (String) -> Unit,
     defaultText: String = "",
-    showIconsOptions: MutableState<Boolean>
+    showIconsOptions: MutableState<Boolean>,
 ) {
   var textToSend by remember { mutableStateOf(defaultText) }
   OutlinedTextField(
@@ -343,7 +338,6 @@ fun OptionsDialog(
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
-    db: DbRepository
 ) {
 
   ShowAlertDialog(
@@ -367,10 +361,11 @@ fun OptionDialogContent(
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
 ) {
+
   Column(modifier = Modifier.testTag("option_dialog")) {
-    Text(text = selectedMessage.getDate())
+    CommonOptions(selectedMessage, showOptionsDialog)
     if (viewModel.isUserMessageSender(selectedMessage)) {
       UserMessageOptions(
           viewModel = viewModel,
@@ -388,11 +383,61 @@ fun OptionDialogContent(
 }
 
 @Composable
+fun CommonOptions(
+    selectedMessage: Message,
+    showOptionsDialog: MutableState<Boolean>,
+) {
+  val context = LocalContext.current
+  Text(text = selectedMessage.getDate())
+  when (selectedMessage) {
+    is Message.PhotoMessage -> {
+      DownloadButton(permission = imagePermissionVersion(), context) {
+        val name = selectedMessage.uid
+        CoroutineScope(Dispatchers.Main).launch {
+          saveToStorage(context, selectedMessage.photoUri, name, SaveType.Photo())
+        }
+        showOptionsDialog.value = false
+      }
+    }
+    is Message.FileMessage -> {
+      DownloadButton(permission = getStoragePermission(), context) {
+        val name = selectedMessage.fileName
+        CoroutineScope(Dispatchers.Main).launch {
+          saveToStorage(context, selectedMessage.fileUri, name, SaveType.PDF())
+        }
+        showOptionsDialog.value = false
+      }
+    }
+    else -> {}
+  }
+}
+
+@Composable
+fun DownloadButton(permission: String, context: Context, onClick: () -> Unit) {
+  var hasPermission by remember { mutableStateOf(false) }
+  val requestPermissionLauncher =
+      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        hasPermission = isGranted
+      }
+  LaunchedEffect(key1 = Unit) {
+    checkPermission(context, permission, requestPermissionLauncher) { hasPermission = true }
+  }
+  if (hasPermission) {
+    Button(modifier = Modifier.testTag("option_dialog_download"), onClick = { onClick() }) {
+      Text(
+          text = stringResource(R.string.download),
+          style = TextStyle(color = White),
+      )
+    }
+  }
+}
+
+@Composable
 fun UserMessageOptions(
     viewModel: MessageViewModel,
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
-    showEditDialog: MutableState<Boolean>
+    showEditDialog: MutableState<Boolean>,
 ) {
   Spacer(modifier = Modifier.height(8.dp))
   when (selectedMessage) {
@@ -430,7 +475,7 @@ fun NonUserMessageOptions(
     viewModel: MessageViewModel,
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
 ) {
   Spacer(modifier = Modifier.height(8.dp))
   Button(
@@ -454,7 +499,7 @@ fun NonUserMessageOptions(
 fun EditDialog(
     viewModel: MessageViewModel,
     selectedMessage: Message,
-    showEditDialog: MutableState<Boolean>
+    showEditDialog: MutableState<Boolean>,
 ) {
 
   val selectedMessageText =
@@ -519,11 +564,15 @@ fun PrivateChatTitle(chat: Chat) {
 
 @Composable
 fun IconsOptionsList(
+    viewModel: MessageViewModel,
     showIconsOptions: MutableState<Boolean>,
     showAddImage: MutableState<Boolean>,
     showAddLink: MutableState<Boolean>,
-    showAddFile: MutableState<Boolean>
+    showAddFile: MutableState<Boolean>,
 ) {
+  SendPhotoMessage(viewModel, showAddImage)
+  SendLinkMessage(viewModel, showAddLink)
+  SendFileMessage(viewModel, showAddFile)
   ShowAlertDialog(
       modifier = Modifier.testTag("dialog_more_messages_types"),
       showDialog = showIconsOptions,
@@ -573,7 +622,7 @@ fun IconButtonOption(
     painterResourceId: Int,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    tint: Color = Blue
+    tint: Color = Blue,
 ) {
   IconButton(onClick = onClickAction, modifier = modifier.padding(8.dp)) {
     Icon(
@@ -586,21 +635,12 @@ fun IconButtonOption(
 @Composable
 fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableState<Boolean>) {
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
-  val context = LocalContext.current
   val imageInput = "image/*"
   val permission = imagePermissionVersion()
 
-  val getContent =
-      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { profilePictureUri -> photoState.value = profilePictureUri }
-      }
+  val getContent = setupGetContentLauncherPhoto(photoState)
 
-  val requestPermissionLauncher =
-      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-          getContent.launch(imageInput)
-        }
-      }
+  val requestPermissionLauncher = setupRequestPermissionLauncher(getContent, imageInput)
 
   ShowAlertDialog(
       modifier = Modifier.testTag("add_image_dialog"),
@@ -608,26 +648,47 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
       onDismiss = { showAddImage.value = false },
       title = {},
       content = {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
-              SetPicture(photoState) {
-                checkPermission(context, permission, requestPermissionLauncher) {
-                  getContent.launch(imageInput)
-                }
-              }
-            }
+        ImagePickerBox(
+            photoState = photoState,
+            permission = permission,
+            getContent = getContent,
+            requestPermissionLauncher = requestPermissionLauncher)
       },
-      button =
-          @Composable {
-            SaveButton(
-                photoState.value.toString().isNotBlank(),
-            ) {
-              messageViewModel.sendPhotoMessage(photoState.value)
-              showAddImage.value = false
-              photoState.value = Uri.EMPTY
-            }
-          })
+      button = {
+        SaveButton(photoState.value.toString().isNotBlank()) {
+          messageViewModel.sendPhotoMessage(photoState.value)
+          showAddImage.value = false
+          photoState.value = Uri.EMPTY
+        }
+      })
+}
+
+@Composable
+fun setupGetContentLauncherPhoto(
+    uriState: MutableState<Uri>,
+): ManagedActivityResultLauncher<String, Uri?> {
+  return rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    uri?.let { uriState.value = it }
+  }
+}
+
+@Composable
+fun ImagePickerBox(
+    photoState: MutableState<Uri>,
+    permission: String,
+    getContent: ManagedActivityResultLauncher<String, Uri?>,
+    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+) {
+  val context = LocalContext.current
+  Box(
+      contentAlignment = Alignment.Center,
+      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
+        SetPicture(photoState) {
+          checkPermission(context, permission, requestPermissionLauncher) {
+            getContent.launch("image/*")
+          }
+        }
+      }
 }
 
 @Composable
@@ -654,25 +715,20 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
               )
             }
       },
-      button =
-          @Composable {
-            SaveButton(
-                linkState.value.isNotBlank(),
-            ) {
-              val uriString = linkState.value.trim()
-              val uri =
-                  if (!isValidUrl(uriString)) {
-                    Uri.parse("https://$uriString")
-                  } else {
-                    Uri.parse(uriString)
-                  }
-              linkName.value = uriString.substringAfter("//")
-              messageViewModel.sendLinkMessage(linkName.value, uri)
-              showAddLink.value = false
-              linkState.value = ""
-              linkName.value = ""
-            }
-          })
+      button = {
+        SaveButton(
+            linkState.value.isNotBlank(),
+        ) {
+          val uriString = linkState.value.trim()
+          val uri =
+              if (!isValidUrl(uriString)) Uri.parse("https://$uriString") else Uri.parse(uriString)
+          linkName.value = uriString.substringAfter("//")
+          messageViewModel.sendLinkMessage(linkName.value, uri)
+          showAddLink.value = false
+          linkState.value = ""
+          linkName.value = ""
+        }
+      })
 }
 
 fun isValidUrl(url: String): Boolean {
@@ -692,25 +748,8 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
   val fileInput = MessageVal.FILE_TYPE
   val permission = imagePermissionVersion()
 
-  val getContent =
-      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { fileUri ->
-          fileState.value = fileUri
-          context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst() && nameIndex != -1) {
-              fileName.value = cursor.getString(nameIndex)
-            }
-          }
-        }
-      }
-
-  val requestPermissionLauncher =
-      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-          getContent.launch(fileInput)
-        }
-      }
+  val getContent = setupGetContentFile(fileState, fileName, context)
+  val requestPermissionLauncher = setupRequestPermissionLauncher(getContent, fileInput)
 
   ShowAlertDialog(
       modifier = Modifier.testTag("add_file_dialog"),
@@ -718,37 +757,83 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
       onDismiss = { showAddFile.value = false },
       title = {},
       content = {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier =
-                Modifier.padding(8.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                      checkPermission(context, permission, requestPermissionLauncher) {
-                        getContent.launch(fileInput)
-                      }
-                    }
-                    .testTag("add_file_box")) {
-              if (fileState.value == Uri.EMPTY) {
-                Text(
-                    text = stringResource(R.string.select_a_file),
-                    modifier = Modifier.testTag("select_file"))
-              } else {
-                Text(text = fileName.value, modifier = Modifier.testTag("select_file"))
-              }
-            }
+        FilePickerBox(
+            fileState = fileState,
+            fileName = fileName,
+            permission = permission,
+            getContent = getContent,
+            requestPermissionLauncher = requestPermissionLauncher)
       },
-      button =
-          @Composable {
-            SaveButton(
-                fileState.value.toString().isNotBlank(),
-            ) {
-              messageViewModel.sendFileMessage(fileName.value, fileState.value)
-              showAddFile.value = false
-              fileState.value = Uri.EMPTY
-              fileName.value = ""
-            }
-          })
+      button = {
+        SaveButton(fileState.value.toString().isNotBlank()) {
+          messageViewModel.sendFileMessage(fileName.value, fileState.value)
+          showAddFile.value = false
+          fileState.value = Uri.EMPTY
+          fileName.value = ""
+        }
+      })
+}
+
+@Composable
+fun setupGetContentFile(
+    fileState: MutableState<Uri>,
+    fileName: MutableState<String>,
+    context: Context,
+): ManagedActivityResultLauncher<String, Uri?> {
+  return rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    uri?.let { fileUri ->
+      fileState.value = fileUri
+      context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (cursor.moveToFirst() && nameIndex != -1) {
+          fileName.value = cursor.getString(nameIndex)
+        }
+      }
+    }
+  }
+}
+
+@Composable
+fun setupRequestPermissionLauncher(
+    getContent: ManagedActivityResultLauncher<String, Uri?>,
+    fileInput: String,
+): ManagedActivityResultLauncher<String, Boolean> {
+  return rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted,
+    ->
+    if (isGranted) {
+      getContent.launch(fileInput)
+    }
+  }
+}
+
+@Composable
+fun FilePickerBox(
+    fileState: MutableState<Uri>,
+    fileName: MutableState<String>,
+    permission: String,
+    getContent: ManagedActivityResultLauncher<String, Uri?>,
+    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+) {
+  val context = LocalContext.current
+  Box(
+      contentAlignment = Alignment.Center,
+      modifier =
+          Modifier.padding(8.dp)
+              .fillMaxWidth()
+              .clickable {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(MessageVal.FILE_TYPE)
+                }
+              }
+              .testTag("add_file_box")) {
+        if (fileState.value == Uri.EMPTY) {
+          Text(
+              text = stringResource(R.string.select_a_file),
+              modifier = Modifier.testTag("select_file"))
+        } else {
+          Text(text = fileName.value, modifier = Modifier.testTag("select_file"))
+        }
+      }
 }
 
 @Composable

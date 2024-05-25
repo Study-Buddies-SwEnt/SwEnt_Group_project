@@ -79,6 +79,24 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
       }
     }
   }
+
+  fun deleteGoal(date: String, goal: String) {
+    val planner = _dailyPlanners[date]?.value ?: return
+    val updatedGoals = planner.goals.toMutableList().apply { remove(goal) }
+    updateDailyPlanner(date, planner.copy(goals = updatedGoals))
+  }
+
+  fun deleteNote(date: String, note: String) {
+    val planner = _dailyPlanners[date]?.value ?: return
+    val updatedNotes = planner.notes.toMutableList().apply { remove(note) }
+    updateDailyPlanner(date, planner.copy(notes = updatedNotes))
+  }
+
+  fun deleteAppointment(date: String, time: String) {
+    val planner = _dailyPlanners[date]?.value ?: return
+    val updatedAppointments = planner.appointments.toMutableMap().apply { remove(time) }
+    updateDailyPlanner(date, planner.copy(appointments = updatedAppointments))
+  }
 }
 
 class CalendarViewModelFactory(private val uid: String) : ViewModelProvider.Factory {

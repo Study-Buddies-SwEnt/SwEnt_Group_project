@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.screens
 
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.hasTestTag
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.github.kakaocup.compose.node.element.KNode
 
@@ -18,17 +19,26 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
 
   val addButtonRow: KNode = groupScreenEmpty.child { hasTestTag("AddGroupRow") }
   val addButton: KNode = addButtonRow.child { hasTestTag("AddGroupButton") }
-  val addButtonIcon: KNode = groupScreenEmpty.child { hasTestTag("AddGroupIcon") }
+  val addButtonIcon: KNode = addButton.child { hasTestTag("AddGroupIcon") }
 
   val addLinkRow: KNode = groupScreenEmpty.child { hasTestTag("AddLinkRow") }
   val addLinkButton: KNode = addLinkRow.child { hasTestTag("AddLinkButton") }
-  val addLinkIcon: KNode = addLinkButton.child { hasTestTag("AddLinkIcon") }
-  val addLinkTextField: KNode = addLinkRow.child { hasTestTag("AddLinkTextField") }
+  val addLinkIcon: KNode = groupScreenEmpty.child { hasTestTag("AddLinkIcon") }
+  val addLinkTextField: KNode = groupScreenEmpty.child { hasTestTag("AddLinkTextField") }
+  val errorSnackbar: KNode = groupScreenEmpty.child { hasTestTag("ErrorSnackbar") }
+  val successSnackbar: KNode = groupScreenEmpty.child { hasTestTag("SuccessSnackbar") }
 
   val groupScreen: KNode = drawerScaffold.child { hasTestTag("GroupsHome") }
   val groupList: KNode = groupScreen.child { hasTestTag("GroupsList") }
 
-  val testGroupBox: KNode = groupList.child { hasTestTag("TestGroup_box") }
+  val testGroup1Box: KNode = groupList.child { hasTestTag("groupTest1_box") }
+  val testGroup1Row: KNode = onNode { hasTestTag("groupTest1_row") }
+  val testGroup1BoxPicture: KNode = testGroup1Row.child { hasTestTag("groupTest1_box_picture") }
+  val testGroup1Picture: KNode = testGroup1BoxPicture.child { hasTestTag("groupTest1_picture") }
+  val testGroup1Text: KNode = testGroup1BoxPicture.child { hasTestTag("groupTest1_text") }
+  val testGroup1SettingsRow: KNode = testGroup1Row.child { hasTestTag("groupTest1_settings_row") }
+  val testGroup1SettingsButton: KNode =
+      testGroup1Row.child { hasTestTag("groupTest1_settings_button") }
 
   // Structural elements of the UI
   val loginTitle: KNode = child { hasTestTag("LoginTitle") }
