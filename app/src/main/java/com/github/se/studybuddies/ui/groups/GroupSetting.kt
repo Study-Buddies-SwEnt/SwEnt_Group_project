@@ -220,7 +220,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text("Add member with UID", color = Color.White)
+          Text(stringResource(R.string.add_member_with_uid), color = Color.White)
         }
   }
 
@@ -321,7 +321,7 @@ fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text("Add member from list", color = Color.White)
+          Text(stringResource(R.string.add_member_from_list), color = Color.White)
         }
   }
 }

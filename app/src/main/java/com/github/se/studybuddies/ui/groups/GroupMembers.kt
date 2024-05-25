@@ -247,7 +247,7 @@ fun MemberOptionButton(
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -257,7 +257,7 @@ fun MemberOptionButton(
                         Button(
                             onClick = { isRemoveUserDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
