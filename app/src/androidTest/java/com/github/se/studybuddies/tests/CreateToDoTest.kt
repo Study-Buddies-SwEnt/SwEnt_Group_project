@@ -1,10 +1,12 @@
 package com.github.se.studybuddies.tests
 
 import android.content.Context
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.action.ViewActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateGroupScreen
@@ -17,6 +19,7 @@ import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.github.kakaocup.compose.node.element.ComposeScreen.Companion.onComposeScreen
+import io.github.kakaocup.compose.node.element.KNode
 import io.mockk.Called
 import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
@@ -128,23 +131,33 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       }
     }
 
+  @Test
     fun elementsAreDisplayed() {
-      ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateGroupScreen>(
+      onComposeScreen<CreateToDoScreen>(
         composeTestRule
       ) {
         runBlocking {
           delay(6000) // Adjust the delay time as needed
         }
-        // content { assertIsDisplayed() }
-        // groupNameField { assertIsDisplayed() }
-        profileButton {
+        createTodoCol{
+          assertIsDisplayed()
+        }
+        todoNameField{
+        assertIsDisplayed()
+        assertHasClickAction()
+        }
+        todoDescriptionField{
+          assertIsDisplayed()
+          assertHasClickAction()
+        }
+        todoDateField{
           assertIsDisplayed()
           assertHasClickAction()
         }
         saveButton {
           assertIsDisplayed()
           assertHasClickAction()
-          assertTextEquals("Save")
+          assertTextEquals(("Save"))
         }
       }
     }

@@ -32,14 +32,4 @@ class CreateToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val todoDateField: KNode = createTodoCol.child { hasTestTag("todo_date_field") }
   val saveButton: KNode = createTodoCol.child { hasTestTag("save_button") }
 
-  val inputName: KNode = onNode { hasTestTag("inputTodoName") }
-  val inputDescription: KNode = onNode { hasTestTag("inputTodoDescription") }
-  val inputDueDate: KNode = onNode { hasTestTag("inputTodoDate") }
-
-  private val locationDropDownMenuBox = onNode { hasTestTag("locationDropDownMenuBox") }
-
-  val inputLocation: KNode = locationDropDownMenuBox.child { hasTestTag("inputLocation") }
-  private val locationDropDownMenu: KNode =
-      locationDropDownMenuBox.child { hasTestTag("locationDropDownMenu") }
-  val inputLocationProposal: KNode = locationDropDownMenu.child { hasClickAction() }
 }
