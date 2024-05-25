@@ -14,14 +14,15 @@ class SharedTimerViewModelTest {
 
   private lateinit var viewModel: SharedTimerViewModel
   private lateinit var databaseConnection: DatabaseConnection
-  private val groupUID = "test-group"
+  private val groupUID = "groupTest1"
+  // private val db = MockDatabase()
 
   @Before
   fun setup() {
     // Mock the DatabaseConnection
     databaseConnection = mockk(relaxed = true)
     // Creating instance of the ViewModel with mocked database connection
-    viewModel = SharedTimerViewModel.getInstance(groupUID)
+    viewModel = SharedTimerViewModel(groupUID, databaseConnection)
   }
 
   @Test

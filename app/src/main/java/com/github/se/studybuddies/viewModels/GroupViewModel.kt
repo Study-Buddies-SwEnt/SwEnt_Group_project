@@ -10,17 +10,20 @@ import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GroupViewModel(uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class GroupViewModel(uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
+    ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
+  private val _member = MutableLiveData(User.empty())
   val members: LiveData<List<User>> = _members
+  val member: LiveData<User> = _member
   val group: LiveData<Group> = _group
   private val _topics = MutableStateFlow(TopicList(emptyList()))
   val topics = _topics.asStateFlow()
@@ -35,6 +38,14 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
 
   fun fetchGroupData(uid: String) {
     viewModelScope.launch { _group.value = db.getGroup(uid) }
+  }
+
+  fun fetchUserData(uid: String) {
+    viewModelScope.launch { _member.value = db.getUser(uid) }
+  }
+
+  fun getCurrentUser(): String {
+    return db.getCurrentUserUID()
   }
 
   private fun subscribeToTopics(uid: String) {
@@ -55,7 +66,7 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
     viewModelScope.launch {
       _group.value?.members?.let { memberIds ->
         val users = memberIds.map { uid -> db.getUser(uid) }
-        _members.postValue(users)
+        _members.postValue(users as List<User>?)
       }
     }
   }

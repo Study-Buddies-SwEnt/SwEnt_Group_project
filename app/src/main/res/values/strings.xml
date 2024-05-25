@@ -5,6 +5,8 @@
     <string name="options">Options</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="download">Download</string>
+    <string name="save_success">Correctly saved</string>
     <string name="permission_granted">Permission GRANTED</string>
     <string name="create_group">Create a group</string>
     <string name="go_back">Go back</string>
@@ -25,6 +27,7 @@
     <string name="map">Map</string>
     <string name="group_option">Group Option</string>
     <string name="group_picture">Group picture</string>
+    <string name="user_picture">User picture</string>
     <string name="in_group_with_uid">In group %1$s with uid %2$s</string>
     <string name="join_or_create_a_new_group">Join or create a new group</string>
     <string name="dots_menu">Dots Menu</string>
@@ -115,6 +118,8 @@
     <string name="hour">Hour</string>
     <string name="minute">Minute</string>
     <string name="ok">OK</string>
+    <string name="members">Members</string>
+    <string name="error_no_member_found_for_this_group">Error, no member found for this group</string>
     <string name="add_a_new_task">Add a new task</string>
     <string name="edit_task">Edit task</string>
 </resources>

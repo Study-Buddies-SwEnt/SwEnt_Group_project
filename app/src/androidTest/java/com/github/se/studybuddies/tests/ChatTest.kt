@@ -85,7 +85,10 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
         assertHasClickAction()
       }
       textField { assertIsDisplayed() }
-      chatMessage { assertIsDisplayed() }
+      chatMessage {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
       messageMoreType { assertIsDisplayed() }
     }
   }
@@ -369,7 +372,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   }
 
   @Test
-  fun testOptionDialog() {
+  fun testOptionDialogOwn() {
     composeTestRule.setContent {
       val chat =
           Chat(
@@ -403,7 +406,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   }
 
   @Test
-  fun testOptionDialog2() {
+  fun testOptionDialogOtherOwner() {
     composeTestRule.setContent {
       val chat =
           Chat(
@@ -440,12 +443,13 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
           picture = Uri.EMPTY)
 
   @Test
-  fun testEditDialog() {
+  fun testEditDialogText() {
+    val text = "Hello, World!"
     composeTestRule.setContent {
       val vm = MessageViewModel(chat)
       val message =
           Message.TextMessage(
-              text = "Hello, World!",
+              text = text,
               sender =
                   User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
               timestamp = System.currentTimeMillis())
@@ -454,7 +458,34 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       editDialog { assertIsDisplayed() }
-      editDialogTextField { assertIsDisplayed() }
+      editDialogTextField {
+        assertIsDisplayed()
+        assertTextEquals(text)
+      }
+    }
+  }
+
+  @Test
+  fun testEditDialogLink() {
+    val text = "https://www.epfl.ch"
+    composeTestRule.setContent {
+      val vm = MessageViewModel(chat)
+      val message =
+          Message.LinkMessage(
+              linkUri = Uri.parse(text),
+              linkName = "Test Link",
+              sender =
+                  User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
+              timestamp = System.currentTimeMillis())
+      val showEditDialog = remember { mutableStateOf(true) }
+      EditDialog(vm, message, showEditDialog)
+    }
+    onComposeScreen<ChatScreen>(composeTestRule) {
+      editDialog { assertIsDisplayed() }
+      editDialogTextField {
+        assertIsDisplayed()
+        assertTextEquals(text)
+      }
     }
   }
 
@@ -465,7 +496,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       val showAddImage = remember { mutableStateOf(false) }
       val showAddLink = remember { mutableStateOf(false) }
       val showAddFile = remember { mutableStateOf(false) }
-      IconsOptionsList(showIconsOptions, showAddImage, showAddLink, showAddFile)
+      val chat =
+          Chat(
+              uid = groupUID,
+              type = ChatType.GROUP,
+              name = "Test Group",
+              members = emptyList(),
+              picture = Uri.EMPTY)
+      val vm = MessageViewModel(chat)
+      IconsOptionsList(vm, showIconsOptions, showAddImage, showAddLink, showAddFile)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendMoreMessagesType { assertIsDisplayed() }

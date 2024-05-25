@@ -1,6 +1,6 @@
 package com.github.se.studybuddies.ui.video_call
 
-import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,12 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.activecall.CallContent
 import io.getstream.video.android.compose.ui.components.call.controls.ControlActions
-import io.getstream.video.android.compose.ui.components.call.controls.actions.CancelCallAction
 import io.getstream.video.android.compose.ui.components.call.controls.actions.FlipCameraAction
+import io.getstream.video.android.compose.ui.components.call.controls.actions.LeaveCallAction
 import io.getstream.video.android.compose.ui.components.call.controls.actions.ToggleCameraAction
 import io.getstream.video.android.compose.ui.components.call.controls.actions.ToggleMicrophoneAction
 import io.getstream.video.android.compose.ui.components.call.renderer.LayoutType
@@ -29,16 +29,20 @@ import io.getstream.video.android.compose.ui.components.call.renderer.Participan
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 import io.getstream.video.android.compose.ui.components.call.renderer.RegularVideoRendererStyle
 import io.getstream.video.android.core.Call
+import io.getstream.video.android.core.StreamVideo
 
 // Design UI elements using Jetpack Compose
 @Composable
-fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected: () -> Unit = {}) {
+fun VideoCallScreen(
+    call: Call,
+    keepCallConnected: () -> Unit = {},
+    onCallDisconnected: () -> Unit = {}
+) {
   val isCameraEnabled by call.camera.isEnabled.collectAsState()
   val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
   val layout by remember { mutableStateOf(LayoutType.DYNAMIC) }
 
-  LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
-  videoVM.joinCall()
+  JoinCall(call)
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("video_call_screen")) {
@@ -50,10 +54,7 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
           call = call,
           enableInPictureInPicture = true,
           layout = layout,
-          onBackPressed = {
-            videoVM.leaveCall()
-            onCallDisconnected.invoke()
-          },
+          onBackPressed = { keepCallConnected.invoke() },
           videoContent = {
             ParticipantsLayout(
                 call = call,
@@ -83,13 +84,13 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
                           ToggleCameraAction(
                               modifier = Modifier.size(52.dp),
                               isCameraEnabled = isCameraEnabled,
-                              onCallAction = { call.camera.setEnabled(it.isEnabled) })
+                              onCallAction = { toggleCamera(call, it.isEnabled) })
                         },
                         {
                           ToggleMicrophoneAction(
                               modifier = Modifier.size(52.dp),
                               isMicrophoneEnabled = isMicrophoneEnabled,
-                              onCallAction = { call.microphone.setEnabled(it.isEnabled) })
+                              onCallAction = { toggleMicrophone(call, it.isEnabled) })
                         },
                         {
                           FlipCameraAction(
@@ -97,13 +98,14 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
                               onCallAction = { call.camera.flip() })
                         },
                         {
-                          CancelCallAction(
+                          LeaveCallAction(
                               modifier =
                                   Modifier.size(
                                       VideoTheme.dimens.controlActionsButtonSize,
                                   ),
                               onCallAction = {
-                                videoVM.leaveCall()
+                                removeActiveCall()
+                                leaveCall(call)
                                 onCallDisconnected.invoke()
                               },
                           )
@@ -113,4 +115,46 @@ fun VideoCallScreen(call: Call, videoVM: VideoCallViewModel, onCallDisconnected:
       )
     }
   }
+}
+
+@Composable
+private fun JoinCall(call: Call) {
+  LaunchedEffect(call) {
+    if (StreamVideo.instance().state.activeCall.value == call) {
+      Log.d("MyPrint", "Active call is the same as the call we are trying to join")
+    } else {
+      try {
+        call.join()
+        Log.d("MyPrint", "Trying to join call")
+      } catch (e: Exception) {
+        Log.d("MyPrint", "Trying to join call got exception, leave call")
+        call.leave()
+        call.join()
+      } finally {
+        Log.d("MyPrint", "Keeping active call")
+        keepActiveCall(call)
+      }
+    }
+  }
+}
+
+fun leaveCall(call: Call) {
+  Log.d("MyPrint", "Trying to leave call")
+  call.leave()
+}
+
+fun keepActiveCall(call: Call) {
+  StreamVideo.instance().state.setActiveCall(call)
+}
+
+fun removeActiveCall() {
+  StreamVideo.instance().state.removeActiveCall()
+}
+
+fun toggleCamera(call: Call, enable: Boolean) {
+  call.camera.setEnabled(enable)
+}
+
+fun toggleMicrophone(call: Call, enable: Boolean) {
+  call.microphone.setEnabled(enable)
 }
