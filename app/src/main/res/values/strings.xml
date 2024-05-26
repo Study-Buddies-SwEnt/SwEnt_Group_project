@@ -122,4 +122,6 @@
     <string name="error_no_member_found_for_this_group">Error, no member found for this group</string>
     <string name="add_a_new_task">Add a new task</string>
     <string name="edit_task">Edit task</string>
+    <string name="add_member_from_list">Add member from list</string>
+    <string name="add_member_with_uid">Add member with UID</string>
 </resources>
