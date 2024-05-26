@@ -4,6 +4,8 @@ import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -166,7 +168,12 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-  companion object {
+suspend fun createContact(otherUID: String)
+    suspend fun getContact(contactID: String): Contact
+    suspend fun getAllContacts(uid: String): ContactList
+     fun deleteContact(contactID: String)
+
+    companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

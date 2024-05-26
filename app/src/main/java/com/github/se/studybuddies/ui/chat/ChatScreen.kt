@@ -573,7 +573,7 @@ fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
     val route = Route.CONTACT_SETTINGS
-    val contactID = "BgFfC2GFY7aubYQ0vs7z"
+    val contactID = "Ha5sJPd71PFs1lYedpCy"
 
   ChatTopBar(
       leftButton = {

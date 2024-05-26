@@ -300,7 +300,7 @@ class MainActivity : ComponentActivity() {
                       backStackEntry ->
                   val contactID = backStackEntry.arguments?.getString("contactID")
                   ifNotNull(contactID) { contactUID ->
-                      val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID(), contactUID, db) }
+                      val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID(), db) }
                       val userVM = remember { UserViewModel(db.getCurrentUserUID(), db) }
                       ContactScreen(contactUID, contactsVM, navigationActions, userVM)
                       Log.d("MyPrint", "Successfully navigated to Contact Settings with ID $contactUID")

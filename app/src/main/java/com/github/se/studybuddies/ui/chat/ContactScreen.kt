@@ -70,21 +70,15 @@ fun ContactScreen(
     navigationActions: NavigationActions,
     userViewModel: UserViewModel,
 ) {
+
   var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
 
-  val contactTestID = "BgFfC2GFY7aubYQ0vs7z"
-
+  val contactTestID = "Ha5sJPd71PFs1lYedpCy"
   val currentUserID = userViewModel.getCurrentUserUID()
-
-  contactsViewModel.fetchContactData(contactTestID)
-    Log.d("contact", "just fetched")
-
-  val otherUserID = contactsViewModel.getOtherUser(contactTestID, currentUserID)
+  val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
   val contactData by contactsViewModel.contact.observeAsState()
-    Log.d("contact", "2")
   userViewModel.fetchUserData(otherUserID)
   val otherUserData by userViewModel.userData.observeAsState()
-    Log.d("contact", "3")
 
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }

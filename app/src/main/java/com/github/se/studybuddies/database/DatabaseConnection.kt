@@ -1264,7 +1264,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun getAllContacts(uid: String): ContactList {
+  override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()
@@ -1273,24 +1273,29 @@ class DatabaseConnection : DbRepository {
         val contactsUIDs = snapshot.data?.get("contacts") as? List<String>
         contactsUIDs?.let { contactsIDs ->
           contactsIDs.forEach { contactID ->
-            val document = contactDataCollection.document(contactID).get().await()
-            val members = document.get("members") as? List<String> ?: emptyList()
-            val showOnMap = document.get("showOnMap") as Boolean
-            items.add(Contact(contactID, members, showOnMap))
+            try {
+                val document = contactDataCollection.document(contactID).get().await()
+                val members = document.get("members") as? List<String> ?: emptyList()
+                val showOnMap = document.get("showOnMap") as Boolean ?: false
+                items.add(Contact(contactID, members, showOnMap))
+            }catch (e: Exception){
+                Log.e("contacts", "Error fetching contact with ID $contactID: $e")
+            }
           }
         }
+          Log.d("contacts", "fetched all contacts for user $uid")
         return ContactList(items)
       } else {
-        Log.d("MyPrint", "User with uid $uid does not exist")
+        Log.d("contacts", "User with uid $uid does not exist")
         return ContactList(emptyList())
       }
     } catch (e: Exception) {
-      Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
+      Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
     }
     return ContactList(emptyList())
   }
 
-  suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactUID: String): Contact {
     Log.d("contact", "getContact $contactUID")
 
     return try{
@@ -1312,7 +1317,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
@@ -1363,9 +1368,9 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  fun deleteContact(contactUID: String) {
+  override fun deleteContact(contactID: String) {
     contactDataCollection
-        .document(contactUID)
+        .document(contactID)
         .delete()
         .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
