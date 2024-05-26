@@ -133,7 +133,6 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
     return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
 
-
   object LocalDateSerializer : KSerializer<LocalDate> {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 

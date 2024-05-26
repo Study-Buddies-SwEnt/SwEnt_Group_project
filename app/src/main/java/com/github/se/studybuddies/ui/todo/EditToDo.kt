@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -91,50 +89,48 @@ fun EditToDo(
               },
               actions = {})
         }) {
-                  Column(
-                      modifier =
-                      Modifier.fillMaxSize()
-                          .background(White)
-                          .padding(horizontal = 20.dp, vertical = 80.dp)
-                          .testTag("edit_todo_column"),
-                      verticalArrangement = Arrangement.spacedBy(20.dp),
-                      horizontalAlignment = Alignment.CenterHorizontally,
-                      content = {
-                        TodoFields(titleState, descriptionState, selectedDate, isOpen)
-                        SaveButton(titleState) {
-                          val updatedTodo =
-                              ToDo(
-                                  uid = todoUID,
-                                  name = titleState.value,
-                                  description = descriptionState.value,
-                                  dueDate = selectedDate.value,
-                                  status = statusState.value)
-                          toDoListViewModel.updateToDo(todoUID, updatedTodo)
-                          navigationActions.goBack()
-                        }
-                        Button(
-                            onClick = {
-                              toDoListViewModel.deleteToDo(todoUID)
-                              navigationActions.goBack()
-                            },
-                            modifier =
-                                Modifier.padding(0.dp)
-                                    .width(300.dp)
-                                    .height(45.dp)
-                                    .background(
-                                        Color.Transparent, shape = RoundedCornerShape(10.dp))
-                                    .testTag("todo_delete"),
-                            colors =
-                                ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
-                              Icon(
-                                  painter = painterResource(R.drawable.delete),
-                                  contentDescription = null,
-                                  tint = Color.Red,
-                                  modifier = Modifier.size(36.dp))
-                              Spacer(modifier = Modifier.width(8.dp))
-                              Text("Delete", color = Color.Red)
-                            }
-                      })
+          Column(
+              modifier =
+                  Modifier.fillMaxSize()
+                      .background(White)
+                      .padding(horizontal = 20.dp, vertical = 80.dp)
+                      .testTag("edit_todo_column"),
+              verticalArrangement = Arrangement.spacedBy(20.dp),
+              horizontalAlignment = Alignment.CenterHorizontally,
+              content = {
+                TodoFields(titleState, descriptionState, selectedDate, isOpen)
+                SaveButton(titleState) {
+                  val updatedTodo =
+                      ToDo(
+                          uid = todoUID,
+                          name = titleState.value,
+                          description = descriptionState.value,
+                          dueDate = selectedDate.value,
+                          status = statusState.value)
+                  toDoListViewModel.updateToDo(todoUID, updatedTodo)
+                  navigationActions.goBack()
+                }
+                Button(
+                    onClick = {
+                      toDoListViewModel.deleteToDo(todoUID)
+                      navigationActions.goBack()
+                    },
+                    modifier =
+                        Modifier.padding(0.dp)
+                            .width(300.dp)
+                            .height(45.dp)
+                            .background(Color.Transparent, shape = RoundedCornerShape(10.dp))
+                            .testTag("todo_delete"),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
+                      Icon(
+                          painter = painterResource(R.drawable.delete),
+                          contentDescription = null,
+                          tint = Color.Red,
+                          modifier = Modifier.size(36.dp))
+                      Spacer(modifier = Modifier.width(8.dp))
+                      Text("Delete", color = Color.Red)
+                    }
+              })
         }
     if (isOpen.value) {
       CustomDatePickerDialog(
