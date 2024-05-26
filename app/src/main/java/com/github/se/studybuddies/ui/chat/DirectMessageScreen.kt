@@ -99,7 +99,7 @@ fun DirectMessageScreen(
             ) {
               LazyColumn(
                   modifier =
-                  Modifier.padding(vertical = 66.dp)
+                  Modifier.padding(vertical = 65.dp)
                       .fillMaxSize()
                       .background(LightBlue)
                           .testTag("direct_messages_list")) {
@@ -162,7 +162,7 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       modifier =
           Modifier.fillMaxWidth()
               .background(color = White)
-              .border(color = Blue, width = Dp.Hairline)
+              .border(color = LightBlue, width = Dp.Hairline)
               .padding(8.dp)
               .combinedClickable(onClick = { onClick() })
               .testTag("chat_item")) {
