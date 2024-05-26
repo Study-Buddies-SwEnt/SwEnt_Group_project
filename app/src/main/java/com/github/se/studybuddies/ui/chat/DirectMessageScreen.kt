@@ -52,7 +52,6 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
-import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
@@ -99,9 +98,9 @@ fun DirectMessageScreen(
             ) {
               LazyColumn(
                   modifier =
-                  Modifier.padding(vertical = 65.dp)
-                      .fillMaxSize()
-                      .background(LightBlue)
+                      Modifier.padding(vertical = 65.dp)
+                          .fillMaxSize()
+                          .background(LightBlue)
                           .testTag("direct_messages_list")) {
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
