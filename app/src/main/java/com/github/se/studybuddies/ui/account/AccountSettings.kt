@@ -93,9 +93,7 @@ fun AccountSettings(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.profile_setting)) },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, backRoute)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions, backRoute) },
             rightButton = {})
       }) { paddingValue ->
         Column(

@@ -3,6 +3,7 @@ package com.github.se.studybuddies.ui.chat
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
@@ -50,6 +52,8 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
@@ -95,8 +99,9 @@ fun DirectMessageScreen(
             ) {
               LazyColumn(
                   modifier =
-                      Modifier.fillMaxSize()
-                          .padding(innerPadding)
+                  Modifier.padding(vertical = 66.dp)
+                      .fillMaxSize()
+                      .background(LightBlue)
                           .testTag("direct_messages_list")) {
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
@@ -156,6 +161,8 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.fillMaxWidth()
+              .background(color = White)
+              .border(color = Blue, width = Dp.Hairline)
               .padding(8.dp)
               .combinedClickable(onClick = { onClick() })
               .testTag("chat_item")) {

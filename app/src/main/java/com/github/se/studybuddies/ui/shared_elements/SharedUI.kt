@@ -309,26 +309,25 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 
 @Composable
 fun ChatTopBar(
-                    leftButton: @Composable () -> Unit,
-                    rightButton: @Composable () -> Unit,
-                    content: @Composable RowScope.() -> Unit) {
+    leftButton: @Composable () -> Unit,
+    rightButton: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit
+) {
   TopAppBar(
       modifier = Modifier.fillMaxWidth(),
       contentColor = Color.White,
       backgroundColor = Color.White,
       elevation = 0.dp,
-      contentPadding = PaddingValues(4.dp)
-  )
-      {
+      contentPadding = PaddingValues(4.dp)) {
         leftButton()
         content()
         rightButton()
       }
-    Divider(
-        color = Blue,
-        thickness = 4.dp,
-        //modifier = Modifier.align(Alignment.BottomStart).testTag("divider")
-    )
+  Divider(
+      color = Blue,
+      thickness = 4.dp,
+      // modifier = Modifier.align(Alignment.BottomStart).testTag("divider")
+  )
 }
 
 @Composable
