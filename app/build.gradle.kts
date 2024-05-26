@@ -201,6 +201,7 @@ dependencies {
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
     // ...with Java.
     androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.44")
+    androidTestImplementation("org.mockito:mockito-android:3.12.4")
 
 
 

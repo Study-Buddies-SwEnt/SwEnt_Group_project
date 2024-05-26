@@ -70,14 +70,20 @@ import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
 
-class MainActivity : ComponentActivity() {
-  private lateinit var auth: FirebaseAuth
+open class MainActivity : ComponentActivity() {
+  lateinit var auth: FirebaseAuth
+  lateinit var db: DbRepository
 
   @SuppressLint("StateFlowValueCalledInComposition")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    auth = FirebaseAuth.getInstance()
-    val db: DbRepository = DatabaseConnection()
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    db = DatabaseConnection()
+    startApp(currentUser?.uid, db)
+  }
+
+  fun startApp(uid: String?, db: DbRepository) {
     val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
@@ -89,20 +95,19 @@ class MainActivity : ComponentActivity() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           val navController = rememberNavController()
           val navigationActions = NavigationActions(navController)
-
           val startDestination = Route.START
 
           val callType = "default"
 
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
+              ifNotNullElse(remember { uid }, navController) { uid ->
                 db.userExists(
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
                       if (userExists) {
-                        directMessageViewModel.setUserUID(currentUser.uid)
-                        usersViewModel.setUserUID(currentUser.uid)
+                        directMessageViewModel.setUserUID(uid)
+                        usersViewModel.setUserUID(uid)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -113,12 +118,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.LOGIN) {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
-              LoginScreen(navigationActions)
+              LoginScreen(navigationActions) { uid -> startApp(uid, db) }
             }
 
             composable(Route.GROUPSHOME) {
               LaunchedEffect(key1 = Unit) {
-                if (auth.currentUser != null && !StreamVideo.isInstalled) {
+                if (uid != null && !StreamVideo.isInstalled) {
                   StreamVideoInitHelper.init(applicationContext)
                   StreamVideoInitHelper.loadSdk()
                   Log.d("MyPrint", "StreamVideo SDK is installed")
@@ -128,17 +133,15 @@ class MainActivity : ComponentActivity() {
                 }
               }
 
-              ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid, db) }
-                GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions, db)
+              ifNotNull(remember { uid }) { uid ->
+                val groupsHomeViewModel = remember { GroupsHomeViewModel(uid, db) }
+                GroupsHome(uid, groupsHomeViewModel, navigationActions, db)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
             composable(Route.CALENDAR) {
-              ifNotNull(remember { auth.currentUser }) { _ ->
-                val calendarViewModel = remember {
-                  auth.currentUser?.let { it1 -> CalendarViewModel(it1.uid) }
-                }
+              ifNotNull(remember { uid }) { _ ->
+                val calendarViewModel = remember { uid?.let { it1 -> CalendarViewModel(uid) } }
                 if (calendarViewModel != null) {
                   CalendarApp(calendarViewModel, navigationActions)
                 }
@@ -172,9 +175,8 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("date") { type = NavType.StringType })) {
                     backStackEntry ->
                   val date = backStackEntry.arguments?.getString("date")
-                  val currentUser = auth.currentUser
-                  if (date != null && currentUser != null) {
-                    val viewModelFactory = CalendarViewModelFactory(currentUser.uid)
+                  if (date != null && uid != null) {
+                    val viewModelFactory = CalendarViewModelFactory(uid)
                     DailyPlannerScreen(date, viewModelFactory, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
@@ -185,15 +187,15 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  val currentUser = remember { auth.currentUser }
-                  if (backRoute != null && currentUser != null) {
-                    val userViewModel = remember { UserViewModel(currentUser.uid, db) }
-                    AccountSettings(currentUser.uid, userViewModel, backRoute, navigationActions)
+                  val currentUID = remember { uid }
+                  if (backRoute != null && currentUID != null) {
+                    val userViewModel = remember { UserViewModel(currentUID, db) }
+                    AccountSettings(currentUID, userViewModel, backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Account")
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(uid) { _ ->
                 val userViewModel = remember { UserViewModel(db = db) }
                 CreateAccount(userViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
@@ -211,22 +213,22 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEGROUP) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(uid) { _ ->
                 val groupViewModel = remember { GroupViewModel(db = db) }
                 CreateGroup(groupViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
             composable(Route.DIRECT_MESSAGE) {
-              ifNotNull(remember { auth.currentUser }) { currentUser ->
-                directMessageViewModel.setUserUID(currentUser.uid)
-                usersViewModel.setUserUID(currentUser.uid)
+              ifNotNull(remember { uid }) { uid ->
+                directMessageViewModel.setUserUID(uid)
+                usersViewModel.setUserUID(uid)
                 DirectMessageScreen(
                     directMessageViewModel,
                     chatViewModel,
                     usersViewModel,
                     navigationActions,
-                    ContactsViewModel(currentUser.uid))
+                    ContactsViewModel(uid))
               }
             }
             composable(
@@ -257,14 +259,14 @@ class MainActivity : ComponentActivity() {
               ChatScreen(messageViewModel, navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(uid) { _ ->
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
                 SoloStudyHome(navigationActions)
               }
             }
 
             composable(Route.TODOLIST) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(uid) { _ ->
                 val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                 ToDoListScreen(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to ToDoList")
@@ -272,7 +274,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(Route.CREATETODO) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(uid) { _ ->
                 val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                 CreateToDo(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateToDo")
@@ -292,20 +294,15 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.MAP) {
-              ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val userViewModel = remember { UserViewModel(currentUser.uid, db) }
-                val usersViewModel = remember { UsersViewModel(currentUser.uid, db) }
-                MapScreen(
-                    currentUser.uid,
-                    userViewModel,
-                    usersViewModel,
-                    navigationActions,
-                    applicationContext)
+              ifNotNull(remember { uid }) { uid ->
+                val userViewModel = remember { UserViewModel(uid, db) }
+                val usersViewModel = remember { UsersViewModel(uid, db) }
+                MapScreen(uid, userViewModel, usersViewModel, navigationActions, applicationContext)
               }
             }
 
             composable(Route.TIMER) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(uid) { _ ->
                 val viewModel = remember { TimerViewModel.getInstance() }
 
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
@@ -394,7 +391,7 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.PLACEHOLDER) {
-              ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }
+              ifNotNull(remember { uid }) { _ -> Placeholder(navigationActions) }
             }
           }
         }
@@ -447,10 +444,14 @@ class MainActivity : ComponentActivity() {
     val db = DatabaseConnection()
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
-    val userViewModel = UserViewModel(currentUser?.uid, db)
+    offlineLocation(currentUser?.uid, db)
+  }
+
+  private fun offlineLocation(uid: String?, db: DbRepository) {
+    val userViewModel = UserViewModel(uid, db)
     // Set the user to offline when he closes the app
-    if (currentUser != null) {
-      userViewModel.updateLocation(currentUser.uid, "offline")
+    if (uid != null) {
+      userViewModel.updateLocation(uid, "offline")
     }
   }
 }

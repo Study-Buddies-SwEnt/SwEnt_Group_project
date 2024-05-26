@@ -19,8 +19,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupsHomeScreen
+import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.ui.groups.GroupsHome
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso

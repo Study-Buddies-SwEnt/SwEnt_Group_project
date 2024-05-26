@@ -43,10 +43,10 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(navigationActions: NavigationActions) {
+fun LoginScreen(navigationActions: NavigationActions, onUserLoggedIn: (String) -> Unit) {
   val signInLauncher =
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-        onSignInResult(res, navigationActions)
+        onSignInResult(res, navigationActions, onUserLoggedIn)
       }
 
   Column(
@@ -78,7 +78,6 @@ fun LoginScreen(navigationActions: NavigationActions) {
                       .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
                       .setIsSmartLockEnabled(false)
                       .build()
-
               signInLauncher.launch(signInIntent)
             },
             colors =
@@ -104,11 +103,13 @@ fun LoginScreen(navigationActions: NavigationActions) {
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    onUserLoggedIn: (String) -> Unit
 ) {
   if (result.resultCode == Activity.RESULT_OK) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     if (userId != null) {
+      onUserLoggedIn(userId)
       val db = DatabaseConnection()
       db.userExists(
           userId,
