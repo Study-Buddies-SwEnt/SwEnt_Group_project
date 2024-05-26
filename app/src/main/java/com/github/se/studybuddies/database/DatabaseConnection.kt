@@ -1291,14 +1291,24 @@ class DatabaseConnection : DbRepository {
   }
 
   suspend fun getContact(contactUID: String): Contact {
-    val document = contactDataCollection.document(contactUID).get().await()
-    return if (document.exists()) {
-      val members = document.get("members") as? List<String> ?: emptyList()
-      val showOnMap = document.get("showOnMap") as Boolean
-      Contact(contactUID, members, showOnMap)
+    Log.d("contact", "getContact $contactUID")
+
+    return try{
+        Log.d("contact", "getContact befpre $contactUID")
+        val document = contactDataCollection.document(contactUID).get().await()
+        Log.d("contact", "getContact after $contactUID")
+        if (document.exists()) {
+        Log.d("contact", "contact document found for contact id $contactUID")
+        val members = document.get("members") as? List<String> ?: emptyList()
+        val showOnMap = document.get("showOnMap") as Boolean
+        Contact(contactUID, members, showOnMap)
     } else {
-      Log.d("MyPrint", "contact document not found for contact id $contactUID")
-      Contact.empty()
+        Log.d("contact", "contact document not found for contact id $contactUID")
+        Contact.empty()
+    }}
+    catch (e: Exception){
+        Log.e("contact", "error getContact $contactUID", e)
+        Contact.empty()
     }
   }
 

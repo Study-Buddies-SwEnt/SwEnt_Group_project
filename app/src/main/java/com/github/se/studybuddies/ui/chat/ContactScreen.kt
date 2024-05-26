@@ -1,7 +1,9 @@
 package com.github.se.studybuddies.ui.chat
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -60,30 +62,40 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun ContactScreen(
     contactID: String,
     contactsViewModel: ContactsViewModel,
     navigationActions: NavigationActions,
     userViewModel: UserViewModel,
-    db: DbRepository
 ) {
   var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
 
+  val contactTestID = "BgFfC2GFY7aubYQ0vs7z"
+
   val currentUserID = userViewModel.getCurrentUserUID()
-  val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
+
+  contactsViewModel.fetchContactData(contactTestID)
+    Log.d("contact", "just fetched")
+
+  val otherUserID = contactsViewModel.getOtherUser(contactTestID, currentUserID)
   val contactData by contactsViewModel.contact.observeAsState()
+    Log.d("contact", "2")
   userViewModel.fetchUserData(otherUserID)
   val otherUserData by userViewModel.userData.observeAsState()
+    Log.d("contact", "3")
 
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
   val showOnMapState = remember { mutableStateOf(contactData?.showOnMap) }
+    Log.d("contact", "4")
 
   val context = LocalContext.current
 
   otherUserData?.let {
     nameState.value = it.username
+      Log.d("contact", "otherUserData username is ${nameState.value}")
     photoState.value = it.photoUrl
   }
 
@@ -106,6 +118,8 @@ fun ContactScreen(
     permission = "android.permission.READ_EXTERNAL_STORAGE"
   }
 
+    Log.d("contact", "5")
+
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
       topBar = {
@@ -121,6 +135,7 @@ fun ContactScreen(
                     tint = Blue)
               }
             })
+          Log.d("contact", "TopNav")
       }) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -153,6 +168,7 @@ fun ContactScreen(
                     }
                     item { DeleteButton { isDeleteContactDialogVisible = true } }
                   }
+            Log.d("contact", "Lazycol")
               if (isDeleteContactDialogVisible) {
                 DeleteContactDialog(
                     contactID = contactID,

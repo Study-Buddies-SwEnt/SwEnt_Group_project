@@ -22,15 +22,15 @@ class UserViewModel(val uid: String? = null, private val db: DbRepository = Data
   init {
     if (uid != null) {
       fetchUserData(uid)
-      Log.d("MyPrint", "UserViewModel initialized with uid $uid")
+      Log.d("UserVM", "UserViewModel initialized with uid $uid")
     } else {
-      Log.d("MyPrint", "UserViewModel initialized without uid")
+      Log.d("UserVM", "UserViewModel initialized without uid")
     }
   }
 
   fun getCurrentUserUID(): String {
     val currentUserUID = db.getCurrentUserUID()
-    Log.d("MyPrint", "Current UID fetched from UserViewModel is $currentUserUID")
+    Log.d("UserVM", "Current UID fetched from UserViewModel is $currentUserUID")
     return currentUserUID
   }
 

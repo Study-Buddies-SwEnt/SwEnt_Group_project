@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ContactsViewModel(private val uid: String? = null) : ViewModel() {
+class ContactsViewModel(private val uid: String? = null, contactID: String?=null) : ViewModel() {
   private val db = DatabaseConnection()
   private val _contacts = MutableStateFlow<ContactList>(ContactList(emptyList()))
   val contacts: StateFlow<ContactList> = _contacts
@@ -23,6 +23,9 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   init {
     if (uid != null) {
       fetchAllContacts(uid)
+      if (contactID != null) {
+        fetchContactData(contactID)
+      }
     }
   }
 
@@ -31,15 +34,21 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun fetchContactData(contactID: String) {
-    viewModelScope.launch { _contact.value = db.getContact(contactID) }
-    Log.d("contact","contact ${_contact.value} fetched")
+    Log.d("contact","fetch contact called with ID $contactID")
+    viewModelScope.launch { _contact.value = db.getContact(contactID)
+      Log.d("contact","fetched contact in VMscope ${_contact.value}")
+    }
+    Log.d("contact","fetched contact ${_contact.value}")
   }
 
   fun getOtherUser(contactID: String, uid: String): String {
-    fetchContactData(contactID)
     return if ((contact.value?.members?.get(0) ?: "") == uid) {
+      Log.d("contact","getOtherUser 1")
       contact.value?.members?.get(1) ?: ""
-    } else contact.value?.members?.get(0) ?: ""
+    } else {
+      Log.d("contact", "getOtherUser 0")
+      contact.value?.members?.get(0) ?: ""
+    }
   }
 
   fun fetchAllContacts(uid: String) {

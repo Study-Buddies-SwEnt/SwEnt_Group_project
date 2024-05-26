@@ -190,15 +190,15 @@ class MainActivity : ComponentActivity() {
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
                   val currentUser = remember { auth.currentUser }
                   if (backRoute != null && currentUser != null) {
-                    val userViewModel = remember { UserViewModel(currentUser.uid, db) }
-                    AccountSettings(currentUser.uid, userViewModel, backRoute, navigationActions)
+                    val userVM = remember { UserViewModel(currentUser.uid, db) }
+                    AccountSettings(currentUser.uid, userVM, backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Account")
                   }
                 }
             composable(Route.CREATEACCOUNT) {
               ifNotNull(auth.currentUser) { _ ->
-                val userViewModel = remember { UserViewModel(db = db) }
-                CreateAccount(userViewModel, navigationActions)
+                val userVM = remember { UserViewModel(db = db) }
+                CreateAccount(userVM, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
               }
             }
@@ -287,9 +287,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
-                  ifNotNull(todoUID) { todoUID ->
+                  ifNotNull(todoUID) { todoID ->
                     val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
-                    EditToDo(todoUID, toDoListViewModel, navigationActions)
+                    EditToDo(todoID, toDoListViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
                   }
                 }
@@ -300,20 +300,21 @@ class MainActivity : ComponentActivity() {
                       backStackEntry ->
                   val contactID = backStackEntry.arguments?.getString("contactID")
                   ifNotNull(contactID) { contactUID ->
-                      val groupViewModel = remember { GroupViewModel(contactUID, db) }
-                      ContactScreen(contactUID, contactsViewModel, navigationActions, userViewModel, db)
-                      Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                      val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID(), contactUID, db) }
+                      val userVM = remember { UserViewModel(db.getCurrentUserUID(), db) }
+                      ContactScreen(contactUID, contactsVM, navigationActions, userVM)
+                      Log.d("MyPrint", "Successfully navigated to Contact Settings with ID $contactUID")
                   }
               }
 
             composable(Route.MAP) {
               ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val userViewModel = remember { UserViewModel(currentUser.uid, db) }
-                val usersViewModel = remember { UsersViewModel(currentUser.uid, db) }
+                val userVM = remember { UserViewModel(currentUser.uid, db) }
+                val usersVM = remember { UsersViewModel(currentUser.uid, db) }
                 MapScreen(
                     currentUser.uid,
-                    userViewModel,
-                    usersViewModel,
+                    userVM,
+                    usersVM,
                     navigationActions,
                     applicationContext)
               }
@@ -426,7 +427,7 @@ class MainActivity : ComponentActivity() {
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
         if (activeCall.id != groupUID) {
-          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+          Log.w("CallActivity", "A call with id: $groupUID existed. Leaving.")
           activeCall.leave()
           // Return a new call
           StreamVideo.instance().call(callType, groupUID)
