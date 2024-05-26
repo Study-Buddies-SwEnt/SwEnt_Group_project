@@ -62,7 +62,6 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
   private fun writeToDoListToFile(todoList: Map<String, ToDo>) {
     val jsonString = json.encodeToString(todoList)
     toDoFile.writeText(jsonString)
-    Log.d("time", "writeToDoListToFile $jsonString")
   }
 
   fun addToDo(todo: ToDo) {
@@ -71,8 +70,6 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
 
     // Add or update the ToDo item
     existingData[todo.uid] = todo
-
-    Log.d("time", "addToDo ${existingData[todo.uid]?.dueDate}")
 
     // Write updated data back to file
     writeToDoListToFile(existingData)
@@ -84,8 +81,6 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
 
     // Add or update the ToDo item
     existingData[uid] = todo
-
-    Log.d("time", "updateTodo ${existingData[uid]?.dueDate}")
 
     // Write updated data back to file
     writeToDoListToFile(existingData)
@@ -129,7 +124,6 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
 
     for (item in toDoList) {
       items.add(item.value)
-      Log.d("time", "getAllItems ${item.value.dueDate}")
     }
 
     return ToDoList(items)
@@ -138,6 +132,7 @@ class ToDoListViewModel(private val context: Context) : ViewModel() {
   private fun emptyToDo(): ToDo {
     return ToDo("", "", LocalDate.now(), "", ToDoStatus.CREATED)
   }
+
 
   object LocalDateSerializer : KSerializer<LocalDate> {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE

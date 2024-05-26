@@ -42,39 +42,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun TodoTopBar(navigationActions: NavigationActions, title: String) {
-  val tag = if (title == "Create a new task") "createTodoTitle" else "editTodoTitle"
-  TopAppBar(
-      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
-      elevation = 0.dp) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.Top),
-            horizontalAlignment = Alignment.Start,
-        ) {
-          IconButton(
-              onClick = { navigationActions.goBack() },
-              modifier = Modifier.testTag("goBackButton")) {
-                Icon(
-                    painterResource(R.drawable.arrow_back),
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp))
-              }
-          Text(
-              modifier = Modifier.width(360.dp).height(32.dp).padding(start = 16.dp).testTag(tag),
-              text = title,
-              style =
-                  TextStyle(
-                      fontSize = 24.sp,
-                      lineHeight = 32.sp,
-                      fontWeight = FontWeight(400),
-                  ))
-        }
-      }
-}
-
-@Composable
 fun TodoFields(
     titleState: MutableState<String>,
     descriptionState: MutableState<String>,
@@ -112,25 +79,6 @@ fun TodoFields(
   }
 }
 
-@Composable
-fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
-  val enabled = titleState.value.isNotEmpty()
-  Button(
-      onClick = save,
-      enabled = enabled,
-      modifier =
-          Modifier.padding(0.dp)
-              .width(300.dp)
-              .height(50.dp)
-              .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-              .testTag("todoSave"),
-      colors =
-          ButtonDefaults.buttonColors(
-              containerColor = Blue,
-          )) {
-        Text("Save", color = White)
-      }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

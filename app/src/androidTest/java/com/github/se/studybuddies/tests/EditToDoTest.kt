@@ -6,9 +6,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.action.ViewActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.data.todo.ToDo
+import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.screens.CreateToDoScreen
+import com.github.se.studybuddies.screens.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.EditToDo
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.google.common.base.Verify.verify
@@ -27,6 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
 
 @RunWith(AndroidJUnit4::class)
 class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
@@ -38,19 +41,22 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
     // Relaxed mocks methods have a default implementation returning values
     @RelaxedMockK lateinit var mockNavActions: NavigationActions
-
     private lateinit var toDoListViewModel: ToDoListViewModel
+
+    private val testID = "EditToDoTest"
+    private val testTask = ToDo(testID, "Name", LocalDate.now(),"Description",ToDoStatus.CREATED)
 
     @Before
     fun testSetup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         toDoListViewModel = ToDoListViewModel(context)
-        composeTestRule.setContent { EditToDo(toDoListViewModel, mockNavActions) }
+        toDoListViewModel.addToDo(testTask)
+        composeTestRule.setContent { EditToDo(testID, toDoListViewModel, mockNavActions) }
     }
 
     @Test
     fun topAppBarTest() = run {
-        onComposeScreen<CreateToDoScreen>(composeTestRule) {
+        onComposeScreen<EditToDoScreen>(composeTestRule) {
             topAppBox {
                 // arrange: verify pre-conditions
                 assertIsDisplayed()
@@ -77,12 +83,11 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
     @Test
     fun inputTaskName() {
-        onComposeScreen<CreateToDoScreen>(composeTestRule) {
-            saveButton { assertIsNotEnabled() }
+        onComposeScreen<EditToDoScreen>(composeTestRule) {
             todoNameField {
                 performTextClearance()
-                performTextInput("Official Task Testing")
-                assertTextContains("Official Task Testing")
+                performTextInput("Name")
+                assertTextContains("Name")
             }
             ViewActions.closeSoftKeyboard()
             saveButton {
@@ -96,15 +101,11 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
     @Test
     fun inputDescription() {
-        onComposeScreen<CreateToDoScreen>(composeTestRule) {
-            todoNameField {
-                performTextClearance()
-                performTextInput("Official Task Testing")
-            }
+        onComposeScreen<EditToDoScreen>(composeTestRule) {
             todoDescriptionField {
                 performTextClearance()
-                performTextInput("Official Task Testing")
-                assertTextContains("Official Task Testing")
+                performTextInput("Description")
+                assertTextContains("Description")
             }
             ViewActions.closeSoftKeyboard()
             saveButton {
@@ -118,7 +119,7 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
     @Test
     fun datePickerTest() {
-        onComposeScreen<CreateToDoScreen>(composeTestRule) {
+        onComposeScreen<EditToDoScreen>(composeTestRule) {
             todoDateField { performClick() }
             datePicker { assertIsDisplayed() }
             dateConfirmButton {
@@ -139,7 +140,7 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
     /*
     @Test
     fun inputDate() {
-      onComposeScreen<CreateToDoScreen>(
+      onComposeScreen<EditToDoScreen>(
         composeTestRule
       ) {
         todoDateField{
@@ -182,8 +183,8 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
     @Test
     fun saveTaskDoesNotWorkWithEmptyTitle() = run {
-        onComposeScreen<CreateToDoScreen>(composeTestRule) {
-            step("Open createToDo screen") {
+        onComposeScreen<EditToDoScreen>(composeTestRule) {
+            step("Open EditToDo screen") {
                 todoNameField {
                     assertIsDisplayed()
                     // interact with the text field
@@ -210,17 +211,19 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
 
     @Test
     fun elementsAreDisplayed() {
-        onComposeScreen<CreateToDoScreen>(composeTestRule) {
+        onComposeScreen<EditToDoScreen>(composeTestRule) {
             runBlocking {
                 delay(6000) // Adjust the delay time as needed
             }
-            createTodoCol { assertIsDisplayed() }
+            editTodoCol { assertIsDisplayed() }
             todoNameField {
                 assertIsDisplayed()
+                assertTextContains("Name")
                 assertHasClickAction()
             }
             todoDescriptionField {
                 assertIsDisplayed()
+                assertTextContains("Description")
                 assertHasClickAction()
             }
             todoDateField {
@@ -231,6 +234,11 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
                 assertIsDisplayed()
                 assertHasClickAction()
                 assertTextEquals(("Save"))
+            }
+            deleteButton{
+                assertIsDisplayed()
+                assertHasClickAction()
+                assertTextEquals(("Delete"))
             }
         }
     }

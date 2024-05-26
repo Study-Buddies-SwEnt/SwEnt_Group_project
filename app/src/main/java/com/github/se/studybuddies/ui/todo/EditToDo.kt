@@ -52,7 +52,7 @@ import java.time.ZoneId
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EditToDoScreen(
+fun EditToDo(
     todoUID: String,
     toDoListViewModel: ToDoListViewModel,
     navigationActions: NavigationActions

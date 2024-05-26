@@ -19,6 +19,7 @@ class EditToDoScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     val todoDescriptionField: KNode = editTodoCol.child { hasTestTag("todo_description_field") }
     val todoDateField: KNode = editTodoCol.child { hasTestTag("todo_date_field") }
     val saveButton: KNode = editTodoCol.child { hasTestTag("save_button") }
+    val deleteButton : KNode = editTodoCol.child { hasTestTag("todo_delete") }
 
     val datePicker: KNode = onNode { hasTestTag("date_picker") }
     val dateConfirmButton: KNode = onNode { hasTestTag("date_confirm_button") }
