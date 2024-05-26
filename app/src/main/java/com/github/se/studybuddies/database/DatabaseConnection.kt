@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -1227,42 +1228,50 @@ class DatabaseConnection : DbRepository {
     return isRunning
   }
 
-  override fun getAllTopics(
-      groupUID: String,
-      scope: CoroutineScope,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher,
-      onUpdate: (TopicList) -> Unit
-  ) {
-    val docRef = groupDataCollection.document(groupUID)
+    override fun getAllTopics(
+        groupUID: String,
+        scope: CoroutineScope,
+        ioDispatcher: CoroutineDispatcher,
+        mainDispatcher: CoroutineDispatcher,
+        onUpdate: (TopicList) -> Unit
+    ) {
+        val docRef = groupDataCollection.document(groupUID)
+        var previousSnapshot: DocumentSnapshot? = null
 
-    docRef.addSnapshotListener { snapshot, e ->
-      if (e != null) {
-        Log.w("MyPrint", "Listen failed.", e)
-        return@addSnapshotListener
-      }
 
-      if (snapshot != null && snapshot.exists()) {
-        scope.launch(ioDispatcher) {
-          val items = mutableListOf<Topic>()
-          val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
-          if (topicUIDs.isNotEmpty()) {
-            topicUIDs
-                .map { topicUid -> async { getTopic(topicUid) } }
-                .awaitAll()
-                .forEach { topic -> items.add(topic) }
-          } else {
-            Log.d("MyPrint", "List of topics is empty for this group")
-          }
 
-          withContext(mainDispatcher) { onUpdate(TopicList(items)) }
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("MyPrint", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                // Check if the data has changed
+                if (snapshot != previousSnapshot) {
+                    scope.launch(ioDispatcher) {
+                        val items = mutableListOf<Topic>()
+                        val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
+                        if (topicUIDs.isNotEmpty()) {
+                            topicUIDs
+                                .map { topicUid -> async { getTopic(topicUid) } }
+                                .awaitAll()
+                                .forEach { topic -> items.add(topic) }
+                        } else {
+                            Log.d("MyPrint", "List of topics is empty for this group")
+                        }
+
+                        withContext(mainDispatcher) { onUpdate(TopicList(items)) }
+                    }
+                }
+                // Update the previous snapshot
+                previousSnapshot = snapshot
+            } else {
+                Log.d("MyPrint", "Group with uid $groupUID does not exist")
+                onUpdate(TopicList(emptyList()))
+            }
         }
-      } else {
-        Log.d("MyPrint", "Group with uid $groupUID does not exist")
-        onUpdate(TopicList(emptyList()))
-      }
     }
-  }
 
   suspend fun getAllContacts(uid: String): ContactList {
     try {

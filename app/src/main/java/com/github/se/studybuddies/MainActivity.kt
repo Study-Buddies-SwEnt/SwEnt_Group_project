@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -83,7 +85,7 @@ open class MainActivity : ComponentActivity() {
     startApp(currentUser?.uid, db)
   }
 
-  fun startApp(uid: String?, db: DbRepository) {
+  fun startApp(uid_: String?, db: DbRepository) {
     val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
@@ -97,17 +99,19 @@ open class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
           val startDestination = Route.START
 
-          val callType = "default"
+            var uid =  remember { mutableStateOf(uid_) }
+
+            val callType = "default"
 
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              ifNotNullElse(remember { uid }, navController) { uid ->
+              ifNotNullElse(remember { uid.value }, navController) { uid ->
                 db.userExists(
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
                       if (userExists) {
-                        directMessageViewModel.setUserUID(uid)
-                        usersViewModel.setUserUID(uid)
+                         directMessageViewModel.setUserUID(uid)
+                         usersViewModel.setUserUID(uid)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -118,7 +122,7 @@ open class MainActivity : ComponentActivity() {
             }
             composable(Route.LOGIN) {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
-              LoginScreen(navigationActions) { uid -> startApp(uid, db) }
+              LoginScreen(navigationActions){ uid.value = db.getCurrentUserUID()}
             }
 
             composable(Route.GROUPSHOME) {
@@ -133,14 +137,14 @@ open class MainActivity : ComponentActivity() {
                 }
               }
 
-              ifNotNull(remember { uid }) { uid ->
+              ifNotNull(remember { uid.value }) { uid ->
                 val groupsHomeViewModel = remember { GroupsHomeViewModel(uid, db) }
-                GroupsHome(uid, groupsHomeViewModel, navigationActions, db)
+                  GroupsHome(uid, groupsHomeViewModel, navigationActions, db)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
             composable(Route.CALENDAR) {
-              ifNotNull(remember { uid }) { _ ->
+              ifNotNull(remember { uid.value }) { uid ->
                 val calendarViewModel = remember { uid?.let { it1 -> CalendarViewModel(uid) } }
                 if (calendarViewModel != null) {
                   CalendarApp(calendarViewModel, navigationActions)
@@ -175,8 +179,8 @@ open class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("date") { type = NavType.StringType })) {
                     backStackEntry ->
                   val date = backStackEntry.arguments?.getString("date")
-                  if (date != null && uid != null) {
-                    val viewModelFactory = CalendarViewModelFactory(uid)
+                  if (date != null && uid.value != null) {
+                    val viewModelFactory = CalendarViewModelFactory(uid.value!!)
                     DailyPlannerScreen(date, viewModelFactory, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
@@ -187,7 +191,7 @@ open class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  val currentUID = remember { uid }
+                  val currentUID = remember { uid.value }
                   if (backRoute != null && currentUID != null) {
                     val userViewModel = remember { UserViewModel(currentUID, db) }
                     AccountSettings(currentUID, userViewModel, backRoute, navigationActions)
@@ -220,7 +224,7 @@ open class MainActivity : ComponentActivity() {
               }
             }
             composable(Route.DIRECT_MESSAGE) {
-              ifNotNull(remember { uid }) { uid ->
+              ifNotNull(remember { uid.value }) { uid ->
                 directMessageViewModel.setUserUID(uid)
                 usersViewModel.setUserUID(uid)
                 DirectMessageScreen(
@@ -294,7 +298,7 @@ open class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.MAP) {
-              ifNotNull(remember { uid }) { uid ->
+              ifNotNull(remember { uid.value }) { uid ->
                 val userViewModel = remember { UserViewModel(uid, db) }
                 val usersViewModel = remember { UsersViewModel(uid, db) }
                 MapScreen(uid, userViewModel, usersViewModel, navigationActions, applicationContext)
