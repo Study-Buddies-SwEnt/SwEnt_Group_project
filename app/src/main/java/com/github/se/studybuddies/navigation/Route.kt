@@ -21,9 +21,8 @@ object Route {
   const val FOCUSMODE = "Focus Mode"
   const val TIMER = "Timer"
   const val DAILYPLANNER = " Daily Planner"
-
+  const val CONTACT_SETTINGS = "ContactSettings"
   const val SHAREDTIMER = "Shared timer"
-
   const val CREATETODO = "CreateToDo"
   const val EDITTODO = "EditToDo"
   const val TOPIC = "Topic"

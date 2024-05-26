@@ -32,6 +32,7 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
 
   fun fetchContactData(contactID: String) {
     viewModelScope.launch { _contact.value = db.getContact(contactID) }
+    Log.d("contact","contact ${_contact.value} fetched")
   }
 
   fun getOtherUser(contactID: String, uid: String): String {
@@ -53,6 +54,11 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun updateContact(contactID: String, showOnMap: Boolean?) {
-    db.update
+    TODO("db.update")
+  }
+
+  fun deleteContact(contactID: String) {
+    db.deleteContact(contactID)
+    (TODO("db.deletechat"))
   }
 }

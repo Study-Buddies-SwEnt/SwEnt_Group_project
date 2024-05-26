@@ -324,7 +324,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
                               Text(
-                                  text = stringResource(R.string.no),
+                                  text = stringResource(R.string.cancel),
                                   modifier = Modifier.testTag(groupUID + "_delete_no_text"))
                             }
                       }

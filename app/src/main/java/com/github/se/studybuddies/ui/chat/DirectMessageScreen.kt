@@ -33,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -81,10 +80,7 @@ fun DirectMessageScreen(
         if (showAddPrivateMessageList.value) {
           Box(
               modifier =
-              Modifier
-                  .fillMaxSize()
-                  .padding(innerPadding)
-                  .testTag("add_private_message")) {
+                  Modifier.fillMaxSize().padding(innerPadding).testTag("add_private_message")) {
                 ListAllUsers(
                     showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
               }
@@ -93,27 +89,21 @@ fun DirectMessageScreen(
             Log.d("MyPrint", "DirectMessageScreen: chats is empty")
             Text(
                 modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .testTag("direct_messages_empty"),
+                    Modifier.fillMaxSize().padding(innerPadding).testTag("direct_messages_empty"),
                 text = stringResource(R.string.direct_messages_empty))
           } else {
             Log.d("MyPrint", "DirectMessageScreen: chats is not empty")
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("direct_messages_not_empty"),
+                modifier = Modifier.fillMaxSize().testTag("direct_messages_not_empty"),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
             ) {
               LazyColumn(
                   modifier =
-                  Modifier
-                      .padding(vertical = 65.dp)
-                      .fillMaxSize()
-                      .background(LightBlue)
-                      .testTag("direct_messages_list")) {
+                      Modifier.padding(vertical = 65.dp)
+                          .fillMaxSize()
+                          .background(LightBlue)
+                          .testTag("direct_messages_list")) {
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
                         chatViewModel.setChat(chat)
@@ -127,9 +117,7 @@ fun DirectMessageScreen(
         Box(
             contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(bottom = innerPadding.calculateBottomPadding())) {
+                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
             }
       },
@@ -142,19 +130,16 @@ fun DirectMessageScreen(
 @Composable
 fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
   Row(
-      modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { showAddPrivateMessageList.value = !showAddPrivateMessageList.value },
             modifier =
-            Modifier
-                .width(64.dp)
-                .height(64.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .testTag("add_private_message_button")) {
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .testTag("add_private_message_button")) {
               if (showAddPrivateMessageList.value) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -176,24 +161,22 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
-      Modifier
-          .fillMaxWidth()
-          .background(color = White)
-          .border(color = LightBlue, width = Dp.Hairline)
-          .padding(8.dp)
-          .combinedClickable(onClick = { onClick() })
-          .testTag("chat_item")) {
+          Modifier.fillMaxWidth()
+              .background(color = White)
+              .border(color = LightBlue, width = Dp.Hairline)
+              .padding(8.dp)
+              .combinedClickable(onClick = { onClick() })
+              .testTag("chat_item")) {
         Image(
             painter = rememberAsyncImagePainter(chat.picture),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
-            Modifier
-                .padding(8.dp)
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color.Gray, CircleShape)
-                .align(Alignment.CenterVertically)
-                .testTag("chat_user_profile_picture"),
+                Modifier.padding(8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape)
+                    .align(Alignment.CenterVertically)
+                    .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = chat.name, modifier = Modifier.testTag("chat_name"))
         Spacer(modifier = Modifier.weight(1f))
@@ -233,9 +216,7 @@ fun ListAllUsers(
     if (friends.isEmpty()) {
       Text(text = stringResource(R.string.no_friends_found))
     } else {
-      LazyColumn(modifier = Modifier
-          .fillMaxWidth()
-          .testTag("all_users_list")) {
+      LazyColumn(modifier = Modifier.fillMaxWidth().testTag("all_users_list")) {
         items(friends) { friend ->
           UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
         }
@@ -255,27 +236,25 @@ fun UserItem(
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
-      Modifier
-          .fillMaxWidth()
-          .padding(8.dp)
-          .combinedClickable(
-              onClick = {
-                  viewModel.startDirectMessage(user.uid)
-                  showAddPrivateMessageList.value = false
-                  contactsViewModel.createContact(user.uid)
-              })
-          .testTag("user_item")) {
+          Modifier.fillMaxWidth()
+              .padding(8.dp)
+              .combinedClickable(
+                  onClick = {
+                    viewModel.startDirectMessage(user.uid)
+                    showAddPrivateMessageList.value = false
+                    contactsViewModel.createContact(user.uid)
+                  })
+              .testTag("user_item")) {
         Image(
             painter = rememberAsyncImagePainter(user.photoUrl),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
-            Modifier
-                .padding(8.dp)
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color.Gray, CircleShape)
-                .align(Alignment.CenterVertically)
-                .testTag("chat_user_profile_picture"),
+                Modifier.padding(8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape)
+                    .align(Alignment.CenterVertically)
+                    .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = user.username, modifier = Modifier.testTag("chat_name"))
       }

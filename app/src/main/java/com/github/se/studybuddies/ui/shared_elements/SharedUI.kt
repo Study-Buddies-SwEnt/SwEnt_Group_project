@@ -368,6 +368,27 @@ fun SaveButton(enabled: Boolean, save: () -> Unit) {
 }
 
 @Composable
+fun DeleteButton(onClick: () -> Unit) {
+  Button(
+      onClick = { onClick() },
+      modifier =
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(45.dp)
+              .background(Color.Transparent, shape = RoundedCornerShape(10.dp))
+              .testTag("todo_delete"),
+      colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
+        Icon(
+            painter = painterResource(R.drawable.delete),
+            contentDescription = null,
+            tint = Color.Red,
+            modifier = Modifier.size(36.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Delete", color = Color.Red)
+      }
+}
+
+@Composable
 fun SetPicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Box(
       modifier = Modifier.clickable { onClick() }.testTag("set_picture"),

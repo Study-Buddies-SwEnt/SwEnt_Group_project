@@ -1353,10 +1353,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun deleteContact(contactUID: String, userUID: String = "") {
-
-    val document = contactDataCollection.document(contactUID).get().await()
-
+  fun deleteContact(contactUID: String) {
     contactDataCollection
         .document(contactUID)
         .delete()

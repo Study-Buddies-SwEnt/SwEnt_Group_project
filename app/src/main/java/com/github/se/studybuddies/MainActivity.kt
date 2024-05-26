@@ -30,6 +30,7 @@ import com.github.se.studybuddies.ui.account.LoginScreen
 import com.github.se.studybuddies.ui.calender.CalendarApp
 import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
+import com.github.se.studybuddies.ui.chat.ContactScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupMembers
@@ -81,6 +82,8 @@ class MainActivity : ComponentActivity() {
     val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
+      val userViewModel = UserViewModel()
+      val contactsViewModel = ContactsViewModel()
 
     val studyBuddies = application as LocationApp
 
@@ -290,6 +293,18 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
                   }
                 }
+
+              composable(
+                  route = "${Route.CONTACT_SETTINGS}/{contactID}",
+                  arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
+                      backStackEntry ->
+                  val contactID = backStackEntry.arguments?.getString("contactID")
+                  ifNotNull(contactID) { contactUID ->
+                      val groupViewModel = remember { GroupViewModel(contactUID, db) }
+                      ContactScreen(contactUID, contactsViewModel, navigationActions, userViewModel, db)
+                      Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                  }
+              }
 
             composable(Route.MAP) {
               ifNotNull(remember { auth.currentUser }) { currentUser ->

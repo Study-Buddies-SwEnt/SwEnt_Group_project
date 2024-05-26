@@ -128,11 +128,11 @@ fun ChatScreen(
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
-              when (viewModel.chat.type) {
-                ChatType.GROUP,
-                ChatType.TOPIC, -> GroupChatTopBar(viewModel.chat, navigationActions)
-                ChatType.PRIVATE -> PrivateChatTopBar(viewModel.chat, navigationActions)
-              }
+        when (viewModel.chat.type) {
+          ChatType.GROUP,
+          ChatType.TOPIC, -> GroupChatTopBar(viewModel.chat, navigationActions)
+          ChatType.PRIVATE -> PrivateChatTopBar(viewModel.chat, navigationActions)
+        }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
@@ -528,88 +528,90 @@ fun EditDialog(
 
 @Composable
 fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
-    ChatTopBar(
-        leftButton = {
-            GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-        },
-        rightButton = {
-            IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
-                Icon(
-                    modifier = Modifier.size(20.dp),
-                    painter = painterResource(R.drawable.video_call),
-                    contentDescription = "",
-                    tint = Blue
-                )
-            }
-        }) {
+  ChatTopBar(
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME) },
+      rightButton = {
+        IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
+          Icon(
+              modifier = Modifier.size(20.dp),
+              painter = painterResource(R.drawable.video_call),
+              contentDescription = "",
+              tint = Blue)
+        }
+      }) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp)
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(chat.picture),
-                contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
-                modifier =
-                Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
-                contentScale = ContentScale.Crop
-            )
+            modifier = Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp)) {
+              Image(
+                  painter = rememberAsyncImagePainter(chat.picture),
+                  contentDescription =
+                      stringResource(R.string.contentDescription_group_profile_picture),
+                  modifier =
+                      Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
+                  contentScale = ContentScale.Crop)
 
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
+              Spacer(modifier = Modifier.width(8.dp))
+              Column {
                 Text(
-                    text = chat.name,
-                    maxLines = 1,
-                    modifier = Modifier.testTag("group_title_name")
-                )
+                    text = chat.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
                 Spacer(modifier = Modifier.width(8.dp))
                 LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
-                    items(chat.members) { member ->
-                        Text(
-                            text = member.username,
-                            modifier = Modifier.padding(end = 8.dp)
-                                .testTag("group_title_member_name"),
-                            style = TextStyle(color = Gray),
-                            maxLines = 1
-                        )
-                    }
+                  items(chat.members) { member ->
+                    Text(
+                        text = member.username,
+                        modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+                        style = TextStyle(color = Gray),
+                        maxLines = 1)
+                  }
                 }
+              }
             }
-        }
-    }
+      }
 }
 
 @Composable
 fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
-    ChatTopBar(
-        leftButton = {
-            GoBackRouteButton(navigationActions = navigationActions, Route.DIRECT_MESSAGE)
-        },
-        rightButton = {
-            IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
-                Icon(
-                    modifier = Modifier.size(20.dp),
-                    painter = painterResource(R.drawable.video_call),
-                    contentDescription = "",
-                    tint = Blue)
-            }
-        }) {
-  Row(
-      verticalAlignment = Alignment.CenterVertically,
-      modifier =
-          Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
-            navigationActions.navigateTo(Route.PLACEHOLDER)
-          }) {
-        Image(
-            painter = rememberAsyncImagePainter(chat.picture),
-            contentDescription = "User profile picture",
-            modifier =
-                Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
-            contentScale = ContentScale.Crop)
-        Spacer(modifier = Modifier.width(8.dp))
-        Column() {
-          Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name"))
+
+    val route = Route.CONTACT_SETTINGS
+    val contactID = "BgFfC2GFY7aubYQ0vs7z"
+
+  ChatTopBar(
+      leftButton = {
+        GoBackRouteButton(navigationActions = navigationActions, Route.DIRECT_MESSAGE)
+      },
+      rightButton = {
+        IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
+          Icon(
+              modifier = Modifier.size(20.dp),
+              painter = painterResource(R.drawable.video_call),
+              contentDescription = "",
+              tint = Blue)
         }
-      }}}
+      }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
+                    navigationActions.navigateTo("${route}/$contactID")
+                }) {
+              Image(
+                  painter = rememberAsyncImagePainter(chat.picture),
+                  contentDescription = "User profile picture",
+                  modifier =
+                      Modifier.size(40.dp)
+                          .clip(CircleShape)
+                          .testTag("private_title_profile_picture"),
+                  contentScale = ContentScale.Crop)
+              Spacer(modifier = Modifier.width(8.dp))
+              Column() {
+                Text(
+                    text = chat.name,
+                    maxLines = 1,
+                    modifier = Modifier.testTag("private_title_name"))
+              }
+            }
+      }
+}
 
 @Composable
 fun IconsOptionsList(
