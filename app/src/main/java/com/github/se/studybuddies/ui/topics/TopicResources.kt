@@ -45,7 +45,6 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
@@ -92,50 +91,38 @@ fun TopicResources(
             modifier = Modifier.fillMaxSize().padding(it),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
-              Box(
-                  modifier =
-                      Modifier.fillMaxWidth()
-                          .background(Color.White)
-                          .clickable { navigationActions.navigateTo(Route.CHAT) }
-                          .drawBehind {
-                            val strokeWidth = 1f
-                            val y = size.height - strokeWidth / 2
-                            drawLine(
-                                Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-                          }) {
-                    Column {
-                      Row(
-                          horizontalArrangement = Arrangement.SpaceBetween,
-                          verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Resources",
-                                modifier =
-                                    Modifier.weight(1f)
-                                        .clickable { areaState.value = FileArea.RESOURCES }
-                                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                                        .align(Alignment.CenterVertically),
-                                style = TextStyle(fontSize = 20.sp),
-                                textAlign = TextAlign.Center)
-                            Text(
-                                text = "Strong Users",
-                                modifier =
-                                    Modifier.weight(1f)
-                                        .clickable { areaState.value = FileArea.STRONG_USERS }
-                                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                                        .align(Alignment.CenterVertically),
-                                style = TextStyle(fontSize = 20.sp),
-                                textAlign = TextAlign.Center)
-                          }
-                      HorizontalDivider(
+              Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                      Text(
+                          text = "Resources",
                           modifier =
-                              Modifier.align(
-                                      if (areaState.value == FileArea.RESOURCES) Alignment.Start
-                                      else Alignment.End)
-                                  .fillMaxWidth(0.5f),
-                          color = Blue,
-                          thickness = 4.dp)
+                              Modifier.weight(1f)
+                                  .clickable { areaState.value = FileArea.RESOURCES }
+                                  .padding(horizontal = 16.dp, vertical = 16.dp)
+                                  .align(Alignment.CenterVertically),
+                          style = TextStyle(fontSize = 20.sp),
+                          textAlign = TextAlign.Center)
+                      Text(
+                          text = "Strong Users",
+                          modifier =
+                              Modifier.weight(1f)
+                                  .clickable { areaState.value = FileArea.STRONG_USERS }
+                                  .padding(horizontal = 16.dp, vertical = 16.dp)
+                                  .align(Alignment.CenterVertically),
+                          style = TextStyle(fontSize = 20.sp),
+                          textAlign = TextAlign.Center)
                     }
-                  }
+                HorizontalDivider(
+                    modifier =
+                        Modifier.align(
+                                if (areaState.value == FileArea.RESOURCES) Alignment.Start
+                                else Alignment.End)
+                            .fillMaxWidth(0.5f),
+                    color = Blue,
+                    thickness = 4.dp)
+              }
               LazyColumn(
                   modifier = Modifier.fillMaxSize(),
                   verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
