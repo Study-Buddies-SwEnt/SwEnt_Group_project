@@ -313,10 +313,13 @@ fun ChatTopBar(
                     rightButton: @Composable () -> Unit,
                     content: @Composable RowScope.() -> Unit) {
   TopAppBar(
-      modifier = Modifier.fillMaxWidth().padding(4.dp),
+      modifier = Modifier.fillMaxWidth(),
       contentColor = Color.White,
       backgroundColor = Color.White,
-      elevation = 0.dp) {
+      elevation = 0.dp,
+      contentPadding = PaddingValues(4.dp)
+  )
+      {
         leftButton()
         content()
         rightButton()

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,36 +125,41 @@ fun ChatScreen(
 
   Column(
       modifier =
-          Modifier.fillMaxSize()
-              .background(LightBlue)
-              .navigationBarsPadding()
-              .testTag("chat_screen")) {
-        ChatTopBar(leftButton = {
-            GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-        },
+      Modifier
+          .fillMaxSize()
+          .background(LightBlue)
+          .navigationBarsPadding()
+          .testTag("chat_screen")) {
+        ChatTopBar(
+            leftButton = {
+                GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+            },
             rightButton = {},
-      ) {
+        ) {
           when (viewModel.chat.type) {
             ChatType.GROUP,
             ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)
-            ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
+            ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat, navigationActions)
           }
         }
-        LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
+        LazyColumn(state = listState, modifier = Modifier
+            .weight(1f)
+            .padding(8.dp)) {
           items(messages) { message ->
             val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
             val displayName = viewModel.chat.type != ChatType.PRIVATE && !isCurrentUserMessageSender
             Row(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(2.dp)
-                        .combinedClickable(
-                            onClick = {},
-                            onLongClick = {
-                              selectedMessage = message
-                              showOptionsDialog.value = true
-                            })
-                        .testTag("chat_message_row"),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            selectedMessage = message
+                            showOptionsDialog.value = true
+                        })
+                    .testTag("chat_message_row"),
                 horizontalArrangement =
                     if (isCurrentUserMessageSender) {
                       Arrangement.End
@@ -178,17 +184,20 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.StartActivityForResult()) {}
 
-  Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
+  Row(modifier = Modifier
+      .padding(1.dp)
+      .testTag("chat_text_bubble")) {
     if (displayName) {
       Image(
           painter = rememberAsyncImagePainter(message.sender.photoUrl.toString()),
           contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
           modifier =
-              Modifier.size(40.dp)
-                  .clip(CircleShape)
-                  .border(2.dp, Gray, CircleShape)
-                  .align(Alignment.CenterVertically)
-                  .testTag("chat_user_profile_picture"),
+          Modifier
+              .size(40.dp)
+              .clip(CircleShape)
+              .border(2.dp, Gray, CircleShape)
+              .align(Alignment.CenterVertically)
+              .testTag("chat_user_profile_picture"),
           contentScale = ContentScale.Crop)
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -196,9 +205,10 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
 
     Box(
         modifier =
-            Modifier.background(White, RoundedCornerShape(20.dp))
-                .padding(1.dp)
-                .testTag("chat_text_bubble_box")) {
+        Modifier
+            .background(White, RoundedCornerShape(20.dp))
+            .padding(1.dp)
+            .testTag("chat_text_bubble_box")) {
           Column(modifier = Modifier.padding(8.dp)) {
             if (displayName) {
               Text(
@@ -219,9 +229,10 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                     painter = rememberAsyncImagePainter(message.photoUri.toString()),
                     contentDescription = stringResource(R.string.contentDescription_photo),
                     modifier =
-                        Modifier.size(200.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .testTag("chat_message_image"),
+                    Modifier
+                        .size(200.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .testTag("chat_message_image"),
                     contentScale = ContentScale.Crop)
               }
               is Message.LinkMessage -> {
@@ -235,11 +246,12 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                       text = message.linkName,
                       style = TextStyle(color = Blue),
                       modifier =
-                          Modifier.clickable {
-                                val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
-                                browserLauncher.launch(intent)
-                              }
-                              .testTag("chat_message_link"))
+                      Modifier
+                          .clickable {
+                              val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
+                              browserLauncher.launch(intent)
+                          }
+                          .testTag("chat_message_link"))
                 }
               }
               is Message.FileMessage -> {
@@ -253,21 +265,23 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                       text = message.fileName,
                       style = TextStyle(color = Blue),
                       modifier =
-                          Modifier.clickable {
-                                val intent =
-                                    Intent().apply {
+                      Modifier
+                          .clickable {
+                              val intent =
+                                  Intent().apply {
                                       action = Intent.ACTION_VIEW
                                       setDataAndType(message.fileUri, MessageVal.FILE_TYPE)
                                       flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    }
-                                browserLauncher.launch(
-                                    Intent.createChooser(
-                                        intent,
-                                        "Open with") // I tried to extract the string resource but
-                                    // it didn't work
-                                    )
-                              }
-                              .testTag("chat_message_file"))
+                                  }
+                              browserLauncher.launch(
+                                  Intent.createChooser(
+                                      intent,
+                                      "Open with"
+                                  ) // I tried to extract the string resource but
+                                  // it didn't work
+                              )
+                          }
+                          .testTag("chat_message_file"))
                 }
               }
             }
@@ -291,10 +305,11 @@ fun MessageTextFields(
       value = textToSend,
       onValueChange = { textToSend = it },
       modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .background(White, RoundedCornerShape(20.dp))
-              .testTag("chat_text_field"),
+      Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .background(White, RoundedCornerShape(20.dp))
+          .testTag("chat_text_field"),
       shape = RoundedCornerShape(20.dp),
       textStyle = TextStyle(color = Black),
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
@@ -308,7 +323,10 @@ fun MessageTextFields(
               }),
       leadingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("icon_more_messages_types"),
+            modifier = Modifier
+                .size(48.dp)
+                .padding(6.dp)
+                .testTag("icon_more_messages_types"),
             onClick = {
               showIconsOptions.value = !showIconsOptions.value
               Log.d("MyPrint", "Icon clicked, showIconsOptions.value: ${showIconsOptions.value}")
@@ -321,7 +339,10 @@ fun MessageTextFields(
       },
       trailingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("chat_send_button"),
+            modifier = Modifier
+                .size(48.dp)
+                .padding(6.dp)
+                .testTag("chat_send_button"),
             onClick = {
               if (textToSend.isNotBlank()) {
                 onSend(textToSend)
@@ -534,11 +555,20 @@ fun EditDialog(
 
 @Composable
 fun ChatGroupTitle(chat: Chat) {
-  Image(
-      painter = rememberAsyncImagePainter(chat.picture),
-      contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
-      contentScale = ContentScale.Crop)
+    Row(verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth(0.85F)
+            .fillMaxHeight()
+            .padding(4.dp)){
+        Image(
+            painter = rememberAsyncImagePainter(chat.picture),
+            contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .testTag("group_title_profile_picture"),
+            contentScale = ContentScale.Crop)
+
 
   Spacer(modifier = Modifier.width(8.dp))
   Column {
@@ -548,24 +578,37 @@ fun ChatGroupTitle(chat: Chat) {
       items(chat.members) { member ->
         Text(
             text = member.username,
-            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .testTag("group_title_member_name"),
             style = TextStyle(color = Gray),
-            maxLines = 1)
+       maxLines = 1)
       }
+    }
     }
   }
 }
 
 @Composable
-fun PrivateChatTitle(chat: Chat) {
-  Image(
+fun PrivateChatTitle(chat: Chat, navigationActions: NavigationActions) {
+  Row(verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier
+      .fillMaxWidth(0.85F)
+      .fillMaxHeight()
+      .padding(4.dp)
+      .clickable { navigationActions.navigateTo(Route.PLACEHOLDER) }){
+    Image(
       painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = "User profile picture",
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
+      modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .testTag("private_title_profile_picture"),
       contentScale = ContentScale.Crop)
-
   Spacer(modifier = Modifier.width(8.dp))
-  Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
+  Column() {
+      Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
+  }
 }
 
 @Composable
@@ -688,7 +731,10 @@ fun ImagePickerBox(
   val context = LocalContext.current
   Box(
       contentAlignment = Alignment.Center,
-      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
+      modifier = Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .testTag("add_image_box")) {
         SetPicture(photoState) {
           checkPermission(context, permission, requestPermissionLauncher) {
             getContent.launch("image/*")
@@ -710,11 +756,16 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
       content = {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_link_box")) {
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .testTag("add_link_box")) {
               OutlinedTextField(
                   value = linkState.value,
                   onValueChange = { linkState.value = it },
-                  modifier = Modifier.fillMaxWidth().testTag("add_link_text_field"),
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .testTag("add_link_text_field"),
                   textStyle = TextStyle(color = Black),
                   singleLine = true,
                   placeholder = { Text(stringResource(R.string.enter_link)) },
@@ -824,14 +875,15 @@ fun FilePickerBox(
   Box(
       contentAlignment = Alignment.Center,
       modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .clickable {
-                checkPermission(context, permission, requestPermissionLauncher) {
+      Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .clickable {
+              checkPermission(context, permission, requestPermissionLauncher) {
                   getContent.launch(MessageVal.FILE_TYPE)
-                }
               }
-              .testTag("add_file_box")) {
+          }
+          .testTag("add_file_box")) {
         if (fileState.value == Uri.EMPTY) {
           Text(
               text = stringResource(R.string.select_a_file),
