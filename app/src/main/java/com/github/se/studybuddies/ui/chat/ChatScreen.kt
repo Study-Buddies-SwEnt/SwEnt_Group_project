@@ -78,8 +78,10 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.permissions.getStoragePermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.groups.GroupsSettingsButton
+import com.github.se.studybuddies.ui.shared_elements.ChatTopBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
-import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
@@ -126,7 +128,11 @@ fun ChatScreen(
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
-        SecondaryTopBar(onClick = { navigationActions.goBack() }) {
+        ChatTopBar(leftButton = {
+            GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+        },
+            rightButton = {},
+      ) {
           when (viewModel.chat.type) {
             ChatType.GROUP,
             ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)

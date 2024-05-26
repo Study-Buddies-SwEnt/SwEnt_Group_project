@@ -92,7 +92,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.create_account)) },
-            navigationIcon = {
+            leftButton = {
               Icon(
                   imageVector = Icons.Default.ArrowBack,
                   contentDescription = "Go back",
@@ -108,7 +108,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                           }
                           .testTag("go_back_button"))
             },
-            actions = {})
+            rightButton = {})
       }) { paddingValue ->
         Column(
             modifier = Modifier.fillMaxSize(),

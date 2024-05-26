@@ -155,16 +155,16 @@ fun MainScreenScaffold(
 @Composable
 fun TopNavigationBar(
     title: @Composable () -> Unit,
-    navigationIcon: @Composable () -> Unit,
-    actions: @Composable () -> Unit,
+    leftButton: @Composable () -> Unit,
+    rightButton: @Composable () -> Unit,
 ) {
   Box(
       modifier = Modifier.testTag("top_app_box"),
   ) {
     CenterAlignedTopAppBar(
         title = { title() },
-        navigationIcon = { navigationIcon() },
-        actions = { actions() },
+        navigationIcon = { leftButton() },
+        actions = { rightButton() },
         modifier = Modifier.testTag("top_app_bar"))
     Divider(
         color = Blue,
@@ -308,20 +308,24 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 }
 
 @Composable
-fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+fun ChatTopBar(
+                    leftButton: @Composable () -> Unit,
+                    rightButton: @Composable () -> Unit,
+                    content: @Composable RowScope.() -> Unit) {
   TopAppBar(
-      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
+      modifier = Modifier.fillMaxWidth().padding(4.dp),
+      contentColor = Color.White,
+      backgroundColor = Color.White,
       elevation = 0.dp) {
-        IconButton(onClick = { onClick() }) {
-          Icon(
-              painterResource(R.drawable.arrow_back),
-              contentDescription = stringResource(R.string.ContentDescription_go_back_button),
-              modifier = Modifier.size(28.dp))
-        }
+        leftButton()
         content()
+        rightButton()
       }
+    Divider(
+        color = Blue,
+        thickness = 4.dp,
+        //modifier = Modifier.align(Alignment.BottomStart).testTag("divider")
+    )
 }
 
 @Composable

@@ -33,7 +33,6 @@ import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
-import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -60,11 +59,11 @@ fun TopicSettings(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.topic_settings)) },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(
                   navigationActions = navigationActions, "${Route.TOPIC}/$topicUID/$groupUID")
             },
-            actions = {})
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(it),

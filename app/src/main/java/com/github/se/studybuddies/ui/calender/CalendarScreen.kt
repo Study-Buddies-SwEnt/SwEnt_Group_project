@@ -53,10 +53,10 @@ fun CalendarApp(viewModel: CalendarViewModel, navigationActions: NavigationActio
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Calendar") },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
             },
-            actions = {})
+            rightButton = {})
       },
   ) { padding ->
     Surface(

@@ -84,10 +84,10 @@ fun EditToDo(
         topBar = {
           TopNavigationBar(
               title = { Sub_title(stringResource(R.string.edit_task)) },
-              navigationIcon = {
+              leftButton = {
                 GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
               },
-              actions = {})
+              rightButton = {})
         }) {
           Column(
               modifier =
