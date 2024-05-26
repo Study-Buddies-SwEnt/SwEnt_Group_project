@@ -51,4 +51,8 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
       }
     }
   }
+
+  fun updateContact(contactID: String, showOnMap: Boolean?) {
+    db.update
+  }
 }
