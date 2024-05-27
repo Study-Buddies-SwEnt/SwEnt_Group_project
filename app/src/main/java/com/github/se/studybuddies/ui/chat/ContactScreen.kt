@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.imagePermissionVersion
@@ -87,7 +86,7 @@ fun ContactScreen(
 
   otherUserData?.let {
     nameState.value = it.username
-      Log.d("contact", "otherUserData username is ${nameState.value}")
+    Log.d("contact", "otherUserData username is ${nameState.value}")
     photoState.value = it.photoUrl
   }
 
@@ -115,7 +114,9 @@ fun ContactScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
-            leftButton = { GoBackRouteButton(navigationActions = navigationActions, "${Route.CHAT}/${contactID}") },
+            leftButton = {
+              GoBackRouteButton(navigationActions = navigationActions, "${Route.CHAT}/${contactID}")
+            },
             rightButton = {
               IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
                 Icon(
@@ -125,7 +126,7 @@ fun ContactScreen(
                     tint = Blue)
               }
             })
-          Log.d("contact", "TopNav")
+        Log.d("contact", "TopNav")
       }) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -158,7 +159,7 @@ fun ContactScreen(
                     }
                     item { DeleteButton { isDeleteContactDialogVisible = true } }
                   }
-            Log.d("contact", "Lazycol")
+              Log.d("contact", "Lazycol")
               if (isDeleteContactDialogVisible) {
                 DeleteContactDialog(
                     contactID = contactID,

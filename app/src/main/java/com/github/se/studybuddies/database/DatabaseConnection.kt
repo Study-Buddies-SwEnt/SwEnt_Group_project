@@ -982,36 +982,36 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-  override suspend fun startDirectMessage(otherUID: String) : String {
+  override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
-      val contactsViewModel = ContactsViewModel()
-      var contactID = ""
-      Log.d("MyPrint", "startDirectMessage called in db")
+    val contactsViewModel = ContactsViewModel()
+    var contactID = ""
+    Log.d("MyPrint", "startDirectMessage called in db")
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
-          if (chatId != null) {
-              contactID = chatId
-          }
-      }else {
-          Log.d("MyPrint", "startDirectMessage: creating new chat")
-          val newChatId = UUID.randomUUID().toString()
-          contactID = newChatId
-          val memberPath = getPrivateChatMembersPath(newChatId)
-          val members = mapOf(currentUserUID to true, otherUID to true)
-          rtDb
-              .getReference(memberPath)
-              .updateChildren(members)
-              .addOnSuccessListener {
-                  Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
-                  contactsViewModel.createContact(otherUID, contactID)
-              }
-              .addOnFailureListener {
-                  Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
-              }
+        if (chatId != null) {
+          contactID = chatId
         }
+      } else {
+        Log.d("MyPrint", "startDirectMessage: creating new chat")
+        val newChatId = UUID.randomUUID().toString()
+        contactID = newChatId
+        val memberPath = getPrivateChatMembersPath(newChatId)
+        val members = mapOf(currentUserUID to true, otherUID to true)
+        rtDb
+            .getReference(memberPath)
+            .updateChildren(members)
+            .addOnSuccessListener {
+              Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
+              contactsViewModel.createContact(otherUID, contactID)
+            }
+            .addOnFailureListener {
+              Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
+            }
       }
-      return contactID
+    }
+    return contactID
   }
 
   // using the topicData and topicItemData collections
@@ -1284,16 +1284,16 @@ class DatabaseConnection : DbRepository {
         contactsUIDs?.let { contactsIDs ->
           contactsIDs.forEach { contactID ->
             try {
-                val document = contactDataCollection.document(contactID).get().await()
-                val members = document.get("members") as? List<String> ?: emptyList()
-                val showOnMap = document.get("showOnMap") as Boolean ?: false
-                items.add(Contact(contactID, members, showOnMap))
-            }catch (e: Exception){
-                Log.e("contacts", "Error fetching contact with ID $contactID: $e")
+              val document = contactDataCollection.document(contactID).get().await()
+              val members = document.get("members") as? List<String> ?: emptyList()
+              val showOnMap = document.get("showOnMap") as Boolean ?: false
+              items.add(Contact(contactID, members, showOnMap))
+            } catch (e: Exception) {
+              Log.e("contacts", "Error fetching contact with ID $contactID: $e")
             }
           }
         }
-          Log.d("contacts", "fetched all contacts for user $uid")
+        Log.d("contacts", "fetched all contacts for user $uid")
         return ContactList(items)
       } else {
         Log.d("contacts", "User with uid $uid does not exist")
@@ -1307,18 +1307,18 @@ class DatabaseConnection : DbRepository {
 
   override suspend fun getContact(contactID: String): Contact {
 
-        Log.d("contact", "getContact before $contactID")
-        val document = contactDataCollection.document(contactID).get().await()
-        Log.d("contact", "getContact after $contactID")
+    Log.d("contact", "getContact before $contactID")
+    val document = contactDataCollection.document(contactID).get().await()
+    Log.d("contact", "getContact after $contactID")
 
-      return  if (document.exists()) {
-        Log.d("contact", "contact document found for contact id $contactID")
-        val members = document.get("members") as? List<String> ?: emptyList()
-        val showOnMap = document.get("showOnMap") as Boolean
-        Contact(contactID, members, showOnMap)
+    return if (document.exists()) {
+      Log.d("contact", "contact document found for contact id $contactID")
+      val members = document.get("members") as? List<String> ?: emptyList()
+      val showOnMap = document.get("showOnMap") as Boolean
+      Contact(contactID, members, showOnMap)
     } else {
-        Log.d("contact", "contact document not found for contact id $contactID")
-        Contact.empty()
+      Log.d("contact", "contact document not found for contact id $contactID")
+      Contact.empty()
     }
   }
 
@@ -1326,55 +1326,46 @@ class DatabaseConnection : DbRepository {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
-      Log.d("MyPrint", "Creating new contact with with ID $contactID")
+    Log.d("MyPrint", "Creating new contact with with ID $contactID")
     // check if contact already exists
     val contactList = getAllContacts(uid)
-      val filteredList = contactList.getFilteredContacts(otherUID)
+    val filteredList = contactList.getFilteredContacts(otherUID)
     if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
-
     } else {
-        val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
-        // updating contacts collection
-        val contactRef = contactDataCollection.document(contactID)
-        contactRef
-            .set(contact)
-            .addOnSuccessListener { _ ->
-                Log.d("MyPrint", "Contact successfully created")
+      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      // updating contacts collection
+      val contactRef = contactDataCollection.document(contactID)
+      contactRef
+          .set(contact)
+          .addOnSuccessListener { _ ->
+            Log.d("MyPrint", "Contact successfully created")
 
-                // updating current user's list of contacts
-                userContactsCollection
-                    .document(uid)
-                    .update("contacts", FieldValue.arrayUnion(contactID))
-                    .addOnSuccessListener {
-                        Log.d("MyPrint", "Contact successfully added to userContacts")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.d(
-                            "MyPrint",
-                            "Failed to add new contact to userContacts with error: ",
-                            e
-                        )
-                    }
+            // updating current user's list of contacts
+            userContactsCollection
+                .document(uid)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                }
 
-                // updating other user's list of contacts
-                userContactsCollection
-                    .document(otherUID)
-                    .update("contacts", FieldValue.arrayUnion(contactID))
-                    .addOnSuccessListener {
-                        Log.d("MyPrint", "Contact successfully added to userContacts")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.d(
-                            "MyPrint",
-                            "Failed to add new contact to userContacts with error: ",
-                            e
-                        )
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to create contact with error: ", e)
-            }
+            // updating other user's list of contacts
+            userContactsCollection
+                .document(otherUID)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                }
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to create contact with error: ", e)
+          }
     }
   }
 

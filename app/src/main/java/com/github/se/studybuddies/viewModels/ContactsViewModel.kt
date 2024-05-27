@@ -13,8 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ContactsViewModel(private val uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
-  ViewModel() {
+class ContactsViewModel(
+    private val uid: String? = null,
+    private val db: DbRepository = DatabaseConnection()
+) : ViewModel() {
   private val _contacts = MutableStateFlow<ContactList>(ContactList(emptyList()))
   val contacts: StateFlow<ContactList> = _contacts
 
@@ -27,23 +29,26 @@ class ContactsViewModel(private val uid: String? = null, private val db: DbRepos
     }
   }
 
-  fun createContact(otherUID: String, contactID: String)  {
+  fun createContact(otherUID: String, contactID: String) {
     viewModelScope.launch { db.createContact(otherUID, contactID) }
   }
 
   fun fetchContactData(contactID: String) {
-    Log.d("contact","A fetch contact called with ID $contactID")
-    viewModelScope.launch { _contact.value = db.getContact(contactID)
-      Log.d("contact","A fetched contact in VMscope ${_contact.value}")
+    Log.d("contact", "A fetch contact called with ID $contactID")
+    viewModelScope.launch {
+      _contact.value = db.getContact(contactID)
+      Log.d("contact", "A fetched contact in VMscope ${_contact.value}")
     }
-    Log.d("contact","A fetched contact ${_contact.value}")
+    Log.d("contact", "A fetched contact ${_contact.value}")
   }
 
   fun getOtherUser(contactID: String, uid: String): String {
     fetchContactData(contactID)
-    if (_contact.value==Contact.empty()) {return ""}
+    if (_contact.value == Contact.empty()) {
+      return ""
+    }
     return if ((contact.value?.members?.get(0) ?: "") == uid) {
-      Log.d("contact","getOtherUser 1")
+      Log.d("contact", "getOtherUser 1")
       contact.value?.members?.get(1) ?: ""
     } else {
       Log.d("contact", "getOtherUser 0")
@@ -66,7 +71,7 @@ class ContactsViewModel(private val uid: String? = null, private val db: DbRepos
     TODO("db.update")
   }
 
-   fun deleteContact(contactID: String) {
+  fun deleteContact(contactID: String) {
     db.deleteContact(contactID)
     (TODO("db.deletechat"))
   }

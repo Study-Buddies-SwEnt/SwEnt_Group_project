@@ -131,7 +131,7 @@ interface DbRepository {
       onResult: (Boolean, String?) -> Unit
   )
 
-  suspend fun startDirectMessage(otherUID: String) : String
+  suspend fun startDirectMessage(otherUID: String): String
 
   // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String): Topic
@@ -168,12 +168,15 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-    suspend fun createContact(otherUID: String, contactID: String)
-    suspend fun getContact(contactID: String): Contact
-    suspend fun getAllContacts(uid: String): ContactList
-     fun deleteContact(contactID: String)
+  suspend fun createContact(otherUID: String, contactID: String)
 
-    companion object {
+  suspend fun getContact(contactID: String): Contact
+
+  suspend fun getAllContacts(uid: String): ContactList
+
+  fun deleteContact(contactID: String)
+
+  companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

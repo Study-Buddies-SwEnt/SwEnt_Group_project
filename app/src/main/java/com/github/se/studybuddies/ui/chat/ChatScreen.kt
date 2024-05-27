@@ -87,7 +87,6 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
-import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -116,8 +115,6 @@ fun ChatScreen(
       listState.scrollToItem(messages.lastIndex)
     }
   }
-
-
 
   selectedMessage?.let {
     OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
@@ -353,7 +350,8 @@ fun OptionsDialog(
             selectedMessage = selectedMessage,
             showOptionsDialog = showOptionsDialog,
             showEditDialog = showEditDialog,
-            navigationActions = navigationActions,)
+            navigationActions = navigationActions,
+        )
       },
       button = {})
 }
@@ -488,7 +486,7 @@ fun NonUserMessageOptions(
         viewModel.currentUser.value
             ?.let { DirectMessagesViewModel(it.uid) }
             ?.startDirectMessage(selectedMessage.sender.uid)
-          //TODO()
+        // TODO()
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {
         Text(
@@ -593,7 +591,7 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
             verticalAlignment = Alignment.CenterVertically,
             modifier =
                 Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
-                    navigationActions.navigateTo("$Route.CONTACT_SETTINGS/${chat.uid}")
+                  navigationActions.navigateTo("$Route.CONTACT_SETTINGS/${chat.uid}")
                 }) {
               Image(
                   painter = rememberAsyncImagePainter(chat.picture),

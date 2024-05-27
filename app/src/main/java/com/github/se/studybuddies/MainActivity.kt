@@ -82,8 +82,8 @@ class MainActivity : ComponentActivity() {
     val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
-      val userViewModel = UserViewModel()
-      val contactsViewModel = ContactsViewModel()
+    val userViewModel = UserViewModel()
+    val contactsViewModel = ContactsViewModel()
 
     val studyBuddies = application as LocationApp
 
@@ -256,13 +256,11 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-
             composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
               ChatScreen(messageViewModel, navigationActions)
             }
-
 
             composable(Route.SOLOSTUDYHOME) {
               ifNotNull(auth.currentUser) { _ ->
@@ -299,29 +297,25 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-              composable(
-                  route = "${Route.CONTACT_SETTINGS}/{contactID}",
-                  arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
-                      backStackEntry ->
+            composable(
+                route = "${Route.CONTACT_SETTINGS}/{contactID}",
+                arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
+                    backStackEntry ->
                   val contactID = backStackEntry.arguments?.getString("contactID")
                   ifNotNull(contactID) { contactUID ->
-                      val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID(), db) }
-                      val userVM = remember { UserViewModel(db.getCurrentUserUID(), db) }
-                      ContactScreen(contactUID, contactsVM, navigationActions, userVM)
-                      Log.d("MyPrint", "Successfully navigated to Contact Settings with ID $contactUID")
+                    val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID(), db) }
+                    val userVM = remember { UserViewModel(db.getCurrentUserUID(), db) }
+                    ContactScreen(contactUID, contactsVM, navigationActions, userVM)
+                    Log.d(
+                        "MyPrint", "Successfully navigated to Contact Settings with ID $contactUID")
                   }
-              }
+                }
 
             composable(Route.MAP) {
               ifNotNull(remember { auth.currentUser }) { currentUser ->
                 val userVM = remember { UserViewModel(currentUser.uid, db) }
                 val usersVM = remember { UsersViewModel(currentUser.uid, db) }
-                MapScreen(
-                    currentUser.uid,
-                    userVM,
-                    usersVM,
-                    navigationActions,
-                    applicationContext)
+                MapScreen(currentUser.uid, userVM, usersVM, navigationActions, applicationContext)
               }
             }
 

@@ -243,7 +243,7 @@ fun UserItem(
                     showAddPrivateMessageList.value = false
                     val contactID = viewModel.startDirectMessage(user.uid)
                     Log.d("MyPrint", "DMscreen contactID is $contactID")
-                    //contactsViewModel.createContact(user.uid, contactID)
+                    // contactsViewModel.createContact(user.uid, contactID)
                   })
               .testTag("user_item")) {
         Image(

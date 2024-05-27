@@ -205,8 +205,7 @@ fun TopicScreen(
                                         grp.picture,
                                         ChatType.TOPIC,
                                         groupViewModel.members.value!!.toList(),
-                                        additionalUID = grp.uid
-                                    )
+                                        additionalUID = grp.uid)
                                   }
                                 })
                             navigationActions.navigateTo(Route.CHAT)

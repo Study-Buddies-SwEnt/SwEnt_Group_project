@@ -16,7 +16,6 @@ class DirectMessagesViewModel(
     private val db: DbRepository = DatabaseConnection(),
 ) : ViewModel() {
 
-
   private val _userUid = MutableStateFlow(userUid)
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
   val directMessages =
@@ -26,8 +25,9 @@ class DirectMessagesViewModel(
     viewModelScope.launch {
       _userUid.collect { userUid ->
         if (userUid.isNotEmpty()) {
-          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main) { chats ->
-              _directMessages.value = chats
+          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main) {
+              chats ->
+            _directMessages.value = chats
           }
         }
       }
@@ -40,9 +40,9 @@ class DirectMessagesViewModel(
     }
   }
 
-   fun startDirectMessage(messageUserUID: String) : String {
-       var contactID = ""
-    viewModelScope.launch { contactID = db.startDirectMessage(messageUserUID)}
-       return contactID
+  fun startDirectMessage(messageUserUID: String): String {
+    var contactID = ""
+    viewModelScope.launch { contactID = db.startDirectMessage(messageUserUID) }
+    return contactID
   }
 }
