@@ -796,8 +796,9 @@ class DatabaseConnection : DbRepository {
 
   override suspend fun removeTopic(uid: String) {
 
-    val topic = getTopic(uid)
-    rtDb.getReference(topic.toString()).removeValue()
+    getTopic(uid) { topic ->
+        rtDb.getReference(topic.toString()).removeValue()
+    }
   }
 
   override fun editMessage(
@@ -1005,9 +1006,9 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the topicData and topicItemData collections
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val document = topicDataCollection.document(uid).get().await()
-    return if (document.exists()) {
+    if (document.exists()) {
       val name = document.getString(topic_name) ?: ""
       val exercisesList = document.get(topic_exercises) as List<String>
       val theoryList = document.get(topic_theory) as List<String>
@@ -1023,10 +1024,11 @@ class DatabaseConnection : DbRepository {
           } else {
             emptyList()
           }
-      Topic(uid, name, exercises, theory)
+      val topic = Topic(uid, name, exercises, theory)
+        callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      Topic.empty()
+      callBack(Topic.empty())
     }
   }
 
@@ -1282,9 +1284,9 @@ class DatabaseConnection : DbRepository {
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
           if (topicUIDs.isNotEmpty()) {
             topicUIDs
-                .map { topicUid -> async { getTopic(topicUid) } }
-                .awaitAll()
-                .forEach { topic -> items.add(topic) }
+                .map { topicUID ->
+                    getTopic(topicUID) {topic -> items.add(topic)}
+                }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }

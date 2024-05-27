@@ -132,7 +132,7 @@ interface DbRepository {
   fun startDirectMessage(otherUID: String)
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic
+  suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
 
   suspend fun getTopicFile(id: String): TopicFile
 
