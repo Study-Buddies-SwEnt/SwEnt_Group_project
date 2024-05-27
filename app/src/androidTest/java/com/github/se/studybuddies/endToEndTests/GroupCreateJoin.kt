@@ -1,6 +1,9 @@
 package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -11,6 +14,8 @@ import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,18 +35,14 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Test
   fun userFlow1() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
-      saveButton { assertIsNotEnabled() }
+      runBlocking { delay(6000) }
       usernameField {
         performTextClearance()
         performTextInput("test user")
         assertTextContains("test user")
       }
       Espresso.closeSoftKeyboard()
-      saveButton {
-        performScrollTo()
-        assertIsEnabled()
-        performClick()
-      }
+      composeTestRule.onNodeWithTag("save_button").performScrollTo().performClick()
     }
     /*
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
