@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -30,6 +31,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ActivityScenario.launch(MockMainActivity::class.java)
   }
 
+  @Test
   fun inputUsername() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       runBlocking { delay(6000) }
