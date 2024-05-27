@@ -2,14 +2,14 @@ package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.printToLog
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.testUtilities.MockMainActivity
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -32,27 +32,30 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ActivityScenario.launch(MockMainActivity::class.java)
   }
 
+  private fun printNodeTree(loc: String = "") {
+    composeTestRule
+        .onAllNodes(isRoot(), useUnmergedTree = true)
+        .printToLog("Print root @${loc} : ", maxDepth = 10)
+  }
+
   @Test
   fun userFlow1() {
     composeTestRule.waitForIdle()
+
+    composeTestRule.onNodeWithTag("username_field").assertIsDisplayed().performTextClearance()
+    printNodeTree("before username input")
+    composeTestRule.onNodeWithTag("username_field").performTextInput("test user")
+    printNodeTree("after username input")
+    composeTestRule.onNodeWithTag("username_field").assertTextContains("test user")
+    // composeTestRule.waitForIdle()
+    // Espresso.closeSoftKeyboard()
+    // composeTestRule.waitForIdle()
     composeTestRule
-        .onNodeWithTag("username_field", useUnmergedTree = true)
-        .assertIsDisplayed()
-        .performTextClearance()
-    composeTestRule
-        .onNodeWithTag("username_field", useUnmergedTree = true)
-        .performTextInput("test user")
-    composeTestRule
-        .onNodeWithTag("username_field", useUnmergedTree = true)
-        .assertTextContains("test user")
-    composeTestRule.waitForIdle()
-    Espresso.closeSoftKeyboard()
-    composeTestRule.waitForIdle()
-    composeTestRule
-        .onNodeWithTag("save_button_account", useUnmergedTree = true)
-        .performScrollTo()
+        .onNodeWithTag("save_button_account")
+        // .performScrollTo()
         .performClick()
 
+    val a = 1
     /*
     @Test
     fun userFlow1() {
