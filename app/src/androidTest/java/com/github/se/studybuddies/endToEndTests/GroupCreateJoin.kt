@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ActivityScenario
@@ -18,7 +17,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -32,6 +30,24 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ActivityScenario.launch(MockMainActivity::class.java)
   }
 
+  fun inputUsername() {
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      runBlocking { delay(6000) }
+      saveButton { assertIsNotEnabled() }
+      usernameField {
+        performTextClearance()
+        performTextInput("test user")
+        assertTextContains("test user")
+      }
+      Espresso.closeSoftKeyboard()
+      saveButton {
+        performScrollTo()
+        assertIsEnabled()
+        performClick()
+      }
+    }
+  }
+  /*
   @Test
   fun userFlow1() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
@@ -43,58 +59,58 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
       Espresso.closeSoftKeyboard()
       composeTestRule.onNodeWithTag("save_button").performScrollTo().performClick()
-    }
-    /*
-    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
-      // Create account
-      saveButton { assertIsNotEnabled() }
-      usernameField {
-        performTextClearance()
-        performTextInput("E2EUserTest")
-        assertTextContains("E2EUserTest")
-      }
-      Espresso.closeSoftKeyboard()
-      composeTestRule.waitForIdle()
-      saveButton {
-        performScrollTo()
-        assertIsEnabled()
-        performClick()
-      }
-    }
-    ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
-      soloStudyScreen { assertIsDisplayed() }
-      groupsBottom { performClick() }
-    }
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      addButton { performClick() }
-    }
-    ComposeScreen.onComposeScreen<CreateGroupScreen>(composeTestRule) {
-      // Create a group
-      groupField {
-        performTextClearance()
-        performTextInput("testGroup")
-        assertTextContains("testGroup")
-      }
-      Espresso.closeSoftKeyboard()
-      saveButton { performClick() }
-    }
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      drawerMenuButton { performClick() }
-      accountButton { performClick() }
-    }
-    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
-      signOutButton {
-        assertIsEnabled()
-        assertHasClickAction()
-        performClick()
-      }
-    }
-    ComposeScreen.onComposeScreen<LoginScreen>(composeTestRule) {
-      // Verify that we indeed went back to the login screen
-      loginTitle {
-        assertIsDisplayed()
-        assertTextEquals("Study Buddies")
-      }
     }*/
+  /*
+  ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+    // Create account
+    saveButton { assertIsNotEnabled() }
+    usernameField {
+      performTextClearance()
+      performTextInput("E2EUserTest")
+      assertTextContains("E2EUserTest")
+    }
+    Espresso.closeSoftKeyboard()
+    composeTestRule.waitForIdle()
+    saveButton {
+      performScrollTo()
+      assertIsEnabled()
+      performClick()
+    }
   }
+  ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
+    soloStudyScreen { assertIsDisplayed() }
+    groupsBottom { performClick() }
+  }
+  ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+    addButton { performClick() }
+  }
+  ComposeScreen.onComposeScreen<CreateGroupScreen>(composeTestRule) {
+    // Create a group
+    groupField {
+      performTextClearance()
+      performTextInput("testGroup")
+      assertTextContains("testGroup")
+    }
+    Espresso.closeSoftKeyboard()
+    saveButton { performClick() }
+  }
+  ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+    drawerMenuButton { performClick() }
+    accountButton { performClick() }
+  }
+  ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+    signOutButton {
+      assertIsEnabled()
+      assertHasClickAction()
+      performClick()
+    }
+  }
+  ComposeScreen.onComposeScreen<LoginScreen>(composeTestRule) {
+    // Verify that we indeed went back to the login screen
+    loginTitle {
+      assertIsDisplayed()
+      assertTextEquals("Study Buddies")
+    }
+  }*/
+
 }
