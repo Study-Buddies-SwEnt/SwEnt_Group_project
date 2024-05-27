@@ -366,8 +366,10 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
-    // rtDb.getReference(topic.toString()).removeValue()
+    getTopic(uid) { topic ->
+
+    }
+    //rtDb.getReference(topic.toString()).removeValue()
   }
 
   override fun editMessage(
@@ -585,13 +587,13 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val topic = topicDataCollection[uid]
     if (topic != null) {
-      return topic
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      return Topic.empty()
+      callBack(Topic.empty())
     }
   }
 
@@ -735,9 +737,9 @@ class MockDatabase : DbRepository {
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
           topicUIDs
-              .map { topicUid -> async { getTopic(topicUid) } }
-              .awaitAll()
-              .forEach { topic -> items.add(topic) }
+            .map { topicUID ->
+              getTopic(topicUID) { topic -> items.add(topic) }
+            }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }
