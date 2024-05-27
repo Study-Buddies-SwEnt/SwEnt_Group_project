@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class DirectMessageViewModel(
     private val userUid: String = "",
     private val db: DbRepository = DatabaseConnection(),
-    contactID: String
+    val contactID: String
 ) : ViewModel() {
 
 

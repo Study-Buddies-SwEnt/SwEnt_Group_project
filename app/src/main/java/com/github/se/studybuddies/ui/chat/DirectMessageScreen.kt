@@ -107,6 +107,7 @@ fun DirectMessageScreen(
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
                         chatViewModel.setChat(chat)
+                          Log.d("chat route", "id is ${chat.contactID}")
                         navigationActions.navigateTo("${Route.CHAT}/${chat.contactID}")
                       }
                     }

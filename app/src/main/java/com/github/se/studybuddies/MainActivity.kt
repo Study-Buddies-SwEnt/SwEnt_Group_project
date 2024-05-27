@@ -256,8 +256,10 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
+
             composable(
-                route = "${Route.CHAT}/{contactID}") {
+                route = "${Route.CHAT}/{contactID}",
+                arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
               ChatScreen(messageViewModel, navigationActions, contactID = "contactID")
