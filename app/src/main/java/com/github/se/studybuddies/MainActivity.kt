@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -62,6 +63,7 @@ import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
+import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
@@ -281,7 +283,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null && StreamVideo.isInstalled) {
-                    val viewModel: CallLobbyViewModel = remember {
+                    val viewModel: CallLobbyViewModel = viewModel {
                       CallLobbyViewModel(groupUID, callType)
                     }
                     Log.d("MyPrint", "Join VideoCall lobby")
@@ -301,8 +303,9 @@ class MainActivity : ComponentActivity() {
                     val call =
                         startCall(StreamVideo.instance().state.activeCall.value, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
+                    val videoVM: VideoCallViewModel = viewModel { VideoCallViewModel(callId, call) }
                     VideoCallScreen(
-                        call,
+                        videoVM,
                         { navigationActions.navigateTo("${Route.GROUP}/$callId") },
                         { leaveCall(call, navController, callId) })
                   }
