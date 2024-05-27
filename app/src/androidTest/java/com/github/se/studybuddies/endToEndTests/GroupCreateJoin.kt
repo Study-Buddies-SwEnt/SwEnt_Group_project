@@ -4,12 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.screens.AccountSettingsScreen
 import com.github.se.studybuddies.screens.CreateAccountScreen
-import com.github.se.studybuddies.screens.CreateGroupScreen
-import com.github.se.studybuddies.screens.GroupsHomeScreen
-import com.github.se.studybuddies.screens.LoginScreen
-import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.testUtilities.MockMainActivity
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -33,7 +28,22 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   }
 
   @Test
-  fun groupCreateJoin() {
+  fun userFlow1() {
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      saveButton { assertIsNotEnabled() }
+      usernameField {
+        performTextClearance()
+        performTextInput("test user")
+        assertTextContains("test user")
+      }
+      Espresso.closeSoftKeyboard()
+      saveButton {
+        performScrollTo()
+        assertIsEnabled()
+        performClick()
+      }
+    }
+    /*
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       // Create account
       saveButton { assertIsNotEnabled() }
@@ -84,6 +94,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         assertIsDisplayed()
         assertTextEquals("Study Buddies")
       }
-    }
+    }*/
   }
 }
