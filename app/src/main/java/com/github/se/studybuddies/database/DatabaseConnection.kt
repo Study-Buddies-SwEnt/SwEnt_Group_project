@@ -992,25 +992,25 @@ class DatabaseConnection : DbRepository {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
           if (chatId != null) {
               contactID = chatId
-      } else
-
-        Log.d("MyPrint", "startDirectMessage: creating new chat")
-        val newChatId = UUID.randomUUID().toString()
+            }
+      }else {
+          Log.d("MyPrint", "startDirectMessage: creating new chat")
+          val newChatId = UUID.randomUUID().toString()
           contactID = newChatId
-        val memberPath = getPrivateChatMembersPath(newChatId)
-        val members = mapOf(currentUserUID to true, otherUID to true)
-        rtDb
-            .getReference(memberPath)
-            .updateChildren(members)
-            .addOnSuccessListener {
-              Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
-                contactsViewModel.createContact(otherUID, contactID)
-            }
-            .addOnFailureListener {
-              Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
-            }
+          val memberPath = getPrivateChatMembersPath(newChatId)
+          val members = mapOf(currentUserUID to true, otherUID to true)
+          rtDb
+              .getReference(memberPath)
+              .updateChildren(members)
+              .addOnSuccessListener {
+                  Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
+                  contactsViewModel.createContact(otherUID, contactID)
+              }
+              .addOnFailureListener {
+                  Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
+              }
+        }
       }
-    }
       return contactID
   }
 
