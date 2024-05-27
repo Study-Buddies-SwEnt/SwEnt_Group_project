@@ -60,7 +60,11 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun SaveButton(usernameState: MutableState<String>,testTag: String = "save_button", save: () -> Unit) {
+fun SaveButton(
+    usernameState: MutableState<String>,
+    testTag: String = "save_button",
+    save: () -> Unit
+) {
   val enabled = usernameState.value.isNotEmpty()
   Button(
       onClick = save,
