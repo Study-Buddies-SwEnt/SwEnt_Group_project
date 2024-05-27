@@ -38,8 +38,9 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         performTextInput("test user")
         assertTextContains("test user")
       }
-      Espresso.closeSoftKeyboard()
     }
+    Espresso.closeSoftKeyboard()
+    composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("save_button_account").performScrollTo().performClick()
     /*
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
