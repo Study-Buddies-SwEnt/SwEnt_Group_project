@@ -12,10 +12,16 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.screens.AccountSettingsScreen
+import com.github.se.studybuddies.screens.CreateGroupScreen
+import com.github.se.studybuddies.screens.GroupsHomeScreen
+import com.github.se.studybuddies.screens.LoginScreen
+import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.testUtilities.MockMainActivity
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
+import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
 import org.junit.Before
 import org.junit.Rule
@@ -35,48 +41,14 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun userFlow1() {
-    composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("username_field").assertIsDisplayed().performTextClearance()
     composeTestRule.onNodeWithTag("username_field").performTextInput("test user")
     composeTestRule.onNodeWithTag("username_field").assertTextContains("test user")
-    composeTestRule.waitForIdle()
     Espresso.closeSoftKeyboard()
-    composeTestRule.waitForIdle()
     composeTestRule
-        .onNodeWithTag("content")
+        .onNodeWithTag("accountLazyColumn")
         .performScrollToNode(hasTestTag("save_button_account"))
         .performClick()
-
-    /*
-    @Test
-    fun userFlow1() {
-      ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
-        usernameField {
-          performTextClearance()
-          performTextInput("test user")
-          assertTextContains("test user")
-        }
-      }
-      Espresso.closeSoftKeyboard()
-      composeTestRule.waitForIdle()
-      composeTestRule.onNodeWithTag("save_button_account").performScrollTo().performClick()*/
-    /*
-    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
-      // Create account
-      saveButton { assertIsNotEnabled() }
-      usernameField {
-        performTextClearance()
-        performTextInput("E2EUserTest")
-        assertTextContains("E2EUserTest")
-      }
-      Espresso.closeSoftKeyboard()
-      composeTestRule.waitForIdle()
-      saveButton {
-        performScrollTo()
-        assertIsEnabled()
-        performClick()
-      }
-    }
     ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }
@@ -111,6 +83,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         assertIsDisplayed()
         assertTextEquals("Study Buddies")
       }
-    }*/
+    }
   }
 }
