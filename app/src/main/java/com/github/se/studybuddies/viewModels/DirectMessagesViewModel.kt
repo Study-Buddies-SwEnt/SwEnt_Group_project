@@ -11,10 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class DirectMessageViewModel(
+class DirectMessagesViewModel(
     private val userUid: String = "",
     private val db: DbRepository = DatabaseConnection(),
-    val contactID: String
 ) : ViewModel() {
 
 
@@ -27,10 +26,9 @@ class DirectMessageViewModel(
     viewModelScope.launch {
       _userUid.collect { userUid ->
         if (userUid.isNotEmpty()) {
-          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main,{
-              chats ->
-            _directMessages.value = chats
-          } , contactID = contactID)
+          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main) { chats ->
+              _directMessages.value = chats
+          }
         }
       }
     }
@@ -42,7 +40,9 @@ class DirectMessageViewModel(
     }
   }
 
-  fun startDirectMessage(messageUserUID: String, contactID: String) {
-    db.startDirectMessage(messageUserUID, contactID = contactID)
+   fun startDirectMessage(messageUserUID: String) : String {
+       var contactID = ""
+    viewModelScope.launch { contactID = db.startDirectMessage(messageUserUID)}
+       return contactID
   }
 }

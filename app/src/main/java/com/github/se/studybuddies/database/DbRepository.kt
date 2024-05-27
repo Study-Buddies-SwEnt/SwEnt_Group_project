@@ -115,8 +115,7 @@ interface DbRepository {
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher,
-      onUpdate: (List<Chat>) -> Unit,
-      contactID: String
+      onUpdate: (List<Chat>) -> Unit
   )
 
   fun getMessages(
@@ -132,7 +131,7 @@ interface DbRepository {
       onResult: (Boolean, String?) -> Unit
   )
 
-  fun startDirectMessage(otherUID: String, contactID: String)
+  suspend fun startDirectMessage(otherUID: String) : String
 
   // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String): Topic
@@ -169,7 +168,7 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-    suspend fun createContact(otherUID: String) : String
+    suspend fun createContact(otherUID: String, contactID: String)
     suspend fun getContact(contactID: String): Contact
     suspend fun getAllContacts(uid: String): ContactList
      fun deleteContact(contactID: String)

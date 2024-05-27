@@ -133,8 +133,7 @@ fun GroupScreen(
                                   it.name,
                                   it.picture,
                                   ChatType.GROUP,
-                                  groupViewModel.members.value!!.toList(),
-                                  contactID = "")
+                                  groupViewModel.members.value!!.toList())
                             })
                         navigationActions.navigateTo(Route.CHAT)
                       }

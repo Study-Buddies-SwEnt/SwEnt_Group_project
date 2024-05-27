@@ -88,7 +88,7 @@ import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
 import com.github.se.studybuddies.viewModels.ContactsViewModel
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -99,7 +99,6 @@ import kotlinx.coroutines.launch
 fun ChatScreen(
     viewModel: MessageViewModel,
     navigationActions: NavigationActions,
-    contactID: String
 ) {
   val messages = viewModel.messages.collectAsState(initial = emptyList()).value
   val showOptionsDialog = remember { mutableStateOf(false) }
@@ -121,7 +120,7 @@ fun ChatScreen(
 
 
   selectedMessage?.let {
-    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions, contactID)
+    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
   }
 
   IconsOptionsList(viewModel, showIconsOptions, showAddImage, showAddLink, showAddFile)
@@ -342,7 +341,6 @@ fun OptionsDialog(
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
-    contactID: String
 ) {
 
   ShowAlertDialog(
@@ -355,8 +353,7 @@ fun OptionsDialog(
             selectedMessage = selectedMessage,
             showOptionsDialog = showOptionsDialog,
             showEditDialog = showEditDialog,
-            navigationActions = navigationActions,
-            contactID = contactID)
+            navigationActions = navigationActions,)
       },
       button = {})
 }
@@ -368,7 +365,6 @@ fun OptionDialogContent(
     showOptionsDialog: MutableState<Boolean>,
     showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
-    contactID: String
 ) {
 
   Column(modifier = Modifier.testTag("option_dialog")) {
@@ -384,8 +380,7 @@ fun OptionDialogContent(
           viewModel = viewModel,
           selectedMessage = selectedMessage,
           showOptionsDialog = showOptionsDialog,
-          navigationActions = navigationActions,
-          contactID = contactID)
+          navigationActions = navigationActions)
     }
   }
 }
@@ -484,7 +479,6 @@ fun NonUserMessageOptions(
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
-    contactID: String
 ) {
   Spacer(modifier = Modifier.height(8.dp))
   Button(
@@ -492,8 +486,9 @@ fun NonUserMessageOptions(
       onClick = {
         showOptionsDialog.value = false
         viewModel.currentUser.value
-            ?.let { DirectMessageViewModel(it.uid, contactID = contactID) }
-            ?.startDirectMessage(selectedMessage.sender.uid, contactID)
+            ?.let { DirectMessagesViewModel(it.uid) }
+            ?.startDirectMessage(selectedMessage.sender.uid)
+          //TODO()
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {
         Text(
@@ -598,7 +593,7 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
             verticalAlignment = Alignment.CenterVertically,
             modifier =
                 Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
-                    navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${chat.contactID}")
+                    navigationActions.navigateTo("$Route.CONTACT_SETTINGS/${chat.uid}")
                 }) {
               Image(
                   painter = rememberAsyncImagePainter(chat.picture),

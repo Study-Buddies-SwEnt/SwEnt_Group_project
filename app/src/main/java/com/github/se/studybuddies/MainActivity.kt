@@ -57,7 +57,7 @@ import com.github.se.studybuddies.viewModels.CalendarViewModelFactory
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
     val db: DbRepository = DatabaseConnection()
-    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db, "")
+    val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
       val userViewModel = UserViewModel()
@@ -257,12 +257,10 @@ class MainActivity : ComponentActivity() {
                 }
 
 
-            composable(
-                route = "${Route.CHAT}/{contactID}",
-                arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
+            composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
-              ChatScreen(messageViewModel, navigationActions, contactID = "contactID")
+              ChatScreen(messageViewModel, navigationActions)
             }
 
 

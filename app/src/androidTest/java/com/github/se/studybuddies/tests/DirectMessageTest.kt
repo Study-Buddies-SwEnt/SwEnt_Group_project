@@ -7,7 +7,7 @@ import com.github.se.studybuddies.screens.DirectMessageScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -30,7 +30,7 @@ class DirectMessageTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
 
   @Test
   fun testDirectMessageScreen() {
-    val directMessageViewModel = DirectMessageViewModel()
+    val directMessageViewModel = DirectMessagesViewModel()
     val chatViewModel = ChatViewModel()
     val usersViewModel = UsersViewModel()
     val navigationActions = mockNavActions

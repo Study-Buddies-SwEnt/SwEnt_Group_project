@@ -20,6 +20,7 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -851,7 +852,6 @@ class DatabaseConnection : DbRepository {
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher,
       onUpdate: (List<Chat>) -> Unit,
-      contactID: String
   ) {
     val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
 
@@ -872,8 +872,7 @@ class DatabaseConnection : DbRepository {
                             name = otherUser.username,
                             picture = otherUser.photoUrl,
                             type = ChatType.PRIVATE,
-                            members = listOf(otherUser, currentUser),
-                            contactID = contactID)
+                            members = listOf(otherUser, currentUser))
                       }
                     } else {
                       null
@@ -983,15 +982,21 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-  override fun startDirectMessage(otherUID: String, contactID: String) {
+  override suspend fun startDirectMessage(otherUID: String) : String {
     val currentUserUID = getCurrentUserUID()
+      val contactsViewModel = ContactsViewModel()
+      var contactID = ""
+      Log.d("MyPrint", "startDirectMessage called in db")
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
-      } else {
+          if (chatId != null) {
+              contactID = chatId
+      } else
+
         Log.d("MyPrint", "startDirectMessage: creating new chat")
-        //val newChatId = UUID.randomUUID().toString()
-        val newChatId = contactID
+        val newChatId = UUID.randomUUID().toString()
+          contactID = newChatId
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb
@@ -999,12 +1004,14 @@ class DatabaseConnection : DbRepository {
             .updateChildren(members)
             .addOnSuccessListener {
               Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
+                contactsViewModel.createContact(otherUID, contactID)
             }
             .addOnFailureListener {
               Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
             }
       }
     }
+      return contactID
   }
 
   // using the topicData and topicItemData collections
@@ -1315,27 +1322,24 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override suspend fun createContact(otherUID: String) : String {
+  override suspend fun createContact(otherUID: String, contactID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
-
+      Log.d("MyPrint", "Creating new contact with with ID $contactID")
     // check if contact already exists
     val contactList = getAllContacts(uid)
       val filteredList = contactList.getFilteredContacts(otherUID)
-      var id = ""
-
-    return if (filteredList.isNotEmpty()) {
+    if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
-         filteredList.get(0).id
+
     } else {
         val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
         // updating contacts collection
-        contactDataCollection
-            .add(contact)
-            .addOnSuccessListener { document ->
-                val contactID = document.id
-                id = contactID
+        val contactRef = contactDataCollection.document(contactID)
+        contactRef
+            .set(contact)
+            .addOnSuccessListener { _ ->
                 Log.d("MyPrint", "Contact successfully created")
 
                 // updating current user's list of contacts
@@ -1347,7 +1351,7 @@ class DatabaseConnection : DbRepository {
                     }
                     .addOnFailureListener { e ->
                         Log.d(
-                            "MyPrfixint",
+                            "MyPrint",
                             "Failed to add new contact to userContacts with error: ",
                             e
                         )
@@ -1371,7 +1375,6 @@ class DatabaseConnection : DbRepository {
             .addOnFailureListener { e ->
                 Log.d("MyPrint", "Failed to create contact with error: ", e)
             }
-         id
     }
   }
 

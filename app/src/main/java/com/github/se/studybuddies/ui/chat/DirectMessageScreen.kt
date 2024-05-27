@@ -56,13 +56,13 @@ import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun DirectMessageScreen(
-    viewModel: DirectMessageViewModel,
+    viewModel: DirectMessagesViewModel,
     chatViewModel: ChatViewModel,
     usersViewModel: UsersViewModel,
     navigationActions: NavigationActions,
@@ -107,8 +107,7 @@ fun DirectMessageScreen(
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
                         chatViewModel.setChat(chat)
-                          Log.d("chat route", "id is ${chat.contactID}")
-                        navigationActions.navigateTo("${Route.CHAT}/${chat.contactID}")
+                        navigationActions.navigateTo(Route.CHAT)
                       }
                     }
                   }
@@ -187,7 +186,7 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 @Composable
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
-    viewModel: DirectMessageViewModel,
+    viewModel: DirectMessagesViewModel,
     usersViewModel: UsersViewModel,
     contactsViewModel: ContactsViewModel
 ) {
@@ -230,7 +229,7 @@ fun ListAllUsers(
 @Composable
 fun UserItem(
     user: User,
-    viewModel: DirectMessageViewModel,
+    viewModel: DirectMessagesViewModel,
     showAddPrivateMessageList: MutableState<Boolean>,
     contactsViewModel: ContactsViewModel
 ) {
@@ -242,8 +241,9 @@ fun UserItem(
               .combinedClickable(
                   onClick = {
                     showAddPrivateMessageList.value = false
-                    val contactID = contactsViewModel.createContact(user.uid)
-                      viewModel.startDirectMessage(user.uid, contactID = contactID)
+                    val contactID = viewModel.startDirectMessage(user.uid)
+                    Log.d("MyPrint", "DMscreen contactID is $contactID")
+                    //contactsViewModel.createContact(user.uid, contactID)
                   })
               .testTag("user_item")) {
         Image(

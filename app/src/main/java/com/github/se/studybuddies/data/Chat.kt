@@ -9,7 +9,6 @@ data class Chat(
     val type: ChatType,
     var members: List<User>,
     val additionalUID: String = "",
-    val contactID: String
     //    var messages: List<Message>
 ) {
   companion object {
@@ -19,8 +18,7 @@ data class Chat(
           name = "",
           picture = Uri.EMPTY,
           type = ChatType.GROUP,
-          members = emptyList(),
-          contactID = ""
+          members = emptyList()
       )
     }
   }

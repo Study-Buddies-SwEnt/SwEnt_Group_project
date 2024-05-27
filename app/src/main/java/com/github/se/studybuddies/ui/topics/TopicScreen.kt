@@ -205,7 +205,7 @@ fun TopicScreen(
                                         grp.picture,
                                         ChatType.TOPIC,
                                         groupViewModel.members.value!!.toList(),
-                                        contactID = "", additionalUID = grp.uid
+                                        additionalUID = grp.uid
                                     )
                                   }
                                 })
