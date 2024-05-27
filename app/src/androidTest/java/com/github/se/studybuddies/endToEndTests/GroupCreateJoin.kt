@@ -13,6 +13,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.screens.AccountSettingsScreen
+import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.CreateGroupScreen
 import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.screens.LoginScreen
@@ -41,14 +42,20 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun userFlow1() {
-    composeTestRule.onNodeWithTag("username_field").assertIsDisplayed().performTextClearance()
-    composeTestRule.onNodeWithTag("username_field").performTextInput("test user")
-    composeTestRule.onNodeWithTag("username_field").assertTextContains("test user")
+    composeTestRule.waitForIdle()
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      usernameField {
+        performTextClearance()
+        performTextInput("test user")
+        assertTextContains("test user")
+      }
+    }
     Espresso.closeSoftKeyboard()
     composeTestRule
         .onNodeWithTag("accountLazyColumn")
         .performScrollToNode(hasTestTag("save_button_account"))
         .performClick()
+    composeTestRule.onNodeWithTag("save_button_account").performClick()
     ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }

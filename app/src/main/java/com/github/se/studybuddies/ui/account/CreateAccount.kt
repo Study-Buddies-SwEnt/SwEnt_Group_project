@@ -115,7 +115,8 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top) {
               LazyColumn(
-                  modifier = Modifier.fillMaxWidth().padding(paddingValue).testTag("accountLazyColumn"),
+                  modifier =
+                      Modifier.fillMaxWidth().padding(paddingValue).testTag("accountLazyColumn"),
                   verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.Top),
                   horizontalAlignment = Alignment.CenterHorizontally) {
                     item { Spacer(modifier = Modifier.size(20.dp)) }
