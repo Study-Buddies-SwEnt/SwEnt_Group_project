@@ -25,6 +25,7 @@ import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeUserMemberships
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.squareup.wire.internal.redactElements
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -370,8 +371,8 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
-    // rtDb.getReference(topic.toString()).removeValue()
+    topicDataCollection.remove(uid)
+    //rtDb.getReference(topic.toString()).removeValue()
   }
 
   override fun editMessage(
@@ -589,13 +590,25 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit){
     val topic = topicDataCollection[uid]
     if (topic != null) {
-      return topic
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      return Topic.empty()
+      callBack(Topic.empty())
+    }
+  }
+
+  override suspend fun getTopicFile(id: String): TopicFile {
+    val document = topicItemCollection[id]
+    return if (document != null && document is TopicFile) {
+      val name = document.name
+      val strongUsers = document.strongUsers
+      val parentUID = document.parentUID
+      TopicFile(id, name, strongUsers, parentUID)
+    } else {
+      TopicFile.empty()
     }
   }
 
@@ -674,6 +687,32 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] = item
   }
 
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection[fileID]
+    if (document != null && document is TopicFile) {
+      val strongUsers = document.strongUsers
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    } else {
+      callBack(false)
+    }
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    val document = topicItemCollection[fileID]
+    if (document != null && document is TopicFile) {
+      val strongUsers = document.strongUsers.toMutableList()
+      if (newValue) {
+        strongUsers.add(currentUser)
+        document.strongUsers = strongUsers.toList()
+      } else {
+        strongUsers.remove(currentUser)
+        document.strongUsers = strongUsers.toList()
+      }
+    }
+  }
+
   override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
     var isRunning = false
     groupUID?.let { uid ->
@@ -701,12 +740,13 @@ class MockDatabase : DbRepository {
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
           topicUIDs
-              .map { topicUid -> async { getTopic(topicUid) } }
-              .awaitAll()
-              .forEach { topic -> items.add(topic) }
+            .map { topicUID ->
+              getTopic(topicUID) { topic -> items.add(topic) }
+            }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }
+
 
         withContext(mainDispatcher) { onUpdate(TopicList(items)) }
       }
