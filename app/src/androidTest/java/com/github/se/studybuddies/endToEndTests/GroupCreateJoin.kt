@@ -6,6 +6,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToLog
@@ -50,10 +51,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     // composeTestRule.waitForIdle()
     // Espresso.closeSoftKeyboard()
     // composeTestRule.waitForIdle()
-    composeTestRule
-        .onNodeWithTag("save_button_account")
-        // .performScrollTo()
-        .performClick()
+    composeTestRule.onNodeWithTag("save_button_account").performScrollTo().performClick()
 
     val a = 1
     /*
