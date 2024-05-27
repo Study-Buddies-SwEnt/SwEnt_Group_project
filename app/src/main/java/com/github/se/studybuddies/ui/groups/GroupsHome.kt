@@ -510,7 +510,7 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                         if (it) {
                           showSucces = true
                           val groupVM = GroupViewModel(groupUID, db)
-                          groupVM.addUserToGroup(groupUID)
+                          groupVM.addUserToGroup(groupUID) {}
                           navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                         } else {
                           showError = true

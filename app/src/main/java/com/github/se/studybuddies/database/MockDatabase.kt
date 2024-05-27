@@ -241,8 +241,9 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun addUserToGroup(groupUID: String, user: String) {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
     if (groupUID == "") {
+      callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -256,12 +257,14 @@ class MockDatabase : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection[groupUID]
     if (document == null) {
+      callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -273,6 +276,7 @@ class MockDatabase : DbRepository {
       val updatedList = it + groupUID
       userMembershipsCollection[userToAdd] = updatedList.toMutableList()
     }
+    callBack(false)
   }
 
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
