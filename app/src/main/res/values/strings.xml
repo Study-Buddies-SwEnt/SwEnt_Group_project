@@ -124,4 +124,6 @@
     <string name="edit_task">Edit task</string>
     <string name="user_profile_picture">user profile picture</string>
     <string name="loading">loading</string>
+    <string name="add_member_from_list">Add member from list</string>
+    <string name="add_member_with_uid">Add member with UID</string>
 </resources>

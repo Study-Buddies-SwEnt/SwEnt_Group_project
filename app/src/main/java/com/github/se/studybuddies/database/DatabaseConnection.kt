@@ -510,9 +510,10 @@ class DatabaseConnection : DbRepository {
    *
    * return -1 in case of invalid entries
    */
-  override suspend fun addUserToGroup(groupUID: String, user: String) {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
     if (groupUID == "") {
+      callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -526,12 +527,14 @@ class DatabaseConnection : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
+      callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -539,8 +542,12 @@ class DatabaseConnection : DbRepository {
     groupDataCollection
         .document(groupUID)
         .update("members", FieldValue.arrayUnion(userToAdd))
-        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnSuccessListener {
+          Log.d("MyPrint", "User successfully added to group")
+          callBack(false)
+        }
         .addOnFailureListener { e ->
+          callBack(true)
           Log.d("MyPrint", "Failed to add user to group with error: ", e)
         }
 
@@ -548,8 +555,12 @@ class DatabaseConnection : DbRepository {
     userMembershipsCollection
         .document(userToAdd)
         .update("groups", FieldValue.arrayUnion(groupUID))
-        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+        .addOnSuccessListener {
+          Log.d("MyPrint", "Group successfully added to user")
+          callBack(false)
+        }
         .addOnFailureListener { e ->
+          callBack(true)
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
   }

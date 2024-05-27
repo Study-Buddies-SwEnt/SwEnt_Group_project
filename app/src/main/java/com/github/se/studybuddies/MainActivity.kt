@@ -53,6 +53,7 @@ import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
 import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.CalendarViewModel
+import com.github.se.studybuddies.viewModels.CalendarViewModelFactory
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
@@ -175,10 +176,12 @@ class MainActivity : ComponentActivity() {
                   val date = backStackEntry.arguments?.getString("date")
                   val currentUser = auth.currentUser
                   if (date != null && currentUser != null) {
-                    DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+                    val viewModelFactory = CalendarViewModelFactory(currentUser.uid)
+                    DailyPlannerScreen(date, viewModelFactory, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
+
             composable(
                 route = "${Route.ACCOUNT}/{backRoute}",
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
