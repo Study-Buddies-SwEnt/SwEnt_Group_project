@@ -2,10 +2,11 @@ package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
@@ -35,22 +36,15 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Test
   fun userFlow1() {
     composeTestRule.waitForIdle()
-    composeTestRule
-        .onNodeWithTag("username_field", useUnmergedTree = true)
-        .assertIsDisplayed()
-        .performTextClearance()
-    composeTestRule
-        .onNodeWithTag("username_field", useUnmergedTree = true)
-        .performTextInput("test user")
-    composeTestRule
-        .onNodeWithTag("username_field", useUnmergedTree = true)
-        .assertTextContains("test user")
+    composeTestRule.onNodeWithTag("username_field").assertIsDisplayed().performTextClearance()
+    composeTestRule.onNodeWithTag("username_field").performTextInput("test user")
+    composeTestRule.onNodeWithTag("username_field").assertTextContains("test user")
     composeTestRule.waitForIdle()
     Espresso.closeSoftKeyboard()
     composeTestRule.waitForIdle()
     composeTestRule
-        .onNodeWithTag("save_button_account", useUnmergedTree = true)
-        .performScrollTo()
+        .onNodeWithTag("content")
+        .performScrollToNode(hasTestTag("save_button_account"))
         .performClick()
 
     /*
