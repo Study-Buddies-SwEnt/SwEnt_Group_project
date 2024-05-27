@@ -24,8 +24,6 @@ import com.google.firebase.database.ValueEventListener
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -237,8 +235,9 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun addUserToGroup(groupUID: String, user: String) {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
     if (groupUID == "") {
+      callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -252,12 +251,14 @@ class MockDatabase : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection[groupUID]
     if (document == null) {
+      callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -269,6 +270,7 @@ class MockDatabase : DbRepository {
       val updatedList = it + groupUID
       userMembershipsCollection[userToAdd] = updatedList.toMutableList()
     }
+    callBack(false)
   }
 
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
@@ -362,7 +364,8 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
+    getTopic(uid) { topic -> }
+
     // rtDb.getReference(topic.toString()).removeValue()
   }
 
@@ -581,13 +584,25 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val topic = topicDataCollection[uid]
     if (topic != null) {
-      return topic
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      return Topic.empty()
+      callBack(Topic.empty())
+    }
+  }
+
+  override suspend fun getTopicFile(id: String): TopicFile {
+    val document = topicItemCollection[id]
+    return if (document != null && document is TopicFile) {
+      val name = document.name
+      val strongUsers = document.strongUsers
+      val parentUID = document.parentUID
+      TopicFile(id, name, strongUsers, parentUID)
+    } else {
+      TopicFile.empty()
     }
   }
 
@@ -666,6 +681,32 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] = item
   }
 
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection[fileID]
+    if (document != null && document is TopicFile) {
+      val strongUsers = document.strongUsers
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    } else {
+      callBack(false)
+    }
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    val document = topicItemCollection[fileID]
+    if (document != null && document is TopicFile) {
+      val strongUsers = document.strongUsers.toMutableList()
+      if (newValue) {
+        strongUsers.add(currentUser)
+        document.strongUsers = strongUsers.toList()
+      } else {
+        strongUsers.remove(currentUser)
+        document.strongUsers = strongUsers.toList()
+      }
+    }
+  }
+
   override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
     var isRunning = false
     groupUID?.let { uid ->
@@ -692,10 +733,7 @@ class MockDatabase : DbRepository {
         val items = mutableListOf<Topic>()
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
-          topicUIDs
-              .map { topicUid -> async { getTopic(topicUid) } }
-              .awaitAll()
-              .forEach { topic -> items.add(topic) }
+          topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }

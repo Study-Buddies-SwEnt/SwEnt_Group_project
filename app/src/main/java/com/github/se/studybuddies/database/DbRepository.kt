@@ -79,7 +79,7 @@ interface DbRepository {
 
   suspend fun createGroup(name: String, photoUri: Uri)
 
-  suspend fun addUserToGroup(groupUID: String, user: String = "")
+  suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
@@ -134,7 +134,9 @@ interface DbRepository {
   suspend fun startDirectMessage(otherUID: String): String
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic
+  suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
+
+  suspend fun getTopicFile(id: String): TopicFile
 
   suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem>
 
@@ -155,6 +157,10 @@ interface DbRepository {
   fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit)
 
   fun updateTopicItem(item: TopicItem)
+
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
+
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean)
 
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
