@@ -32,8 +32,6 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -807,9 +805,7 @@ class DatabaseConnection : DbRepository {
 
   override suspend fun removeTopic(uid: String) {
 
-    getTopic(uid) { topic ->
-        rtDb.getReference(topic.toString()).removeValue()
-    }
+    getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
   }
 
   override fun editMessage(
@@ -1036,7 +1032,7 @@ class DatabaseConnection : DbRepository {
             emptyList()
           }
       val topic = Topic(uid, name, exercises, theory)
-        callBack(topic)
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
       callBack(Topic.empty())
@@ -1294,10 +1290,7 @@ class DatabaseConnection : DbRepository {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
           if (topicUIDs.isNotEmpty()) {
-            topicUIDs
-                .map { topicUID ->
-                    getTopic(topicUID) {topic -> items.add(topic)}
-                }
+            topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }

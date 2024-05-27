@@ -24,8 +24,6 @@ import com.google.firebase.database.ValueEventListener
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -366,7 +364,8 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
+    getTopic(uid) { topic -> }
+
     // rtDb.getReference(topic.toString()).removeValue()
   }
 
@@ -585,13 +584,13 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val topic = topicDataCollection[uid]
     if (topic != null) {
-      return topic
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      return Topic.empty()
+      callBack(Topic.empty())
     }
   }
 
@@ -734,10 +733,7 @@ class MockDatabase : DbRepository {
         val items = mutableListOf<Topic>()
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
-          topicUIDs
-              .map { topicUid -> async { getTopic(topicUid) } }
-              .awaitAll()
-              .forEach { topic -> items.add(topic) }
+          topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }
