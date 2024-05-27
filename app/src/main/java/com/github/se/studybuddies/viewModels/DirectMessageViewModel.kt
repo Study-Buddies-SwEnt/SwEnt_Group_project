@@ -13,8 +13,11 @@ import kotlinx.coroutines.launch
 
 class DirectMessageViewModel(
     private val userUid: String = "",
-    private val db: DbRepository = DatabaseConnection()
+    private val db: DbRepository = DatabaseConnection(),
+    contactID: String
 ) : ViewModel() {
+
+
   private val _userUid = MutableStateFlow(userUid)
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
   val directMessages =
@@ -24,10 +27,10 @@ class DirectMessageViewModel(
     viewModelScope.launch {
       _userUid.collect { userUid ->
         if (userUid.isNotEmpty()) {
-          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main) {
+          db.subscribeToPrivateChats(userUid, viewModelScope, Dispatchers.IO, Dispatchers.Main,{
               chats ->
             _directMessages.value = chats
-          }
+          } , contactID = contactID)
         }
       }
     }
@@ -39,7 +42,7 @@ class DirectMessageViewModel(
     }
   }
 
-  fun startDirectMessage(messageUserUID: String) {
-    db.startDirectMessage(messageUserUID)
+  fun startDirectMessage(messageUserUID: String, contactID: String) {
+    db.startDirectMessage(messageUserUID, contactID = contactID)
   }
 }

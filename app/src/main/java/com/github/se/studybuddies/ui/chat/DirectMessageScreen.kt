@@ -107,7 +107,7 @@ fun DirectMessageScreen(
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
                         chatViewModel.setChat(chat)
-                        navigationActions.navigateTo(Route.CHAT)
+                        navigationActions.navigateTo("${Route.CHAT}/${chat.contactID}")
                       }
                     }
                   }
@@ -240,9 +240,9 @@ fun UserItem(
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
-                    viewModel.startDirectMessage(user.uid)
                     showAddPrivateMessageList.value = false
-                    contactsViewModel.createContact(user.uid)
+                    val contactID = contactsViewModel.createContact(user.uid)
+                      viewModel.startDirectMessage(user.uid, contactID = contactID)
                   })
               .testTag("user_item")) {
         Image(

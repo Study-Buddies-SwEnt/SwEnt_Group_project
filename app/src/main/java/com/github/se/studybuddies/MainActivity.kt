@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     auth = FirebaseAuth.getInstance()
     val db: DbRepository = DatabaseConnection()
-    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
+    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db, "")
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
       val userViewModel = UserViewModel()
@@ -243,6 +243,7 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }
+
             composable(
                 route = "${Route.GROUPMEMBERS}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
@@ -254,11 +255,15 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to GroupMembers")
                   }
                 }
-            composable(Route.CHAT) {
+
+            composable(
+                route = "${Route.CHAT}/{contactID}") {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
-              ChatScreen(messageViewModel, navigationActions)
+              ChatScreen(messageViewModel, navigationActions, contactID = "contactID")
             }
+
+
             composable(Route.SOLOSTUDYHOME) {
               ifNotNull(auth.currentUser) { _ ->
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")

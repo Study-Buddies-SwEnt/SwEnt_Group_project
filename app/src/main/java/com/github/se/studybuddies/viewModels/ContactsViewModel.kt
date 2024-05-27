@@ -27,8 +27,10 @@ class ContactsViewModel(private val uid: String? = null, private val db: DbRepos
     }
   }
 
-  fun createContact(otherUID: String) {
-    viewModelScope.launch { db.createContact(otherUID) }
+  fun createContact(otherUID: String) : String {
+    var contactID = ""
+    viewModelScope.launch { contactID = db.createContact(otherUID) }
+    return contactID
   }
 
   fun fetchContactData(contactID: String) {

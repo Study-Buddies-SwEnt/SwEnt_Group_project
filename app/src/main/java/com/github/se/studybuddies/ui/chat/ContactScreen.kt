@@ -83,8 +83,6 @@ fun ContactScreen(
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
   val showOnMapState = remember { mutableStateOf(contactData?.showOnMap) }
-    Log.d("contact", "4")
-
   val context = LocalContext.current
 
   otherUserData?.let {
@@ -112,14 +110,12 @@ fun ContactScreen(
     permission = "android.permission.READ_EXTERNAL_STORAGE"
   }
 
-    Log.d("contact", "5")
-
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
-            leftButton = { GoBackRouteButton(navigationActions = navigationActions, Route.CHAT) },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions, "${Route.CHAT}/${contactID}") },
             rightButton = {
               IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
                 Icon(
@@ -157,7 +153,7 @@ fun ContactScreen(
                     item {
                       SaveButton(nameState) {
                         contactsViewModel.updateContact(contactID, showOnMapState.value)
-                        navigationActions.navigateTo(Route.CHAT)
+                        navigationActions.navigateTo("${Route.CHAT}/${contactID}")
                       }
                     }
                     item { DeleteButton { isDeleteContactDialogVisible = true } }
