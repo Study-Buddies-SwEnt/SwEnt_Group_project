@@ -116,7 +116,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             verticalArrangement = Arrangement.Top) {
               LazyColumn(
                   modifier = Modifier.fillMaxWidth().padding(paddingValue).testTag("content"),
-                  verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
+                  verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.Top),
                   horizontalAlignment = Alignment.CenterHorizontally) {
                     item { Spacer(modifier = Modifier.size(20.dp)) }
                     item {
@@ -134,7 +134,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                         }
                       }
                     }
-                    item { Spacer(modifier = Modifier.size(10.dp)) }
+                    item { Spacer(modifier = Modifier.size(5.dp)) }
                     item {
                       SaveButton(usernameState) {
                         userViewModel.createUser(uid, email, usernameState.value, photoState.value)
