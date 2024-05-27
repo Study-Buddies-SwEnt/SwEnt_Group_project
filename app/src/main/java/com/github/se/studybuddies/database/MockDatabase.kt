@@ -368,8 +368,7 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    topicDataCollection.remove(uid)
-    // rtDb.getReference(topic.toString()).removeValue()
+    getTopic(uid) { topic -> }
   }
 
   override fun editMessage(
