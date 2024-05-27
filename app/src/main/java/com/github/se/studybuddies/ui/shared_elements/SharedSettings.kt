@@ -60,7 +60,7 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
+fun SaveButton(usernameState: MutableState<String>,testTag: String = "save_button", save: () -> Unit) {
   val enabled = usernameState.value.isNotEmpty()
   Button(
       onClick = save,
@@ -70,7 +70,7 @@ fun SaveButton(usernameState: MutableState<String>, save: () -> Unit) {
               .width(300.dp)
               .height(50.dp)
               .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-              .testTag("save_button"),
+              .testTag(testTag),
       colors =
           ButtonDefaults.buttonColors(
               containerColor = Blue,

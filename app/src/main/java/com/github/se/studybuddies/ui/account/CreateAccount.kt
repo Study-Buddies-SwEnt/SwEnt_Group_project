@@ -136,7 +136,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                     }
                     item { Spacer(modifier = Modifier.size(5.dp)) }
                     item {
-                      SaveButton(usernameState) {
+                      SaveButton(usernameState, testTag = "save_button_account") {
                         userViewModel.createUser(uid, email, usernameState.value, photoState.value)
                         navigationActions.navigateTo(Route.SOLOSTUDYHOME)
                       }

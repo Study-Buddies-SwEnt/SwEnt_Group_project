@@ -14,8 +14,6 @@ import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,15 +33,14 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Test
   fun userFlow1() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
-      runBlocking { delay(6000) }
       usernameField {
         performTextClearance()
         performTextInput("test user")
         assertTextContains("test user")
       }
       Espresso.closeSoftKeyboard()
-      composeTestRule.onNodeWithTag("save_button").performScrollTo().performClick()
     }
+    composeTestRule.onNodeWithTag("save_button_account").performScrollTo().performClick()
     /*
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       // Create account
