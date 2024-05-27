@@ -6,5 +6,4 @@ import io.github.kakaocup.compose.node.element.ComposeScreen
 class GroupScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<GroupScreen>(
         semanticsProvider = semanticsProvider,
-        viewBuilderAction = { hasTestTag("GroupsHomeScreen") }) {
-}
+        viewBuilderAction = { hasTestTag("GroupsHomeScreen") }) {}

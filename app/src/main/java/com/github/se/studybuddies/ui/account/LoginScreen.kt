@@ -110,12 +110,12 @@ private fun onSignInResult(
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     if (userId != null) {
       val db = DatabaseConnection()
-        onUserLoggedIn(userId)
-        db.userExists(
+      onUserLoggedIn(userId)
+      db.userExists(
           userId,
           onSuccess = { userExists ->
             if (!userExists) {
-                navigationActions.navigateTo(Route.CREATEACCOUNT)
+              navigationActions.navigateTo(Route.CREATEACCOUNT)
             } else {
               navigationActions.navigateTo(Route.SOLOSTUDYHOME)
             }

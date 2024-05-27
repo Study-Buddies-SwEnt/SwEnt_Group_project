@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -99,9 +98,9 @@ open class MainActivity : ComponentActivity() {
           val navigationActions = NavigationActions(navController)
           val startDestination = Route.START
 
-            var uid =  remember { mutableStateOf(uid_) }
+          var uid = remember { mutableStateOf(uid_) }
 
-            val callType = "default"
+          val callType = "default"
 
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
@@ -110,8 +109,8 @@ open class MainActivity : ComponentActivity() {
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
                       if (userExists) {
-                         directMessageViewModel.setUserUID(uid)
-                         usersViewModel.setUserUID(uid)
+                        directMessageViewModel.setUserUID(uid)
+                        usersViewModel.setUserUID(uid)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -122,7 +121,7 @@ open class MainActivity : ComponentActivity() {
             }
             composable(Route.LOGIN) {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
-              LoginScreen(navigationActions){ uid.value = db.getCurrentUserUID()}
+              LoginScreen(navigationActions) { uid.value = db.getCurrentUserUID() }
             }
 
             composable(Route.GROUPSHOME) {
@@ -139,7 +138,7 @@ open class MainActivity : ComponentActivity() {
 
               ifNotNull(remember { uid.value }) { uid ->
                 val groupsHomeViewModel = remember { GroupsHomeViewModel(uid, db) }
-                  GroupsHome(uid, groupsHomeViewModel, navigationActions, db)
+                GroupsHome(uid, groupsHomeViewModel, navigationActions, db)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
@@ -445,12 +444,13 @@ open class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
-      db = DatabaseConnection()
+    db = DatabaseConnection()
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     offlineLocation(currentUser?.uid, db)
   }
-    fun offlineLocation(uid: String?, db: DbRepository) {
+
+  fun offlineLocation(uid: String?, db: DbRepository) {
     val userViewModel = UserViewModel(uid, db)
     // Set the user to offline when he closes the app
     if (uid != null) {

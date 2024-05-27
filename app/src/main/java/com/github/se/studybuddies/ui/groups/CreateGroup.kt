@@ -34,9 +34,7 @@ import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
-import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -44,8 +44,10 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
       Espresso.closeSoftKeyboard()
 
-      saveButton { performScrollTo()
-        performClick() }
+      saveButton {
+        performScrollTo()
+        performClick()
+      }
     }
     ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
