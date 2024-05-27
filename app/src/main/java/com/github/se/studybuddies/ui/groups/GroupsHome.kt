@@ -87,8 +87,6 @@ fun GroupsHome(
     navigationActions: NavigationActions,
     db: DbRepository
 ) {
-  //groupsHomeViewModel.fetchGroups(uid)
-    Log.e("GroupsHome", "uid")
     val groups by groupsHomeViewModel.groups.observeAsState()
     val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -100,6 +98,12 @@ fun GroupsHome(
         refresh.value = false
     }
 
+    groups?.let {
+        groupList.value = it.getAllTasks()
+        if (db.isFakeDatabase()) {
+            isLoading = false
+        }
+    }
 
   if (isLoading) {
     val handler = android.os.Handler()
@@ -109,7 +113,7 @@ fun GroupsHome(
             if (groupList.value.isNotEmpty()) {
               isLoading = false // Stop loading as chats are not empty
             } else {
-              handler.postDelayed(this, 1000) // Continue checking every second
+              handler.postDelayed(this, 3000) // Continue checking every second
             }
           }
         }
@@ -119,15 +123,10 @@ fun GroupsHome(
           isLoading = false // Ensure isLoading is set to false after the original delay
           handler.removeCallbacks(runnable) // Stop any further checks if time expires
         },
-        2000)
+        3000)
   }
 
-    groups?.let {
-        groupList.value = it.getAllTasks()
-        if (db.isFakeDatabase()) {
-            isLoading = false
-        }
-    }
+
 
   MainScreenScaffold(
       navigationActions,
