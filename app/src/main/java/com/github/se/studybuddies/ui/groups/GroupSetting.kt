@@ -120,12 +120,12 @@ fun GroupSetting(
     permission = "android.permission.READ_EXTERNAL_STORAGE"
   }
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("groupSettingScaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.group_settings)) },
             navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+              GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/$groupUID")
             },
             actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
