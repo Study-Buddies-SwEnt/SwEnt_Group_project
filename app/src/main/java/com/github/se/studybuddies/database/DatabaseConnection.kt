@@ -1124,15 +1124,59 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  override suspend fun deleteTopic(topicId: String) {
-    val itemRef = topicDataCollection.document(topicId)
-    try {
-      itemRef.delete().await()
-      Log.d("Database", "Item deleted successfully: $topicId")
-    } catch (e: Exception) {
-      Log.e("Database", "Error deleting item: $topicId, Error: $e")
-      throw e
+  override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
+    val topic = getTopic(topicId)
+    val items: List<TopicItem> = topic.exercises + topic.theory
+    iterateTopicItemDeletion(items) {
+      topicDataCollection
+          .document(topic.uid)
+          .delete()
+          .addOnSuccessListener {
+            groupDataCollection
+                .document(groupUID)
+                .update("topics", FieldValue.arrayRemove(topicId))
+                .addOnSuccessListener {
+                  callBack()
+                  Log.d("MyPrint", "Topic successfully removed from group")
+                }
+                .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
+            Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
+          }
+          .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
     }
+  }
+
+  private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
+    items.forEach { topicItem ->
+      when (topicItem) {
+        is TopicFile -> {
+          topicItemCollection
+              .document(topicItem.uid)
+              .delete()
+              .addOnSuccessListener {
+                Log.d("MyPrint", "Topic file ${topicItem.uid} successfully deleted")
+              }
+              .addOnFailureListener {
+                Log.d("MyPrint", "Failed to delete topic file ${topicItem.uid}")
+              }
+        }
+        is TopicFolder -> {
+          val children = topicItem.items
+          iterateTopicItemDeletion(children) {
+            topicItemCollection
+                .document(topicItem.uid)
+                .delete()
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Topic folder ${topicItem.uid} successfully deleted")
+                }
+                .addOnFailureListener {
+                  Log.d("MyPrint", "Failed to delete topic folder ${topicItem.uid}")
+                }
+          }
+        }
+      }
+    }
+    callBack()
   }
 
   override fun updateTopicName(uid: String, name: String) {

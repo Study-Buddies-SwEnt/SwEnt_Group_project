@@ -123,4 +123,5 @@
     <string name="add_a_new_task">Add a new task</string>
     <string name="edit_task">Edit task</string>
     <string name="user_profile_picture">user profile picture</string>
+    <string name="delete_topic">Delete Topic</string>
 </resources>

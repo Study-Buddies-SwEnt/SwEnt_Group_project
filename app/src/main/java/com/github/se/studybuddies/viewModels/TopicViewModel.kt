@@ -103,4 +103,8 @@ class TopicViewModel(
   fun updateStrongUser(fileID: String, newValue: Boolean) {
     viewModelScope.launch { db.updateStrongUser(fileID, newValue) }
   }
+
+  fun deleteTopic(topicID: String, groupUID: String, callBack: () -> Unit) {
+    viewModelScope.launch { db.deleteTopic(topicID, groupUID) { callBack() } }
+  }
 }

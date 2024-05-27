@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -34,6 +39,7 @@ import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -89,6 +95,21 @@ fun TopicSettings(
                 topicViewModel.updateTopicName(nameState.value)
                 navigationActions.navigateTo("${Route.GROUP}/$groupUID")
               }
+              Button(
+                  onClick = {
+                    topicViewModel.deleteTopic(topicUID, groupUID) {
+                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                    }
+                  },
+                  modifier =
+                      Modifier.padding(10.dp)
+                          .width(300.dp)
+                          .height(50.dp)
+                          .background(
+                              color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp)),
+                  colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
+                    Text(stringResource(R.string.delete_topic), color = White)
+                  }
             }
       }
 }
