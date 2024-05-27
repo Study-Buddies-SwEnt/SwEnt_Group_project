@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.testUtilities.fakeDatabase
+package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
@@ -17,7 +17,11 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeGroupDataCollection
+import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeTopicDataCollection
+import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeTopicItemCollection
+import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeUserDataCollection
+import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeUserMembershipsCollection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener

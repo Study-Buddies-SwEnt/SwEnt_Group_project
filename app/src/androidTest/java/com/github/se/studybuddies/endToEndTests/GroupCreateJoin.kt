@@ -1,22 +1,9 @@
 package com.github.se.studybuddies.endToEndTests
 
-import android.net.Uri
-import android.util.Log
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.se.studybuddies.MainActivity
-import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DbRepository
-import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.AccountSettingsScreen
 import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.CreateGroupScreen
@@ -24,10 +11,6 @@ import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.testUtilities.MockMainActivity
-import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
-import com.github.se.studybuddies.viewModels.GroupViewModel
-import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
-import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase

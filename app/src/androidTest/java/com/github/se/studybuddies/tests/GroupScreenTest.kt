@@ -3,7 +3,7 @@ package com.github.se.studybuddies.tests
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
+import com.github.se.studybuddies.database.MockDatabase
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase

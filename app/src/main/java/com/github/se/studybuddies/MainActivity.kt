@@ -445,13 +445,12 @@ open class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
-    val db = DatabaseConnection()
+      db = DatabaseConnection()
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     offlineLocation(currentUser?.uid, db)
   }
-
-  private fun offlineLocation(uid: String?, db: DbRepository) {
+    fun offlineLocation(uid: String?, db: DbRepository) {
     val userViewModel = UserViewModel(uid, db)
     // Set the user to offline when he closes the app
     if (uid != null) {
