@@ -992,7 +992,7 @@ class DatabaseConnection : DbRepository {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
           if (chatId != null) {
               contactID = chatId
-            }
+          }
       }else {
           Log.d("MyPrint", "startDirectMessage: creating new chat")
           val newChatId = UUID.randomUUID().toString()
