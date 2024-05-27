@@ -595,6 +595,18 @@ class MockDatabase : DbRepository {
     }
   }
 
+  override suspend fun getTopicFile(id: String): TopicFile {
+    val document = topicItemCollection[id]
+    return if (document != null && document is TopicFile) {
+      val name = document.name
+      val strongUsers = document.strongUsers
+      val parentUID = document.parentUID
+      TopicFile(id, name, strongUsers, parentUID)
+    } else {
+      TopicFile.empty()
+    }
+  }
+
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
     for (itemUID in listUID) {
@@ -668,6 +680,32 @@ class MockDatabase : DbRepository {
 
   override fun updateTopicItem(item: TopicItem) {
     topicItemCollection[item.uid] = item
+  }
+
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection[fileID]
+    if (document != null && document is TopicFile) {
+      val strongUsers = document.strongUsers
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    } else {
+      callBack(false)
+    }
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    val document = topicItemCollection[fileID]
+    if (document != null && document is TopicFile) {
+      val strongUsers = document.strongUsers.toMutableList()
+      if (newValue) {
+        strongUsers.add(currentUser)
+        document.strongUsers = strongUsers.toList()
+      } else {
+        strongUsers.remove(currentUser)
+        document.strongUsers = strongUsers.toList()
+      }
+    }
   }
 
   override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
