@@ -40,6 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -85,17 +87,19 @@ fun GroupsHome(
     navigationActions: NavigationActions,
     db: DbRepository
 ) {
-  groupsHomeViewModel.fetchGroups(uid)
-  val groups by groupsHomeViewModel.groups.observeAsState()
-  val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
-  var isLoading by remember { mutableStateOf(true) }
+  //groupsHomeViewModel.fetchGroups(uid)
+    Log.e("GroupsHome", "uid")
+    val groups by groupsHomeViewModel.groups.observeAsState()
+    val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    val refresh = remember { mutableStateOf(true) }
 
-  groups?.let {
-    groupList.value = it.getAllTasks()
-    if (db.isFakeDatabase()) {
-      isLoading = false
+    LaunchedEffect(refresh) {
+        groupsHomeViewModel.fetchGroups(uid)
+        Log.e("GroupsHome", "fetchGroups")
+        refresh.value = false
     }
-  }
+
 
   if (isLoading) {
     val handler = android.os.Handler()
@@ -118,18 +122,31 @@ fun GroupsHome(
         2000)
   }
 
+    groups?.let {
+        groupList.value = it.getAllTasks()
+        if (db.isFakeDatabase()) {
+            isLoading = false
+        }
+    }
+
   MainScreenScaffold(
       navigationActions,
       Route.GROUPSHOME,
       content = { innerPadding ->
         if (isLoading) {
-          Box(modifier = Modifier.fillMaxSize().testTag("GroupsBox")) {
+          Box(modifier = Modifier
+              .fillMaxSize()
+              .testTag("GroupsBox")) {
             CircularProgressIndicator(
-                modifier = Modifier.testTag("CircularLoading").align(Alignment.Center))
+                modifier = Modifier
+                    .testTag("CircularLoading")
+                    .align(Alignment.Center))
           }
         } else if (groupList.value.isEmpty()) {
           Column(
-              modifier = Modifier.fillMaxSize().testTag("GroupEmpty"),
+              modifier = Modifier
+                  .fillMaxSize()
+                  .testTag("GroupEmpty"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
                 Spacer(modifier = Modifier.height(80.dp))
@@ -143,16 +160,21 @@ fun GroupsHome(
               }
         } else {
           Column(
-              modifier = Modifier.fillMaxSize().testTag("GroupsHome"),
+              modifier = Modifier
+                  .fillMaxSize()
+                  .testTag("GroupsHome"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
             LazyColumn(
-                modifier = Modifier.padding(innerPadding).fillMaxSize().testTag("GroupsList"),
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .testTag("GroupsList"),
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
-                  items(groupList.value) { group -> GroupItem(group, navigationActions, db) }
+                  items(groupList.value) { group -> GroupItem(group, navigationActions, db, refresh) }
                   item { AddGroupButton(navigationActions) }
                   item { AddLinkButton(navigationActions, db) }
                 })
@@ -164,7 +186,7 @@ fun GroupsHome(
 }
 
 @Composable
-fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions, db: DbRepository) {
+fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions, db: DbRepository,refresh: MutableState<Boolean> = remember { mutableStateOf(false) }){
   var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
@@ -214,13 +236,16 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
     Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
       Box(
           modifier =
-              Modifier.width(280.dp)
-                  .height(140.dp)
-                  .clip(RoundedCornerShape(10.dp))
-                  .background(Color.White)
-                  .testTag(groupUID + "_leave_box")) {
+          Modifier
+              .width(280.dp)
+              .height(140.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(Color.White)
+              .testTag(groupUID + "_leave_box")) {
             Column(
-                modifier = Modifier.padding(16.dp).testTag(groupUID + "_leave_column"),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .testTag(groupUID + "_leave_column"),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
@@ -229,19 +254,23 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                       modifier = Modifier.testTag(groupUID + "_leave_text"))
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
-                      modifier = Modifier.fillMaxWidth().testTag(groupUID + "_leave_row"),
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .testTag(groupUID + "_leave_row"),
                       horizontalArrangement = Arrangement.SpaceEvenly) {
                         Button(
                             onClick = {
                               groupViewModel.leaveGroup(groupUID)
                               navigationActions.navigateTo(Route.GROUPSHOME)
                               isLeaveGroupDialogVisible = false
+                                refresh.value = true
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_leave_yes_button"),
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_leave_yes_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -253,10 +282,11 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                         Button(
                             onClick = { isLeaveGroupDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_leave_no_button"),
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_leave_no_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
@@ -272,13 +302,16 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
     Dialog(onDismissRequest = { isDeleteGroupDialogVisible = false }) {
       Box(
           modifier =
-              Modifier.width(300.dp)
-                  .height(200.dp)
-                  .clip(RoundedCornerShape(12.dp))
-                  .background(Color.White)
-                  .testTag(groupUID + "_delete_box")) {
+          Modifier
+              .width(300.dp)
+              .height(200.dp)
+              .clip(RoundedCornerShape(12.dp))
+              .background(Color.White)
+              .testTag(groupUID + "_delete_box")) {
             Column(
-                modifier = Modifier.padding(16.dp).testTag(groupUID + "_delete_column"),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .testTag(groupUID + "_delete_column"),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
@@ -293,19 +326,23 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                       textAlign = TextAlign.Center)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
-                      modifier = Modifier.fillMaxWidth().testTag(groupUID + "_delete_row"),
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .testTag(groupUID + "_delete_row"),
                       horizontalArrangement = Arrangement.SpaceEvenly) {
                         Button(
                             onClick = {
                               groupViewModel.deleteGroup(groupUID)
                               navigationActions.navigateTo(Route.GROUPSHOME)
                               isDeleteGroupDialogVisible = false
+                                refresh.value = true
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_delete_yes_button"),
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_delete_yes_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -317,10 +354,11 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                         Button(
                             onClick = { isDeleteGroupDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_delete_no_button"),
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_delete_no_button"),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
@@ -330,48 +368,57 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                             }
                       }
                 }
-          }
+      }
     }
   }
 }
 
 @Composable
-fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbRepository) {
+fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbRepository, refresh: MutableState<Boolean> = remember { mutableStateOf(false) }){
   Box(
       modifier =
-          Modifier.fillMaxWidth()
-              .background(Color.White)
-              .clickable {
-                val groupUid = group.uid
-                navigationActions.navigateTo("${Route.GROUP}/$groupUid")
-              }
-              .drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }
-              .testTag(group.uid + "_box")) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(group.uid + "_row")) {
+      Modifier
+          .fillMaxWidth()
+          .background(Color.White)
+          .clickable {
+              val groupUid = group.uid
+              navigationActions.navigateTo("${Route.GROUP}/$groupUid")
+          }
+          .drawBehind {
+              val strokeWidth = 1f
+              val y = size.height - strokeWidth / 2
+              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+          }
+          .testTag(group.uid + "_box")) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .testTag(group.uid + "_row")) {
           Box(
               modifier =
-                  Modifier.size(52.dp)
-                      .clip(CircleShape)
-                      .background(Color.Transparent)
-                      .testTag(group.uid + "_box_picture")) {
+              Modifier
+                  .size(52.dp)
+                  .clip(CircleShape)
+                  .background(Color.Transparent)
+                  .testTag(group.uid + "_box_picture")) {
                 Image(
                     painter = rememberImagePainter(group.picture),
                     contentDescription = stringResource(id = R.string.group_picture),
-                    modifier = Modifier.fillMaxSize().testTag(group.uid + "_picture"),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(group.uid + "_picture"),
                     contentScale = ContentScale.Crop)
               }
           Spacer(modifier = Modifier.size(16.dp))
           Text(
               text = group.name,
-              modifier = Modifier.align(Alignment.CenterVertically).testTag(group.uid + "_text"),
+              modifier = Modifier
+                  .align(Alignment.CenterVertically)
+                  .testTag(group.uid + "_text"),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          GroupsSettingsButton(group.uid, navigationActions, db)
+          GroupsSettingsButton(group.uid, navigationActions, db,refresh)
         }
       }
 }
@@ -379,16 +426,20 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
 @Composable
 fun AddGroupButton(navigationActions: NavigationActions) {
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddGroupRow"),
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(16.dp)
+          .testTag("AddGroupRow"),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
             modifier =
-                Modifier.width(64.dp)
-                    .height(64.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .testTag("AddGroupButton")) {
+            Modifier
+                .width(64.dp)
+                .height(64.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .testTag("AddGroupButton")) {
               Icon(
                   imageVector = Icons.Default.Add,
                   contentDescription = stringResource(R.string.create_a_task),
@@ -407,16 +458,20 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
   val scope = rememberCoroutineScope()
 
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("AddLinkRow"),
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(16.dp)
+          .testTag("AddLinkRow"),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         Button(
             onClick = { isTextFieldVisible = !isTextFieldVisible },
             modifier =
-                Modifier.width(64.dp)
-                    .height(64.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .testTag("AddLinkButton")) {
+            Modifier
+                .width(64.dp)
+                .height(64.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .testTag("AddLinkButton")) {
               Icon(
                   imageVector = Icons.Default.Share,
                   contentDescription = stringResource(R.string.link_button),
@@ -430,7 +485,11 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
         onValueChange = { text = it },
         label = { Text(stringResource(R.string.enter_link)) },
         modifier =
-            Modifier.fillMaxWidth().height(100.dp).padding(16.dp).testTag("AddLinkTextField"),
+        Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .padding(16.dp)
+            .testTag("AddLinkTextField"),
         singleLine = true,
         colors =
             TextFieldDefaults.colors(
@@ -477,14 +536,20 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
 
   if (showError) {
     Snackbar(
-        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("ErrorSnackbar"),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .testTag("ErrorSnackbar"),
         action = { TextButton(onClick = { showError = false }) {} }) {
           Text(stringResource(R.string.the_link_entered_is_invalid))
         }
   }
   if (showSucces) {
     Snackbar(
-        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("SuccessSnackbar"),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .testTag("SuccessSnackbar"),
         action = { TextButton(onClick = { showSucces = false }) {} }) {
           Text(stringResource(R.string.you_have_been_successfully_added_to_the_group))
         }
@@ -495,7 +560,10 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
 fun AddGroup(navigationActions: NavigationActions) {
   Button(
       onClick = { navigationActions.navigateTo(Route.CREATEGROUP) },
-      modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+      modifier = Modifier
+          .width(64.dp)
+          .height(64.dp)
+          .clip(MaterialTheme.shapes.medium)) {
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = stringResource(id = R.string.create_a_task),

@@ -7,7 +7,7 @@ import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
 class MockMainActivity : MainActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    var fakeUID = "userTest2"
+    var fakeUID = "E2EUserTest"
     db = MockDatabase()
     startApp(fakeUID, db)
   }

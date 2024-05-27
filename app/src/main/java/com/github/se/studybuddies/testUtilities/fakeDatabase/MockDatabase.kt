@@ -52,7 +52,7 @@ class MockDatabase : DbRepository {
   }
 
   override fun getCurrentUserUID(): String {
-    return "userTest"
+    return "E2EUserTest"
   }
 
   override suspend fun getAllFriends(uid: String): List<User> {

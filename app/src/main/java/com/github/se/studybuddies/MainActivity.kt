@@ -217,7 +217,7 @@ open class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEGROUP) {
-              ifNotNull(uid) { _ ->
+              ifNotNull(uid.value) { uid ->
                 val groupViewModel = remember { GroupViewModel(db = db) }
                 CreateGroup(groupViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")

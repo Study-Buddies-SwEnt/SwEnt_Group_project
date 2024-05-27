@@ -51,34 +51,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun groupCreateJoin() {
-    composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("username_field").assertIsDisplayed().performTextClearance()
-      composeTestRule.onNodeWithTag("username_field").performTextInput("UserTestE2E")
-        composeTestRule.onNodeWithTag("username_field").assertTextContains("UserTestE2E")
-      Espresso.closeSoftKeyboard()
-    composeTestRule.onNodeWithTag("save_button").performScrollTo()
-    composeTestRule.onNodeWithTag("save_button").assertIsDisplayed().performClick()
-    //composeTestRule.onNodeWithTag("Groups_item").assertIsDisplayed().performClick()
-    Log.e("GroupCreateJoin", "Idle group item")
-    ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
-      soloStudyScreen { assertIsDisplayed() }
-      groupsBottom { performClick() }
-    }
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupScreen { assertIsDisplayed() }
-      addButton { performClick() }
-    }
-
-    composeTestRule.onNodeWithTag("group_name_field").assertIsDisplayed().performTextClearance()
-      composeTestRule.onNodeWithTag("group_name_field").performTextInput("testGroup")
-        composeTestRule.onNodeWithTag("group_name_field").assertTextContains("testGroup")
-      Espresso.closeSoftKeyboard()
-    composeTestRule.onNodeWithTag("save_button").assertIsDisplayed().performClick()
-  }
-
-
-  @Test
-  fun groupCreateJoin1() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       // Create account
       // saveButton { assertIsNotEnabled() }
@@ -97,8 +69,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       groupsBottom { performClick() }
     }
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      groupScreen { assertIsDisplayed() }
-      Log.e("GroupCreateJoin", "Idle group item")
       addButton { performClick() }
     }
     ComposeScreen.onComposeScreen<CreateGroupScreen>(composeTestRule) {
@@ -109,8 +79,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         assertTextContains("testGroup")
       }
       Espresso.closeSoftKeyboard()
-      // saveButton { performClick() }
-      goBackButton { performClick() }
+      saveButton { performClick() }
     }
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       drawerMenuButton { performClick() }
@@ -131,6 +100,4 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
     }
   }
-
-
 }
