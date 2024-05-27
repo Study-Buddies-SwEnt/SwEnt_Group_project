@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.shared_elements
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
