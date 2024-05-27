@@ -2,11 +2,12 @@ package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToLog
@@ -51,7 +52,11 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     // composeTestRule.waitForIdle()
     // Espresso.closeSoftKeyboard()
     // composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("save_button_account").performScrollTo().performClick()
+    // composeTestRule.onNodeWithTag("save_button_account").performScrollTo().performClick()
+    composeTestRule
+        .onNodeWithTag("content")
+        .performScrollToNode(hasTestTag("save_button_account"))
+        .performClick()
 
     val a = 1
     /*
