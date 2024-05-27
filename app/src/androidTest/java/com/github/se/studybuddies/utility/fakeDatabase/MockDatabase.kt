@@ -24,8 +24,6 @@ import com.google.firebase.database.ValueEventListener
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -366,10 +364,9 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    getTopic(uid) { topic ->
+    getTopic(uid) { topic -> }
 
-    }
-    //rtDb.getReference(topic.toString()).removeValue()
+    // rtDb.getReference(topic.toString()).removeValue()
   }
 
   override fun editMessage(
@@ -736,10 +733,7 @@ class MockDatabase : DbRepository {
         val items = mutableListOf<Topic>()
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
-          topicUIDs
-            .map { topicUID ->
-              getTopic(topicUID) { topic -> items.add(topic) }
-            }
+          topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }
