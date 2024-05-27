@@ -79,7 +79,11 @@ fun TopicCreation(
 
               SaveButton(nameState.value.isNotBlank()) {
                 topicViewModel.createTopic(nameState.value, groupUID) {
+<<<<<<< Updated upstream
                     navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+=======
+                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+>>>>>>> Stashed changes
                 }
               }
             }

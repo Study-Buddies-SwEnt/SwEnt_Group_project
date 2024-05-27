@@ -87,7 +87,11 @@ fun TopicSettings(
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
                 topicViewModel.updateTopicName(nameState.value) {
+<<<<<<< Updated upstream
                     navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+=======
+                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+>>>>>>> Stashed changes
                 }
               }
             }

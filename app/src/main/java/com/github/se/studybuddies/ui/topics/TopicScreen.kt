@@ -103,7 +103,11 @@ fun TopicScreen(
 ) {
   val loading = remember { mutableStateOf(true) }
 
+<<<<<<< Updated upstream
   topicViewModel.fetchTopicData(topicUID) {loading.value = false}
+=======
+  topicViewModel.fetchTopicData(topicUID) { loading.value = false }
+>>>>>>> Stashed changes
   val topicData by topicViewModel.topic.collectAsState()
   val group by groupViewModel.group.observeAsState()
 
@@ -303,6 +307,7 @@ fun TopicScreen(
                           thickness = 4.dp)
                     }
                   }
+<<<<<<< Updated upstream
             if (loading.value) {
                 BackHandler {}
                 Box(
@@ -328,11 +333,37 @@ fun TopicScreen(
                     }
                 }
             } else {
+=======
+              if (loading.value) {
+                BackHandler {}
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                  val infiniteTransition =
+                      rememberInfiniteTransition(label = stringResource(R.string.loading))
+                  val angle by
+                      infiniteTransition.animateFloat(
+                          initialValue = 0f,
+                          targetValue = 360f,
+                          animationSpec =
+                              infiniteRepeatable(
+                                  animation = tween(durationMillis = 1000, easing = LinearEasing)),
+                          label = stringResource(R.string.loading))
+                  Canvas(modifier = Modifier.size((100f).dp)) {
+                    drawArc(
+                        color = Blue,
+                        startAngle = angle,
+                        sweepAngle = 270f,
+                        useCenter = false,
+                        style = Stroke(width = 10f, cap = StrokeCap.Round))
+                  }
+                }
+              } else {
+>>>>>>> Stashed changes
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                     horizontalAlignment = Alignment.Start,
                     content = {
+<<<<<<< Updated upstream
                         if (areaState.value == ItemArea.EXERCISES) {
                             items(exercisesState) { topicItem ->
                                 TopicContentItem(
@@ -360,6 +391,33 @@ fun TopicScreen(
                         }
                     })
             }
+=======
+                      if (areaState.value == ItemArea.EXERCISES) {
+                        items(exercisesState) { topicItem ->
+                          TopicContentItem(
+                              topicItem,
+                              folderFieldVisible,
+                              fileFieldVisible,
+                              parentUID,
+                              0,
+                              topicViewModel,
+                              navigationActions)
+                        }
+                      } else if (areaState.value == ItemArea.THEORY) {
+                        items(theoryState.value) { topicItem ->
+                          TopicContentItem(
+                              topicItem,
+                              folderFieldVisible,
+                              fileFieldVisible,
+                              parentUID,
+                              0,
+                              topicViewModel,
+                              navigationActions)
+                        }
+                      }
+                    })
+              }
+>>>>>>> Stashed changes
             }
         if (folderFieldVisible.value) {
           TopicItemField(
@@ -368,9 +426,17 @@ fun TopicScreen(
               onDone = {
                 folderFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
+<<<<<<< Updated upstream
                     loading.value = false
                   topicViewModel.createTopicFolder(
                       enteredName.value, areaState.value, parentUID.value) {loading.value = true}
+=======
+                  loading.value = false
+                  topicViewModel.createTopicFolder(
+                      enteredName.value, areaState.value, parentUID.value) {
+                        loading.value = true
+                      }
+>>>>>>> Stashed changes
                 }
                 enteredName.value = ""
                 parentUID.value = ""
@@ -388,9 +454,17 @@ fun TopicScreen(
               onDone = {
                 fileFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
+<<<<<<< Updated upstream
                     loading.value = false
                   topicViewModel.createTopicFile(
                       enteredName.value, areaState.value, parentUID.value) {loading.value = true}
+=======
+                  loading.value = false
+                  topicViewModel.createTopicFile(
+                      enteredName.value, areaState.value, parentUID.value) {
+                        loading.value = true
+                      }
+>>>>>>> Stashed changes
                 }
                 enteredName.value = ""
                 parentUID.value = ""
