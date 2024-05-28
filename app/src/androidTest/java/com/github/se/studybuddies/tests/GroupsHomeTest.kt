@@ -571,5 +571,4 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("GroupsList", useUnmergedTree = false).assertIsDisplayed()
   }
-
 }
