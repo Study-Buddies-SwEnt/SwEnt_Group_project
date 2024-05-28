@@ -1,6 +1,13 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,6 +63,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -92,7 +101,9 @@ fun TopicScreen(
     chatViewModel: ChatViewModel,
     navigationActions: NavigationActions
 ) {
-  topicViewModel.fetchTopicData(topicUID)
+  val loading = remember { mutableStateOf(true) }
+
+  topicViewModel.fetchTopicData(topicUID) { loading.value = false }
   val topicData by topicViewModel.topic.collectAsState()
   val group by groupViewModel.group.observeAsState()
 
@@ -270,35 +281,59 @@ fun TopicScreen(
                           thickness = 4.dp)
                     }
                   }
-              LazyColumn(
-                  modifier = Modifier.fillMaxSize(),
-                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.Start,
-                  content = {
-                    if (areaState.value == ItemArea.EXERCISES) {
-                      items(exercisesState) { topicItem ->
-                        TopicContentItem(
-                            topicItem,
-                            folderFieldVisible,
-                            fileFieldVisible,
-                            parentUID,
-                            0,
-                            topicViewModel,
-                            navigationActions)
+              if (loading.value) {
+                BackHandler {}
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                  val infiniteTransition =
+                      rememberInfiniteTransition(label = stringResource(R.string.loading))
+                  val angle by
+                      infiniteTransition.animateFloat(
+                          initialValue = 0f,
+                          targetValue = 360f,
+                          animationSpec =
+                              infiniteRepeatable(
+                                  animation = tween(durationMillis = 1000, easing = LinearEasing)),
+                          label = stringResource(R.string.loading))
+                  Canvas(modifier = Modifier.size((100f).dp)) {
+                    drawArc(
+                        color = Blue,
+                        startAngle = angle,
+                        sweepAngle = 270f,
+                        useCenter = false,
+                        style = Stroke(width = 10f, cap = StrokeCap.Round))
+                  }
+                }
+              } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.Start,
+                    content = {
+                      if (areaState.value == ItemArea.EXERCISES) {
+                        items(exercisesState) { topicItem ->
+                          TopicContentItem(
+                              topicItem,
+                              folderFieldVisible,
+                              fileFieldVisible,
+                              parentUID,
+                              0,
+                              topicViewModel,
+                              navigationActions)
+                        }
+                      } else if (areaState.value == ItemArea.THEORY) {
+                        items(theoryState.value) { topicItem ->
+                          TopicContentItem(
+                              topicItem,
+                              folderFieldVisible,
+                              fileFieldVisible,
+                              parentUID,
+                              0,
+                              topicViewModel,
+                              navigationActions)
+                        }
                       }
-                    } else if (areaState.value == ItemArea.THEORY) {
-                      items(theoryState.value) { topicItem ->
-                        TopicContentItem(
-                            topicItem,
-                            folderFieldVisible,
-                            fileFieldVisible,
-                            parentUID,
-                            0,
-                            topicViewModel,
-                            navigationActions)
-                      }
-                    }
-                  })
+                    })
+              }
             }
         if (folderFieldVisible.value) {
           TopicItemField(
@@ -307,8 +342,11 @@ fun TopicScreen(
               onDone = {
                 folderFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
+                  loading.value = false
                   topicViewModel.createTopicFolder(
-                      enteredName.value, areaState.value, parentUID.value)
+                      enteredName.value, areaState.value, parentUID.value) {
+                        loading.value = true
+                      }
                 }
                 enteredName.value = ""
                 parentUID.value = ""
@@ -326,8 +364,11 @@ fun TopicScreen(
               onDone = {
                 fileFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
+                  loading.value = false
                   topicViewModel.createTopicFile(
-                      enteredName.value, areaState.value, parentUID.value)
+                      enteredName.value, areaState.value, parentUID.value) {
+                        loading.value = true
+                      }
                 }
                 enteredName.value = ""
                 parentUID.value = ""

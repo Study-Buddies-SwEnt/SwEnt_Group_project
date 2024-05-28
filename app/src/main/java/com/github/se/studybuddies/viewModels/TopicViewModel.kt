@@ -33,25 +33,27 @@ class TopicViewModel(
     }
   }*/
 
-  fun fetchTopicData(uid: String) {
+  fun fetchTopicData(uid: String, callBack: () -> Unit) {
     viewModelScope.launch {
-      val task = db.getTopic(uid)
-      task.sortItems()
-      _topic.value = task
+      db.getTopic(uid) { topic ->
+        topic.sortItems()
+        _topic.value = topic
+        callBack()
+      }
       Log.d("MyPrint", "Topic data fetched")
     }
   }
 
-  fun createTopic(name: String, groupUID: String) {
+  fun createTopic(name: String, groupUID: String, callBack: () -> Unit) {
     viewModelScope.launch {
       db.createTopic(name) { topicUID ->
         viewModelScope.launch { db.addTopicToGroup(topicUID, groupUID) }
       }
     }
-    fetchTopicData(name)
+    fetchTopicData(name) { callBack() }
   }
 
-  fun createTopicFolder(name: String, area: ItemArea, parentUID: String) {
+  fun createTopicFolder(name: String, area: ItemArea, parentUID: String, callBack: () -> Unit) {
     if (uid == null) return
     db.createTopicFolder(name, parentUID) { folder ->
       when (area) {
@@ -66,11 +68,11 @@ class TopicViewModel(
           }
         }
       }
-      fetchTopicData(uid)
+      fetchTopicData(uid) { callBack() }
     }
   }
 
-  fun createTopicFile(name: String, area: ItemArea, parentUID: String) {
+  fun createTopicFile(name: String, area: ItemArea, parentUID: String, callBack: () -> Unit) {
     if (uid == null) return
     db.createTopicFile(name, parentUID) { file ->
       when (area) {
@@ -85,14 +87,14 @@ class TopicViewModel(
           }
         }
       }
-      fetchTopicData(uid)
+      fetchTopicData(uid) { callBack() }
     }
   }
 
-  fun updateTopicName(name: String) {
+  fun updateTopicName(name: String, callBack: () -> Unit) {
     if (uid != null) {
       db.updateTopicName(uid, name)
-      fetchTopicData(uid)
+      fetchTopicData(uid) { callBack() }
     }
   }
 
