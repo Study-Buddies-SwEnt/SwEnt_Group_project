@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -97,36 +95,26 @@ fun AccountSettings(
               GoBackRouteButton(navigationActions = navigationActions, backRoute)
             },
             actions = {})
-      }) { paddingValue ->
+      }) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top) {
-              LazyColumn(
-                  modifier = Modifier.fillMaxSize().padding(paddingValue),
-                  verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.CenterHorizontally,
-              ) {
-                item { Spacer(modifier = Modifier.size(20.dp)) }
-                item { AccountFields(usernameState) }
-                item { Spacer(modifier = Modifier.size(10.dp)) }
-                item {
-                  SetProfilePicture(photoState) {
-                    checkPermission(context, permission, requestPermissionLauncher) {
-                      getContent.launch(imageInput)
-                    }
-                  }
+            modifier = Modifier.fillMaxSize().testTag("account_settings_column"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+              Spacer(modifier = Modifier.size(20.dp).testTag("account_settings_spacer1"))
+              AccountFields(usernameState)
+              Spacer(modifier = Modifier.size(10.dp).testTag("account_settings_spacer2"))
+              SetProfilePicture(photoState) {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
                 }
-                item { Spacer(modifier = Modifier.size(10.dp)) }
-                item {
-                  SaveButton(usernameState) {
-                    userViewModel.updateUserData(
-                        uid, emailState.value, usernameState.value, photoState.value)
-                    navigationActions.navigateTo(Route.SOLOSTUDYHOME)
-                  }
-                }
-                item { SignOutButton(navigationActions, userViewModel) }
               }
+              Spacer(modifier = Modifier.size(10.dp).testTag("account_settings_spacer3"))
+              SaveButton(usernameState) {
+                userViewModel.updateUserData(
+                    uid, emailState.value, usernameState.value, photoState.value)
+                navigationActions.navigateTo(Route.SOLOSTUDYHOME)
+              }
+              SignOutButton(navigationActions, userViewModel)
             }
       }
 }

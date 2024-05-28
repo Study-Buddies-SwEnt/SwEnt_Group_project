@@ -16,8 +16,6 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,13 +40,14 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @Test
   fun elementsAreDisplayed() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.AccountSettingsScreen>(
-        composeTestRule) {
-          runBlocking {
-            delay(6000) // Adjust the delay time as needed
-          }
-          signOutButton { assertIsDisplayed() }
-        }
+    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      columnAccountSetting { assertIsDisplayed() }
+
+      spacer1 { assertIsDisplayed() }
+      spacer2 { assertIsDisplayed() }
+      spacer3 { assertIsDisplayed() }
+      signOutButton { assertIsDisplayed() }
+    }
   }
 
   @Test
@@ -83,16 +82,14 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @Test
   fun canSignOut() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.AccountSettingsScreen>(
-        composeTestRule) {
-          runBlocking { delay(6000) }
-          signOutButton {
-            assertIsEnabled()
-            assertHasClickAction()
-            performClick()
-          }
-        }
-    // verify { mockNavActions.navigateTo(Route.LOGIN) }
-    // confirmVerified(mockNavActions)
+    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      signOutButton {
+        assertIsEnabled()
+        assertHasClickAction()
+        performClick()
+      }
+    }
+    verify { mockNavActions.navigateTo(Route.LOGIN) }
+    confirmVerified(mockNavActions)
   }
 }
