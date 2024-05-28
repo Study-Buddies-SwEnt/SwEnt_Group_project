@@ -2,7 +2,6 @@ package com.github.se.studybuddies.tests
 
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -91,7 +90,6 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @Test
   fun canSignOut() {
-    printNodeTree("before")
     ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
       signOutButton {
         assertIsEnabled()
@@ -99,15 +97,6 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         performClick()
       }
     }
-    composeTestRule.waitForIdle()
-    verify { mockNavActions.navigateTo(Route.LOGIN) }
-    confirmVerified(mockNavActions)
-  }
-
-  @Test
-  fun canSignOut2() {
-    printNodeTree("before")
-    composeTestRule.onNodeWithTag("sign_out_button").assertExists().performClick()
     composeTestRule.waitForIdle()
     verify { mockNavActions.navigateTo(Route.LOGIN) }
     confirmVerified(mockNavActions)
