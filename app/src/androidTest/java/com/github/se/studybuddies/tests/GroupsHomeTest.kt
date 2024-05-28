@@ -519,6 +519,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun clickOnGroup() {
     printNodeTree("Before")
+    composeTestRule.waitForIdle()
     composeTestRule
         .onNodeWithTag("GroupsList", useUnmergedTree = true)
         .assertExists()
@@ -530,5 +531,12 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
         .performClick()
     verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
     confirmVerified(mockNavActions)
+  }
+
+  @Test
+  fun clickOnGroup1() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule.onNodeWithTag("groupList", useUnmergedTree = true).assertExists()
+    }
   }
 }
