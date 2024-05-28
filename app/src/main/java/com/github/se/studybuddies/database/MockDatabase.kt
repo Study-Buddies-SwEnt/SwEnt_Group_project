@@ -371,52 +371,6 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override fun sendMessage(
-      chatUID: String,
-      message: Message,
-      chatType: ChatType,
-      additionalUID: String
-  ) {
-    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-
-    val messageData =
-        mutableMapOf(
-            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
-    when (message) {
-      is Message.TextMessage -> {
-        messageData[MessageVal.TEXT] = message.text
-        messageData[MessageVal.TYPE] = MessageVal.TEXT
-        saveMessage(messagePath, messageData)
-      }
-      is Message.PhotoMessage -> {
-
-        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
-            messageData[MessageVal.PHOTO] = uri.toString()
-            messageData[MessageVal.TYPE] = MessageVal.PHOTO
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload photo")
-          }
-        }
-      }
-      is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
-      }
-      is Message.LinkMessage -> {
-        messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.LINK
-        saveMessage(messagePath, messageData)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
-
   override fun subscribeToPrivateChats(
       userUID: String,
       scope: CoroutineScope,
@@ -424,39 +378,7 @@ class MockDatabase : DbRepository {
       mainDispatcher: CoroutineDispatcher,
       onUpdate: (List<Chat>) -> Unit
   ) {
-    val ref = rtDb[ChatVal.DIRECT_MESSAGES]
-
-    object : ValueEventListener {
-      override fun onDataChange(snapshot: DataSnapshot) {
-        scope.launch(ioDispatcher) {
-          val chatList =
-              snapshot.children.mapNotNull { chat ->
-                val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
-                if (userUID in members) {
-                  val otherUserId = members.firstOrNull { it != userUID }
-                  otherUserId?.let { userId ->
-                    val otherUser = getUser(userId)
-                    val currentUser = getUser(userUID)
-                    Chat(
-                        uid = chat.key ?: "",
-                        name = otherUser.username,
-                        picture = otherUser.photoUrl,
-                        type = ChatType.PRIVATE,
-                        members = listOf(otherUser, currentUser))
-                  }
-                } else {
-                  null
-                }
-              }
-
-          withContext(mainDispatcher) { onUpdate(chatList.sortedBy { it.name }) }
-        }
-      }
-
-      override fun onCancelled(error: DatabaseError) {
-        println("Database read failed: " + error.code)
-      }
-    }
+    // To do
   }
 
   override fun getMessages(
@@ -465,58 +387,7 @@ class MockDatabase : DbRepository {
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher
   ) {
-    val ref = rtDb[getMessagePath(chat.uid, chat.type, chat.additionalUID)]
-
-    object : ValueEventListener {
-      override fun onDataChange(snapshot: DataSnapshot) {
-        CoroutineScope(ioDispatcher).launch {
-          val newMessages =
-              snapshot.children.mapNotNull { postSnapshot ->
-                val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
-                val timestamp =
-                    postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLongOrNull()
-                        ?: return@mapNotNull null
-                val user = getUser(senderUID)
-                when (val type = postSnapshot.child(MessageVal.TYPE).value.toString()) {
-                  MessageVal.TEXT -> {
-                    val text = postSnapshot.child(MessageVal.TEXT).value.toString()
-                    Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
-                  }
-                  MessageVal.PHOTO -> {
-                    val photoUri =
-                        postSnapshot.child(MessageVal.PHOTO).value.toString().let(Uri::parse)
-                    Message.PhotoMessage(postSnapshot.key.toString(), photoUri, user, timestamp)
-                  }
-                  MessageVal.FILE -> {
-                    val fileUri =
-                        postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                    val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
-                    Message.FileMessage(
-                        postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
-                  }
-                  MessageVal.LINK -> {
-                    val linkUri =
-                        postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                    val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
-                    Message.LinkMessage(
-                        postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
-                  }
-                  else -> {
-                    Log.d("MyPrint", "Message type not recognized: $type")
-                    null
-                  }
-                }
-              }
-
-          // Post new message list to the main thread to update the UI
-          withContext(mainDispatcher) { liveData.value = newMessages }
-        }
-      }
-
-      override fun onCancelled(error: DatabaseError) {
-        Log.w("DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
-      }
-    }
+    // TO DO
   }
 
   override fun checkForExistingChat(

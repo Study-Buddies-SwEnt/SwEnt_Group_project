@@ -9,14 +9,14 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class MessageViewModel(val chat: Chat) : ViewModel() {
-
-  private val db = DatabaseConnection()
+class MessageViewModel(val chat: Chat, private val db: DbRepository = DatabaseConnection()) :
+    ViewModel() {
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
@@ -81,7 +81,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   private fun sendMessage(message: Message) {
     if (chat.type == ChatType.TOPIC)
         db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
-    else db.sendMessage(chat.uid, message, chat.type)
+    else db.sendMessage(chat.uid, message, chat.type, "")
   }
 
   fun deleteMessage(message: Message) {

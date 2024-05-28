@@ -702,60 +702,6 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the Realtime Database for messages
-  override fun sendMessage(
-      chatUID: String,
-      message: Message,
-      chatType: ChatType,
-      additionalUID: String
-  ) {
-    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-
-    val messageData =
-        mutableMapOf(
-            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
-    when (message) {
-      is Message.TextMessage -> {
-        messageData[MessageVal.TEXT] = message.text
-        messageData[MessageVal.TYPE] = MessageVal.TEXT
-        saveMessage(messagePath, messageData)
-      }
-      is Message.PhotoMessage -> {
-
-        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
-            messageData[MessageVal.PHOTO] = uri.toString()
-            messageData[MessageVal.TYPE] = MessageVal.PHOTO
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload photo")
-          }
-        }
-      }
-      is Message.FileMessage -> {
-        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
-            messageData[MessageVal.FILE] = uri.toString()
-            messageData[MessageVal.FILE_NAME] = message.fileName
-            messageData[MessageVal.TYPE] = MessageVal.FILE
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload file")
-          }
-        }
-      }
-      is Message.LinkMessage -> {
-        messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.LINK_NAME] = message.linkName
-        messageData[MessageVal.TYPE] = MessageVal.LINK
-        saveMessage(messagePath, messageData)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
 
   override fun saveMessage(path: String, data: Map<String, Any>) {
     rtDb
