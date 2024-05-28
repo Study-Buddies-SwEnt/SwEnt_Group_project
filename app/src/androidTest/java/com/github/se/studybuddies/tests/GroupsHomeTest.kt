@@ -539,4 +539,28 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       composeTestRule.onNodeWithTag("groupList", useUnmergedTree = true).assertExists()
     }
   }
+
+  @Test
+  fun Test() {
+    composeTestRule.waitForIdle()
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule.onNodeWithTag("GroupsHome", useUnmergedTree = true).assertExists()
+    }
+  }
+
+  @Test
+  fun Test1() {
+    composeTestRule.waitForIdle()
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule.onNodeWithTag("GroupEmpty", useUnmergedTree = true).assertExists()
+    }
+  }
+
+  @Test
+  fun Test2() {
+    composeTestRule.waitForIdle()
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule.onNodeWithTag("GroupsBox", useUnmergedTree = true).assertExists()
+    }
+  }
 }
