@@ -8,9 +8,9 @@ class CreateAccountScreen(semanticsProvider: SemanticsNodeInteractionsProvider) 
     ComposeScreen<CreateAccountScreen>(
         semanticsProvider = semanticsProvider,
         viewBuilderAction = { hasTestTag("create_account") }) {
-  val content: KNode = onNode { hasTestTag("accountLazyColumn") }
+  val createAccountColumn: KNode = onNode { hasTestTag("create_account_column") }
 
-  val usernameField: KNode = content.child { hasTestTag("username_field") }
-  val profileButton: KNode = content.child { hasTestTag("set_picture_button") }
-  val saveButton: KNode = content.child { hasTestTag("save_button_account") }
+  val usernameField: KNode = createAccountColumn.child { hasTestTag("username_field") }
+  val profileButton: KNode = createAccountColumn.child { hasTestTag("set_picture_button") }
+  val saveButton: KNode = createAccountColumn.child { hasTestTag("save_button_account") }
 }

@@ -110,7 +110,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("create_account_column"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
               Spacer(modifier = Modifier.size(20.dp))

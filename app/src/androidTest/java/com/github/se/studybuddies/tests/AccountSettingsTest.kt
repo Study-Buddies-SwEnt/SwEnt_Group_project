@@ -42,7 +42,6 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   fun elementsAreDisplayed() {
     ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
       columnAccountSetting { assertIsDisplayed() }
-
       spacer1 { assertIsDisplayed() }
       spacer2 { assertIsDisplayed() }
       spacer3 { assertIsDisplayed() }
@@ -89,6 +88,7 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
         performClick()
       }
     }
+    composeTestRule.waitForIdle()
     verify { mockNavActions.navigateTo(Route.LOGIN) }
     confirmVerified(mockNavActions)
   }

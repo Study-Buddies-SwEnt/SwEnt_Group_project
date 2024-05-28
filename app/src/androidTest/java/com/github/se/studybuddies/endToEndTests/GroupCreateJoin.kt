@@ -2,11 +2,8 @@ package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
@@ -42,20 +39,19 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun userFlow1() {
-    composeTestRule.waitForIdle()
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      saveButton { assertIsNotEnabled() }
       usernameField {
         performTextClearance()
         performTextInput("test user")
         assertTextContains("test user")
       }
+      Espresso.closeSoftKeyboard()
+      saveButton {
+        assertIsEnabled()
+        performClick()
+      }
     }
-    Espresso.closeSoftKeyboard()
-    composeTestRule
-        .onNodeWithTag("accountLazyColumn")
-        .performScrollToNode(hasTestTag("save_button_account"))
-        .performClick()
-    composeTestRule.onNodeWithTag("save_button_account").performClick()
     ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }
@@ -84,9 +80,11 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         assertHasClickAction()
         performClick()
       }
+      composeTestRule.waitForIdle()
     }
     ComposeScreen.onComposeScreen<LoginScreen>(composeTestRule) {
       // Verify that we indeed went back to the login screen
+      composeTestRule.waitForIdle()
       loginTitle {
         assertIsDisplayed()
         assertTextEquals("Study Buddies")

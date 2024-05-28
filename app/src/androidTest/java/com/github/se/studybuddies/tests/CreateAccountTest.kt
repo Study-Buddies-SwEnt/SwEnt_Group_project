@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
+import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -17,8 +18,6 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,59 +41,51 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
 
   @Test
   fun elementsAreDisplayed() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(
-        composeTestRule) {
-          runBlocking {
-            delay(6000) // Adjust the delay time as needed
-          }
-          content { assertIsDisplayed() }
-          usernameField { assertIsDisplayed() }
-          profileButton {
-            assertIsDisplayed()
-            assertHasClickAction()
-          }
-          saveButton {
-            assertIsDisplayed()
-            assertHasClickAction()
-          }
-        }
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      createAccountColumn { assertIsDisplayed() }
+      usernameField { assertIsDisplayed() }
+      profileButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+      saveButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+    }
   }
 
   @Test
   fun inputUsername() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(
-        composeTestRule) {
-          runBlocking { delay(6000) }
-          saveButton { assertIsNotEnabled() }
-          usernameField {
-            performTextClearance()
-            performTextInput("test user")
-            assertTextContains("test user")
-          }
-          closeSoftKeyboard()
-          saveButton {
-            performScrollTo()
-            assertIsEnabled()
-            performClick()
-          }
-        }
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      saveButton { assertIsNotEnabled() }
+      usernameField {
+        performTextClearance()
+        performTextInput("test user")
+        assertTextContains("test user")
+      }
+      closeSoftKeyboard()
+      saveButton {
+        assertIsEnabled()
+        performClick()
+      }
+    }
     verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
     confirmVerified(mockNavActions)
   }
 
   @Test
   fun selectPicture() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.CreateAccountScreen>(
-        composeTestRule) {
-          inputUsername()
-          profileButton { performClick() }
-          userVM.createUser(uid, "", "", Uri.EMPTY)
-          /*onView(ViewMatchers.withId(R.id.rvImages)).perform(
-            RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(
-              0, ViewActions.click()
-            )
-          )
-           */
-        }
+    ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
+      inputUsername()
+      profileButton { performClick() }
+      userVM.createUser(uid, "", "", Uri.EMPTY)
+      /*onView(ViewMatchers.withId(R.id.rvImages)).perform(
+        RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(
+          0, ViewActions.click()
+        )
+      )
+       */
+    }
   }
 }

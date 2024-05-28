@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.account
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -126,6 +127,10 @@ private fun SignOutButton(navigationActions: NavigationActions, userViewModel: U
       onClick = {
         AuthUI.getInstance().signOut(context).addOnCompleteListener {
           if (it.isSuccessful) {
+            userViewModel.signOut()
+            navigationActions.navigateTo(Route.LOGIN)
+          } else {
+            Log.d("SignOut", "Failed to sign out or MockDatabase is being used.")
             userViewModel.signOut()
             navigationActions.navigateTo(Route.LOGIN)
           }
