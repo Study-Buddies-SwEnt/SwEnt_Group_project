@@ -804,14 +804,7 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-
-<<<<<<< Updated upstream
-    getTopic(uid) { topic ->
-        rtDb.getReference(topic.toString()).removeValue()
-    }
-=======
     getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
->>>>>>> Stashed changes
   }
 
   override fun editMessage(
@@ -1038,11 +1031,7 @@ class DatabaseConnection : DbRepository {
             emptyList()
           }
       val topic = Topic(uid, name, exercises, theory)
-<<<<<<< Updated upstream
-        callBack(topic)
-=======
       callBack(topic)
->>>>>>> Stashed changes
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
       callBack(Topic.empty())
@@ -1300,14 +1289,7 @@ class DatabaseConnection : DbRepository {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
           if (topicUIDs.isNotEmpty()) {
-<<<<<<< Updated upstream
-            topicUIDs
-                .map { topicUID ->
-                    getTopic(topicUID) {topic -> items.add(topic)}
-                }
-=======
             topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
->>>>>>> Stashed changes
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }
