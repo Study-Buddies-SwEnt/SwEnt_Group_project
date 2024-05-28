@@ -12,7 +12,11 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.screens.AccountSettingsScreen
 import com.github.se.studybuddies.screens.CreateAccountScreen
+import com.github.se.studybuddies.screens.CreateGroupScreen
+import com.github.se.studybuddies.screens.GroupsHomeScreen
+import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.github.se.studybuddies.testUtilities.MockMainActivity
 import com.kaspersky.components.composesupport.config.withComposeSupport
@@ -56,7 +60,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }
     }
-    /*
+
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       addButton { performClick() }
     }
@@ -87,6 +91,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         assertIsDisplayed()
         assertTextEquals("Study Buddies")
       }
-    }*/
+    }
   }
 }

@@ -837,22 +837,6 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override fun getGroupMessagesPath(groupUID: String): String {
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateMessagesPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateChatMembersPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
-  }
-
   override fun subscribeToPrivateChats(
       userUID: String,
       scope: CoroutineScope,

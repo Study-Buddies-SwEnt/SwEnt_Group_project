@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -100,13 +101,21 @@ interface DbRepository {
 
   fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String = ""): String
 
-  fun getGroupMessagesPath(groupUID: String): String
+  fun getGroupMessagesPath(groupUID: String): String {
+    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
+  }
 
-  fun getTopicMessagesPath(groupUID: String, topicUID: String): String
+  fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
+    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
+  }
 
-  fun getPrivateMessagesPath(chatUID: String): String
+  fun getPrivateMessagesPath(chatUID: String): String {
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
+  }
 
-  fun getPrivateChatMembersPath(chatUID: String): String
+  fun getPrivateChatMembersPath(chatUID: String): String {
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
+  }
 
   fun subscribeToPrivateChats(
       userUID: String,

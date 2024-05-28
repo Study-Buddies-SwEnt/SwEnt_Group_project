@@ -59,12 +59,11 @@ class MockDatabase : DbRepository {
 
   override suspend fun getAllFriends(uid: String): List<User> {
     return try {
-      val snapshot = userDataCollection[uid]
+      val user = userDataCollection.getOrElse(uid) { User.empty() }
       val snapshotQuery = userDataCollection
       val items = mutableListOf<User>()
 
-      if (snapshot != null) {
-        // val userUIDs = snapshot.data?.get("friends") as? List<String>
+      if (user != User.empty()) {
         for (item in snapshotQuery) {
           val id = item.value.uid
           items.add(getUser(id))
@@ -108,7 +107,6 @@ class MockDatabase : DbRepository {
       profilePictureUri: Uri,
       location: String
   ) {
-    val task = hashMapOf("email" to email, "username" to username, "location" to location)
     userDataCollection[uid] = User(uid, email, username, profilePictureUri, location)
   }
 
@@ -158,23 +156,18 @@ class MockDatabase : DbRepository {
       newIsRunning: Boolean
   ): Int {
     if (groupUID.isEmpty()) {
-      Log.d("MyPrint", "Group UID is empty")
+      Log.d("MockDatabase : updateGroupTimer", "Group UID is empty")
       return -1
     }
 
-    val document = groupDataCollection[groupUID]
-    if (document == null) {
-      Log.d("MyPrint", "Group with UID $groupUID does not exist")
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
+      Log.d("MockDatabase: updateGroupTimer", "Group with UID $groupUID does not exist")
       return -1
     }
-
-    // Create a map for the new timer state
-    val newTimerState = mapOf("endTime" to newEndTime, "isRunning" to newIsRunning)
-
     // Update the timerState field in the group document
     try {
-      groupDataCollection[groupUID] =
-          document.copy(timerState = TimerState(newEndTime, newIsRunning))
+      groupDataCollection[groupUID] = group.copy(timerState = TimerState(newEndTime, newIsRunning))
     } catch (e: Exception) {
       Log.e("MyPrint", "Exception when updating timer: ", e)
       return -1
@@ -240,9 +233,10 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
-    if (groupUID == "") {
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
       callBack(true)
-      Log.d("MyPrint", "Group UID is empty")
+      Log.d("MockDatabase : addUserToGroup", "Group with uid $groupUID does not exist")
       return
     }
 
@@ -260,14 +254,8 @@ class MockDatabase : DbRepository {
       return
     }
 
-    val document = groupDataCollection[groupUID]
-    if (document == null) {
-      callBack(true)
-      Log.d("MyPrint", "Group with uid $groupUID does not exist")
-      return
-    }
     // add user to group
-    groupDataCollection[groupUID] = document.copy(members = document.members + userToAdd)
+    groupDataCollection[groupUID] = group.copy(members = group.members + userToAdd)
 
     // add group to the user's list of groups
     userMembershipsCollection[userToAdd]?.let {
@@ -279,11 +267,14 @@ class MockDatabase : DbRepository {
 
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
 
-    // change name of group
-    groupDataCollection[groupUID] = groupDataCollection[groupUID]!!.copy(name = name)
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
+      Log.d("MockDatabase : updateGroup", "Group with uid $groupUID does not exist")
+      return
+    }
 
-    // change picture of group
-    groupDataCollection[groupUID] = groupDataCollection[groupUID]!!.copy(picture = photoUri)
+    groupDataCollection[groupUID] =
+        Group(group.uid, name, photoUri, group.members, group.topics, group.timerState)
   }
 
   override suspend fun removeUserFromGroup(groupUID: String, userUID: String) {
@@ -298,8 +289,12 @@ class MockDatabase : DbRepository {
       groupDataCollection[groupUID] = it.copy(members = updatedList)
     }
 
-    val document = groupDataCollection[groupUID]
-    val members = document?.members as? List<String> ?: emptyList()
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
+      Log.d("MockDatabase : removeUserFromGroup", "Group with uid $groupUID does not exist")
+      return
+    }
+    val members = group.members as? List<String> ?: emptyList()
 
     if (members.isEmpty()) {
       groupDataCollection.remove(groupUID)
@@ -323,22 +318,6 @@ class MockDatabase : DbRepository {
       }
     }
     groupDataCollection[groupUID] = Group.empty()
-  }
-
-  override fun getGroupMessagesPath(groupUID: String): String {
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateMessagesPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateChatMembersPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
   override fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String): String {
@@ -368,7 +347,7 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    getTopic(uid) { topic -> }
+    topicDataCollection.remove(uid)
   }
 
   override fun editMessage(
@@ -666,7 +645,12 @@ class MockDatabase : DbRepository {
   }
 
   override fun updateTopicName(uid: String, name: String) {
-    topicDataCollection[uid] = topicDataCollection[uid]!!.copy(name = name)
+    val topic = topicDataCollection.getOrElse(uid) { Topic.empty() }
+    if (topic == Topic.empty()) {
+      Log.d("MockDatabase : updateTopicName", "Topic with uid $uid does not exist")
+      return
+    }
+    topicDataCollection[uid] = Topic(topic.uid, name, topic.exercises, topic.theory)
   }
 
   override fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
@@ -749,7 +733,13 @@ class MockDatabase : DbRepository {
   }
 
   override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
-    userDataCollection[uid] = userDataCollection[uid]!!.copy(dailyPlanners = dailyPlanners)
+    val user = userDataCollection.getOrElse(uid) { User.empty() }
+    if (user == User.empty()) {
+      Log.d("MockDatabase : updateDailyPlanners", "User with uid $uid does not exist")
+      return
+    }
+    userDataCollection[uid] =
+        User(user.uid, user.email, user.username, user.photoUrl, user.location, dailyPlanners)
   }
 
   companion object {
