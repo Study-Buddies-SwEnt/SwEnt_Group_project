@@ -1,6 +1,8 @@
 package com.github.se.studybuddies.viewModels
 
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,21 +13,60 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class MessageViewModel(val chat: Chat) : ViewModel() {
 
   private val db = DatabaseConnection()
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
-  val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
   val currentUser = _currentUser
+
+    private val _filterType = mutableStateOf<Class<out Message>?>(null)
+    private val _searchQuery = MutableStateFlow<String>("")
+
+//    val messages = _messages.map { messages ->
+//        messages.filter { message ->
+//            (_filterType.value == null || _filterType.value!!.isInstance(message)) &&
+//                    (_searchQuery.value.isEmpty() || (message is Message.TextMessage && message.text.contains(_searchQuery.value, ignoreCase = true)))
+//        }.sortedBy { it.timestamp }
+//    }
+val messages = _messages.combine(_searchQuery) { messages, query ->
+    if (query.isEmpty()) {
+        messages.sortedBy { it.timestamp }
+    } else {
+        messages.filter {
+            when (it) {
+                is Message.TextMessage -> it.text.contains(query, ignoreCase = true)
+                is Message.LinkMessage -> it.linkName.contains(query, ignoreCase = true)
+                is Message.FileMessage -> it.fileName.contains(query, ignoreCase = true)
+                else -> false
+            }
+        }.sortedBy { it.timestamp }
+    }
+//    if (_filterType.value != null) {
+//        Log.d("MessageViewModel", "messages: of type ${_filterType.value}")
+//        messages.filter { _filterType.value!!.isInstance(it) }
+//    } else {
+//        messages
+//    }
+}
+
 
   init {
     getMessage()
     getCurrentUser()
   }
+
+    fun setFilterType(type: Class<out Message>?) {
+        Log.d("MessageViewModel", "setFilterType: $type")
+        _filterType.value = type
+    }
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
 
   private fun getMessage() {
     db.getMessages(chat, _messages, Dispatchers.IO, Dispatchers.Main)

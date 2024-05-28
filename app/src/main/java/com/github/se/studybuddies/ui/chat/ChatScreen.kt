@@ -37,6 +37,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -44,6 +46,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -104,6 +107,8 @@ fun ChatScreen(
   val showAddImage = remember { mutableStateOf(false) }
   val showAddLink = remember { mutableStateOf(false) }
   val showAddFile = remember { mutableStateOf(false) }
+    var showSearchBar by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
 
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
   val listState = rememberLazyListState()
@@ -127,11 +132,29 @@ fun ChatScreen(
               .navigationBarsPadding()
               .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-          when (viewModel.chat.type) {
-            ChatType.GROUP,
-            ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)
-            ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
-          }
+            if (showSearchBar) {
+                SearchBar(searchText, onSearchTextChanged = {
+                    searchText = it
+                    viewModel.setSearchQuery(it)
+                    Log.d("MyPrint", "Search query: $it")
+                }, onClearSearch = {
+                    searchText = ""
+                    viewModel.setSearchQuery("")
+                    showSearchBar = false
+                })
+//                MessageTypeFilter(viewModel = viewModel)
+            }
+            else {
+                when (viewModel.chat.type) {
+                    ChatType.GROUP,
+                    ChatType.TOPIC,
+                    -> ChatGroupTitle(viewModel.chat)
+
+                    ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
+                }
+                Spacer(Modifier.weight(1f, true))
+                Icon(Icons.Default.Search, contentDescription = "Search", modifier = Modifier.clickable { showSearchBar = !showSearchBar })
+            }
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
@@ -166,6 +189,46 @@ fun ChatScreen(
       }
 }
 
+@Composable
+fun SearchBar(searchText: String, onSearchTextChanged: (String) -> Unit, onClearSearch: () -> Unit) {
+    TextField(
+        value = searchText,
+        onValueChange = onSearchTextChanged,
+        modifier = Modifier.fillMaxWidth(),
+        placeholder = { Text("Search...") },
+        singleLine = true,
+        trailingIcon = {
+                IconButton(onClick = onClearSearch) {
+                    Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                }
+        },
+    )
+}
+//@Composable
+//fun MessageTypeFilter(viewModel: MessageViewModel) {
+//    Log.d("MyPrint", "MessageTypeFilter")
+//    Row(modifier = Modifier.padding(8.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+//        listOf("All", "Text", "Photo", "Link", "File").forEach { type ->
+//            Button(onClick = {
+//                setMessageFilter(viewModel, type)
+//                Log.d("MyPrint", "Filter type: $type")
+//            }
+//            ) {
+//                Text(type, style = TextStyle(color = Black))
+//            }
+//        }
+//    }
+//}
+//
+//fun setMessageFilter(viewModel: MessageViewModel, filterType: String) {
+//    when (filterType) {
+//        "Text" -> viewModel.setFilterType(Message.TextMessage::class.java)
+//        "Photo" -> viewModel.setFilterType(Message.PhotoMessage::class.java)
+//        "Link" -> viewModel.setFilterType(Message.LinkMessage::class.java)
+//        "File" -> viewModel.setFilterType(Message.FileMessage::class.java)
+//        "All" -> viewModel.setFilterType(null)
+//    }
+//}
 @Composable
 fun MessageBubble(message: Message, displayName: Boolean = false) {
   val browserLauncher =
