@@ -12,9 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -257,8 +259,13 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   fun groupItemElementsDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+      composeTestRule
           .onNodeWithTag("groupTest1_settings_row", useUnmergedTree = true)
           .assertIsDisplayed()
+
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -405,6 +412,10 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun deleteGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performScrollToNode(hasTestTag("groupTest1_box"))
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
