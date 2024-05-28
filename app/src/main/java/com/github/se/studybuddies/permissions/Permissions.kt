@@ -15,6 +15,11 @@ fun imagePermissionVersion(): String {
     "android.permission.READ_MEDIA_IMAGES"
   }
 }
+
+fun getStoragePermission(): String {
+  return Manifest.permission.WRITE_EXTERNAL_STORAGE
+}
+
 // Function to check and request a single permission.
 fun checkPermission(
     context: Context,

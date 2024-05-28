@@ -389,15 +389,17 @@ fun SaveButton(enabled: Boolean, save: () -> Unit) {
 
 @Composable
 fun SetPicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
-  Box(modifier = Modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
-    Image(
-        painter = rememberAsyncImagePainter(photoState.value),
-        contentDescription = stringResource(R.string.picture),
-        modifier = Modifier.size(200.dp),
-        contentScale = ContentScale.Crop)
-    if (photoState.value == Uri.EMPTY) {
-      Spacer(Modifier.height(20.dp))
-      Text(text = stringResource(select_a_picture))
-    }
-  }
+  Box(
+      modifier = Modifier.clickable { onClick() }.testTag("set_picture"),
+      contentAlignment = Alignment.Center) {
+        Image(
+            painter = rememberAsyncImagePainter(photoState.value),
+            contentDescription = stringResource(R.string.picture),
+            modifier = Modifier.size(200.dp),
+            contentScale = ContentScale.Crop)
+        if (photoState.value == Uri.EMPTY) {
+          Spacer(Modifier.height(20.dp))
+          Text(text = stringResource(select_a_picture))
+        }
+      }
 }

@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.calender
+package com.github.se.studybuddies.data
 
 import java.time.DayOfWeek
 import java.time.LocalDate

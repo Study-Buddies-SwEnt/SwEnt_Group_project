@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class TimerViewModel private constructor() : ViewModel() {
-  // Existing ViewModel code here
 
   companion object {
     private var INSTANCE: TimerViewModel? = null
@@ -44,6 +43,7 @@ class TimerViewModel private constructor() : ViewModel() {
   }
 
   fun startTimer() {
+    if (isRunning) return
     isRunning = true
     _timerEnd.value = false
     countDownTimer?.start()

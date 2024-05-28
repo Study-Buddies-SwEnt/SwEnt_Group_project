@@ -1,4 +1,4 @@
-import com.android.build.api.variant.BuildConfigField
+
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.FileInputStream
 import java.util.Properties
@@ -10,6 +10,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.secrets_gradle_plugin") version "0.6"
     id("kotlin-kapt")
+    kotlin("plugin.serialization") version "1.8.0"
 }
 android {
     namespace = "com.github.se.studybuddies"
@@ -104,9 +105,17 @@ android {
 
 
 dependencies {
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
     implementation("com.google.code.gson:gson:2.8.8")
+    implementation( "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.wear.compose:compose-material:1.3.1")
+    implementation("androidx.room:room-common:2.6.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
@@ -150,6 +159,8 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.4.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.7")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.7")
     androidTestImplementation("com.kaspersky.android-components:kaspresso:1.4.3")
     // Allure support
     androidTestImplementation("com.kaspersky.android-components:kaspresso-allure-support:1.4.3")
@@ -190,6 +201,8 @@ dependencies {
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
     // ...with Java.
     androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.44")
+
+
 
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {

@@ -5,6 +5,8 @@
     <string name="options">Options</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="download">Download</string>
+    <string name="save_success">Correctly saved</string>
     <string name="permission_granted">Permission GRANTED</string>
     <string name="create_group">Create a group</string>
     <string name="go_back">Go back</string>
@@ -25,6 +27,7 @@
     <string name="map">Map</string>
     <string name="group_option">Group Option</string>
     <string name="group_picture">Group picture</string>
+    <string name="user_picture">User picture</string>
     <string name="in_group_with_uid">In group %1$s with uid %2$s</string>
     <string name="join_or_create_a_new_group">Join or create a new group</string>
     <string name="dots_menu">Dots Menu</string>
@@ -43,6 +46,7 @@
     <string name="picture">Picture</string>
     <string name="select_a_profile_picture">Select a profile picture</string>
     <string name="select_a_picture">Select a picture</string>
+    <string name="select_a_file">Select a file</string>
     <string name="flash_card">Flash Card</string>
     <string name="todo_list">Todo List</string>
     <string name="focus_mode">Focus Mode</string>
@@ -98,8 +102,31 @@
     <string name="warning_leave_group">Are you sure you want to leave the group ?</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
+    <!-- Strings for DailyPlannerScreen -->
+    <string name="daily_planner_title">Daily Planner</string>
+    <string name="todays_goals">Today\'s Goals</string>
+    <string name="notes">Notes</string>
+    <string name="appointments">Appointments</string>
+    <string name="add_goal">Add Goal</string>
+    <string name="goal">Goal</string>
+    <string name="add">Add</string>
+
+    <string name="add_note">Add Note</string>
+    <string name="note">Note</string>
+    <string name="add_appointment">Add Appointment</string>
+    <string name="appointment_title">Appointment Title</string>
+    <string name="hour">Hour</string>
+    <string name="minute">Minute</string>
     <string name="ok">OK</string>
     <string name="permissions_not_granted_call">Camera and microphone permissions are required to join the call</string>
     <string name="speaking_while_muted">You are speaking while muted !</string>
     <string name="video_call">Video Call</string>
+    <string name="members">Members</string>
+    <string name="error_no_member_found_for_this_group">Error, no member found for this group</string>
+    <string name="add_a_new_task">Add a new task</string>
+    <string name="edit_task">Edit task</string>
+    <string name="user_profile_picture">user profile picture</string>
+    <string name="loading">loading</string>
+    <string name="add_member_from_list">Add member from list</string>
+    <string name="add_member_with_uid">Add member with UID</string>
 </resources>

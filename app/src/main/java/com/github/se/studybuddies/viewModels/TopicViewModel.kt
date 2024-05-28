@@ -6,20 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.ItemArea
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class TopicViewModel(private val uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class TopicViewModel(
+    private val uid: String? = null,
+    private val db: DbRepository = DatabaseConnection()
+) : ViewModel() {
   private val _topic = MutableStateFlow<Topic>(Topic.empty())
   val topic: StateFlow<Topic> = _topic
-
-  init {
-    if (uid != null) {
-      fetchTopicData(uid)
-    }
-  }
 
   /*
   @SuppressLint("CoroutineCreationDuringComposition")
@@ -36,25 +33,27 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
     }
   }*/
 
-  fun fetchTopicData(uid: String) {
+  fun fetchTopicData(uid: String, callBack: () -> Unit) {
     viewModelScope.launch {
-      val task = db.getTopic(uid)
-      task.sortItems()
-      _topic.value = task
+      db.getTopic(uid) { topic ->
+        topic.sortItems()
+        _topic.value = topic
+        callBack()
+      }
       Log.d("MyPrint", "Topic data fetched")
     }
   }
 
-  fun createTopic(name: String, groupUID: String) {
+  fun createTopic(name: String, groupUID: String, callBack: () -> Unit) {
     viewModelScope.launch {
       db.createTopic(name) { topicUID ->
         viewModelScope.launch { db.addTopicToGroup(topicUID, groupUID) }
       }
     }
-    fetchTopicData(name)
+    fetchTopicData(name) { callBack() }
   }
 
-  fun createTopicFolder(name: String, area: ItemArea, parentUID: String) {
+  fun createTopicFolder(name: String, area: ItemArea, parentUID: String, callBack: () -> Unit) {
     if (uid == null) return
     db.createTopicFolder(name, parentUID) { folder ->
       when (area) {
@@ -69,11 +68,11 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
           }
         }
       }
-      fetchTopicData(uid)
+      fetchTopicData(uid) { callBack() }
     }
   }
 
-  fun createTopicFile(name: String, area: ItemArea, parentUID: String) {
+  fun createTopicFile(name: String, area: ItemArea, parentUID: String, callBack: () -> Unit) {
     if (uid == null) return
     db.createTopicFile(name, parentUID) { file ->
       when (area) {
@@ -88,14 +87,22 @@ class TopicViewModel(private val uid: String? = null) : ViewModel() {
           }
         }
       }
-      fetchTopicData(uid)
+      fetchTopicData(uid) { callBack() }
     }
   }
 
-  fun updateTopicName(name: String) {
+  fun updateTopicName(name: String, callBack: () -> Unit) {
     if (uid != null) {
       db.updateTopicName(uid, name)
-      fetchTopicData(uid)
+      fetchTopicData(uid) { callBack() }
     }
+  }
+
+  fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    viewModelScope.launch { db.getIsUserStrong(fileID) { isUserStrong -> callBack(isUserStrong) } }
+  }
+
+  fun updateStrongUser(fileID: String, newValue: Boolean) {
+    viewModelScope.launch { db.updateStrongUser(fileID, newValue) }
   }
 }
