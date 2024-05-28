@@ -11,12 +11,10 @@ import com.github.se.studybuddies.ui.video_call.CallState
 import com.github.se.studybuddies.ui.video_call.VideoCallAction
 import com.github.se.studybuddies.ui.video_call.VideoCallState
 import io.getstream.video.android.core.Call
-import io.getstream.video.android.core.DeviceStatus
 import io.getstream.video.android.core.StreamVideo
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -43,8 +41,8 @@ constructor(val uid: String, val call: Call, val navigationActions: NavigationAc
 
   val state: StateFlow<UiState> =
       flow {
-            val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
-            val isMicrophoneEnabled = call.microphone.status.first() is DeviceStatus.Enabled
+            val isCameraEnabled = call.camera.isEnabled.value
+            val isMicrophoneEnabled = call.microphone.isEnabled.value
             emit(
                 UiState(
                     isCameraEnabled = isCameraEnabled, isMicrophoneEnabled = isMicrophoneEnabled))
@@ -53,17 +51,20 @@ constructor(val uid: String, val call: Call, val navigationActions: NavigationAc
 
   private fun joinCall() {
     if (callState.callState == CallState.ACTIVE) {
+      Log.d("MyPrint", "Call is already active")
       return
     }
     viewModelScope.launch {
       callState = callState.copy(callState = CallState.JOINING)
       if (StreamVideo.instance().state.activeCall.value == call) {
+        callState = callState.copy(callState = CallState.ACTIVE, error = null)
         Log.d("MyPrint", "Active call is the same as the call we are trying to join")
       } else {
         callState.call
             .join(false)
             .onSuccess {
               StreamVideo.instance().state.setActiveCall(callState.call)
+              Log.d("MyPrint", "Call joined successfully")
               callState = callState.copy(callState = CallState.ACTIVE, error = null)
             }
             .onError { callState = callState.copy(error = it.message, callState = null) }
