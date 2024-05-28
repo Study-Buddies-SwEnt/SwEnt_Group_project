@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.data
 
-import com.github.se.studybuddies.calender.getDayOfMonthStartingFromMonday
 import java.time.LocalDate
 import java.time.YearMonth
 

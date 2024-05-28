@@ -12,8 +12,12 @@ val SETTINGS_DESTINATIONS =
 val GROUPS_SETTINGS_DESTINATIONS =
     listOf(
         Destination(route = Route.GROUPSETTING, textId = "Modify group"),
+        Destination(route = Route.GROUPMEMBERS, textId = "Members"),
         Destination(route = Route.LEAVEGROUP, textId = "Leave group"),
         Destination(route = Route.DELETEGROUP, textId = "Delete group"))
+
+val GROUPS_MEMBERS_DESTINATIONS =
+    listOf(Destination(route = Route.USERREMOVE, textId = "Remove user"))
 
 val BOTTOM_NAVIGATION_DESTINATIONS =
     listOf(

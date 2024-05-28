@@ -168,7 +168,7 @@ fun MapScreen(
       iconOptions = {
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.padding(8.dp)) {
           FriendsLocationButton(context, isTrackingOn, usersViewModel, friendsData)
-          UserLocationButton(uid, context, locationManager, isTrackingOn, isZooming)
+          UserLocationButton(uid, context, userViewModel, locationManager, isTrackingOn, isZooming)
         }
       })
 }
@@ -177,6 +177,7 @@ fun MapScreen(
 fun UserLocationButton(
     uid: String,
     context: Context,
+    userViewModel: UserViewModel,
     locationManager: LocationManager,
     isTrackingOn: MutableState<Boolean>,
     isZooming: MutableState<Boolean>,
@@ -217,7 +218,7 @@ fun UserLocationButton(
               }
               isTrackingOn.value = false
               Toast.makeText(context, R.string.location_service_stopped, Toast.LENGTH_SHORT).show()
-              UserViewModel().updateLocation(uid, "offline")
+              userViewModel.updateLocation(uid, "offline")
               // In the case where nothing is wrong, we start the LocationService
             } else {
               Intent(context, LocationService::class.java).apply {
@@ -250,7 +251,6 @@ fun FriendsLocationButton(
     val runnable =
         object : Runnable {
           override fun run() {
-
             if (friends.isNotEmpty()) {
               isLoading.value = false // Stop loading as chats are not empty
             } else {

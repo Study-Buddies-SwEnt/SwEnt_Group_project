@@ -10,24 +10,31 @@ import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GroupViewModel(uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+class GroupViewModel(uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
+    ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
+  private val _membersGroup = MutableLiveData<List<User>>(emptyList())
+  private val _member = MutableLiveData(User.empty())
   val members: LiveData<List<User>> = _members
+  val membersGroup: LiveData<List<User>> = _membersGroup
+  val member: LiveData<User> = _member
   val group: LiveData<Group> = _group
-  private val _topics = MutableLiveData(TopicList(emptyList()))
-  val topics: LiveData<TopicList> = _topics
+  private val _topics = MutableStateFlow(TopicList(emptyList()))
+  val topics = _topics.asStateFlow()
 
   init {
     if (uid != null) {
       fetchGroupData(uid)
       fetchUsers()
-      fetchTopics(uid)
+      subscribeToTopics(uid)
     }
   }
 
@@ -35,14 +42,31 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
     viewModelScope.launch { _group.value = db.getGroup(uid) }
   }
 
-  fun fetchTopics(uid: String) {
+  fun fetchUserData(uid: String) {
+    viewModelScope.launch { _member.value = db.getUser(uid) }
+  }
+
+  fun getCurrentUser(): String {
+    return db.getCurrentUserUID()
+  }
+
+  private fun subscribeToTopics(uid: String) {
+    db.getAllTopics(uid, viewModelScope, Dispatchers.IO, Dispatchers.Main) { topicList ->
+      _topics.value = topicList
+    }
+  }
+
+  fun getAllFriends(uid: String) {
     viewModelScope.launch {
-      try {
-        val topics = db.getALlTopics(uid)
-        _topics.value = topics
-      } catch (e: Exception) {
-        Log.d("MyPrint", "In ViewModel, could not fetch topics with error ", e)
-      }
+      val friends = db.getAllFriends(uid)
+      _members.postValue(friends)
+    }
+  }
+
+  fun getAllFriendsGroup(uid: String) {
+    viewModelScope.launch {
+      val friends = db.getAllFriends(uid)
+      _membersGroup.postValue(friends)
     }
   }
 
@@ -58,21 +82,48 @@ class GroupViewModel(uid: String? = null) : ViewModel() {
     viewModelScope.launch {
       _group.value?.members?.let { memberIds ->
         val users = memberIds.map { uid -> db.getUser(uid) }
-        _members.postValue(users)
+        _members.postValue(users as List<User>?)
       }
     }
   }
 
   fun leaveGroup(groupUID: String, userUID: String = "") {
-    viewModelScope.launch { db.removeUserFromGroup(groupUID, userUID) }
+    viewModelScope.launch {
+      db.removeUserFromGroup(groupUID, userUID)
+      val user: String =
+          if (userUID != "") {
+            userUID
+          } else {
+            db.getCurrentUser().toString()
+          }
+      val userToRemove = db.getUser(user)
+      val updatedMembers = _members.value?.toMutableList()
+      updatedMembers?.remove(userToRemove)
+      _members.value = updatedMembers ?: emptyList()
+    }
   }
 
   fun deleteGroup(groupUID: String) {
     viewModelScope.launch { db.deleteGroup(groupUID) }
   }
 
-  fun addUserToGroup(groupUID: String, text: String = "") {
-    viewModelScope.launch { db.addUserToGroup(groupUID, text) }
+  fun addUserToGroup(groupUID: String, text: String = "", callBack: (Boolean) -> Unit) {
+    viewModelScope.launch {
+      db.addUserToGroup(groupUID, text) { isError -> callBack(isError) }
+      val userUID: String =
+          if (text != "") {
+            text
+          } else {
+            db.getCurrentUser().toString()
+          }
+      val newUser = db.getUser(userUID)
+      var updatedMembers = _members.value?.toMutableList()
+      if (newUser != null) {
+        updatedMembers?.add(newUser)
+      }
+      updatedMembers = updatedMembers?.toSet()?.toMutableList()
+      _members.value = updatedMembers ?: emptyList()
+    }
   }
 
   fun updateGroup(groupUID: String, name: String, photoURI: Uri?) {

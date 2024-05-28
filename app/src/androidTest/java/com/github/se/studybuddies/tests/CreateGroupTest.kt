@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.tests
 
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -8,6 +7,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateGroupScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
+import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -36,10 +36,11 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   // Relaxed mocks methods have a default implementation returning values
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
+  private val db = MockDatabase()
 
   @Before
   fun testSetup() {
-    val vm = GroupViewModel()
+    val vm = GroupViewModel(db = db)
     composeTestRule.setContent { CreateGroup(vm, mockNavActions) }
   }
 
@@ -65,7 +66,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   }
 
   @Test
-  fun saveToDoDoesNotWorkWithEmptyTitle() = run {
+  fun saveGroupDoesNotWorkWithEmptyTitle() = run {
     onComposeScreen<CreateGroupScreen>(composeTestRule) {
       step("Open group screen") {
         groupField {

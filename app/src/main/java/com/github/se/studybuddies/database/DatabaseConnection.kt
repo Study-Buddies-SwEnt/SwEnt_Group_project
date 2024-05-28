@@ -5,6 +5,9 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
+import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
@@ -34,8 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class DatabaseConnection {
-
+class DatabaseConnection : DbRepository {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
   private val storage = FirebaseStorage.getInstance().reference
 
@@ -49,9 +51,15 @@ class DatabaseConnection {
   private val groupDataCollection = db.collection("groupData")
   private val topicDataCollection = db.collection("topicData")
   private val topicItemCollection = db.collection("topicItemData")
+  private val contactDataCollection = db.collection("contactData")
+  private val userContactsCollection = db.collection("userContacts")
+
+  override fun isFakeDatabase(): Boolean {
+    return false
+  }
 
   // using the userData collection
-  suspend fun getUser(uid: String): User {
+  override suspend fun getUser(uid: String): User {
     if (uid.isEmpty()) {
       return User.empty()
     }
@@ -61,18 +69,45 @@ class DatabaseConnection {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
-      User(uid, email, username, photoUrl, location)
+      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
+      val plannerList =
+          dailyPlanners.map { plannerMap ->
+            DailyPlanner(
+                date = plannerMap["date"] as String,
+                goals = plannerMap["goals"] as List<String>,
+                appointments = plannerMap["appointments"] as Map<String, String>,
+                notes = plannerMap["notes"] as List<String>)
+          }
+      User(uid, email, username, photoUrl, location, plannerList)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
     }
   }
 
-  suspend fun getCurrentUser(): User {
+  override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+    val plannerMap =
+        dailyPlanners.map { planner ->
+          mapOf(
+              "date" to planner.date,
+              "goals" to planner.goals,
+              "appointments" to planner.appointments,
+              "notes" to planner.notes)
+        }
+    userDataCollection
+        .document(uid)
+        .update("dailyPlanners", plannerMap)
+        .addOnSuccessListener {
+          Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
+        }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
+  }
+
+  override suspend fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
   }
 
-  fun getCurrentUserUID(): String {
+  override fun getCurrentUserUID(): String {
     val uid = FirebaseAuth.getInstance().currentUser?.uid
     return if (uid != null) {
       Log.d("MyPrint", "Fetched user UID is $uid")
@@ -83,7 +118,7 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getAllFriends(uid: String): List<User> {
+  override suspend fun getAllFriends(uid: String): List<User> {
     return try {
       val snapshot = userDataCollection.document(uid).get().await()
       val snapshotQuery = userDataCollection.get().await()
@@ -105,16 +140,16 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getDefaultProfilePicture(): Uri {
+  override suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  suspend fun createUser(
+  override suspend fun createUser(
       uid: String,
       email: String,
       username: String,
       profilePictureUri: Uri,
-      location: String = "offline"
+      location: String
   ) {
     Log.d(
         "MyPrint",
@@ -124,7 +159,8 @@ class DatabaseConnection {
             "email" to email,
             "username" to username,
             "photoUrl" to profilePictureUri.toString(),
-            "location" to location)
+            "location" to location,
+            "dailyPlanners" to emptyList<Map<String, Any>>())
     if (profilePictureUri != getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)
@@ -196,9 +232,18 @@ class DatabaseConnection {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
         }
+
+    val contactList = hashMapOf("contacts" to emptyList<String>())
+    userContactsCollection
+        .document(uid)
+        .set(contactList)
+        .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to create user contact list with error: ", e)
+        }
   }
 
-  fun updateUserData(
+  override fun updateUserData(
       uid: String,
       email: String,
       username: String,
@@ -228,7 +273,7 @@ class DatabaseConnection {
         }
   }
 
-  fun updateLocation(uid: String, location: String) {
+  override fun updateLocation(uid: String, location: String) {
     userDataCollection
         .document(uid)
         .update("location", location)
@@ -238,7 +283,11 @@ class DatabaseConnection {
         }
   }
 
-  fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
+  override fun userExists(
+      uid: String,
+      onSuccess: (Boolean) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
     userDataCollection
         .document(uid)
         .get()
@@ -246,8 +295,20 @@ class DatabaseConnection {
         .addOnFailureListener { e -> onFailure(e) }
   }
 
+  override fun groupExists(
+      groupUID: String,
+      onSuccess: (Boolean) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    groupDataCollection
+        .document(groupUID)
+        .get()
+        .addOnSuccessListener { document -> onSuccess(document.exists()) }
+        .addOnFailureListener { e -> onFailure(e) }
+  }
+
   // using the groups & userMemberships collections
-  suspend fun getAllGroups(uid: String): GroupList {
+  override suspend fun getAllGroups(uid: String): GroupList {
     try {
       val snapshot = userMembershipsCollection.document(uid).get().await()
       val items = mutableListOf<Group>()
@@ -280,7 +341,11 @@ class DatabaseConnection {
     return GroupList(emptyList())
   }
 
-  suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int {
+  override suspend fun updateGroupTimer(
+      groupUID: String,
+      newEndTime: Long,
+      newIsRunning: Boolean
+  ): Int {
     if (groupUID.isEmpty()) {
       Log.d("MyPrint", "Group UID is empty")
       return -1
@@ -317,7 +382,7 @@ class DatabaseConnection {
     return 0
   }
 
-  suspend fun getGroup(groupUID: String): Group {
+  override suspend fun getGroup(groupUID: String): Group {
     val document = groupDataCollection.document(groupUID).get().await()
     return if (document.exists()) {
       val name = document.getString("name") ?: ""
@@ -336,7 +401,7 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getGroupName(groupUID: String): String {
+  override suspend fun getGroupName(groupUID: String): String {
     val document = groupDataCollection.document(groupUID).get().await()
     return if (document.exists()) {
       document.getString("name") ?: ""
@@ -346,11 +411,11 @@ class DatabaseConnection {
     }
   }
 
-  suspend fun getDefaultPicture(): Uri {
+  override suspend fun getDefaultPicture(): Uri {
     return storage.child("groupData/default_group.jpg").downloadUrl.await()
   }
 
-  suspend fun createGroup(name: String, photoUri: Uri) {
+  override suspend fun createGroup(name: String, photoUri: Uri) {
     val uid = if (name == "Official Group Testing") "111testUser" else getCurrentUserUID()
     Log.d("MyPrint", "Creating new group with uid $uid and picture link $photoUri")
     Log.d("MyPrint", "Creating new group with uid $uid and picture link ${photoUri.toString()}")
@@ -443,9 +508,10 @@ class DatabaseConnection {
    *
    * return -1 in case of invalid entries
    */
-  suspend fun addUserToGroup(groupUID: String, user: String = "") {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
     if (groupUID == "") {
+      callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -459,12 +525,14 @@ class DatabaseConnection {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
+      callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -472,8 +540,12 @@ class DatabaseConnection {
     groupDataCollection
         .document(groupUID)
         .update("members", FieldValue.arrayUnion(userToAdd))
-        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnSuccessListener {
+          Log.d("MyPrint", "User successfully added to group")
+          callBack(false)
+        }
         .addOnFailureListener { e ->
+          callBack(true)
           Log.d("MyPrint", "Failed to add user to group with error: ", e)
         }
 
@@ -481,13 +553,17 @@ class DatabaseConnection {
     userMembershipsCollection
         .document(userToAdd)
         .update("groups", FieldValue.arrayUnion(groupUID))
-        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+        .addOnSuccessListener {
+          Log.d("MyPrint", "Group successfully added to user")
+          callBack(false)
+        }
         .addOnFailureListener { e ->
+          callBack(true)
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
   }
 
-  fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
+  override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
 
     // change name of group
     groupDataCollection
@@ -521,7 +597,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun removeUserFromGroup(groupUID: String, userUID: String = "") {
+  override suspend fun removeUserFromGroup(groupUID: String, userUID: String) {
 
     val user =
         if (userUID == "") {
@@ -577,7 +653,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun deleteGroup(groupUID: String) {
+  override suspend fun deleteGroup(groupUID: String) {
 
     val document = groupDataCollection.document(groupUID).get().await()
     val members = document.get("members") as? List<String> ?: emptyList()
@@ -626,11 +702,11 @@ class DatabaseConnection {
   }
 
   // using the Realtime Database for messages
-  fun sendMessage(
+  override fun sendMessage(
       chatUID: String,
       message: Message,
       chatType: ChatType,
-      additionalUID: String = ""
+      additionalUID: String
   ) {
     val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
 
@@ -657,12 +733,21 @@ class DatabaseConnection {
         }
       }
       is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
+        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
+            messageData[MessageVal.FILE] = uri.toString()
+            messageData[MessageVal.FILE_NAME] = message.fileName
+            messageData[MessageVal.TYPE] = MessageVal.FILE
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload file")
+          }
+        }
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
+        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
@@ -672,7 +757,7 @@ class DatabaseConnection {
     }
   }
 
-  private fun saveMessage(path: String, data: Map<String, Any>) {
+  override fun saveMessage(path: String, data: Map<String, Any>) {
     rtDb
         .getReference(path)
         .updateChildren(data)
@@ -680,7 +765,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.w("MessageSend", "Failed to write message.", e) }
   }
 
-  private fun uploadChatImage(
+  override fun uploadChatImage(
       uid: String,
       chatUID: String,
       imageUri: Uri,
@@ -700,31 +785,51 @@ class DatabaseConnection {
         }
   }
 
-  fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
+  private fun uploadChatFile(uid: String, chatUID: String, fileUri: Uri, callback: (Uri?) -> Unit) {
+    val storagePath = "chatData/$chatUID/$uid"
+    val fileRef = storage.child(storagePath)
+
+    fileRef
+        .putFile(fileUri)
+        .addOnSuccessListener { fileRef.downloadUrl.addOnSuccessListener { uri -> callback(uri) } }
+        .addOnFailureListener { e ->
+          Log.e("UploadChatFile", "Failed to upload file: ", e)
+          callback(null)
+        }
+  }
+
+  override fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
     val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
     rtDb.getReference(messagePath).removeValue()
   }
 
-  suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
-    rtDb.getReference(topic.toString()).removeValue()
+  override suspend fun removeTopic(uid: String) {
+
+    getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
   }
 
-  fun editMessage(
+  override fun editMessage(
       groupUID: String,
-      message: Message.TextMessage,
+      message: Message,
       chatType: ChatType,
       newText: String
   ) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+    when (message) {
+      is Message.TextMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.TEXT to newText))
+      }
+      is Message.LinkMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb.getReference(messagePath).updateChildren(mapOf(MessageVal.LINK to newText))
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
+    }
   }
 
-  private fun getMessagePath(
-      chatUID: String,
-      chatType: ChatType,
-      additionalUID: String = ""
-  ): String {
+  override fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String): String {
     return when (chatType) {
       ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
       ChatType.GROUP -> getGroupMessagesPath(chatUID)
@@ -732,23 +837,23 @@ class DatabaseConnection {
     }
   }
 
-  private fun getGroupMessagesPath(groupUID: String): String {
+  override fun getGroupMessagesPath(groupUID: String): String {
     return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
-  private fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
+  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
     return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
   }
 
-  private fun getPrivateMessagesPath(chatUID: String): String {
+  override fun getPrivateMessagesPath(chatUID: String): String {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
   }
 
-  private fun getPrivateChatMembersPath(chatUID: String): String {
+  override fun getPrivateChatMembersPath(chatUID: String): String {
     return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
   }
 
-  fun subscribeToPrivateChats(
+  override fun subscribeToPrivateChats(
       userUID: String,
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
@@ -791,7 +896,7 @@ class DatabaseConnection {
         })
   }
 
-  fun getMessages(
+  override fun getMessages(
       chat: Chat,
       liveData: MutableStateFlow<List<Message>>,
       ioDispatcher: CoroutineDispatcher,
@@ -823,12 +928,16 @@ class DatabaseConnection {
                       MessageVal.FILE -> {
                         val fileUri =
                             postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                        Message.FileMessage(postSnapshot.key.toString(), fileUri, user, timestamp)
+                        val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
+                        Message.FileMessage(
+                            postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
                       }
                       MessageVal.LINK -> {
                         val linkUri =
                             postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                        Message.LinkMessage(postSnapshot.key.toString(), linkUri, user, timestamp)
+                        val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
+                        Message.LinkMessage(
+                            postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
                       }
                       else -> {
                         Log.d("MyPrint", "Message type not recognized: $type")
@@ -849,7 +958,7 @@ class DatabaseConnection {
         })
   }
 
-  private fun checkForExistingChat(
+  override fun checkForExistingChat(
       currentUserUID: String,
       otherUID: String,
       onResult: (Boolean, String?) -> Unit
@@ -880,7 +989,7 @@ class DatabaseConnection {
         })
   }
 
-  fun startDirectMessage(otherUID: String) {
+  override fun startDirectMessage(otherUID: String) {
     val currentUserUID = getCurrentUserUID()
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
@@ -904,9 +1013,9 @@ class DatabaseConnection {
   }
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val document = topicDataCollection.document(uid).get().await()
-    return if (document.exists()) {
+    if (document.exists()) {
       val name = document.getString(topic_name) ?: ""
       val exercisesList = document.get(topic_exercises) as List<String>
       val theoryList = document.get(topic_theory) as List<String>
@@ -922,14 +1031,27 @@ class DatabaseConnection {
           } else {
             emptyList()
           }
-      Topic(uid, name, exercises, theory)
+      val topic = Topic(uid, name, exercises, theory)
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      Topic.empty()
+      callBack(Topic.empty())
     }
   }
 
-  private suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
+  override suspend fun getTopicFile(id: String): TopicFile {
+    val document = topicItemCollection.document(id).get().await()
+    return if (document.exists()) {
+      val name = document.getString(topic_name) ?: ""
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val parentUID = document.getString(item_parent) ?: ""
+      TopicFile(id, name, strongUsers, parentUID)
+    } else {
+      TopicFile.empty()
+    }
+  }
+
+  override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
     for (itemUID in listUID) {
       val document = topicItemCollection.document(itemUID).get().await()
@@ -953,7 +1075,7 @@ class DatabaseConnection {
     return items
   }
 
-  fun createTopic(name: String, callBack: (String) -> Unit) {
+  override fun createTopic(name: String, callBack: (String) -> Unit) {
     val topic =
         hashMapOf(
             topic_name to name,
@@ -972,7 +1094,7 @@ class DatabaseConnection {
         }
   }
 
-  suspend fun addTopicToGroup(topicUID: String, groupUID: String) {
+  override suspend fun addTopicToGroup(topicUID: String, groupUID: String) {
     val document = groupDataCollection.document(groupUID).get().await()
     if (document.exists()) {
       groupDataCollection
@@ -987,7 +1109,7 @@ class DatabaseConnection {
     }
   }
 
-  fun addExercise(uid: String, exercise: TopicItem) {
+  override fun addExercise(uid: String, exercise: TopicItem) {
     val exerciseUID = exercise.uid
     topicDataCollection
         .document(uid)
@@ -999,7 +1121,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  fun addTheory(uid: String, theory: TopicItem) {
+  override fun addTheory(uid: String, theory: TopicItem) {
     val theoryUID = theory.uid
     topicDataCollection
         .document(uid)
@@ -1011,7 +1133,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  suspend fun deleteTopic(topicId: String) {
+  override suspend fun deleteTopic(topicId: String) {
     val itemRef = topicDataCollection.document(topicId)
     try {
       itemRef.delete().await()
@@ -1022,7 +1144,7 @@ class DatabaseConnection {
     }
   }
 
-  fun updateTopicName(uid: String, name: String) {
+  override fun updateTopicName(uid: String, name: String) {
     topicDataCollection
         .document(uid)
         .update(topic_name, name)
@@ -1030,7 +1152,7 @@ class DatabaseConnection {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
+  override fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
     val folder =
         hashMapOf(
             topic_name to name,
@@ -1054,7 +1176,7 @@ class DatabaseConnection {
         }
   }
 
-  fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit) {
+  override fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit) {
     val file =
         hashMapOf(
             topic_name to name,
@@ -1078,7 +1200,7 @@ class DatabaseConnection {
         }
   }
 
-  private fun updateTopicItem(item: TopicItem) {
+  override fun updateTopicItem(item: TopicItem) {
     var task = emptyMap<String, Any>()
     var type = ""
     var folderItems = emptyList<String>()
@@ -1105,36 +1227,181 @@ class DatabaseConnection {
         }
   }
 
-  fun getTimerReference(groupId: String) = rtDb.getReference("timer/$groupId")
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection.document(fileID).get().await()
+    if (document.exists()) {
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    }
+  }
 
-  suspend fun getALlTopics(groupUID: String): TopicList {
-    try {
-      val snapshot = groupDataCollection.document(groupUID).get().await()
-      val items = mutableListOf<Topic>()
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    if (newValue) {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayUnion(currentUser))
+    } else {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayRemove(currentUser))
+    }
+  }
 
-      return if (snapshot.exists()) {
-        val topicUIDs = snapshot.data?.get("topics") as? List<String>
-        if (topicUIDs != null) {
-          if (topicUIDs.isNotEmpty()) {
-            topicUIDs.forEach { topicUid ->
-              val topic = getTopic(topicUid)
-              items.add(topic)
+  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
+    var isRunning = false
+    groupUID?.let { uid ->
+      val timerRef = rtDb.getReference("timer/$uid")
+      timerRef.addValueEventListener(
+          object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+              snapshot.getValue(TimerState::class.java)?.let { timerState ->
+                _timerValue.value = timerState.endTime - System.currentTimeMillis()
+                isRunning = timerState.isRunning
+              }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+              Log.e("TimerViewModel", "Failed to read timer", error.toException())
+            }
+          })
+    } ?: error("Group UID is not set. Call setup() with valid Group UID.")
+    return isRunning
+  }
+
+  override fun getAllTopics(
+      groupUID: String,
+      scope: CoroutineScope,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onUpdate: (TopicList) -> Unit
+  ) {
+    val docRef = groupDataCollection.document(groupUID)
+
+    docRef.addSnapshotListener { snapshot, e ->
+      if (e != null) {
+        Log.w("MyPrint", "Listen failed.", e)
+        return@addSnapshotListener
+      }
+
+      if (snapshot != null && snapshot.exists()) {
+        scope.launch(ioDispatcher) {
+          val items = mutableListOf<Topic>()
+          val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
+          if (topicUIDs.isNotEmpty()) {
+            topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }
-        } else {
-          Log.d("MyPrint", "Could not fetch topics list")
+
+          withContext(mainDispatcher) { onUpdate(TopicList(items)) }
         }
-        TopicList(items)
       } else {
         Log.d("MyPrint", "Group with uid $groupUID does not exist")
-        TopicList(emptyList())
+        onUpdate(TopicList(emptyList()))
+      }
+    }
+  }
+
+  suspend fun getAllContacts(uid: String): ContactList {
+    try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<Contact>()
+
+      if (snapshot.exists()) {
+        val contactsUIDs = snapshot.data?.get("contacts") as? List<String>
+        contactsUIDs?.let { contactsIDs ->
+          contactsIDs.forEach { contactID ->
+            val document = contactDataCollection.document(contactID).get().await()
+            val members = document.get("members") as? List<String> ?: emptyList()
+            val showOnMap = document.get("showOnMap") as Boolean
+            items.add(Contact(contactID, members, showOnMap))
+          }
+        }
+        return ContactList(items)
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+        return ContactList(emptyList())
       }
     } catch (e: Exception) {
-      Log.d("MyPrint", "Could not fetch topics with error ", e)
+      Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
     }
-    return TopicList(emptyList())
+    return ContactList(emptyList())
+  }
+
+  suspend fun getContact(contactUID: String): Contact {
+    val document = contactDataCollection.document(contactUID).get().await()
+    return if (document.exists()) {
+      val members = document.get("members") as? List<String> ?: emptyList()
+      val showOnMap = document.get("showOnMap") as Boolean
+      Contact(contactUID, members, showOnMap)
+    } else {
+      Log.d("MyPrint", "contact document not found for contact id $contactUID")
+      Contact.empty()
+    }
+  }
+
+  suspend fun createContact(otherUID: String) {
+
+    val uid = getCurrentUserUID()
+    Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
+
+    // check if contact already exists
+    val contactList = getAllContacts(uid)
+
+    if (!contactList.getAllTasks().isNotEmpty()) {
+      (Log.d("contacttest", "problem"))
+    }
+
+    if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
+      (Log.d("MyPrint", "Contact already exists"))
+    } else {
+      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      // updating contacts collection
+      contactDataCollection
+          .add(contact)
+          .addOnSuccessListener { document ->
+            val contactID = document.id
+            Log.d("MyPrint", "Contact successfully created")
+
+            // updating current user's list of contacts
+            userContactsCollection
+                .document(uid)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrfixint", "Failed to add new contact to userContacts with error: ", e)
+                }
+
+            // updating other user's list of contacts
+            userContactsCollection
+                .document(otherUID)
+                .update("contacts", FieldValue.arrayUnion(contactID))
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Contact successfully added to userContacts")
+                }
+                .addOnFailureListener { e ->
+                  Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
+                }
+          }
+          .addOnFailureListener { e ->
+            Log.d("MyPrint", "Failed to create contact with error: ", e)
+          }
+    }
+  }
+
+  suspend fun deleteContact(contactUID: String, userUID: String = "") {
+
+    val document = contactDataCollection.document(contactUID).get().await()
+
+    contactDataCollection
+        .document(contactUID)
+        .delete()
+        .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
   }
 
   companion object {
