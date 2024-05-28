@@ -48,6 +48,7 @@ import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
+import com.github.se.studybuddies.ui.video_call.CallState
 import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.CalendarViewModel
@@ -286,8 +287,16 @@ class MainActivity : ComponentActivity() {
                     val viewModel: CallLobbyViewModel = viewModel {
                       CallLobbyViewModel(groupUID, callType)
                     }
+                    val state = viewModel.callState
+                    LaunchedEffect(key1 = state.isConnected) {
+                      if (state.isConnected ||
+                          StreamVideo.instance().state.activeCall.value?.id == groupUID) {
+                        Log.d("MyPrint", "Joined same call")
+                        navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID")
+                      }
+                    }
                     Log.d("MyPrint", "Join VideoCall lobby")
-                    CallLobbyScreen(groupUID, viewModel, navigationActions)
+                    CallLobbyScreen(state, viewModel, viewModel::onAction, navigationActions)
                   } else {
                     Log.d("MyPrint", "Failed bc video call client isn't installed")
                     navController.popBackStack("${Route.GROUP}/$groupUID", false)
@@ -303,11 +312,17 @@ class MainActivity : ComponentActivity() {
                     val call =
                         startCall(StreamVideo.instance().state.activeCall.value, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
-                    val videoVM: VideoCallViewModel = viewModel { VideoCallViewModel(callId, call) }
-                    VideoCallScreen(
-                        videoVM,
-                        { navigationActions.navigateTo("${Route.GROUP}/$callId") },
-                        { leaveCall(call, navController, callId) })
+                    val videoVM: VideoCallViewModel = viewModel {
+                      VideoCallViewModel(callId, call, navigationActions)
+                    }
+                    val state = videoVM.callState
+                    LaunchedEffect(key1 = state.callState) {
+                      if (state.callState == CallState.ENDED) {
+                        navController.popBackStack("${Route.GROUP}/$groupUID", false)
+                        Log.d("MyPrint", "Successfully left the call")
+                      }
+                    }
+                    VideoCallScreen(callId, state, videoVM::onAction, navigationActions)
                   }
                 }
 

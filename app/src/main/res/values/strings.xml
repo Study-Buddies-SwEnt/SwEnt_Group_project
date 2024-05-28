@@ -99,4 +99,7 @@
     <string name="back">Back</string>
     <string name="next">Next</string>
     <string name="ok">OK</string>
+    <string name="permissions_not_granted_call">Camera and microphone permissions are required to join the call</string>
+    <string name="speaking_while_muted">You are speaking while muted !</string>
+    <string name="video_call">Video Call</string>
 </resources>

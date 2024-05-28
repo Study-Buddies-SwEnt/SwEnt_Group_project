@@ -1,84 +1,81 @@
 package com.github.se.studybuddies.viewModels
 
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.video_call.CallState
+import com.github.se.studybuddies.ui.video_call.VideoCallAction
+import com.github.se.studybuddies.ui.video_call.VideoCallState
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.DeviceStatus
 import io.getstream.video.android.core.StreamVideo
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class VideoCallViewModel @Inject constructor(val uid: String, val call: Call) : ViewModel() {
+class VideoCallViewModel
+@Inject
+constructor(val uid: String, val call: Call, val navigationActions: NavigationActions) :
+    ViewModel() {
+
   data class UiState(
-      val isLoading: Boolean = true,
-      val isCameraEnabled: Boolean =
-          true, // enabled at start to allow direct display of camera in lobby
+      val isCameraEnabled: Boolean = false,
       val isMicrophoneEnabled: Boolean = false
   )
 
+  var callState by mutableStateOf(VideoCallState(call))
+    private set
+
+  fun onAction(action: VideoCallAction) {
+    when (action) {
+      is VideoCallAction.JoinCall -> joinCall()
+      is VideoCallAction.LeaveCall -> leaveCall()
+    }
+  }
+
   val state: StateFlow<UiState> =
       flow {
-            emit(VideoCallViewModel.UiState(isLoading = true))
             val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
             val isMicrophoneEnabled = call.microphone.status.first() is DeviceStatus.Enabled
             emit(
-                VideoCallViewModel.UiState(
-                    isLoading = false,
-                    isCameraEnabled = isCameraEnabled,
-                    isMicrophoneEnabled = isMicrophoneEnabled))
+                UiState(
+                    isCameraEnabled = isCameraEnabled, isMicrophoneEnabled = isMicrophoneEnabled))
           }
-          .stateIn(
-              viewModelScope, SharingStarted.WhileSubscribed(5000), VideoCallViewModel.UiState())
-  private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
-  internal val isLoading: StateFlow<Boolean> = _isLoading
+          .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
 
-  @Composable
-  fun JoinCall() {
-    LaunchedEffect(call) {
+  private fun joinCall() {
+    if (callState.callState == CallState.ACTIVE) {
+      return
+    }
+    viewModelScope.launch {
+      callState = callState.copy(callState = CallState.JOINING)
       if (StreamVideo.instance().state.activeCall.value == call) {
         Log.d("MyPrint", "Active call is the same as the call we are trying to join")
       } else {
-        try {
-          call.join()
-          Log.d("MyPrint", "Trying to join call")
-        } catch (e: Exception) {
-          Log.d("MyPrint", "Trying to join call got exception, leave call")
-          call.leave()
-          call.join()
-        } finally {
-          Log.d("MyPrint", "Keeping active call")
-          keepActiveCall(call)
-        }
+        callState.call
+            .join(false)
+            .onSuccess {
+              StreamVideo.instance().state.setActiveCall(callState.call)
+              callState = callState.copy(callState = CallState.ACTIVE, error = null)
+            }
+            .onError { callState = callState.copy(error = it.message, callState = null) }
       }
     }
   }
 
-  fun enableCamera(enabled: Boolean) {
-    call.camera.setEnabled(enabled)
-  }
-
-  fun enableMicrophone(enabled: Boolean) {
-    call.microphone.setEnabled(enabled)
-  }
-
-  fun leaveCall() {
+  private fun leaveCall() {
     Log.d("MyPrint", "Trying to leave call")
-    call.leave()
-  }
-
-  private fun keepActiveCall(call: Call) {
-    StreamVideo.instance().state.setActiveCall(call)
-  }
-
-  fun removeActiveCall() {
     StreamVideo.instance().state.removeActiveCall()
+    callState.call.leave()
+    StreamVideo.instance().logOut()
+    callState = callState.copy(callState = CallState.ENDED)
   }
 }

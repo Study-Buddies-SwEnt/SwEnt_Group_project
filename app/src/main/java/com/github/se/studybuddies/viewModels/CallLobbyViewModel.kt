@@ -1,8 +1,13 @@
 package com.github.se.studybuddies.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.se.studybuddies.ui.video_call.ConnectAction
+import com.github.se.studybuddies.ui.video_call.ConnectState
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.DeviceStatus
 import io.getstream.video.android.core.StreamVideo
@@ -46,6 +51,17 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
     call
   }
 
+  var callState by mutableStateOf(ConnectState(call))
+    private set
+
+  fun onAction(action: ConnectAction) {
+    when (action) {
+      ConnectAction.OnConnectClick -> {
+        callState = callState.copy(isConnected = true)
+      }
+    }
+  }
+
   val state: StateFlow<UiState> =
       flow {
             emit(UiState(isLoading = true))
@@ -63,14 +79,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
   internal val isLoading: StateFlow<Boolean> = _isLoading
 
   private val _event: MutableSharedFlow<CallLobbyEvent> = MutableSharedFlow()
-
-  fun enableCamera(enabled: Boolean) {
-    call.camera.setEnabled(enabled)
-  }
-
-  fun enableMicrophone(enabled: Boolean) {
-    call.microphone.setEnabled(enabled)
-  }
 }
 
 sealed interface CallLobbyEvent {
