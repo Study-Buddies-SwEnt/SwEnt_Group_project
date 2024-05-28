@@ -434,12 +434,6 @@ class MainActivity : ComponentActivity() {
     }
   }
 
-  private fun leaveCall(call: Call, navController: NavHostController, groupUID: String) {
-    StreamVideo.instance().state.activeCall.value?.leave()
-    call.leave()
-    navController.popBackStack("${Route.GROUP}/$groupUID", false)
-  }
-
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
         if (activeCall.id != groupUID) {
