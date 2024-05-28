@@ -120,7 +120,6 @@
     <string name="ok">OK</string>
     <string name="permissions_not_granted_call">Camera and microphone permissions are required to join the call</string>
     <string name="speaking_while_muted">You are speaking while muted !</string>
-    <string name="video_call">Video Call</string>
     <string name="members">Members</string>
     <string name="error_no_member_found_for_this_group">Error, no member found for this group</string>
     <string name="add_a_new_task">Add a new task</string>
