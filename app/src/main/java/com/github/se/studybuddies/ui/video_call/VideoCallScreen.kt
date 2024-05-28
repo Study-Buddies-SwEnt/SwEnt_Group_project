@@ -74,25 +74,6 @@ fun VideoCallScreen(
           CallContent(
               modifier = Modifier.fillMaxSize().background(color = Blue).testTag("call_content"),
               call = state.call,
-              permissions = // Request camera and microphone permissions, shouldn't be called ever
-                  // since always passes through callLobby first
-                  rememberCallPermissionsState(
-                      call = state.call,
-                      permissions =
-                          listOf(
-                              android.Manifest.permission.CAMERA,
-                              android.Manifest.permission.RECORD_AUDIO),
-                      onPermissionsResult = { permissions ->
-                        if (permissions.values.contains(false)) {
-                          Toast.makeText(
-                                  context,
-                                  context.getString(R.string.permissions_not_granted_call),
-                                  Toast.LENGTH_LONG)
-                              .show()
-                        } else {
-                          onAction(VideoCallAction.JoinCall)
-                        }
-                      }),
               enableInPictureInPicture = true,
               isShowingOverlayAppBar = false,
               layout = layout,
