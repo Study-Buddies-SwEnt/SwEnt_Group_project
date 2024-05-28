@@ -68,7 +68,6 @@ fun VideoCallScreen(
           Toast.makeText(LocalContext.current, R.string.speaking_while_muted, Toast.LENGTH_SHORT)
               .show()
         }
-        val context = LocalContext.current
         Column(modifier = Modifier.fillMaxSize().testTag("video_call_screen")) {
           CallContent(
               modifier = Modifier.fillMaxSize().background(color = Blue).testTag("call_content"),
