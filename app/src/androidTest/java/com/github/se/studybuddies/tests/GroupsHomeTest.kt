@@ -416,6 +416,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .onNodeWithTag("GroupsList", useUnmergedTree = true)
           .assertIsDisplayed()
           .performScrollToNode(hasTestTag("groupTest1_box"))
+          .performScrollToNode(hasTestTag("groupTest1_settings_button"))
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
