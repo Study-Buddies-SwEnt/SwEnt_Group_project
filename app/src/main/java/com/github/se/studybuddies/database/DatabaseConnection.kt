@@ -1133,24 +1133,25 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
-    val topic = getTopic(topicId)
-    val items: List<TopicItem> = topic.exercises + topic.theory
-    iterateTopicItemDeletion(items) {
-      topicDataCollection
-          .document(topic.uid)
-          .delete()
-          .addOnSuccessListener {
-            groupDataCollection
-                .document(groupUID)
-                .update("topics", FieldValue.arrayRemove(topicId))
-                .addOnSuccessListener {
-                  callBack()
-                  Log.d("MyPrint", "Topic successfully removed from group")
-                }
-                .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
-            Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
-          }
-          .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
+    getTopic(topicId) { topic ->
+      val items: List<TopicItem> = topic.exercises + topic.theory
+      iterateTopicItemDeletion(items) {
+        topicDataCollection
+            .document(topic.uid)
+            .delete()
+            .addOnSuccessListener {
+              groupDataCollection
+                  .document(groupUID)
+                  .update("topics", FieldValue.arrayRemove(topicId))
+                  .addOnSuccessListener {
+                    callBack()
+                    Log.d("MyPrint", "Topic successfully removed from group")
+                  }
+                  .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
+              Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
+            }
+            .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
+      }
     }
   }
 
