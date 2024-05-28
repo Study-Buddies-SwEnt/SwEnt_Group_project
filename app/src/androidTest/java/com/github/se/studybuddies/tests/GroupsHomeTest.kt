@@ -518,6 +518,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   @Test
   fun clickOnGroup() {
+    printNodeTree("Before")
     composeTestRule
         .onNodeWithTag("GroupsList", useUnmergedTree = true)
         .assertExists()
