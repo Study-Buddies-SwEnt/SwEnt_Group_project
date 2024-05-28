@@ -27,7 +27,6 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
-import io.getstream.video.android.compose.permission.rememberCallPermissionsState
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.activecall.CallContent
 import io.getstream.video.android.compose.ui.components.call.controls.ControlActions
