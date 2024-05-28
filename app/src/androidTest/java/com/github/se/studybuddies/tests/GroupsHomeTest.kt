@@ -13,11 +13,13 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -508,21 +510,24 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     }
   }
 
+  private fun printNodeTree(loc: String = "") {
+    composeTestRule
+        .onAllNodes(isRoot(), useUnmergedTree = true)
+        .printToLog("Print root @${loc} : ", maxDepth = 10)
+  }
+
   @Test
   fun clickOnGroup() {
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      composeTestRule.waitForIdle()
-      composeTestRule
-          .onNodeWithTag("GroupsList", useUnmergedTree = true)
-          .assertExists()
-          .performScrollToNode(hasTestTag("groupTest1_box"))
-      testGroup1Box {
-        assertExists()
-        assertHasClickAction()
-        performClick()
-      }
-      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
-      confirmVerified(mockNavActions)
-    }
+    composeTestRule
+        .onNodeWithTag("GroupsList", useUnmergedTree = true)
+        .assertExists()
+        .performScrollToNode(hasTestTag("groupTest1_box"))
+    composeTestRule
+        .onNodeWithTag("groupTest1_box", useUnmergedTree = true)
+        .assertExists()
+        .assertHasClickAction()
+        .performClick()
+    verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+    confirmVerified(mockNavActions)
   }
 }
