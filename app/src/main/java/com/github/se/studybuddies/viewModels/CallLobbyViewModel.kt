@@ -64,7 +64,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
 
   val state: StateFlow<UiState> =
       flow {
-            emit(UiState(isLoading = true))
             val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
             val isMicrophoneEnabled = call.microphone.status.first() is DeviceStatus.Enabled
             emit(
