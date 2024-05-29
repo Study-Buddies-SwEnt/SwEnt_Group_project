@@ -27,13 +27,15 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
       val isLoading: Boolean = true,
       val isCameraEnabled: Boolean =
           true, // enabled at start to allow direct display of camera in lobby
-      val isMicrophoneEnabled: Boolean = false
+      val isMicrophoneEnabled: Boolean = true
   )
 
   val call: Call by lazy {
     val streamVideo = StreamVideo.instance()
     val call = streamVideo.call(callType, uid)
     viewModelScope.launch {
+      call.camera.setEnabled(true)
+      call.microphone.setEnabled(true)
       // create the call if it doesn't exist - this will also load the settings for the call,
       // this way the lobby screen can already display the right mic/camera settings
       // This also starts listening to the call events to get the participant count
@@ -55,10 +57,11 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
     private set
 
   fun onAction(action: ConnectAction) {
-    when (action) {
-      ConnectAction.OnConnectClick -> {
-        callState = callState.copy(isConnected = true)
-      }
+    if (action is ConnectAction.OnConnectClick) {
+      Log.d(
+          "MyPrint",
+          "Microphone and camera state before joining call is ${call.camera.isEnabled.value} and ${call.microphone.isEnabled.value}")
+      callState = callState.copy(isConnected = true)
     }
   }
 
@@ -81,8 +84,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
 }
 
 sealed interface CallLobbyEvent {
-
-  data object JoinCall : CallLobbyEvent
 
   data class JoinFailed(val reason: String?) : CallLobbyEvent
 }

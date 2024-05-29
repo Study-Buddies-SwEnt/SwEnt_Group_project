@@ -24,10 +24,7 @@ class VideoCallViewModel
 constructor(val uid: String, val call: Call, val navigationActions: NavigationActions) :
     ViewModel() {
 
-  data class UiState(
-      val isCameraEnabled: Boolean = false,
-      val isMicrophoneEnabled: Boolean = false
-  )
+  data class UiState(val isCameraEnabled: Boolean = true, val isMicrophoneEnabled: Boolean = true)
 
   var callState by mutableStateOf(VideoCallState(call))
     private set
