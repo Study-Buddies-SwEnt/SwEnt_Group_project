@@ -1,6 +1,6 @@
 package com.github.se.studybuddies.tests
 
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
+import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

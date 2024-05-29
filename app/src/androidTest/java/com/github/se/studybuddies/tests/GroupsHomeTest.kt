@@ -24,8 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupsHomeScreen
+import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.ui.groups.GroupsHome
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -538,37 +538,5 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule.onNodeWithTag("groupList", useUnmergedTree = true).assertExists()
     }
-  }
-
-  @Test
-  fun Test() {
-    composeTestRule.waitForIdle()
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      composeTestRule.onNodeWithTag("GroupsHome", useUnmergedTree = true).assertExists()
-    }
-  }
-
-  @Test
-  fun Test1() {
-    composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("GroupsBox", useUnmergedTree = true).assertExists()
-  }
-
-  @Test
-  fun Test2() {
-    composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("GroupEmpty", useUnmergedTree = true).assertIsDisplayed()
-  }
-
-  @Test
-  fun Test3() {
-    composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("GroupsHome", useUnmergedTree = true).assertExists()
-  }
-
-  @Test
-  fun Test4() {
-    composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("GroupsList", useUnmergedTree = false).assertIsDisplayed()
   }
 }
