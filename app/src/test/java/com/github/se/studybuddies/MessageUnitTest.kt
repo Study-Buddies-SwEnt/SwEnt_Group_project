@@ -2,6 +2,7 @@ package com.github.se.studybuddies
 
 import android.net.Uri
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.Message.Companion.emptyText
 import com.github.se.studybuddies.data.User
 import java.util.Calendar
 import org.junit.Assert.assertEquals
@@ -57,7 +58,7 @@ class MessageUnitTest {
   @Test
   fun testEmptyMessage() {
     // Act
-    val emptyMessage = Message.empty()
+    val emptyMessage = emptyText()
     // Assert
     assertEquals("", emptyMessage.text)
     assertEquals(0, emptyMessage.timestamp)
