@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.topics
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,12 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,6 +64,8 @@ fun TopicSettings(
 
   topicData.let { nameState.value = it.name }
 
+  val alertVisible = remember { mutableStateOf(false) }
+
   Scaffold(
       modifier = Modifier.fillMaxSize().testTag("topic_settings"),
       topBar = {
@@ -97,11 +102,7 @@ fun TopicSettings(
                 }
               }
               Button(
-                  onClick = {
-                    topicViewModel.deleteTopic(topicUID, groupUID) {
-                      navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                    }
-                  },
+                  onClick = { alertVisible.value = true },
                   modifier =
                       Modifier.padding(10.dp)
                           .width(300.dp)
@@ -112,6 +113,47 @@ fun TopicSettings(
                     Text(stringResource(R.string.delete_topic), color = White)
                   }
             }
+        if (alertVisible.value) {
+          AlertDialog(
+              onDismissRequest = { alertVisible.value = false },
+              text = {
+                Text(
+                    text =
+                        stringResource(
+                            R.string
+                                .are_you_sure_you_want_to_delete_this_topic_this_action_cannot_be_reversed),
+                    color = Color.Black)
+              },
+              confirmButton = {
+                TextButton(
+                    modifier =
+                        Modifier.border(
+                                width = 2.dp, color = Color.Red, shape = RoundedCornerShape(50))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50)),
+                    onClick = {
+                      topicViewModel.deleteTopic(topicUID, groupUID) {
+                        navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                      }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    shape = RoundedCornerShape(50)) {
+                      Text(text = stringResource(R.string.delete), color = Color.Red)
+                    }
+              },
+              dismissButton = {
+                TextButton(
+                    modifier =
+                        Modifier.border(width = 2.dp, color = Blue, shape = RoundedCornerShape(50))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50)),
+                    onClick = { alertVisible.value = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    shape = RoundedCornerShape(50)) {
+                      Text(
+                          text = stringResource(R.string.cancel),
+                      )
+                    }
+              })
+        }
       }
 }
 
