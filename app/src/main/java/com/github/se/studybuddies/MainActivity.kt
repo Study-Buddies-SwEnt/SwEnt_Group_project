@@ -19,8 +19,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -82,7 +82,7 @@ open class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     val auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
-    db = DatabaseConnection()
+    db = ServiceLocator.provideDatabase()
     startApp(currentUser?.uid, db)
   }
 
@@ -458,7 +458,7 @@ open class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
-    db = DatabaseConnection()
+    db = ServiceLocator.provideDatabase()
     auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     offlineLocation(currentUser?.uid, db)

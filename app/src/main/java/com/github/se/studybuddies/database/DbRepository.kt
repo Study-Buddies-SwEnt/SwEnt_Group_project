@@ -5,6 +5,8 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -27,7 +29,13 @@ interface DbRepository {
   // using the userData collection
   suspend fun getUser(uid: String): User?
 
-  suspend fun getCurrentUser(): User?
+  suspend fun getCurrentUser(): User
+
+  suspend fun getContact(contactUID: String): Contact
+
+  suspend fun createContact(otherUID: String)
+
+  suspend fun getAllContacts(uid: String): ContactList
 
   fun getCurrentUserUID(): String {
     val uid = FirebaseAuth.getInstance().currentUser?.uid

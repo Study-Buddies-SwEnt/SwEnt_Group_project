@@ -1234,7 +1234,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun getAllContacts(uid: String): ContactList {
+  override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()
@@ -1260,7 +1260,7 @@ class DatabaseConnection : DbRepository {
     return ContactList(emptyList())
   }
 
-  suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactUID: String): Contact {
     val document = contactDataCollection.document(contactUID).get().await()
     return if (document.exists()) {
       val members = document.get("members") as? List<String> ?: emptyList()
@@ -1272,7 +1272,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")

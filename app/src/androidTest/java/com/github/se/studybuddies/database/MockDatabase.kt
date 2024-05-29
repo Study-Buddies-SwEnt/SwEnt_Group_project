@@ -5,6 +5,8 @@ import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -17,11 +19,11 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeGroupDataCollection
-import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeTopicDataCollection
-import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeTopicItemCollection
-import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeUserDataCollection
-import com.github.se.studybuddies.testUtilities.fakeDatabase.fakeUserMembershipsCollection
+import com.github.se.studybuddies.utilities.fakeDatabase.fakeGroupDataCollection
+import com.github.se.studybuddies.utilities.fakeDatabase.fakeTopicDataCollection
+import com.github.se.studybuddies.utilities.fakeDatabase.fakeTopicItemCollection
+import com.github.se.studybuddies.utilities.fakeDatabase.fakeUserDataCollection
+import com.github.se.studybuddies.utilities.fakeDatabase.fakeUserMembershipsCollection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -51,6 +53,18 @@ class MockDatabase : DbRepository {
 
   override suspend fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
+  }
+
+  override suspend fun getContact(contactUID: String): Contact {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun createContact(otherUID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun getAllContacts(uid: String): ContactList {
+    TODO("Not yet implemented")
   }
 
   override fun getCurrentUserUID(): String {

@@ -1,26 +1,26 @@
 package com.github.se.studybuddies.endToEndTests
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.github.se.studybuddies.MainActivity
+import com.github.se.studybuddies.R
+import com.github.se.studybuddies.database.MockDatabase
+import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.screens.AccountSettingsScreen
 import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.CreateGroupScreen
 import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.screens.SoloStudyScreen
-import com.github.se.studybuddies.testUtilities.MockMainActivity
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +34,13 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Before
   fun setUp() {
-    ActivityScenario.launch(MockMainActivity::class.java)
+    ServiceLocator.setMockDatabase(MockDatabase())
+    ActivityScenario.launch(MainActivity::class.java)
+  }
+
+  @After
+  fun tearDown() {
+    ServiceLocator.resetDatabase()
   }
 
   @Test
@@ -87,7 +93,8 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       composeTestRule.waitForIdle()
       loginTitle {
         assertIsDisplayed()
-        assertTextEquals("Study Buddies")
+        assertTextEquals(
+            InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.app_name))
       }
     }
   }
