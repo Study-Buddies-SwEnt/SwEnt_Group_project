@@ -366,35 +366,36 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       confirmVerified(mockNavActions)
     }
   }
+}
 
-  @Test
-  fun topicsAreDisplayed() {
-    ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
-      Thread.sleep(1000)
-      composeTestRule.waitForIdle()
-      composeTestRule
-          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .performScrollToNode(hasTestTag("topicTest1_item"))
-      composeTestRule
-          .onNodeWithTag("topicTest1_item", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .assertHasClickAction()
-      composeTestRule.onNodeWithTag("topicTest1_row", useUnmergedTree = true).assertIsDisplayed()
-      composeTestRule.onNodeWithTag("topicTest1_spacer", useUnmergedTree = true).assertIsDisplayed()
-      composeTestRule
-          .onNodeWithTag("topicTest1_text", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .assertTextContains("TestTopic")
-    }
+@RunWith(AndroidJUnit4::class)
+class GroupTopicsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  @get:Rule val mockkRule = MockKRule(this)
+
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  // userTest
+  // aloneUserTest
+  val groupUID = "groupTest1"
+  private val db = MockDatabase()
+  val groupVM = GroupViewModel(groupUID, db)
+  val chatVM = ChatViewModel()
+
+  @Before
+  fun testSetup() {
+    composeTestRule.setContent { GroupScreen(groupUID, groupVM, chatVM, mockNavActions, db) }
   }
 
   @Test
   fun topicAreDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
-      Thread.sleep(1000)
       composeTestRule.waitForIdle()
-
+      composeTestRule
+          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performScrollToNode(hasTestTag("topicTest1_item"))
       composeTestRule
           .onNodeWithTag("topicTest1_item", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -410,27 +411,11 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun clickOnTopic() {
-    ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
-      composeTestRule
-          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .performScrollToNode(hasTestTag("topicTest1_item"))
-      composeTestRule.waitForIdle()
-      Thread.sleep(1000)
-      composeTestRule.onNodeWithTag("topicTest1_item", useUnmergedTree = true).performClick()
-      verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
-      confirmVerified(mockNavActions)
-    }
-  }
-
-  @Test
-  fun clickOnTopics() {
+    composeTestRule.waitForIdle()
     composeTestRule
         .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
         .assertIsDisplayed()
         .performScrollToNode(hasTestTag("topicTest1_item"))
-    composeTestRule.waitForIdle()
-    Thread.sleep(1000)
     composeTestRule.onNodeWithTag("topicTest1_item", useUnmergedTree = true).performClick()
     verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
     confirmVerified(mockNavActions)
