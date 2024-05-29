@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,12 +54,20 @@ fun LoginScreen(navigationActions: NavigationActions) {
       modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center) {
-        Image(
-            painter = painterResource(R.drawable.main_logo),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.width(189.dp).height(189.dp))
-        Spacer(Modifier.height(67.dp))
+        Box(
+            modifier =
+                Modifier.height(300.dp)
+                    .width(300.dp)
+                    .background(Color.White, shape = RoundedCornerShape(60))) {
+              Image(
+                  painter = painterResource(R.drawable.study_buddies_logo),
+                  contentDescription = null,
+                  colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Blue),
+                  contentScale = ContentScale.FillBounds,
+                  modifier = Modifier.width(260.dp).height(250.dp).align(Alignment.Center))
+            }
+
+        Spacer(Modifier.height(30.dp))
         Text(
             text = "Study Buddies",
             style =
@@ -69,7 +78,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                     textAlign = TextAlign.Center,
                 ),
             modifier = Modifier.width(360.dp).height(120.dp).testTag("LoginTitle"))
-        Spacer(Modifier.height(150.dp))
+        Spacer(Modifier.height(70.dp))
         Button(
             onClick = {
               val signInIntent =

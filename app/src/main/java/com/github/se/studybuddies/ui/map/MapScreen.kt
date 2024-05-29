@@ -251,7 +251,6 @@ fun FriendsLocationButton(
     val runnable =
         object : Runnable {
           override fun run() {
-
             if (friends.isNotEmpty()) {
               isLoading.value = false // Stop loading as chats are not empty
             } else {

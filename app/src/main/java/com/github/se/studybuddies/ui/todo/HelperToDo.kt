@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -85,21 +87,21 @@ fun TodoFields(
       label = { Text("Title") },
       placeholder = { Text("Name the task") },
       singleLine = true,
-      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("inputTodoTitle"))
+      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("todo_name_field"))
   OutlinedTextField(
       value = descriptionState.value,
       onValueChange = { descriptionState.value = it },
       label = { Text("Description") },
       placeholder = { Text("Describe the task") },
       modifier =
-          Modifier.padding(0.dp).width(300.dp).height(150.dp).testTag("inputTodoDescription"))
+          Modifier.padding(0.dp).width(300.dp).height(150.dp).testTag("todo_description_field"))
   Box() {
     OutlinedTextField(
         readOnly = true,
         value = selectedDate.value.format(DateTimeFormatter.ISO_DATE),
         label = { Text("Due date") },
         onValueChange = {},
-        modifier = Modifier.width(300.dp).height(65.dp).testTag("inputTodoDate"),
+        modifier = Modifier.width(300.dp).height(65.dp).testTag("todo_date_field"),
         leadingIcon = {
           Icon(
               painterResource(R.drawable.calendar),
@@ -124,9 +126,9 @@ fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
               .testTag("todoSave"),
       colors =
           ButtonDefaults.buttonColors(
-              containerColor = Color.Blue,
+              containerColor = Blue,
           )) {
-        Text("Save")
+        Text("Save", color = White)
       }
 }
 
@@ -135,11 +137,30 @@ fun TodoSaveButton(titleState: MutableState<String>, save: () -> Unit) {
 fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
   val state = rememberDatePickerState()
   DatePickerDialog(
+      modifier = Modifier.testTag("date_picker"),
       onDismissRequest = {},
       confirmButton = {
-        Button(onClick = { onAccept(state.selectedDateMillis) }) { Text("Confirm") }
+        Button(
+            modifier = Modifier.testTag("date_confirm_button"),
+            onClick = { onAccept(state.selectedDateMillis) },
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Blue,
+                )) {
+              Text("Confirm", color = White)
+            }
       },
-      dismissButton = { Button(onClick = onCancel) { Text("Cancel") } }) {
+      dismissButton = {
+        Button(
+            modifier = Modifier.testTag("date_dismiss_button"),
+            onClick = onCancel,
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Blue,
+                )) {
+              Text("Cancel", color = White)
+            }
+      }) {
         DatePicker(state = state)
       }
 }
@@ -147,9 +168,8 @@ fun CustomDatePickerDialog(onAccept: (Long?) -> Unit, onCancel: () -> Unit) {
 @Composable
 fun statusColor(status: ToDoStatus): Color {
   return when (status) {
-    ToDoStatus.CREATED -> Color(0xFF9BC5C5)
+    ToDoStatus.CREATED -> Color(0xFFFFFFFF)
     ToDoStatus.STARTED -> Color(0xFFFB9905)
-    ToDoStatus.ENDED -> Color(0xFF1FC959)
-    ToDoStatus.ARCHIVED -> Color(0xFF808080)
+    ToDoStatus.DONE -> Color(0xFF1FC959)
   }
 }

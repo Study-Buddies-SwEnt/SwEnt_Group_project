@@ -23,7 +23,6 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
@@ -32,11 +31,13 @@ import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
+import com.github.se.studybuddies.ui.groups.GroupMembers
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.ui.settings.Settings
+import com.github.se.studybuddies.ui.shared_elements.Placeholder
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.SharedTimerScreen
@@ -45,12 +46,14 @@ import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.ui.todo.EditToDoScreen
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
+import com.github.se.studybuddies.ui.topics.TopicResources
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
 import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.CalendarViewModel
+import com.github.se.studybuddies.viewModels.CalendarViewModelFactory
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
@@ -61,6 +64,7 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
+import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
@@ -149,9 +153,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupScreen(groupUID, groupViewModel, chatViewModel, navigationActions, db)
+                    GroupScreen(groupUid, groupViewModel, chatViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupScreen")
                   }
                 }
@@ -160,8 +164,8 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  ifNotNull(backRoute) { backRoute ->
-                    Settings(backRoute, navigationActions)
+                  ifNotNull(backRoute) {
+                    Settings(it, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
@@ -172,10 +176,12 @@ class MainActivity : ComponentActivity() {
                   val date = backStackEntry.arguments?.getString("date")
                   val currentUser = auth.currentUser
                   if (date != null && currentUser != null) {
-                    DailyPlannerScreen(date, CalendarViewModel(currentUser.uid), navigationActions)
+                    val viewModelFactory = CalendarViewModelFactory(currentUser.uid)
+                    DailyPlannerScreen(date, viewModelFactory, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
+
             composable(
                 route = "${Route.ACCOUNT}/{backRoute}",
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
@@ -230,10 +236,21 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
+                  ifNotNull(groupUID) { groupUid ->
                     val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                    GroupSetting(groupUID, groupViewModel, navigationActions, db)
+                    GroupSetting(groupUid, groupViewModel, navigationActions, db)
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
+                  }
+                }
+            composable(
+                route = "${Route.GROUPMEMBERS}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  ifNotNull(groupUID) { groupUid ->
+                    val groupViewModel = remember { GroupViewModel(groupUID, db) }
+                    GroupMembers(groupUid, groupViewModel, navigationActions, db)
+                    Log.d("MyPrint", "Successfully navigated to GroupMembers")
                   }
                 }
             composable(Route.CHAT) {
@@ -304,7 +321,9 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null && StreamVideo.isInstalled) {
-                    val viewModel = remember { CallLobbyViewModel(groupUID, callType) }
+                    val viewModel: CallLobbyViewModel = remember {
+                      CallLobbyViewModel(groupUID, callType)
+                    }
                     Log.d("MyPrint", "Join VideoCall lobby")
                     CallLobbyScreen(groupUID, viewModel, navigationActions)
                   } else {
@@ -318,13 +337,14 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  val activeCall = StreamVideo.instance().state.activeCall.value
                   ifNotNull(groupUID) { callId ->
-                    val call = startCall(activeCall, callId, callType)
+                    val call =
+                        startCall(StreamVideo.instance().state.activeCall.value, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
-                    VideoCallScreen(call) {
-                      navController.popBackStack("${Route.GROUP}/$groupUID", false)
-                    }
+                    VideoCallScreen(
+                        call,
+                        { navigationActions.navigateTo("${Route.GROUP}/$callId") },
+                        { leaveCall(call, navController, callId) })
                   }
                 }
 
@@ -333,9 +353,9 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
-                  ifNotNull(groupUID) { groupUID ->
-                    val viewModel2 = remember { SharedTimerViewModel(groupUID, db) }
-                    SharedTimerScreen(navigationActions, viewModel2, groupUID)
+                  ifNotNull(groupUID) { groupUid ->
+                    val viewModel2 = remember { SharedTimerViewModel(groupUid, db) }
+                    SharedTimerScreen(navigationActions, viewModel2, groupUid)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }
@@ -375,6 +395,18 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
+            composable(
+                route = "${Route.TOPICRESOURCES}/{topicFileID}",
+                arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val topicFileID = backStackEntry.arguments?.getString("topicFileID")
+                  if (topicFileID != null) {
+                    val topicFileViewModel = remember { TopicFileViewModel(topicFileID, db) }
+                    TopicResources(topicFileID, topicFileViewModel, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicResources")
+                  }
+                }
+
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }
             }
@@ -382,6 +414,12 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
+  }
+
+  private fun leaveCall(call: Call, navController: NavHostController, groupUID: String) {
+    StreamVideo.instance().state.activeCall.value?.leave()
+    call.leave()
+    navController.popBackStack("${Route.GROUP}/$groupUID", false)
   }
 
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =

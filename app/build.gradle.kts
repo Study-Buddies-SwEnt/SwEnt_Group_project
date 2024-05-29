@@ -10,6 +10,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.secrets_gradle_plugin") version "0.6"
     id("kotlin-kapt")
+    kotlin("plugin.serialization") version "1.8.0"
 }
 android {
     namespace = "com.github.se.studybuddies"
@@ -104,6 +105,13 @@ android {
 
 
 dependencies {
+
+    androidTestImplementation ("androidx.test.uiautomator:uiautomator:2.3.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
     implementation("com.google.code.gson:gson:2.8.8")
     implementation( "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0")
@@ -195,6 +203,8 @@ dependencies {
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
     // ...with Java.
     androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.44")
+
+
 
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {

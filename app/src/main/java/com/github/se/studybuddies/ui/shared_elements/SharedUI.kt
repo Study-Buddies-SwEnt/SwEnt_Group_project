@@ -308,32 +308,6 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 }
 
 @Composable
-fun MainTopBar(content: @Composable() (RowScope.() -> Unit)) {
-  TopAppBar(
-      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
-      elevation = 0.dp,
-      content = content)
-}
-
-@Composable
-fun SecondaryTopBar(onClick: () -> Unit) {
-  TopAppBar(
-      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
-      elevation = 0.dp) {
-        IconButton(onClick = { onClick() }) {
-          Icon(
-              painterResource(R.drawable.arrow_back),
-              contentDescription = "Go back button",
-              modifier = Modifier.size(28.dp))
-        }
-      }
-}
-
-@Composable
 fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
   TopAppBar(
       modifier = Modifier.fillMaxWidth().padding(4.dp),
@@ -371,10 +345,10 @@ fun SaveButton(enabled: Boolean, save: () -> Unit) {
       onClick = save,
       enabled = enabled,
       modifier =
-          Modifier.padding(20.dp)
+          Modifier.padding(0.dp)
               .width(300.dp)
               .height(50.dp)
-              .background(color = Blue, shape = RoundedCornerShape(size = 10.dp))
+              .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
               .testTag("save_button"),
       colors =
           ButtonDefaults.buttonColors(
