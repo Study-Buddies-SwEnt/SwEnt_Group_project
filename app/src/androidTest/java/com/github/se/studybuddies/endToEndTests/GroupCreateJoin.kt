@@ -33,10 +33,8 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun tearDown() {
     ServiceLocator.reset()
   }
-  @Test
-  fun empty(){
 
-  }
+  @Test fun empty() {}
 
   /*@Test
   fun userFlow1() {
