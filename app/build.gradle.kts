@@ -106,6 +106,8 @@ android {
 
 dependencies {
 
+    androidTestImplementation ("androidx.test.uiautomator:uiautomator:2.3.0")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
