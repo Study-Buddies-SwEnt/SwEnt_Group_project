@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -85,6 +87,7 @@ import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
@@ -207,12 +210,14 @@ fun SearchBar(
         value = searchText,
         onValueChange = onSearchTextChanged,
         modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text("Search...") },
+        placeholder = { Text(stringResource(R.string.search)) },
         singleLine = true,
         trailingIcon = {
           IconButton(onClick = onClearSearch) {
             if (searchText.isNotEmpty())
-                Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = stringResource(R.string.content_description_clear_search))
           }
         },
     )
@@ -221,28 +226,33 @@ fun SearchBar(
 
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
-  Log.d("MyPrint", "MessageTypeFilter")
   Row(
       modifier = Modifier.padding(8.dp).fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceEvenly) {
-        listOf("All", "Text", "Photo", "Link", "File").forEach { type ->
+        MessageFilterType.entries.forEach { type ->
+          Log.d("MyPrint", "Filter type: ${type.messageType}")
+          Log.d("MyPrint", "Current filter type: ${viewModel.filterType}")
+          val isSelected = viewModel.filterType.value == type.messageType
+          val backgroundColor = if (isSelected) DarkBlue else Blue
           Button(
-              onClick = { setMessageFilter(viewModel, type) },
+              onClick = { viewModel.setFilterType(type.messageType) },
+              colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
           ) {
-            Text(type, style = TextStyle(color = White))
+            Text(stringResource(type.displayNameRes), style = TextStyle(color = White))
           }
         }
       }
 }
 
-fun setMessageFilter(viewModel: MessageViewModel, filterType: String) {
-  when (filterType) {
-    "Text" -> viewModel.setFilterType(Message.TextMessage::class.java)
-    "Photo" -> viewModel.setFilterType(Message.PhotoMessage::class.java)
-    "Link" -> viewModel.setFilterType(Message.LinkMessage::class.java)
-    "File" -> viewModel.setFilterType(Message.FileMessage::class.java)
-    "All" -> viewModel.setFilterType(null)
-  }
+enum class MessageFilterType(
+    @StringRes val displayNameRes: Int,
+    val messageType: Class<out Message>?
+) {
+  ALL(R.string.all_message_type, null),
+  TEXT(R.string.test_message_type, Message.TextMessage::class.java),
+  PHOTO(R.string.photo_message_type, Message.PhotoMessage::class.java),
+  LINK(R.string.link_message_type, Message.LinkMessage::class.java),
+  FILE(R.string.file_message_type, Message.FileMessage::class.java)
 }
 
 @Composable

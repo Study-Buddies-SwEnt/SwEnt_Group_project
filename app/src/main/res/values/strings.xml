@@ -117,4 +117,13 @@
     <string name="hour">Hour</string>
     <string name="minute">Minute</string>
     <string name="ok">OK</string>
+
+    <string name="search">Search …</string>
+    <string name="content_description_clear_search">Clear search</string>
+
+    <string name="all_message_type">All</string>
+    <string name="test_message_type">Text</string>
+    <string name="file_message_type">File</string>
+    <string name="link_message_type">Link</string>
+    <string name="photo_message_type">Photo</string>
 </resources>
