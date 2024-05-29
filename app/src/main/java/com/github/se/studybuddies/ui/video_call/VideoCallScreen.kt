@@ -77,14 +77,9 @@ fun VideoCallScreen(
         }
         val isCameraEnabled by state.call.camera.isEnabled.collectAsState()
         val isMicrophoneEnabled by state.call.microphone.isEnabled.collectAsState()
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .testTag("video_call_screen")) {
+        Column(modifier = Modifier.fillMaxSize().testTag("video_call_screen")) {
           CallContent(
-              modifier = Modifier
-                  .fillMaxSize()
-                  .background(color = Blue)
-                  .testTag("call_content"),
+              modifier = Modifier.fillMaxSize().background(color = Blue).testTag("call_content"),
               call = state.call,
               permissions = // Request camera and microphone permissions, shouldn't be called ever
                   // since always passes through callLobby first
@@ -112,17 +107,13 @@ fun VideoCallScreen(
               videoContent = {
                 ParticipantsLayout(
                     call = state.call,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
+                    modifier = Modifier.fillMaxSize().weight(1f),
                     videoRenderer = { modifier, _, participant, style ->
                       ParticipantVideo(
                           call = state.call,
                           participant = participant,
                           style = style,
-                          modifier = modifier
-                              .padding(4.dp)
-                              .clip(RoundedCornerShape(8.dp)))
+                          modifier = modifier.padding(4.dp).clip(RoundedCornerShape(8.dp)))
                     },
                 )
               },
