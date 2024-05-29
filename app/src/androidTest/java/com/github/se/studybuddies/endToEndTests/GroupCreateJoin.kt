@@ -71,6 +71,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ComposeScreen.onComposeScreen<CreateGroupScreen>(composeTestRule) {
       // Create a group
       groupField {
+        performClick()
         performTextClearance()
         performTextInput("testGroup")
         assertTextContains("testGroup")
