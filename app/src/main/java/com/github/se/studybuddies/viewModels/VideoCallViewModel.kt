@@ -44,7 +44,7 @@ constructor(val uid: String, val call: Call, val navigationActions: NavigationAc
                 UiState(
                     isCameraEnabled = isCameraEnabled, isMicrophoneEnabled = isMicrophoneEnabled))
           }
-          .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
+          .stateIn(viewModelScope, SharingStarted.Lazily, UiState()) // Lazily to avoid unnecessary UI updates and it stops when the viewmodel is destroyed
 
   private fun joinCall() {
     if (callState.callState == CallState.ACTIVE) {

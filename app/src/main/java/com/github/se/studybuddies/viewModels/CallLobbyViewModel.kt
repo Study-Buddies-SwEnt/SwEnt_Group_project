@@ -41,8 +41,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
       // This also starts listening to the call events to get the participant count
       val callGetOrCreateResult = call.create()
       if (callGetOrCreateResult.isFailure) {
-        // in demo we can ignore this. The lobby screen will just display default camera/video,
-        // but we will show an error
         Log.e(
             "CallLobbyViewModel",
             "Failed to create the call ${callGetOrCreateResult.errorOrNull()}",
@@ -58,9 +56,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
 
   fun onAction(action: ConnectAction) {
     if (action is ConnectAction.OnConnectClick) {
-      Log.d(
-          "MyPrint",
-          "Microphone and camera state before joining call is ${call.camera.isEnabled.value} and ${call.microphone.isEnabled.value}")
       callState = callState.copy(isConnected = true)
     }
   }
@@ -75,7 +70,7 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
                     isCameraEnabled = isCameraEnabled,
                     isMicrophoneEnabled = isMicrophoneEnabled))
           }
-          .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
+          .stateIn(viewModelScope, SharingStarted.Lazily, UiState())
 
   private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
   internal val isLoading: StateFlow<Boolean> = _isLoading

@@ -128,4 +128,5 @@
     <string name="loading">loading</string>
     <string name="add_member_from_list">Add member from list</string>
     <string name="add_member_with_uid">Add member with UID</string>
+    <string name="joining">Joining...</string>
 </resources>

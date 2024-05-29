@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.video_call
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.se.studybuddies.R
@@ -41,7 +41,6 @@ import io.getstream.video.android.compose.ui.components.call.controls.actions.To
 import io.getstream.video.android.compose.ui.components.call.renderer.LayoutType
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantVideo
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
-import io.getstream.video.android.core.call.state.LeaveCall
 
 // Design UI elements using Jetpack Compose
 @Composable
@@ -65,7 +64,7 @@ fun VideoCallScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
               CircularProgressIndicator(color = Blue)
-              Text(text = "Joining...")
+              Text(text = stringResource(R.string.joining))
             }
       }
       else -> {
@@ -78,12 +77,14 @@ fun VideoCallScreen(
         }
         val isCameraEnabled by state.call.camera.isEnabled.collectAsState()
         val isMicrophoneEnabled by state.call.microphone.isEnabled.collectAsState()
-        Log.d(
-            "MyPrint",
-            "Microphone and camera state after joining call is $isCameraEnabled and $isMicrophoneEnabled")
-        Column(modifier = Modifier.fillMaxSize().testTag("video_call_screen")) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .testTag("video_call_screen")) {
           CallContent(
-              modifier = Modifier.fillMaxSize().background(color = Blue).testTag("call_content"),
+              modifier = Modifier
+                  .fillMaxSize()
+                  .background(color = Blue)
+                  .testTag("call_content"),
               call = state.call,
               permissions = // Request camera and microphone permissions, shouldn't be called ever
                   // since always passes through callLobby first
@@ -111,13 +112,17 @@ fun VideoCallScreen(
               videoContent = {
                 ParticipantsLayout(
                     call = state.call,
-                    modifier = Modifier.fillMaxSize().weight(1f),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
                     videoRenderer = { modifier, _, participant, style ->
                       ParticipantVideo(
                           call = state.call,
                           participant = participant,
                           style = style,
-                          modifier = modifier.padding(4.dp).clip(RoundedCornerShape(8.dp)))
+                          modifier = modifier
+                              .padding(4.dp)
+                              .clip(RoundedCornerShape(8.dp)))
                     },
                 )
               },
