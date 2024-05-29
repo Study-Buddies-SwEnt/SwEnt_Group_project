@@ -379,10 +379,13 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun topicAreDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       printNodeTree("topicAreDisplayed")
+      composeTestRule.waitForIdle()
       composeTestRule
           .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
           .assertIsDisplayed()
           .performScrollToNode(hasTestTag("topicTest1_item"))
+      composeTestRule.waitForIdle()
+
       composeTestRule
           .onNodeWithTag("topicTest1_item", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -400,10 +403,14 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun clickOnTopic() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       printNodeTree("topicAreDisplayed")
+      composeTestRule.waitForIdle()
+
       composeTestRule
           .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
           .assertIsDisplayed()
           .performScrollToNode(hasTestTag("topicTest1_item"))
+      composeTestRule.waitForIdle()
+
       composeTestRule.onNodeWithTag("topicTest1_item", useUnmergedTree = true).performClick()
       verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
       confirmVerified(mockNavActions)
