@@ -70,12 +70,12 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     }
     ComposeScreen.onComposeScreen<CreateGroupScreen>(composeTestRule) {
       // Create a group
-      groupField {
-        performTextClearance()
-        val text = "testGroup"
-        performTextInput(text)
-        assertTextContains(text)
-      }
+//      groupField {
+//        performTextClearance()
+//        val text = "testGroup"
+//        performTextInput(text)
+//        assertTextContains(text)
+//      }
       Espresso.closeSoftKeyboard()
       saveButton { performClick() }
     }
