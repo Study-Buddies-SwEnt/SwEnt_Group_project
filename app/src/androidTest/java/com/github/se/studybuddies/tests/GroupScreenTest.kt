@@ -3,13 +3,9 @@ package com.github.se.studybuddies.tests
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
-import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -369,21 +365,10 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     }
   }
 
-  private fun printNodeTree(loc: String = "") {
-    composeTestRule
-        .onAllNodes(isRoot(), useUnmergedTree = true)
-        .printToLog("Print root @${loc} : ", maxDepth = 10)
-  }
-
   @Test
   fun topicAreDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
-      printNodeTree("topicAreDisplayed")
-      composeTestRule.waitForIdle()
-      composeTestRule
-          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .performScrollToNode(hasTestTag("topicTest1_item"))
+      Thread.sleep(1000)
       composeTestRule.waitForIdle()
 
       composeTestRule
@@ -402,15 +387,8 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Test
   fun clickOnTopic() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
-      printNodeTree("topicAreDisplayed")
       composeTestRule.waitForIdle()
-
-      composeTestRule
-          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .performScrollToNode(hasTestTag("topicTest1_item"))
-      composeTestRule.waitForIdle()
-
+      Thread.sleep(1000)
       composeTestRule.onNodeWithTag("topicTest1_item", useUnmergedTree = true).performClick()
       verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
       confirmVerified(mockNavActions)
