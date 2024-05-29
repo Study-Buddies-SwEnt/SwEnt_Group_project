@@ -1,6 +1,11 @@
 package com.github.se.studybuddies.endToEndTests
 
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -72,13 +77,18 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     }
     ComposeScreen.onComposeScreen<CreateGroupScreen>(composeTestRule) {
       // Create a group
+      val groupName = "testGroup"
+      composeTestRule.onNodeWithTag("group_name_field").performClick()
+      composeTestRule.onNodeWithTag("group_name_field").performTextClearance()
+      composeTestRule.onNodeWithTag("group_name_field").performTextInput(groupName)
+      composeTestRule.onNodeWithTag("group_name_field").assertTextContains(groupName)
+      /*
       groupField {
         performClick()
         performTextClearance()
-        val groupName = "testGroup"
         performTextInput(groupName)
         assertTextContains(groupName)
-      }
+      }*/
       Espresso.closeSoftKeyboard()
       saveButton { performClick() }
     }
