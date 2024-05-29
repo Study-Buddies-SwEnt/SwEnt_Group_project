@@ -35,12 +35,13 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Before
   fun setUp() {
     ServiceLocator.setMockDatabase(MockDatabase())
+    ServiceLocator.setCurrentUserUID("E2EUserTest")
     ActivityScenario.launch(MainActivity::class.java)
   }
 
   @After
   fun tearDown() {
-    ServiceLocator.resetDatabase()
+    ServiceLocator.reset()
   }
 
   @Test
