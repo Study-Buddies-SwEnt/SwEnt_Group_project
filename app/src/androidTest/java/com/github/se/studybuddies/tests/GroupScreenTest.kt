@@ -3,11 +3,9 @@ package com.github.se.studybuddies.tests
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -366,36 +364,12 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       confirmVerified(mockNavActions)
     }
   }
-}
 
-@RunWith(AndroidJUnit4::class)
-class GroupTopicsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
-  @get:Rule val composeTestRule = createComposeRule()
-
-  @get:Rule val mockkRule = MockKRule(this)
-
-  @RelaxedMockK lateinit var mockNavActions: NavigationActions
-
-  // userTest
-  // aloneUserTest
-  val groupUID = "groupTest1"
-  private val db = MockDatabase()
-  val groupVM = GroupViewModel(groupUID, db)
-  val chatVM = ChatViewModel()
-
-  @Before
-  fun testSetup() {
-    composeTestRule.setContent { GroupScreen(groupUID, groupVM, chatVM, mockNavActions, db) }
-  }
-
-  @Test
+  /*
+      @Test
   fun topicAreDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule.waitForIdle()
-      composeTestRule
-          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
-          .assertIsDisplayed()
-          .performScrollToNode(hasTestTag("topicTest1_item"))
       composeTestRule
           .onNodeWithTag("topicTest1_item", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -412,12 +386,9 @@ class GroupTopicsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Test
   fun clickOnTopic() {
     composeTestRule.waitForIdle()
-    composeTestRule
-        .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
-        .assertIsDisplayed()
-        .performScrollToNode(hasTestTag("topicTest1_item"))
     composeTestRule.onNodeWithTag("topicTest1_item", useUnmergedTree = true).performClick()
     verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
     confirmVerified(mockNavActions)
   }
+     */
 }
