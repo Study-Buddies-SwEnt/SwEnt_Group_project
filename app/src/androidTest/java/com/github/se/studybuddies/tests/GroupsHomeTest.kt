@@ -259,6 +259,56 @@ class GroupListHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
           .assertTextContains("TestGroup1")
     }
   }
+
+  @Test
+  fun groupItemElementsDisplay() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+
+      composeTestRule
+          .onNodeWithTag("groupTest1_settings_row", useUnmergedTree = true)
+          .assertIsDisplayed()
+
+      composeTestRule
+          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_dropDownMenu", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Modify group_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Members_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Modify group_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Modify group")
+      composeTestRule
+          .onNodeWithTag("groupTest1_Members_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Members")
+      composeTestRule
+          .onNodeWithTag("groupTest1_Leave group_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Leave group")
+      composeTestRule
+          .onNodeWithTag("groupTest1_Delete group_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Delete group")
+    }
+  }
 }
 
 @RunWith(AndroidJUnit4::class)
