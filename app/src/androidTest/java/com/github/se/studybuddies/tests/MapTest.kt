@@ -9,8 +9,8 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
-import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.ui.map.MapScreen
+import com.github.se.studybuddies.utilities.MockDatabase
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport

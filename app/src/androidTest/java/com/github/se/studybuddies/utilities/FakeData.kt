@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.testUtilities.fakeDatabase
+package com.github.se.studybuddies.utilities
 
 import android.net.Uri
 import com.github.se.studybuddies.data.Group

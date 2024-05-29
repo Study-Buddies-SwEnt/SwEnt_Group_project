@@ -5,8 +5,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupSettingScreen
-import com.github.se.studybuddies.testUtilities.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.ui.groups.GroupSetting
+import com.github.se.studybuddies.utilities.MockDatabase
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
