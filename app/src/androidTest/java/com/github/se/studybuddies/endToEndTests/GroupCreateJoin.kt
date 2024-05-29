@@ -13,6 +13,7 @@ import io.mockk.junit4.MockKRule
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -31,6 +32,10 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @After
   fun tearDown() {
     ServiceLocator.reset()
+  }
+  @Test
+  fun empty(){
+
   }
 
   /*@Test
