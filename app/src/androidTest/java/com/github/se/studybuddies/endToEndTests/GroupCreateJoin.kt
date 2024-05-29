@@ -50,8 +50,9 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       saveButton { assertIsNotEnabled() }
       usernameField {
         performTextClearance()
-        performTextInput("test user")
-        assertTextContains("test user")
+        val text = "test user"
+        performTextInput(text)
+        assertTextContains(text)
       }
       Espresso.closeSoftKeyboard()
       saveButton {
@@ -71,8 +72,9 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       // Create a group
       groupField {
         performTextClearance()
-        performTextInput("testGroup")
-        assertTextContains("testGroup")
+        val text = "testGroup"
+        performTextInput(text)
+        assertTextContains(text)
       }
       Espresso.closeSoftKeyboard()
       saveButton { performClick() }
