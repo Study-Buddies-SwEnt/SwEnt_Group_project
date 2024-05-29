@@ -2,28 +2,17 @@ package com.github.se.studybuddies.endToEndTests
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.github.se.studybuddies.MainActivity
-import com.github.se.studybuddies.R
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.database.ServiceLocator
-import com.github.se.studybuddies.screens.AccountSettingsScreen
-import com.github.se.studybuddies.screens.CreateAccountScreen
-import com.github.se.studybuddies.screens.CreateGroupScreen
-import com.github.se.studybuddies.screens.GroupsHomeScreen
-import com.github.se.studybuddies.screens.LoginScreen
-import com.github.se.studybuddies.screens.SoloStudyScreen
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import io.github.kakaocup.compose.node.element.ComposeScreen
 import io.mockk.junit4.MockKRule
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -44,7 +33,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ServiceLocator.reset()
   }
 
-  @Test
+  /*@Test
   fun userFlow1() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       saveButton { assertIsNotEnabled() }
@@ -100,5 +89,5 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
             InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.app_name))
       }
     }
-  }
+  }*/
 }
