@@ -35,6 +35,8 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -217,6 +219,44 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
       }
       verify { mockNavActions.navigateTo(Route.MAP) }
       confirmVerified(mockNavActions)
+    }
+  }
+}
+
+@RunWith(AndroidJUnit4::class)
+class GroupListHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  @get:Rule val mockkRule = MockKRule(this)
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  // userTest
+  // aloneUserTest
+  val uid = "userTest1"
+  private val db = MockDatabase()
+
+  @Before
+  fun testSetup() {
+    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid, db), mockNavActions, db) }
+  }
+
+  @Test
+  fun listGroupDisplayed() {
+    runBlocking { delay(2000) }
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      groupList { assertIsDisplayed() }
+      testGroup1Box {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
+
+      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
+      composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
+      composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
+      composeTestRule
+          .onNodeWithTag("groupTest1_text", useUnmergedTree = true)
+          .assertExists()
+          .assertTextContains("TestGroup1")
     }
   }
 }
