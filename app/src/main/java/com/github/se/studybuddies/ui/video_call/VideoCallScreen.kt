@@ -42,7 +42,6 @@ import io.getstream.video.android.compose.ui.components.call.renderer.LayoutType
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantVideo
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 
-// Design UI elements using Jetpack Compose
 @Composable
 fun VideoCallScreen(
     callId: String,
@@ -145,7 +144,10 @@ fun VideoCallScreen(
                                   modifier = Modifier.size(52.dp),
                                   onCallAction = { onAction(VideoCallAction.LeaveCall) })
                             }))
-                BackHandler { navigationActions.navigateTo("${Route.GROUP}/${callId}") }
+                BackHandler {
+                  navigationActions.navigateTo("${Route.GROUP}/${callId}")
+                } // override the BackHandler of the StreamAPI (which directly calls the picture in
+                // picture in their case but we don't want that)
               },
           )
         }

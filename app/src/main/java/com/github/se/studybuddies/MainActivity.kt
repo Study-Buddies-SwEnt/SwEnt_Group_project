@@ -331,11 +331,9 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(key1 = state.isConnected) {
                       if (state.isConnected ||
                           StreamVideo.instance().state.activeCall.value?.id == groupUID) {
-                        Log.d("MyPrint", "Joined same call")
                         navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID")
                       }
                     }
-                    Log.d("MyPrint", "Join VideoCall lobby")
                     CallLobbyScreen(state, viewModel, viewModel::onAction, navigationActions)
                   } else {
                     Log.d("MyPrint", "Failed bc video call client isn't installed")
@@ -433,6 +431,7 @@ class MainActivity : ComponentActivity() {
     }
   }
 
+  /** Start a call if there is no active call or the active call is not the same as the new call */
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
         if (activeCall.id != groupUID) {

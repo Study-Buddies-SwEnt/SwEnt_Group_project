@@ -48,11 +48,12 @@ fun CallLobbyScreen(
   val isMicrophoneEnabled by state.call.microphone.isEnabled.collectAsState()
   val context = LocalContext.current
   val groupUID = state.call.cid
-    var joinCallText = stringResource(R.string.join_call)
-    if(state.call.state.participants.value.isEmpty()) {
-        joinCallText = stringResource(R.string.start_call)
-    }
+  var joinCallText = stringResource(R.string.join_call)
+  if (state.call.state.participants.value.isEmpty()) {
+    joinCallText = stringResource(R.string.start_call)
+  }
 
+  // Function that asks for the necessary permissions to join the call
   LaunchCallPermissions(
       call = state.call,
       onPermissionsResult = {
@@ -68,9 +69,7 @@ fun CallLobbyScreen(
       })
 
   VideoTheme {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .testTag("call_lobby")) {
+    Box(modifier = Modifier.fillMaxSize().testTag("call_lobby")) {
       if (isLoading) {
         CircularProgressIndicator(
             modifier = Modifier.align(Alignment.Center),
@@ -78,40 +77,32 @@ fun CallLobbyScreen(
         )
       }
       Column(
-          modifier = Modifier
-              .fillMaxSize()
-              .testTag("content"),
+          modifier = Modifier.fillMaxSize().testTag("content"),
           horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.call_lobby)) },
             navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
             actions = {})
-          HorizontalDivider(modifier = Modifier.size(36.dp))
+        HorizontalDivider(modifier = Modifier.size(36.dp))
         Icon(
-            modifier = Modifier
-                .size(40.dp)
-                .testTag("phone_icon"),
+            modifier = Modifier.size(40.dp).testTag("phone_icon"),
             imageVector = Icons.Default.Phone,
             contentDescription = stringResource(R.string.phone_icon),
         )
-          HorizontalDivider(modifier = Modifier.size(20.dp))
+        HorizontalDivider(modifier = Modifier.size(20.dp))
         Text(
             text = stringResource(R.string.preview_of_your_call_setup),
             modifier = Modifier.testTag("preview_text"),
         )
-          HorizontalDivider(modifier = Modifier.size(36.dp))
+        HorizontalDivider(modifier = Modifier.size(36.dp))
         CallLobby(
             call = state.call,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("call_preview"),
+            modifier = Modifier.fillMaxWidth().testTag("call_preview"),
             isCameraEnabled = isCameraEnabled,
             isMicrophoneEnabled = isMicrophoneEnabled)
         FloatingActionButton(
-            modifier = Modifier
-                .size(60.dp)
-                .testTag("join_call_button"),
+            modifier = Modifier.size(60.dp).testTag("join_call_button"),
             containerColor = Blue,
             onClick = { onAction(ConnectAction.OnConnectClick) }) {
               Text(joinCallText)

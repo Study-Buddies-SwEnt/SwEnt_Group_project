@@ -26,7 +26,7 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
   data class UiState(
       val isLoading: Boolean = true,
       val isCameraEnabled: Boolean =
-          true, // enabled at start to allow direct display of camera in lobby
+          true, // enabled at start to allow direct display of camera and microphone in lobby
       val isMicrophoneEnabled: Boolean = true
   )
 
@@ -38,7 +38,6 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
       call.microphone.setEnabled(true)
       // create the call if it doesn't exist - this will also load the settings for the call,
       // this way the lobby screen can already display the right mic/camera settings
-      // This also starts listening to the call events to get the participant count
       val callGetOrCreateResult = call.create()
       if (callGetOrCreateResult.isFailure) {
         Log.e(
@@ -60,6 +59,7 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
     }
   }
 
+  // Lazily to avoid unnecessary UI updates and it stops when the viewmodel is destroyed
   val state: StateFlow<UiState> =
       flow {
             val isCameraEnabled = call.camera.status.first() is DeviceStatus.Enabled
@@ -79,6 +79,5 @@ class CallLobbyViewModel @Inject constructor(val uid: String, val callType: Stri
 }
 
 sealed interface CallLobbyEvent {
-
   data class JoinFailed(val reason: String?) : CallLobbyEvent
 }

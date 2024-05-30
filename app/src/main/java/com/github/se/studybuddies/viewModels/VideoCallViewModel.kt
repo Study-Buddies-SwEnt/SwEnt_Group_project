@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.viewModels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,6 +35,7 @@ constructor(val uid: String, val call: Call, val navigationActions: NavigationAc
     }
   }
 
+  // Lazily to avoid unnecessary UI updates and it stops when the viewmodel is destroyed
   val state: StateFlow<UiState> =
       flow {
             val isCameraEnabled = call.camera.isEnabled.value
@@ -44,28 +44,22 @@ constructor(val uid: String, val call: Call, val navigationActions: NavigationAc
                 UiState(
                     isCameraEnabled = isCameraEnabled, isMicrophoneEnabled = isMicrophoneEnabled))
           }
-          .stateIn(
-              viewModelScope,
-              SharingStarted.Lazily,
-              UiState()) // Lazily to avoid unnecessary UI updates and it stops when the viewmodel
-  // is destroyed
+          .stateIn(viewModelScope, SharingStarted.Lazily, UiState())
 
+  /** Join the call and sets as active in the client */
   private fun joinCall() {
     if (callState.callState == CallState.ACTIVE) {
-      Log.d("MyPrint", "Call is already active")
       return
     }
     viewModelScope.launch {
       callState = callState.copy(callState = CallState.JOINING)
-      if (StreamVideo.instance().state.activeCall.value == call) {
+      if (StreamVideo.instance().state.activeCall.value == call) { // already joined
         callState = callState.copy(callState = CallState.ACTIVE, error = null)
-        Log.d("MyPrint", "Active call is the same as the call we are trying to join")
       } else {
         callState.call
             .join(false)
             .onSuccess {
               StreamVideo.instance().state.setActiveCall(callState.call)
-              Log.d("MyPrint", "Call joined successfully")
               callState = callState.copy(callState = CallState.ACTIVE, error = null)
             }
             .onError { callState = callState.copy(error = it.message, callState = null) }
@@ -73,8 +67,8 @@ constructor(val uid: String, val call: Call, val navigationActions: NavigationAc
     }
   }
 
+  /** Leave the call and removes the call from active call in the client */
   private fun leaveCall() {
-    Log.d("MyPrint", "Trying to leave call")
     StreamVideo.instance().state.removeActiveCall()
     callState.call.leave()
     StreamVideo.instance().logOut()
