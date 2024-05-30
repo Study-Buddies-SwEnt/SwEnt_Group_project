@@ -359,7 +359,6 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(key1 = state.callState) {
                       if (state.callState == CallState.ENDED) {
                         navController.popBackStack("${Route.GROUP}/$groupUID", false)
-                        Log.d("MyPrint", "Successfully left the call")
                       }
                     }
                     VideoCallScreen(callId, state, videoVM::onAction, navigationActions)
@@ -437,17 +436,13 @@ class MainActivity : ComponentActivity() {
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
         if (activeCall.id != groupUID) {
-          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
           activeCall.leave()
-          // Return a new call
-          StreamVideo.instance().call(callType, groupUID)
+          StreamVideo.instance().call(callType, groupUID) // Return a new call
         } else {
-          // Call ID is the same, use the active call
-          activeCall
+          activeCall // Call ID is the same, use the active call
         }
       } else {
-        // There is no active call, create new call
-        StreamVideo.instance().call(callType, groupUID)
+        StreamVideo.instance().call(callType, groupUID) // There is no active call, create new call
       }
 
   private inline fun <T> ifNotNull(value: T?, action: (T) -> Unit) {
