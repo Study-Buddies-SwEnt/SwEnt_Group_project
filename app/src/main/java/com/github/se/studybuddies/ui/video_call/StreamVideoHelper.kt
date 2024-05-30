@@ -66,7 +66,7 @@ object StreamVideoInitHelper {
                 context = context,
                 apiKey =
                     "x52wgjq8qyfc", // shouldn't be in the clear but we were told not to prioritise
-                                    // solving this security issue so close to the last milestone
+                // solving this security issue so close to the last milestone
                 user =
                     User(
                         id = loggedInUser.uid,
