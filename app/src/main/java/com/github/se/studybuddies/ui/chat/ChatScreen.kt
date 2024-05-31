@@ -145,7 +145,8 @@ fun ChatScreen(
           Icon(
               Icons.Default.Search,
               contentDescription = "Search",
-              modifier = Modifier.clickable { showSearchBar = !showSearchBar })
+              modifier =
+                  Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
         }
         if (showSearchBar) {
           Column {
@@ -206,7 +207,7 @@ fun SearchBar(
     TextField(
         value = searchText,
         onValueChange = onSearchTextChanged,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().testTag("search_bar_text_field"),
         placeholder = { Text(stringResource(R.string.search)) },
         singleLine = true,
         colors =
@@ -229,7 +230,7 @@ fun SearchBar(
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
   Row(
-      modifier = Modifier.padding(8.dp).fillMaxWidth(),
+      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("message_type_filter"),
       horizontalArrangement = Arrangement.SpaceEvenly) {
         MessageFilterType.entries.forEach { type ->
           Log.d("MyPrint", "Filter type: ${type.messageType}")
@@ -237,6 +238,7 @@ fun MessageTypeFilter(viewModel: MessageViewModel) {
           val isSelected = viewModel.filterType.value == type.messageType
           val backgroundColor = if (isSelected) DarkBlue else Blue
           Button(
+              modifier = Modifier.testTag("message_type_filter_button"),
               onClick = { viewModel.setFilterType(type.messageType) },
               colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
           ) {

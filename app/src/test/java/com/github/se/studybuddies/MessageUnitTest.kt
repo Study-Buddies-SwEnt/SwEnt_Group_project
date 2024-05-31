@@ -2,13 +2,12 @@ package com.github.se.studybuddies
 
 import android.net.Uri
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.Message.Companion.emptyText
 import com.github.se.studybuddies.data.User
-import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.Calendar
 
 @RunWith(RobolectricTestRunner::class)
 class MessageUnitTest {
@@ -58,11 +57,43 @@ class MessageUnitTest {
   @Test
   fun testEmptyMessage() {
     // Act
-    val emptyMessage = emptyText()
+    val emptyMessage = Message.emptyText()
     // Assert
     assertEquals("", emptyMessage.text)
     assertEquals(0, emptyMessage.timestamp)
     assertEquals(User.empty(), emptyMessage.sender)
+  }
+
+  @Test
+  fun emptyPhotoMessage() {
+    // Act
+    val emptyPhoto = Message.emptyPhoto()
+    // Assert
+    assertEquals(Uri.EMPTY, emptyPhoto.photoUri)
+    assertEquals(0, emptyPhoto.timestamp)
+    assertEquals(User.empty(), emptyPhoto.sender)
+  }
+
+  @Test
+  fun testEmptyLinkMessage() {
+    // Act
+    val emptyLink = Message.emptyLink()
+    // Assert
+    assertEquals("", emptyLink.linkName)
+    assertEquals(Uri.EMPTY, emptyLink.linkUri)
+    assertEquals(0, emptyLink.timestamp)
+    assertEquals(User.empty(), emptyLink.sender)
+  }
+
+  @Test
+  fun testEmptyFileMessage() {
+    // Act
+    val emptyFile = Message.emptyFile()
+    // Assert
+    assertEquals("", emptyFile.fileName)
+    assertEquals(Uri.EMPTY, emptyFile.fileUri)
+    assertEquals(0, emptyFile.timestamp)
+    assertEquals(User.empty(), emptyFile.sender)
   }
 
   @Test
