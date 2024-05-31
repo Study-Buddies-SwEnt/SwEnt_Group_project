@@ -43,7 +43,6 @@ import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.CalendarViewModel
 import java.time.YearMonth
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarApp(viewModel: CalendarViewModel, navigationActions: NavigationActions) {
   val uiState by viewModel.uiState.collectAsState()

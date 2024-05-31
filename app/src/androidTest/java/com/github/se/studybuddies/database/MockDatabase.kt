@@ -19,11 +19,6 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.utilities.fakeDatabase.fakeGroupDataCollection
-import com.github.se.studybuddies.utilities.fakeDatabase.fakeTopicDataCollection
-import com.github.se.studybuddies.utilities.fakeDatabase.fakeTopicItemCollection
-import com.github.se.studybuddies.utilities.fakeDatabase.fakeUserDataCollection
-import com.github.se.studybuddies.utilities.fakeDatabase.fakeUserMembershipsCollection
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -525,8 +520,41 @@ class MockDatabase : DbRepository {
     topicDataCollection[theoryUID] = theory as Topic
   }
 
-  override suspend fun deleteTopic(topicId: String) {
-    topicDataCollection.remove(topicId)
+  override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
+    getTopic(topicId) { topic ->
+      val items: List<TopicItem> = topic.exercises + topic.theory
+      iterateTopicItemDeletion(items) {
+        topicDataCollection.remove(topic.uid)
+        val currentGroup = groupDataCollection[groupUID]!!
+        val newList = currentGroup.topics.filter { it != topicId }
+        val updatedGroup =
+            Group(
+                currentGroup.uid,
+                currentGroup.name,
+                currentGroup.picture,
+                currentGroup.members,
+                newList,
+                currentGroup.timerState)
+        groupDataCollection.remove(groupUID)
+        groupDataCollection[groupUID] = updatedGroup
+        callBack()
+      }
+    }
+  }
+
+  private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
+    items.forEach { topicItem ->
+      when (topicItem) {
+        is TopicFile -> {
+          fakeTopicItemCollection.remove(topicItem.uid)
+        }
+        is TopicFolder -> {
+          val children = topicItem.items
+          iterateTopicItemDeletion(children) { fakeTopicItemCollection.remove(topicItem.uid) }
+        }
+      }
+    }
+    callBack()
   }
 
   override fun updateTopicName(uid: String, name: String) {
