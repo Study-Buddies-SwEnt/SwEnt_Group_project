@@ -164,174 +164,210 @@ fun GroupsHome(
 
 @Composable
 fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions, db: DbRepository) {
-  var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
-  var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
-  val expandedState = remember { mutableStateOf(false) }
-  val groupViewModel = GroupViewModel(groupUID, db)
-  Row(modifier = Modifier.testTag(groupUID + "_settings_row")) {
-    IconButton(
-        modifier = Modifier.testTag(groupUID + "_settings_button"),
-        onClick = { expandedState.value = true },
-    ) {
-      Icon(
-          imageVector = Icons.Default.MoreVert,
-          tint = Blue,
-          contentDescription = stringResource(R.string.dots_menu))
-    }
-    DropdownMenu(
-        expanded = expandedState.value,
-        onDismissRequest = { expandedState.value = false },
-        modifier = Modifier.testTag(groupUID + "_dropDownMenu")) {
-          GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
-            DropdownMenuItem(
-                modifier =
-                    Modifier.testTag(
-                        groupUID + "_" + item.textId + "_item"), // "DropDownMenuItem${item.route}"
-                onClick = {
-                  expandedState.value = false
-                  when (item.route) {
-                    Route.LEAVEGROUP -> {
-                      isLeaveGroupDialogVisible = true
-                    }
-                    Route.DELETEGROUP -> {
-                      isDeleteGroupDialogVisible = true
-                    }
-                    else -> {
-                      navigationActions.navigateTo("${item.route}/$groupUID")
-                    }
-                  }
-                }) {
-                  Spacer(modifier = Modifier.size(16.dp))
-                  Text(
-                      item.textId,
-                      modifier = Modifier.testTag(groupUID + "_" + item.textId + "_text"))
-                }
-          }
+    var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
+    var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
+    val isAddMemberDialogVisible = remember { mutableStateOf(false) }
+    val expandedState = remember { mutableStateOf(false) }
+    val groupViewModel = GroupViewModel(groupUID, db)
+    Row(modifier = Modifier.testTag(groupUID + "_settings_row")) {
+        IconButton(
+            modifier = Modifier.testTag(groupUID + "_settings_button"),
+            onClick = { expandedState.value = true },
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                tint = Blue,
+                contentDescription = stringResource(R.string.dots_menu)
+            )
         }
-  }
-  if (isLeaveGroupDialogVisible) {
-    Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
-      Box(
-          modifier =
-              Modifier.width(280.dp)
-                  .height(140.dp)
-                  .clip(RoundedCornerShape(10.dp))
-                  .background(Color.White)
-                  .testTag(groupUID + "_leave_box")) {
-            Column(
-                modifier = Modifier.padding(16.dp).testTag(groupUID + "_leave_column"),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text(
-                      text = stringResource(R.string.warning_leave_group),
-                      color = Blue,
-                      modifier = Modifier.testTag(groupUID + "_leave_text"))
-                  Spacer(modifier = Modifier.height(20.dp))
-                  Row(
-                      modifier = Modifier.fillMaxWidth().testTag(groupUID + "_leave_row"),
-                      horizontalArrangement = Arrangement.SpaceEvenly) {
+        DropdownMenu(
+            expanded = expandedState.value,
+            onDismissRequest = { expandedState.value = false },
+            modifier = Modifier.testTag(groupUID + "_dropDownMenu")
+        ) {
+            GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
+                DropdownMenuItem(
+                    modifier =
+                    Modifier.testTag(
+                        groupUID + "_" + item.textId + "_item"
+                    ), // "DropDownMenuItem${item.route}"
+                    onClick = {
+                        expandedState.value = false
+                        when (item.route) {
+                            Route.LEAVEGROUP -> {
+                                isLeaveGroupDialogVisible = true
+                            }
+
+                            Route.DELETEGROUP -> {
+                                isDeleteGroupDialogVisible = true
+                            }
+
+                            Route.GROUPMEMBERADD -> {
+                                isAddMemberDialogVisible.value = true
+                            }
+
+                            else -> {
+                                navigationActions.navigateTo("${item.route}/$groupUID")
+                            }
+                        }
+                    }) {
+                    Spacer(modifier = Modifier.size(16.dp))
+                    Text(
+                        item.textId,
+                        modifier = Modifier.testTag(groupUID + "_" + item.textId + "_text")
+                    )
+                }
+            }
+        }
+    }
+    if (isLeaveGroupDialogVisible) {
+        Dialog(onDismissRequest = { isLeaveGroupDialogVisible = false }) {
+            Box(
+                modifier =
+                Modifier.width(280.dp)
+                    .height(140.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White)
+                    .testTag(groupUID + "_leave_box")
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp).testTag(groupUID + "_leave_column"),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.warning_leave_group),
+                        color = Blue,
+                        modifier = Modifier.testTag(groupUID + "_leave_text")
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().testTag(groupUID + "_leave_row"),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         Button(
                             onClick = {
-                              groupViewModel.leaveGroup(groupUID)
-                              navigationActions.navigateTo(Route.GROUPSHOME)
-                              isLeaveGroupDialogVisible = false
+                                groupViewModel.leaveGroup(groupUID)
+                                navigationActions.navigateTo(Route.GROUPSHOME)
+                                isLeaveGroupDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_leave_yes_button"),
+                            Modifier.clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_leave_yes_button"),
                             colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = Color.Red, contentColor = White)) {
-                              Text(
-                                  text = stringResource(R.string.yes),
-                                  modifier = Modifier.testTag(groupUID + "_leave_yes_text"))
-                            }
+                            ButtonDefaults.buttonColors(
+                                containerColor = Color.Red, contentColor = White
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(R.string.yes),
+                                modifier = Modifier.testTag(groupUID + "_leave_yes_text")
+                            )
+                        }
 
                         Button(
                             onClick = { isLeaveGroupDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_leave_no_button"),
+                            Modifier.clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_leave_no_button"),
                             colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = Blue, contentColor = White)) {
-                              Text(
-                                  text = stringResource(R.string.no),
-                                  modifier = Modifier.testTag(groupUID + "_leave_no_text"))
-                            }
-                      }
+                            ButtonDefaults.buttonColors(
+                                containerColor = Blue, contentColor = White
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no),
+                                modifier = Modifier.testTag(groupUID + "_leave_no_text")
+                            )
+                        }
+                    }
                 }
-          }
-    }
-  } else if (isDeleteGroupDialogVisible) {
-    Dialog(onDismissRequest = { isDeleteGroupDialogVisible = false }) {
-      Box(
-          modifier =
-              Modifier.width(300.dp)
-                  .height(200.dp)
-                  .clip(RoundedCornerShape(12.dp))
-                  .background(Color.White)
-                  .testTag(groupUID + "_delete_box")) {
-            Column(
-                modifier = Modifier.padding(16.dp).testTag(groupUID + "_delete_column"),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text(
-                      text = stringResource(R.string.warning_1_group_deletion),
-                      modifier = Modifier.testTag(groupUID + "_delete_text1"),
-                      color = Blue,
-                      textAlign = TextAlign.Center)
-                  Text(
-                      text = stringResource(R.string.warning_2_group_deletion),
-                      modifier = Modifier.testTag(groupUID + "_delete_text2"),
-                      color = Blue,
-                      textAlign = TextAlign.Center)
-                  Spacer(modifier = Modifier.height(20.dp))
-                  Row(
-                      modifier = Modifier.fillMaxWidth().testTag(groupUID + "_delete_row"),
-                      horizontalArrangement = Arrangement.SpaceEvenly) {
+            }
+        }
+    } else if (isDeleteGroupDialogVisible) {
+        Dialog(onDismissRequest = { isDeleteGroupDialogVisible = false }) {
+            Box(
+                modifier =
+                Modifier.width(300.dp)
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .testTag(groupUID + "_delete_box")
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp).testTag(groupUID + "_delete_column"),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.warning_1_group_deletion),
+                        modifier = Modifier.testTag(groupUID + "_delete_text1"),
+                        color = Blue,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = stringResource(R.string.warning_2_group_deletion),
+                        modifier = Modifier.testTag(groupUID + "_delete_text2"),
+                        color = Blue,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().testTag(groupUID + "_delete_row"),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         Button(
                             onClick = {
-                              groupViewModel.deleteGroup(groupUID)
-                              navigationActions.navigateTo(Route.GROUPSHOME)
-                              isDeleteGroupDialogVisible = false
+                                groupViewModel.deleteGroup(groupUID)
+                                navigationActions.navigateTo(Route.GROUPSHOME)
+                                isDeleteGroupDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_delete_yes_button"),
+                            Modifier.clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_delete_yes_button"),
                             colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = Color.Red, contentColor = White)) {
-                              Text(
-                                  text = stringResource(R.string.yes),
-                                  modifier = Modifier.testTag(groupUID + "_delete_yes_text"))
-                            }
+                            ButtonDefaults.buttonColors(
+                                containerColor = Color.Red, contentColor = White
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(R.string.yes),
+                                modifier = Modifier.testTag(groupUID + "_delete_yes_text")
+                            )
+                        }
 
                         Button(
                             onClick = { isDeleteGroupDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
-                                    .height(40.dp)
-                                    .testTag(groupUID + "_delete_no_button"),
+                            Modifier.clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp)
+                                .testTag(groupUID + "_delete_no_button"),
                             colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = Blue, contentColor = White)) {
-                              Text(
-                                  text = stringResource(R.string.no),
-                                  modifier = Modifier.testTag(groupUID + "_delete_no_text"))
-                            }
-                      }
+                            ButtonDefaults.buttonColors(
+                                containerColor = Blue, contentColor = White
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no),
+                                modifier = Modifier.testTag(groupUID + "_delete_no_text")
+                            )
+                        }
+                    }
                 }
-          }
+            }
+        }
+    } else if (isAddMemberDialogVisible.value) {
+        Dialog(onDismissRequest = { isAddMemberDialogVisible.value = false }) {
+            ShowContact(groupUID, groupViewModel, isAddMemberDialogVisible)
+        }
     }
-  }
 }
 
 @Composable

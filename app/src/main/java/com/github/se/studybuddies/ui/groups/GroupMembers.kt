@@ -3,6 +3,7 @@ package com.github.se.studybuddies.ui.groups
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +28,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -268,4 +272,97 @@ fun MemberOptionButton(
           }
     }
   }
+}
+
+@Composable
+fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
+
+    Column {
+        Button(
+            onClick = { isBoxVisible.value = true },
+            shape = MaterialTheme.shapes.medium,
+            colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Blue,
+            )) {
+            Text(stringResource(R.string.add_member_from_list), color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun ShowContact(
+    groupUID: String,
+    groupViewModel: GroupViewModel,
+    isBoxVisible: MutableState<Boolean>
+) {
+    groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
+    val members by groupViewModel.membersGroup.observeAsState()
+    members?.let {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item { Spacer(modifier = Modifier.height(64.dp)) }
+                if (members!!.isEmpty()) {
+                    item {
+                        Text(
+                            text = "Loading...",
+                            modifier = Modifier.fillMaxWidth().padding(16.dp))
+                    }
+                }
+                item {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        IconButton(
+                            onClick = { isBoxVisible.value = false },
+                            modifier = Modifier.align(Alignment.TopEnd)) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                modifier = Modifier.size(40.dp),
+                                contentDescription = "Close friends List",
+                            )
+                        }
+                    }
+                }
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+                items(members!!) { member -> ShowOneUser(member, groupViewModel, groupUID, isBoxVisible) }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShowOneUser(
+    user: User,
+    groupViewModel: GroupViewModel,
+    groupUID: String,
+    isBoxVisible: MutableState<Boolean>
+) {
+    Box(
+        modifier =
+        Modifier.clickable {
+            groupViewModel.addUserToGroup(groupUID, user.uid) {}
+            isBoxVisible.value = false
+        }
+            .fillMaxWidth()
+            .background(Color.White)
+            .drawBehind {
+                val strokeWidth = 4f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+            }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+                Image(
+                    painter = rememberAsyncImagePainter(user.photoUrl),
+                    contentDescription = stringResource(id = R.string.user_picture),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop)
+            }
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                text = user.username,
+                modifier = Modifier.align(Alignment.CenterVertically),
+                style = TextStyle(fontSize = 20.sp),
+                lineHeight = 28.sp)
+        }
+    }
 }

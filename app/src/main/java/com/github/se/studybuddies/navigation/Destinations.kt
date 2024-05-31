@@ -13,7 +13,7 @@ val GROUPS_SETTINGS_DESTINATIONS =
     listOf(
         Destination(route = Route.GROUPSETTING, textId = "Modify group"),
         Destination(route = Route.GROUPMEMBERS, textId = "Members"),
-        //Destination(route = Route.GROUPMEMBERSADD, textId = "Add members"),
+        Destination(route = Route.GROUPMEMBERADD, textId = "Add member"),
         Destination(route = Route.LEAVEGROUP, textId = "Leave group"),
         Destination(route = Route.DELETEGROUP, textId = "Delete group"))
 
