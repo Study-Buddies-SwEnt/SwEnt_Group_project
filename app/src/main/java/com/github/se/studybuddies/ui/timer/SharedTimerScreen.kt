@@ -98,7 +98,6 @@ fun formatDuration(millis: Long?): String {
 }
 
 @Composable
-
 fun TimeAdjustButton(label: String, amount: Long, onAdjust: (Long) -> Unit) {
   Button(onClick = { onAdjust(amount) }) { Text(label) }
 }
