@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.tests
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -111,19 +112,16 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
       spacerPP { assertExists() }
       buttonPP { assertIsDisplayed() }
 
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("add_member_column"))
       addMemberColumn { assertIsDisplayed() }
       addMemberButton { assertIsDisplayed() }
-
-      // composeTestRule.onNodeWithTag("setting_lazy_column", useUnmergedTree =
-      // true).assertIsDisplayed().performScrollToNode(hasTestTag("setting_spacer1"))
-      // composeTestRule.onNodeWithTag("setting_spacer1", useUnmergedTree = true).assertExists()
-      // composeTestRule.onNodeWithTag("setting_spacer2", useUnmergedTree =
-      // true).assertIsDisplayed()
-      // composeTestRule.onNodeWithTag("setting_spacer3", useUnmergedTree =
-      // true).assertIsDisplayed()
-      // composeTestRule.onNodeWithTag("setting_spacer4", useUnmergedTree =
-      // true).assertIsDisplayed()
-
+      composeTestRule
+          .onNodeWithTag("add_member_button_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Add member with UID")
     }
   }
 }

@@ -28,6 +28,7 @@ class GroupSettingScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
 
   val addMemberColumn: KNode = settingLazyColumn.child { hasTestTag("add_member_column") }
   val addMemberButton: KNode = addMemberColumn.child { hasTestTag("add_member_button") }
+  val addMemberText: KNode = addMemberButton.child { hasTestTag("add_member_button_text") }
 
   val contactColumn: KNode = onNode { hasTestTag("contact_box") }
   val contactLazyColumn: KNode = onNode { hasTestTag("contact_lazy_column") }
