@@ -30,9 +30,9 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  val uid = "userTest"
+  private val uid = "userTest"
   private val db = MockDatabase()
-  var userVM = UserViewModel(uid, db)
+  private var userVM = UserViewModel(uid, db)
 
   @Before
   fun testSetup() {
@@ -59,10 +59,11 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   fun inputUsername() {
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       saveButton { assertIsNotEnabled() }
+      val userTest = "test user"
       usernameField {
         performTextClearance()
-        performTextInput("test user")
-        assertTextContains("test user")
+        performTextInput(userTest)
+        assertTextContains(userTest)
       }
       closeSoftKeyboard()
       saveButton {
@@ -80,12 +81,6 @@ class CreateAccountTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
       inputUsername()
       profileButton { performClick() }
       userVM.createUser(uid, "", "", Uri.EMPTY)
-      /*onView(ViewMatchers.withId(R.id.rvImages)).perform(
-        RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(
-          0, ViewActions.click()
-        )
-      )
-       */
     }
   }
 }

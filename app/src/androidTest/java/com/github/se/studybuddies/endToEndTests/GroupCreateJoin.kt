@@ -52,6 +52,7 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   @Test
   fun userFlow1() {
+    // Create a test user account
     ComposeScreen.onComposeScreen<CreateAccountScreen>(composeTestRule) {
       saveButton { assertIsNotEnabled() }
       usernameField {
@@ -66,10 +67,12 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         performClick()
       }
     }
+    // Navigate to the group home screen
     ComposeScreen.onComposeScreen<SoloStudyScreen>(composeTestRule) {
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }
     }
+    // Click on the add group button
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       addButton { performClick() }
     }

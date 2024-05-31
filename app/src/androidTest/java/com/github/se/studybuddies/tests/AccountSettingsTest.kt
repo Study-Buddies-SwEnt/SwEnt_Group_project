@@ -30,8 +30,8 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  val uid = "userTest"
-  val backRoute = Route.GROUPSHOME
+  private val uid = "userTest"
+  private val backRoute = Route.GROUPSHOME
   private val db = MockDatabase()
 
   @Before

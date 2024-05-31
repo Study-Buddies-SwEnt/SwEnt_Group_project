@@ -96,7 +96,12 @@ interface DbRepository {
   suspend fun deleteGroup(groupUID: String)
 
   // using the Realtime Database for messages
-  fun sendMessage(chatUID: String, message: Message, chatType: ChatType, additionalUID: String) {
+  fun sendMessage(
+      chatUID: String,
+      message: Message,
+      chatType: ChatType,
+      additionalUID: String = ""
+  ) {
     val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
 
     val messageData =

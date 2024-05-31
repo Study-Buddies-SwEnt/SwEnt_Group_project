@@ -83,7 +83,7 @@ class MessageViewModel(
   private fun sendMessage(message: Message) {
     if (chat.type == ChatType.TOPIC)
         db.sendMessage(chat.uid, message, chat.type, chat.additionalUID)
-    else db.sendMessage(chat.uid, message, chat.type, "")
+    else db.sendMessage(chat.uid, message, chat.type)
   }
 
   fun deleteMessage(message: Message) {
