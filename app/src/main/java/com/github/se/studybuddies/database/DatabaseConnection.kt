@@ -29,13 +29,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection : DbRepository {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -751,6 +751,16 @@ class DatabaseConnection : DbRepository {
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
+      is Message.PollMessage -> {
+        messageData[MessageVal.POLL_QUESTION] = message.question
+        messageData[MessageVal.POLL_SINGLE_CHOICE] = message.singleChoice
+        messageData[MessageVal.POLL_OPTIONS] = message.options.joinToString(",")
+        val votesMap = message.votes.mapValues { entry -> entry.value.joinToString(",") { it.uid } }
+        messageData[MessageVal.POLL_VOTES] =
+            votesMap.entries.joinToString(",") { "${it.key}:${it.value}" }
+        messageData[MessageVal.TYPE] = MessageVal.POLL
+        saveMessage(messagePath, messageData)
+      }
       else -> {
         Log.d("MyPrint", "Message type not recognized")
       }
@@ -937,6 +947,37 @@ class DatabaseConnection : DbRepository {
                         val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
                         Message.LinkMessage(
                             postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
+                      }
+                      MessageVal.POLL -> {
+                        val question = postSnapshot.child(MessageVal.POLL_QUESTION).value.toString()
+                        val singleChoice =
+                            postSnapshot
+                                .child(MessageVal.POLL_SINGLE_CHOICE)
+                                .value
+                                .toString()
+                                .toBoolean()
+                        val options =
+                            postSnapshot.child(MessageVal.POLL_OPTIONS).value.toString().split(",")
+                        val votes =
+                            postSnapshot
+                                .child(MessageVal.POLL_VOTES)
+                                .value
+                                .toString()
+                                .split(",")
+                                .associate {
+                                  val parts = it.split(":")
+                                  val userUIDs = parts[1].split(",")
+                                  parts[0] to userUIDs.map { uid -> getUser(uid) }
+                                }
+                                .toMutableMap()
+                        Message.PollMessage(
+                            postSnapshot.key.toString(),
+                            question,
+                            singleChoice,
+                            options,
+                            votes,
+                            user,
+                            timestamp)
                       }
                       else -> {
                         Log.d("MyPrint", "Message type not recognized: $type")
