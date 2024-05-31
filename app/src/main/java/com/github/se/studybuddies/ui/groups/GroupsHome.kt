@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -70,6 +71,7 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.shared_elements.SearchIcon
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
@@ -205,7 +207,6 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                             Route.GROUPMEMBERADD -> {
                                 isAddMemberDialogVisible.value = true
                             }
-
                             else -> {
                                 navigationActions.navigateTo("${item.route}/$groupUID")
                             }
@@ -365,9 +366,19 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
         }
     } else if (isAddMemberDialogVisible.value) {
         Dialog(onDismissRequest = { isAddMemberDialogVisible.value = false }) {
-            ShowContact(groupUID, groupViewModel, isAddMemberDialogVisible)
-        }
-    }
+            // Use LocalConfiguration to get screen dimensions
+            val configuration = LocalConfiguration.current
+            val screenHeight = configuration.screenHeightDp.dp
+            val screenWidth = configuration.screenWidthDp.dp
+            Box(
+                modifier =
+                Modifier
+                    .size(width = screenWidth - screenWidth/10,
+                        height = screenHeight - screenHeight/6)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(LightBlue)){
+        ShowContact(groupUID, groupViewModel, isAddMemberDialogVisible)}
+    }}
 }
 
 @Composable
