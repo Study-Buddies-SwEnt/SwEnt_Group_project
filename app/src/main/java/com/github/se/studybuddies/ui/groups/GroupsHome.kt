@@ -168,7 +168,6 @@ fun GroupsHome(
 fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions, db: DbRepository) {
     var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
     var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
-    val isAddMemberDialogVisible = remember { mutableStateOf(false) }
     val expandedState = remember { mutableStateOf(false) }
     val groupViewModel = GroupViewModel(groupUID, db)
     Row(modifier = Modifier.testTag(groupUID + "_settings_row")) {
@@ -202,10 +201,6 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
 
                             Route.DELETEGROUP -> {
                                 isDeleteGroupDialogVisible = true
-                            }
-
-                            Route.GROUPMEMBERADD -> {
-                                isAddMemberDialogVisible.value = true
                             }
                             else -> {
                                 navigationActions.navigateTo("${item.route}/$groupUID")
@@ -364,21 +359,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                 }
             }
         }
-    } else if (isAddMemberDialogVisible.value) {
-        Dialog(onDismissRequest = { isAddMemberDialogVisible.value = false }) {
-            // Use LocalConfiguration to get screen dimensions
-            val configuration = LocalConfiguration.current
-            val screenHeight = configuration.screenHeightDp.dp
-            val screenWidth = configuration.screenWidthDp.dp
-            Box(
-                modifier =
-                Modifier
-                    .size(width = screenWidth - screenWidth/10,
-                        height = screenHeight - screenHeight/6)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(LightBlue)){
-        ShowContact(groupUID, groupViewModel, isAddMemberDialogVisible)}
-    }}
+    }
 }
 
 @Composable
