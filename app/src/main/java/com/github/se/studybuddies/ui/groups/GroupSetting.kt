@@ -133,19 +133,19 @@ fun GroupSetting(
           ShowContact(groupUID, groupViewModel, isBoxVisible)
         } else {
           Column(
-              modifier = Modifier.fillMaxSize(),
-              horizontalAlignment = Alignment.Start,
+              modifier = Modifier.fillMaxSize().testTag("setting_column"),
+              horizontalAlignment = Alignment.CenterHorizontally,
               verticalArrangement = Arrangement.Top) {
                 LazyColumn(
                     modifier =
                         Modifier.fillMaxSize()
                             .padding(paddingValues)
-                            .testTag("modify_group_column"),
+                            .testTag("setting_lazy_column"),
                     verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer1")) }
                       item { ModifyName(nameState) }
-                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer2")) }
                       item {
                         ModifyProfilePicture(photoState) {
                           checkPermission(context, permission, requestPermissionLauncher) {
@@ -153,11 +153,11 @@ fun GroupSetting(
                           }
                         }
                       }
-                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer3")) }
                       item { AddMemberButtonUID(groupUID, groupViewModel) }
                       item { AddMemberButtonList(isBoxVisible) }
                       item { ShareLinkButton(groupLink.value) }
-                      item { Spacer(modifier = Modifier.padding(10.dp)) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer4")) }
                       item {
                         SaveButton(nameState) {
                           groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
@@ -335,11 +335,11 @@ fun ShowContact(
   groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
   val members by groupViewModel.membersGroup.observeAsState()
   members?.let {
-    Box(modifier = Modifier.fillMaxSize()) {
-      LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item { Spacer(modifier = Modifier.height(64.dp)) }
+    Box(modifier = Modifier.fillMaxSize().testTag("contact_box")) {
+      LazyColumn(modifier = Modifier.fillMaxSize().testTag("contact_lazy_column")) {
+        item { Spacer(modifier = Modifier.height(64.dp).testTag("setting_spacer1")) }
         item {
-          Box(modifier = Modifier.fillMaxSize()) {
+          Box(modifier = Modifier.fillMaxSize().testTag("setting")) {
             IconButton(
                 onClick = { isBoxVisible.value = false },
                 modifier = Modifier.align(Alignment.TopEnd)) {

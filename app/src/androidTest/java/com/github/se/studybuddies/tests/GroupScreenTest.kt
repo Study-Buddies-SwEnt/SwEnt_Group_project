@@ -37,10 +37,11 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
 
   // userTest
   // aloneUserTest
-  val groupUID = "groupTest1"
+  private val groupUID = "groupTest1"
+  private val topicUID = "topicTest1"
   private val db = MockDatabase()
-  val groupVM = GroupViewModel(groupUID, db)
-  val chatVM = ChatViewModel()
+  private val groupVM = GroupViewModel(groupUID, db)
+  private val chatVM = ChatViewModel()
 
   @Before
   fun testSetup() {
@@ -78,41 +79,41 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun groupItemElementsDisplay() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_row", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_row", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_dropDownMenu", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_dropDownMenu", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_Modify group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Modify group_item", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_Members_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Members_item", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Leave group_item", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Delete group_item", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_Modify group_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Modify group_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Modify group")
       composeTestRule
-          .onNodeWithTag("groupTest1_Members_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Members_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Members")
       composeTestRule
-          .onNodeWithTag("groupTest1_Leave group_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Leave group_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Leave group")
       composeTestRule
-          .onNodeWithTag("groupTest1_Delete group_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Delete group_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Delete group")
     }
@@ -122,11 +123,11 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun modifyGroup() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_Modify group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Modify group_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       verify { mockNavActions.navigateTo("GroupSetting/groupTest1") }
@@ -138,11 +139,11 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun seeMembers() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_Members_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Members_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       verify { mockNavActions.navigateTo("${Route.GROUPMEMBERS}/groupTest1") }
@@ -154,38 +155,38 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun leavingGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Leave group_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_box", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_box", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_column", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_column", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Are you sure you want to leave the group ?")
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_row", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_row", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_yes_button", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_yes_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_yes_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Yes")
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_no_button", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_no_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_no_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("No")
     }
@@ -195,29 +196,29 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun leaveOptionsGroup() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Leave group_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_yes_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
       confirmVerified(mockNavActions)
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Leave group_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_leave_no_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
     }
@@ -227,42 +228,42 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun deleteGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule
-          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_Delete group_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_box", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_box", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_column", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_column", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_text1", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_text1", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Are you sure you want to delete the group ?")
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_text2", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_text2", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("This will delete the group and all its content for all members")
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_row", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_row", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_yes_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_yes_button", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_yes_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_yes_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Yes")
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_no_button", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_no_button", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("groupTest1_delete_no_text", useUnmergedTree = true)
+          .onNodeWithTag(groupUID + "_delete_no_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("No")
     }
@@ -273,15 +274,15 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       step("DeleteYes") {
         composeTestRule
-            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+            .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
         composeTestRule
-            .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
+            .onNodeWithTag(groupUID + "_Delete group_item", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
         composeTestRule
-            .onNodeWithTag("groupTest1_delete_yes_button", useUnmergedTree = true)
+            .onNodeWithTag(groupUID + "_delete_yes_button", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
         verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
@@ -289,15 +290,15 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
       step("DeleteNo") {
         composeTestRule
-            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+            .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
         composeTestRule
-            .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
+            .onNodeWithTag(groupUID + "_Delete group_item", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
         composeTestRule
-            .onNodeWithTag("groupTest1_delete_no_button", useUnmergedTree = true)
+            .onNodeWithTag(groupUID + "_delete_no_button", useUnmergedTree = true)
             .assertIsDisplayed()
             .performClick()
       }
@@ -365,19 +366,20 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     }
   }
 
-  /*
-      @Test
+  @Test
   fun topicAreDisplayed() {
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule.waitForIdle()
       composeTestRule
-          .onNodeWithTag("topicTest1_item", useUnmergedTree = true)
+          .onNodeWithTag(topicUID + "_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertHasClickAction()
-      composeTestRule.onNodeWithTag("topicTest1_row", useUnmergedTree = true).assertIsDisplayed()
-      composeTestRule.onNodeWithTag("topicTest1_spacer", useUnmergedTree = true).assertIsDisplayed()
+      composeTestRule.onNodeWithTag(topicUID + "_row", useUnmergedTree = true).assertIsDisplayed()
       composeTestRule
-          .onNodeWithTag("topicTest1_text", useUnmergedTree = true)
+          .onNodeWithTag(topicUID + "_spacer", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag(topicUID + "_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("TestTopic")
     }
@@ -386,9 +388,8 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   @Test
   fun clickOnTopic() {
     composeTestRule.waitForIdle()
-    composeTestRule.onNodeWithTag("topicTest1_item", useUnmergedTree = true).performClick()
+    composeTestRule.onNodeWithTag(topicUID + "_item", useUnmergedTree = true).performClick()
     verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
     confirmVerified(mockNavActions)
   }
-     */
 }

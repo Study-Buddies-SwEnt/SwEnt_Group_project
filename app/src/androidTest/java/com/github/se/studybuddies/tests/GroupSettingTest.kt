@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.tests
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -67,5 +68,27 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
     // assert: the nav action has been called
     verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
     confirmVerified(mockNavActions)
+  }
+
+  @Test
+  fun elementAreDisplayed() {
+    ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
+      settingColumn { assertIsDisplayed() }
+      settingLazyColumn { assertIsDisplayed() }
+      spacer1 { assertExists() }
+      spacer2 { assertExists() }
+      spacer3 { assertExists() }
+      spacer4 { assertExists() }
+      // composeTestRule.onNodeWithTag("setting_lazy_column", useUnmergedTree =
+      // true).assertIsDisplayed().performScrollToNode(hasTestTag("setting_spacer1"))
+      // composeTestRule.onNodeWithTag("setting_spacer1", useUnmergedTree = true).assertExists()
+      // composeTestRule.onNodeWithTag("setting_spacer2", useUnmergedTree =
+      // true).assertIsDisplayed()
+      // composeTestRule.onNodeWithTag("setting_spacer3", useUnmergedTree =
+      // true).assertIsDisplayed()
+      // composeTestRule.onNodeWithTag("setting_spacer4", useUnmergedTree =
+      // true).assertIsDisplayed()
+
+    }
   }
 }
