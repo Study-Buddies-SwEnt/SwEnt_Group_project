@@ -146,7 +146,7 @@ interface DbRepository {
 
   fun addTheory(uid: String, theory: TopicItem)
 
-  suspend fun deleteTopic(topicId: String)
+  suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit)
 
   fun updateTopicName(uid: String, name: String)
 
