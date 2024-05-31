@@ -42,6 +42,14 @@ import io.getstream.video.android.compose.ui.components.call.renderer.LayoutType
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantVideo
 import io.getstream.video.android.compose.ui.components.call.renderer.ParticipantsLayout
 
+/**
+ * Video call screen that allows the user to interact with the call
+ *
+ * @param callId the id of the call
+ * @param state the current state of the call
+ * @param onAction the action to perform when a user interacts with the screen
+ * @param navigationActions the navigation actions to navigate to other screens
+ */
 @Composable
 fun VideoCallScreen(
     callId: String,

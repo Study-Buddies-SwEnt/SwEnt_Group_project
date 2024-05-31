@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/** ViewModel for the video call screen */
 class VideoCallViewModel
 @Inject
 constructor(val uid: String, val call: Call, val navigationActions: NavigationActions) :

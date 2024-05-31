@@ -12,6 +12,7 @@ import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 
+/** A helper class to initialise the [StreamVideo] SDK. */
 enum class InitializedState {
   NOT_STARTED,
   RUNNING,
