@@ -88,9 +88,7 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
   }
 
   fun leaveGroup(groupUID: String, userUID: String = "") {
-    viewModelScope.launch {
-      db.removeUserFromGroup(groupUID, userUID)
-    }
+    viewModelScope.launch { db.removeUserFromGroup(groupUID, userUID) }
   }
 
   fun deleteGroup(groupUID: String) {
@@ -119,9 +117,7 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
   }
 
   fun addSelfToGroup(groupUID: String) {
-    viewModelScope.launch {
-      db.addSelfToGroup(groupUID)
-    }
+    viewModelScope.launch { db.addSelfToGroup(groupUID) }
   }
 
   fun updateGroup(groupUID: String, name: String, photoURI: Uri?) {

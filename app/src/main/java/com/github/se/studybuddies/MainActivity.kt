@@ -257,17 +257,17 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to GroupMembers")
                   }
                 }
-              composable(
-                  route = "${Route.GROUPMEMBERADD}/{groupUID}",
-                  arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
-                      backStackEntry ->
+            composable(
+                route = "${Route.GROUPMEMBERADD}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   ifNotNull(groupUID) { groupUid ->
-                      val groupViewModel = remember { GroupViewModel(groupUID, db) }
-                      MembersList(groupUid, groupViewModel, navigationActions, db)
-                      Log.d("MyPrint", "Successfully navigated to MembersList")
+                    val groupViewModel = remember { GroupViewModel(groupUID, db) }
+                    MembersList(groupUid, groupViewModel, navigationActions, db)
+                    Log.d("MyPrint", "Successfully navigated to MembersList")
                   }
-              }
+                }
             composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }

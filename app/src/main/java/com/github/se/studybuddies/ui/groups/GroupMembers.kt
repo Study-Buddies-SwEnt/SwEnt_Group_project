@@ -87,10 +87,7 @@ fun GroupMembers(
   val userData by groupViewModel.members.observeAsState()
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(White)
-          .testTag("members_scaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("members_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.members)) },
@@ -108,10 +105,7 @@ fun GroupMembers(
           } else {
             LazyColumn(
                 modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .testTag("draw_member_column"),
+                    Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
                 verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   item { Name(nameState) }
@@ -157,22 +151,16 @@ fun MemberItem(
 ) {
   Box(
       modifier =
-      Modifier
-          .fillMaxWidth()
-          .background(Color.White)
-          .drawBehind {
-              val strokeWidth = 1f
-              val y = size.height - strokeWidth / 2
-              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-          }
-          .testTag(userData.username + "_box")) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-          Box(modifier = Modifier
-              .size(52.dp)
-              .clip(CircleShape)
-              .background(Color.Transparent)) {
+          Modifier.fillMaxWidth()
+              .background(Color.White)
+              .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              }
+              .testTag(userData.username + "_box")) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
                 painter = rememberAsyncImagePainter(userData.photoUrl),
                 contentDescription = stringResource(id = R.string.user_picture),
@@ -236,11 +224,10 @@ fun MemberOptionButton(
     Dialog(onDismissRequest = { isRemoveUserDialogVisible = false }) {
       Box(
           modifier =
-          Modifier
-              .width(280.dp)
-              .height(140.dp)
-              .clip(RoundedCornerShape(10.dp))
-              .background(Color.White)) {
+              Modifier.width(280.dp)
+                  .height(140.dp)
+                  .clip(RoundedCornerShape(10.dp))
+                  .background(Color.White)) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.Center,
@@ -264,10 +251,7 @@ fun MemberOptionButton(
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
-                            Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .width(80.dp)
-                                .height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -277,10 +261,7 @@ fun MemberOptionButton(
                         Button(
                             onClick = { isRemoveUserDialogVisible = false },
                             modifier =
-                            Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .width(80.dp)
-                                .height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
@@ -296,17 +277,17 @@ fun MemberOptionButton(
 @Composable
 fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
 
-    Column {
-        Button(
-            onClick = { isBoxVisible.value = true },
-            shape = MaterialTheme.shapes.medium,
-            colors =
+  Column {
+    Button(
+        onClick = { isBoxVisible.value = true },
+        shape = MaterialTheme.shapes.medium,
+        colors =
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-            Text(stringResource(R.string.add_member_from_list), color = Color.White)
+          Text(stringResource(R.string.add_member_from_list), color = Color.White)
         }
-    }
+  }
 }
 
 @Composable
@@ -315,39 +296,37 @@ fun ShowContact(
     groupViewModel: GroupViewModel,
     isBoxVisible: MutableState<Boolean>
 ) {
-    groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
-    val members by groupViewModel.membersGroup.observeAsState()
-    members?.let {
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item { Spacer(modifier = Modifier.height(64.dp)) }
-                item {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        IconButton(
-                            onClick = { isBoxVisible.value = false },
-                            modifier = Modifier.align(Alignment.TopEnd)) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                modifier = Modifier.size(40.dp),
-                                contentDescription = "Close friends List",
-                            )
-                        }
-                    }
+  groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
+  val members by groupViewModel.membersGroup.observeAsState()
+  members?.let {
+    Box(modifier = Modifier.fillMaxSize()) {
+      LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item { Spacer(modifier = Modifier.height(64.dp)) }
+        item {
+          Box(modifier = Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = { isBoxVisible.value = false },
+                modifier = Modifier.align(Alignment.TopEnd)) {
+                  Icon(
+                      imageVector = Icons.Default.Close,
+                      modifier = Modifier.size(40.dp),
+                      contentDescription = "Close friends List",
+                  )
                 }
-                if (members!!.isEmpty()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.loadingP),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp))
-                    }
-                }
-                item { Spacer(modifier = Modifier.height(4.dp)) }
-                items(members!!) { member -> ShowOneUser(member, groupViewModel, groupUID, isBoxVisible) }
-            }
+          }
         }
+        if (members!!.isEmpty()) {
+          item {
+            Text(
+                text = stringResource(R.string.loadingP),
+                modifier = Modifier.fillMaxWidth().padding(16.dp))
+          }
+        }
+        item { Spacer(modifier = Modifier.height(4.dp)) }
+        items(members!!) { member -> ShowOneUser(member, groupViewModel, groupUID, isBoxVisible) }
+      }
     }
+  }
 }
 
 @Composable
@@ -357,39 +336,33 @@ fun ShowOneUser(
     groupUID: String,
     isBoxVisible: MutableState<Boolean>
 ) {
-    Box(
-        modifier =
-        Modifier
-            .clickable {
+  Box(
+      modifier =
+          Modifier.clickable {
                 groupViewModel.addUserToGroup(groupUID, user.uid) {}
                 isBoxVisible.value = false
-            }
-            .fillMaxWidth()
-            .background(Color.White)
-            .drawBehind {
+              }
+              .fillMaxWidth()
+              .background(Color.White)
+              .drawBehind {
                 val strokeWidth = 4f
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-            }) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)) {
-            Box(modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(Color.Transparent)) {
-                Image(
-                    painter = rememberAsyncImagePainter(user.photoUrl),
-                    contentDescription = stringResource(id = R.string.user_picture),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop)
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = user.username,
-                modifier = Modifier.align(Alignment.CenterVertically),
-                style = TextStyle(fontSize = 20.sp),
-                lineHeight = 28.sp)
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+            Image(
+                painter = rememberAsyncImagePainter(user.photoUrl),
+                contentDescription = stringResource(id = R.string.user_picture),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop)
+          }
+          Spacer(modifier = Modifier.size(16.dp))
+          Text(
+              text = user.username,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
         }
-    }
+      }
 }

@@ -79,7 +79,7 @@ interface DbRepository {
 
   suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
 
-    suspend fun addSelfToGroup(groupUID: String)
+  suspend fun addSelfToGroup(groupUID: String)
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
