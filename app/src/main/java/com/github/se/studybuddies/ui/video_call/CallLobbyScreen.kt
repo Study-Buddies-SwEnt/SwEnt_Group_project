@@ -36,7 +36,8 @@ import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.lobby.CallLobby
 
 /**
- * Call lobby screen that allows the user to join a call and change the camera and microphone settings
+ * Call lobby screen that allows the user to join a call and change the camera and microphone
+ * settings
  *
  * @param state the current state of the call
  * @param callLobbyViewModel the view model for the call lobby screen
