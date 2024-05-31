@@ -306,7 +306,7 @@ fun ShowContact(
           Box(modifier = Modifier.fillMaxSize()) {
             IconButton(
                 onClick = { isBoxVisible.value = false },
-                modifier = Modifier.align(Alignment.TopEnd)) {
+                modifier = Modifier.align(Alignment.TopEnd).testTag("close_contact_list")) {
                   Icon(
                       imageVector = Icons.Default.Close,
                       modifier = Modifier.size(40.dp),

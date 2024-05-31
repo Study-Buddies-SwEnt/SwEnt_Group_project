@@ -21,11 +21,13 @@ import com.github.se.studybuddies.database.DbRepository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FieldValue
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class MockDatabase : DbRepository {
@@ -271,6 +273,39 @@ class MockDatabase : DbRepository {
       userMembershipsCollection[userToAdd] = updatedList.toMutableList()
     }
     callBack(false)
+  }
+
+  /*
+   * Add the user actually logged in to the group given in the parameter
+   */
+  override suspend fun addSelfToGroup(groupUID: String) {
+
+    if (groupUID == "") {
+      Log.d("MyPrint", "Group UID is empty")
+      return
+    }
+
+    val userToAdd = getCurrentUserUID()
+
+    if (getUser(userToAdd) == User.empty()) {
+      // should never happen
+      Log.d("MyPrint", "User not connected")
+      return
+    }
+
+    val document = groupDataCollection[groupUID]
+    if (document == null) {
+      Log.d("MyPrint", "Group with uid $groupUID does not exist")
+      return
+    }
+    // add user to group
+    groupDataCollection[groupUID] = document.copy(members = document.members + userToAdd)
+
+    // add group to the user's list of groups
+    userMembershipsCollection[userToAdd]?.let {
+      val updatedList = it + groupUID
+      userMembershipsCollection[userToAdd] = updatedList.toMutableList()
+    }
   }
 
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
