@@ -1,8 +1,6 @@
 package com.github.se.studybuddies.tests
 
-import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -79,12 +77,6 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     // assert: the nav action has been called
     verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
     confirmVerified(mockNavActions)
-  }
-
-  private fun printNodeTree(loc: String = "") {
-    composeTestRule
-        .onAllNodes(isRoot(), useUnmergedTree = true)
-        .printToLog("Print root @${loc} : ", maxDepth = 10)
   }
 
   @Test

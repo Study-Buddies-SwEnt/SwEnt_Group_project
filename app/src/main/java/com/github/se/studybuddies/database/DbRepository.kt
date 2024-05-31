@@ -1,24 +1,20 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
-import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
-import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
 import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,16 +33,7 @@ interface DbRepository {
 
   suspend fun getAllContacts(uid: String): ContactList
 
-  fun getCurrentUserUID(): String {
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
-    return if (uid != null) {
-      Log.d("MyPrint", "Fetched user UID is $uid")
-      uid
-    } else {
-      Log.d("MyPrint", "Failed to get current user UID")
-      ""
-    }
-  }
+  fun getCurrentUserUID(): String
 
   suspend fun getAllFriends(uid: String): List<User>
 
@@ -95,52 +82,7 @@ interface DbRepository {
 
   suspend fun deleteGroup(groupUID: String)
 
-  // using the Realtime Database for messages
-  fun sendMessage(
-      chatUID: String,
-      message: Message,
-      chatType: ChatType,
-      additionalUID: String = ""
-  ) {
-    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-
-    val messageData =
-        mutableMapOf(
-            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
-    when (message) {
-      is Message.TextMessage -> {
-        messageData[MessageVal.TEXT] = message.text
-        messageData[MessageVal.TYPE] = MessageVal.TEXT
-        saveMessage(messagePath, messageData)
-      }
-      is Message.PhotoMessage -> {
-
-        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
-            messageData[MessageVal.PHOTO] = uri.toString()
-            messageData[MessageVal.TYPE] = MessageVal.PHOTO
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload photo")
-          }
-        }
-      }
-      is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
-      }
-      is Message.LinkMessage -> {
-        messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.LINK
-        saveMessage(messagePath, messageData)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
+  fun sendMessage(chatUID: String, message: Message, chatType: ChatType, additionalUID: String = "")
 
   fun saveMessage(path: String, data: Map<String, Any>)
 
@@ -154,21 +96,13 @@ interface DbRepository {
 
   fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String = ""): String
 
-  fun getGroupMessagesPath(groupUID: String): String {
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
-  }
+  fun getGroupMessagesPath(groupUID: String): String
 
-  fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
-  }
+  fun getTopicMessagesPath(groupUID: String, topicUID: String): String
 
-  fun getPrivateMessagesPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-  }
+  fun getPrivateMessagesPath(chatUID: String): String
 
-  fun getPrivateChatMembersPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
-  }
+  fun getPrivateChatMembersPath(chatUID: String): String
 
   fun subscribeToPrivateChats(
       userUID: String,
