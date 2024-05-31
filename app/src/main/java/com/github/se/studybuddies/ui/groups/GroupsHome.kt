@@ -444,13 +444,14 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
+                    if (groupUID != "") {
                   db.groupExists(
                       groupUID = groupUID,
                       onSuccess = {
                         if (it) {
                           showSucces = true
                           val groupVM = GroupViewModel(groupUID, db)
-                          groupVM.addUserToGroup(groupUID) {}
+                          groupVM.addSelfToGroup(groupUID)
                           navigationActions.navigateTo("${Route.GROUP}/$groupUID")
                         } else {
                           showError = true
@@ -469,7 +470,14 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                           showError = false
                           text = ""
                         }
-                      })
+                      })} else {
+                        showError = true
+                        scope.launch {
+                          delay(2000)
+                          showError = false
+                          text = ""
+                        }
+                      }
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
   }

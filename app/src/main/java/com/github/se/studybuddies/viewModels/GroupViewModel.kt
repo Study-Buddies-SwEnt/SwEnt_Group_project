@@ -90,16 +90,6 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
   fun leaveGroup(groupUID: String, userUID: String = "") {
     viewModelScope.launch {
       db.removeUserFromGroup(groupUID, userUID)
-      val user: String =
-          if (userUID != "") {
-            userUID
-          } else {
-            db.getCurrentUser().toString()
-          }
-      val userToRemove = db.getUser(user)
-      val updatedMembers = _members.value?.toMutableList()
-      updatedMembers?.remove(userToRemove)
-      _members.value = updatedMembers ?: emptyList()
     }
   }
 
@@ -123,6 +113,12 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
       }
       updatedMembers = updatedMembers?.toSet()?.toMutableList()
       _members.value = updatedMembers ?: emptyList()
+    }
+  }
+
+  fun addSelfToGroup(groupUID: String) {
+    viewModelScope.launch {
+      db.addSelfToGroup(groupUID)
     }
   }
 
