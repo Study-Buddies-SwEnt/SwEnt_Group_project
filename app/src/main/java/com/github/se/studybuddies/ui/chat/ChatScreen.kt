@@ -229,14 +229,12 @@ fun SearchBar(
 
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
+  val filterType = viewModel.filterType.collectAsState().value
   Row(
       modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("message_type_filter"),
       horizontalArrangement = Arrangement.SpaceEvenly) {
         MessageFilterType.entries.forEach { type ->
-          Log.d("MyPrint", "Filter type: ${type.messageType}")
-          Log.d("MyPrint", "Current filter type: ${viewModel.filterType}")
-          val isSelected = viewModel.filterType.value == type.messageType
-          val backgroundColor = if (isSelected) DarkBlue else Blue
+          val backgroundColor = if (filterType == type.messageType) DarkBlue else Blue
           Button(
               modifier = Modifier.testTag("message_type_filter_button"),
               onClick = { viewModel.setFilterType(type.messageType) },
