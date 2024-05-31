@@ -107,12 +107,14 @@ class GroupViewModel(uid: String? = null, private val db: DbRepository = Databas
             db.getCurrentUser().toString()
           }
       val newUser = db.getUser(userUID)
-      var updatedMembers = _members.value?.toMutableList()
-      if (newUser != null) {
-        updatedMembers?.add(newUser)
+      if (newUser != User.empty()) {
+        var updatedMembers = _members.value?.toMutableList()
+        if (newUser != null) {
+          updatedMembers?.add(newUser)
+        }
+        updatedMembers = updatedMembers?.toSet()?.toMutableList()
+        _members.value = updatedMembers ?: emptyList()
       }
-      updatedMembers = updatedMembers?.toSet()?.toMutableList()
-      _members.value = updatedMembers ?: emptyList()
     }
   }
 
