@@ -393,3 +393,52 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     confirmVerified(mockNavActions)
   }
 }
+
+@RunWith(AndroidJUnit4::class)
+class GroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+  @get:Rule val composeTestRule = createComposeRule()
+
+  @get:Rule val mockkRule = MockKRule(this)
+
+  @RelaxedMockK lateinit var mockNavActions: NavigationActions
+
+  // userTest
+  // aloneUserTest
+  private val groupUID = "groupTest1"
+  private val topicUID = "topicTest1"
+  private val db = MockDatabase()
+  private val groupVM = GroupViewModel(groupUID, db)
+  private val chatVM = ChatViewModel()
+
+  @Before
+  fun testSetup() {
+    composeTestRule.setContent { GroupScreen(groupUID, groupVM, chatVM, mockNavActions, db) }
+  }
+
+  @Test
+  fun topicAreDisplayed() {
+    ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
+      composeTestRule.waitForIdle()
+      composeTestRule
+          .onNodeWithTag(topicUID + "_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertHasClickAction()
+      composeTestRule.onNodeWithTag(topicUID + "_row", useUnmergedTree = true).assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag(topicUID + "_spacer", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag(topicUID + "_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("TestTopic")
+    }
+  }
+
+  @Test
+  fun clickOnTopic() {
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag(topicUID + "_item", useUnmergedTree = true).performClick()
+    verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
+    confirmVerified(mockNavActions)
+  }
+}

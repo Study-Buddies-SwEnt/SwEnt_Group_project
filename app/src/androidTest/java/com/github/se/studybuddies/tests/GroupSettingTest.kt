@@ -1,7 +1,11 @@
 package com.github.se.studybuddies.tests
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToNode
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -75,10 +79,41 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
     ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
       settingColumn { assertIsDisplayed() }
       settingLazyColumn { assertIsDisplayed() }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("setting_spacer1"))
       spacer1 { assertExists() }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("setting_spacer2"))
       spacer2 { assertExists() }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("setting_spacer3"))
       spacer3 { assertExists() }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("setting_spacer4"))
       spacer4 { assertExists() }
+      val groupName = "test group"
+      modifyName {
+        assertIsDisplayed()
+        performTextClearance()
+        performTextInput(groupName)
+        assertTextContains(groupName)
+      }
+      Espresso.closeSoftKeyboard()
+      imagePP { assertIsDisplayed() }
+      spacerPP { assertExists() }
+      buttonPP { assertIsDisplayed() }
+
+      addMemberColumn { assertIsDisplayed() }
+      addMemberButton { assertIsDisplayed() }
+
       // composeTestRule.onNodeWithTag("setting_lazy_column", useUnmergedTree =
       // true).assertIsDisplayed().performScrollToNode(hasTestTag("setting_spacer1"))
       // composeTestRule.onNodeWithTag("setting_spacer1", useUnmergedTree = true).assertExists()

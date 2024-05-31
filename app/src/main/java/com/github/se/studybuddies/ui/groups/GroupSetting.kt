@@ -193,9 +193,10 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberAsyncImagePainter(photoState.value),
       contentDescription = "Profile Picture",
-      modifier = Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),
+      modifier =
+          Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)).testTag("image_pp"),
       contentScale = ContentScale.Crop)
-  Spacer(Modifier.height(20.dp))
+  Spacer(Modifier.height(20.dp).testTag("spacer_pp"))
   Text(
       text = stringResource(R.string.modify_the_profile_picture),
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
@@ -208,8 +209,9 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   var showError by remember { mutableStateOf(false) }
   var showSucces by remember { mutableStateOf(false) }
 
-  Column {
+  Column(modifier = Modifier.testTag("add_member_column")) {
     Button(
+        modifier = Modifier.testTag("add_member_button"),
         onClick = {
           isTextFieldVisible = !isTextFieldVisible
           showSucces = false
@@ -220,7 +222,10 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text(stringResource(R.string.add_member_with_uid), color = Color.White)
+          Text(
+              stringResource(R.string.add_member_with_uid),
+              color = Color.White,
+              modifier = Modifier.testTag("add_member_button_text"))
         }
   }
 
