@@ -34,7 +34,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
-
   @get:Rule val mockkRule = MockKRule(this)
 
   @Before
@@ -71,7 +70,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       soloStudyScreen { assertIsDisplayed() }
       groupsBottom { performClick() }
     }
-
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       addButton { performClick() }
     }
