@@ -18,6 +18,12 @@ class TopicViewModel(
   private val _topic = MutableStateFlow<Topic>(Topic.empty())
   val topic: StateFlow<Topic> = _topic
 
+  init {
+    if (uid != null) {
+      fetchTopicData(uid)
+    }
+  }
+
   /*
   @SuppressLint("CoroutineCreationDuringComposition")
   fun applyDeletions(deletions: Set<String>, onComplete: @Composable () -> Unit) {
@@ -33,27 +39,25 @@ class TopicViewModel(
     }
   }*/
 
-  fun fetchTopicData(uid: String, callBack: () -> Unit) {
+  fun fetchTopicData(uid: String) {
     viewModelScope.launch {
-      db.getTopic(uid) { topic ->
-        topic.sortItems()
-        _topic.value = topic
-        callBack()
-      }
+      val task = db.getTopic(uid)
+      task.sortItems()
+      _topic.value = task
       Log.d("MyPrint", "Topic data fetched")
     }
   }
 
-  fun createTopic(name: String, groupUID: String, callBack: () -> Unit) {
+  fun createTopic(name: String, groupUID: String) {
     viewModelScope.launch {
       db.createTopic(name) { topicUID ->
         viewModelScope.launch { db.addTopicToGroup(topicUID, groupUID) }
       }
     }
-    fetchTopicData(name) { callBack() }
+    fetchTopicData(name)
   }
 
-  fun createTopicFolder(name: String, area: ItemArea, parentUID: String, callBack: () -> Unit) {
+  fun createTopicFolder(name: String, area: ItemArea, parentUID: String) {
     if (uid == null) return
     db.createTopicFolder(name, parentUID) { folder ->
       when (area) {
@@ -68,11 +72,11 @@ class TopicViewModel(
           }
         }
       }
-      fetchTopicData(uid) { callBack() }
+      fetchTopicData(uid)
     }
   }
 
-  fun createTopicFile(name: String, area: ItemArea, parentUID: String, callBack: () -> Unit) {
+  fun createTopicFile(name: String, area: ItemArea, parentUID: String) {
     if (uid == null) return
     db.createTopicFile(name, parentUID) { file ->
       when (area) {
@@ -87,22 +91,14 @@ class TopicViewModel(
           }
         }
       }
-      fetchTopicData(uid) { callBack() }
+      fetchTopicData(uid)
     }
   }
 
-  fun updateTopicName(name: String, callBack: () -> Unit) {
+  fun updateTopicName(name: String) {
     if (uid != null) {
       db.updateTopicName(uid, name)
-      fetchTopicData(uid) { callBack() }
+      fetchTopicData(uid)
     }
-  }
-
-  fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
-    viewModelScope.launch { db.getIsUserStrong(fileID) { isUserStrong -> callBack(isUserStrong) } }
-  }
-
-  fun updateStrongUser(fileID: String, newValue: Boolean) {
-    viewModelScope.launch { db.updateStrongUser(fileID, newValue) }
   }
 }

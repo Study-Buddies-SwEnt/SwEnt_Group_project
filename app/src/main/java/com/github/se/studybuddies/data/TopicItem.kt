@@ -5,15 +5,9 @@ sealed class TopicItem(open val uid: String, val name: String, open val parentUI
 data class TopicFile(
     override val uid: String,
     val fileName: String,
-    var strongUsers: List<String>,
+    val strongUsers: List<String>,
     override val parentUID: String
-) : TopicItem(uid, fileName, parentUID) {
-  companion object {
-    fun empty(): TopicFile {
-      return TopicFile("", "", emptyList(), "")
-    }
-  }
-}
+) : TopicItem(uid, fileName, parentUID)
 
 data class TopicFolder(
     override val uid: String,
@@ -30,9 +24,4 @@ enum class ItemType {
 enum class ItemArea {
   EXERCISES,
   THEORY
-}
-
-enum class FileArea {
-  RESOURCES,
-  STRONG_USERS
 }
