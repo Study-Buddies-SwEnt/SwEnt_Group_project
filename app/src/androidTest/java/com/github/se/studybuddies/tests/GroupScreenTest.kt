@@ -3,9 +3,11 @@ package com.github.se.studybuddies.tests
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -420,6 +422,10 @@ class GroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       composeTestRule.waitForIdle()
       composeTestRule
+          .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag(topicUID + "_item"))
+
+      composeTestRule
           .onNodeWithTag(topicUID + "_item", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertHasClickAction()
@@ -437,6 +443,9 @@ class GroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
   @Test
   fun clickOnTopic() {
     composeTestRule.waitForIdle()
+    composeTestRule
+        .onNodeWithTag("GroupLazyColumn", useUnmergedTree = true)
+        .performScrollToNode(hasTestTag(topicUID + "_item"))
     composeTestRule.onNodeWithTag(topicUID + "_item", useUnmergedTree = true).performClick()
     verify { mockNavActions.navigateTo("${Route.TOPIC}/topicTest1/groupTest1") }
     confirmVerified(mockNavActions)
