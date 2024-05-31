@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.UUID
+import kotlin.reflect.KSuspendFunction1
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -148,11 +149,7 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun updateGroupTimer(
-      groupUID: String,
-      newEndTime: Long,
-      newIsRunning: Boolean
-  ): Int {
+  override suspend fun updateGroupTimer(groupUID: String, timerState: TimerState): Int {
     if (groupUID.isEmpty()) {
       Log.d("MyPrint", "Group UID is empty")
       return -1
@@ -165,12 +162,10 @@ class MockDatabase : DbRepository {
     }
 
     // Create a map for the new timer state
-    val newTimerState = mapOf("endTime" to newEndTime, "isRunning" to newIsRunning)
 
     // Update the timerState field in the group document
     try {
-      groupDataCollection[groupUID] =
-          document.copy(timerState = TimerState(newEndTime, newIsRunning))
+      groupDataCollection[groupUID] = document.copy(timerState = timerState)
     } catch (e: Exception) {
       Log.e("MyPrint", "Exception when updating timer: ", e)
       return -1
@@ -740,16 +735,23 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
+  override fun subscribeToGroupTimerUpdates(
+      groupUID: String,
+      _timerValue: MutableStateFlow<Long>,
+      _isRunning: MutableStateFlow<Boolean>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onTimerStateChanged: KSuspendFunction1<TimerState, Unit>
+  ) {
     var isRunning = false
     groupUID?.let { uid ->
       val timerState = rtDb["timer/$uid"] as? TimerState
       timerState?.let {
-        _timerValue.value = it.endTime - System.currentTimeMillis()
+        _timerValue.value = it.endTime
         isRunning = it.isRunning
       }
     } ?: error("Group UID is not set. Call setup() with valid Group UID.")
-    return isRunning
+    return
   }
 
   override fun getAllTopics(

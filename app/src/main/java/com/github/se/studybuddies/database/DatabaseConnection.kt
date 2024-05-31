@@ -1282,7 +1282,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  fun subscribeToGroupTimerUpdates(
+  override fun subscribeToGroupTimerUpdates(
       groupUID: String,
       _timerValue: MutableStateFlow<Long>,
       _isRunning: MutableStateFlow<Boolean>,

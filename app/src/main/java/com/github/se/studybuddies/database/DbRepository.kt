@@ -16,6 +16,7 @@ import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
+import kotlin.reflect.KSuspendFunction1
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -156,6 +157,15 @@ interface DbRepository {
   fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit)
 
   fun updateTopicItem(item: TopicItem)
+
+  fun subscribeToGroupTimerUpdates(
+      groupUID: String,
+      _timerValue: MutableStateFlow<Long>,
+      _isRunning: MutableStateFlow<Boolean>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onTimerStateChanged: KSuspendFunction1<TimerState, Unit>
+  )
 
   suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
 
