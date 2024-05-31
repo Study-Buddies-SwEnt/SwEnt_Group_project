@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,7 +24,6 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.Placeholder
 import com.github.se.studybuddies.ui.account.AccountSettings
 import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
@@ -38,6 +38,7 @@ import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.ui.settings.Settings
+import com.github.se.studybuddies.ui.shared_elements.Placeholder
 import com.github.se.studybuddies.ui.solo_study.SoloStudyHome
 import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.SharedTimerScreen
@@ -50,6 +51,7 @@ import com.github.se.studybuddies.ui.topics.TopicResources
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
+import com.github.se.studybuddies.ui.video_call.CallState
 import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
 import com.github.se.studybuddies.viewModels.CalendarViewModel
@@ -68,6 +70,7 @@ import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
+import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
@@ -321,11 +324,19 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   if (groupUID != null && StreamVideo.isInstalled) {
-                    val viewModel: CallLobbyViewModel = remember {
+                    val viewModel: CallLobbyViewModel = viewModel {
                       CallLobbyViewModel(groupUID, callType)
                     }
+                    val state = viewModel.callState
+                    LaunchedEffect(key1 = state.isConnected) {
+                      if (state.isConnected ||
+                          StreamVideo.instance().state.activeCall.value?.id == groupUID) {
+                        Log.d("MyPrint", "Joined same call")
+                        navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID")
+                      }
+                    }
                     Log.d("MyPrint", "Join VideoCall lobby")
-                    CallLobbyScreen(groupUID, viewModel, navigationActions)
+                    CallLobbyScreen(state, viewModel, viewModel::onAction, navigationActions)
                   } else {
                     Log.d("MyPrint", "Failed bc video call client isn't installed")
                     navController.popBackStack("${Route.GROUP}/$groupUID", false)
@@ -341,10 +352,17 @@ class MainActivity : ComponentActivity() {
                     val call =
                         startCall(StreamVideo.instance().state.activeCall.value, callId, callType)
                     Log.d("MyPrint", "Join VideoCallScreen")
-                    VideoCallScreen(
-                        call,
-                        { navigationActions.navigateTo("${Route.GROUP}/$callId") },
-                        { leaveCall(call, navController, callId) })
+                    val videoVM: VideoCallViewModel = viewModel {
+                      VideoCallViewModel(callId, call, navigationActions)
+                    }
+                    val state = videoVM.callState
+                    LaunchedEffect(key1 = state.callState) {
+                      if (state.callState == CallState.ENDED) {
+                        navController.popBackStack("${Route.GROUP}/$groupUID", false)
+                        Log.d("MyPrint", "Successfully left the call")
+                      }
+                    }
+                    VideoCallScreen(callId, state, videoVM::onAction, navigationActions)
                   }
                 }
 
@@ -414,12 +432,6 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
-  }
-
-  private fun leaveCall(call: Call, navController: NavHostController, groupUID: String) {
-    StreamVideo.instance().state.activeCall.value?.leave()
-    call.leave()
-    navController.popBackStack("${Route.GROUP}/$groupUID", false)
   }
 
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =

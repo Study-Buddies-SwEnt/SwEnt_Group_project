@@ -1,4 +1,4 @@
-package com.github.se.studybuddies.ui
+package com.github.se.studybuddies.ui.shared_elements
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
-import com.github.se.studybuddies.ui.shared_elements.Sub_title
-import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
