@@ -49,6 +49,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -144,11 +145,7 @@ fun ChatScreen(
           Icon(
               Icons.Default.Search,
               contentDescription = "Search",
-              modifier =
-                  Modifier.clickable {
-                    showSearchBar = !showSearchBar
-                    viewModel.setFilterType(null)
-                  })
+              modifier = Modifier.clickable { showSearchBar = !showSearchBar })
         }
         if (showSearchBar) {
           Column {
@@ -212,6 +209,11 @@ fun SearchBar(
         modifier = Modifier.fillMaxWidth(),
         placeholder = { Text(stringResource(R.string.search)) },
         singleLine = true,
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+            ),
         trailingIcon = {
           IconButton(onClick = onClearSearch) {
             if (searchText.isNotEmpty())

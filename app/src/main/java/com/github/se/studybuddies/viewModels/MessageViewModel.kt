@@ -12,6 +12,8 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -23,7 +25,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   val currentUser = _currentUser
 
   private val _filterType = MutableStateFlow<Class<out Message>?>(null)
-  val filterType = _filterType
+  val filterType: StateFlow<Class<out Message>?> = _filterType.asStateFlow()
   private val _searchQuery = MutableStateFlow<String>("")
 
   val messages =
