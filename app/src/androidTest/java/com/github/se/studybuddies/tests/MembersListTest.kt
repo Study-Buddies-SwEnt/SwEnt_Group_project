@@ -37,5 +37,29 @@ class MembersListTest {
   fun TestMembersListReturnWithEmptyGroup() {
     composeTestRule.setContent { MembersList("", viewModel, mockNavActions, db) }
     composeTestRule.onNodeWithText("Add Member").assertDoesNotExist()
+    viewModel.addSelfToGroup("uid")
+  }
+
+  @Test
+  fun TestaddSelfToGroupWrongInput() {
+    viewModel.addSelfToGroup("uid")
+  }
+
+  @Test
+  fun TestaddUserToGroupWrongInput() {
+    viewModel.addUserToGroup("uid", "name") { assert(it) }
+  }
+
+  val testGroupUID = "WIKkE3R2ssSYyJd0loHD"
+  val testUserUID = "ydz4tj3YBgeRSuM7qeM1b0HHgGn1"
+
+  @Test
+  fun TestaddSelfToGroupGoodInput() {
+    viewModel.addSelfToGroup(testGroupUID)
+  }
+
+  @Test
+  fun TestaddUserToGroupGoodInput() {
+    viewModel.addUserToGroup(testGroupUID, testUserUID) { assert(it) }
   }
 }
