@@ -262,16 +262,6 @@ fun GoBackRouteButton(
 }
 
 @Composable
-fun GoBackRouteToLastPageButton(
-    navigationActions: NavigationActions,
-) {
-  Icon(
-      imageVector = Icons.Default.ArrowBack,
-      contentDescription = "Go back",
-      modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
-}
-
-@Composable
 fun GroupsSettingsButton(navigationActions: NavigationActions) {
   val expandedState = remember { mutableStateOf(false) }
   IconButton(
