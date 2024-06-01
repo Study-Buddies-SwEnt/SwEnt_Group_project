@@ -120,6 +120,8 @@ interface DbRepository {
       mainDispatcher: CoroutineDispatcher
   )
 
+  fun votePollMessage(chat: Chat, message: Message.PollMessage)
+
   fun checkForExistingChat(
       currentUserUID: String,
       otherUID: String,

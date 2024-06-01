@@ -70,7 +70,7 @@
     <string name="group_settings">Group settings</string>
     <string name="feature_not_implemented_yet">feature not implemented yet</string>
     <string name="start_direct_message">Start Private Message</string>
-    <string name="direct_messages_title">Private Messages</string>
+    <string name="direct_messages_title">Messages</string>
     <string name="direct_messages_empty">There is no private messages chat</string>
     <string name="no_friends_found">No friends are available</string>
     <string name="start_direct_message_title">New Chats</string>
@@ -127,6 +127,7 @@
     <string name="file_message_type">File</string>
     <string name="link_message_type">Link</string>
     <string name="photo_message_type">Photo</string>
+    <string name="poll_message_type">Poll</string>
     <string name="permissions_not_granted_call">Camera and microphone permissions are required to join the call</string>
     <string name="speaking_while_muted">You are speaking while muted !</string>
     <string name="members">Members</string>
@@ -138,6 +139,13 @@
     <string name="loading">loading</string>
     <string name="add_member_from_list">Add member from list</string>
     <string name="add_member_with_uid">Add member with UID</string>
-    <string name="joining">Joining...</string>
+    <string name="joining">Joining …</string>
     <string name="are_you_sure_you_want_to_delete_this_topic_this_action_cannot_be_reversed">Are you sure you want to delete this topic?\nThis action cannot be reversed</string>
+
+    <string name="enter_poll_question">Enter poll question</string>
+    <string name="poll_question">Question</string>
+    <string name="poll_options">Options</string>
+    <string name="enter_poll_options">Enter poll option</string>
+    <string name="single_choice">Single answer</string>
+
 </resources>

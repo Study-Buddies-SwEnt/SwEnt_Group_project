@@ -255,7 +255,16 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
         Message.TextMessage(
             text = "Hello, World!", sender = sender, timestamp = System.currentTimeMillis())
 
-    composeTestRule.setContent { MessageBubble(message, true) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+
+    composeTestRule.setContent { MessageBubble(message, true, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
       textBubbleImage { assertIsDisplayed() }
@@ -274,7 +283,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             timestamp = System.currentTimeMillis(),
             photoUri =
                 Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"))
-    composeTestRule.setContent { MessageBubble(message, true) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { MessageBubble(message, true, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
       textBubbleImage { assertIsDisplayed() }
@@ -293,7 +310,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             timestamp = System.currentTimeMillis(),
             linkName = "Test Link",
             linkUri = Uri.parse("https://www.epfl.ch"))
-    composeTestRule.setContent { MessageBubble(message, true) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { MessageBubble(message, true, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
       textBubbleImage { assertIsDisplayed() }
@@ -315,7 +340,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             timestamp = System.currentTimeMillis(),
             linkName = "Test Link",
             linkUri = Uri.parse("https://www.epfl.ch"))
-    composeTestRule.setContent { MessageBubble(message, true) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { MessageBubble(message, true, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       linkMessage {
         performClick()
@@ -335,7 +368,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             fileUri =
                 Uri.parse(
                     "https://firebasestorage.googleapis.com/v0/b/study-buddies-e655a.appspot.com/o/chatData%2F093a42fc-f032-4979-befd-49f939a36de4%2Fcfd241c5-985e-46f1-8812-c3d9d91109ac?alt=media&token=47aeeabe-2abf-440e-b2f6-ec7cdccf9e1e"))
-    composeTestRule.setContent { MessageBubble(message, true) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { MessageBubble(message, true, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
       textBubbleImage { assertIsDisplayed() }
@@ -359,7 +400,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             fileUri =
                 Uri.parse(
                     "https://firebasestorage.googleapis.com/v0/b/study-buddies-e655a.appspot.com/o/chatData%2F093a42fc-f032-4979-befd-49f939a36de4%2Fcfd241c5-985e-46f1-8812-c3d9d91109ac?alt=media&token=47aeeabe-2abf-440e-b2f6-ec7cdccf9e1e"))
-    composeTestRule.setContent { MessageBubble(message, true) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { MessageBubble(message, true, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       fileMessage {
         performClick()
@@ -375,7 +424,15 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
             text = "Hello, World!",
             sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline"),
             timestamp = System.currentTimeMillis())
-    composeTestRule.setContent { MessageBubble(message, false) }
+    val chat =
+        Chat(
+            uid = groupUID,
+            type = ChatType.GROUP,
+            name = "Test Group",
+            members = emptyList(),
+            picture = Uri.EMPTY)
+    val vm = MessageViewModel(chat)
+    composeTestRule.setContent { MessageBubble(message, false, vm) }
     onComposeScreen<ChatScreen>(composeTestRule) {
       messageBubble { assertIsDisplayed() }
 
@@ -403,8 +460,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                   User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
-      val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
+      OptionsDialog(vm, message, showOptionsDialog, mockNavActions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       optionDialog { assertIsDisplayed() }
@@ -436,8 +492,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               sender = User("userUID", "testUser", "testUser", Uri.EMPTY, "offline"),
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
-      val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
+      OptionsDialog(vm, message, showOptionsDialog, mockNavActions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       optionDialog { assertIsDisplayed() }
@@ -507,9 +562,6 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
   fun testSendMoreMessagesType() {
     composeTestRule.setContent {
       val showIconsOptions = remember { mutableStateOf(true) }
-      val showAddImage = remember { mutableStateOf(false) }
-      val showAddLink = remember { mutableStateOf(false) }
-      val showAddFile = remember { mutableStateOf(false) }
       val chat =
           Chat(
               uid = groupUID,
@@ -518,7 +570,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               members = emptyList(),
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
-      IconsOptionsList(vm, showIconsOptions, showAddImage, showAddLink, showAddFile)
+      IconsOptionsList(vm, showIconsOptions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendMoreMessagesType { assertIsDisplayed() }
