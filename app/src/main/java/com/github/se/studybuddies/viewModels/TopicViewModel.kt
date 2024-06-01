@@ -101,9 +101,6 @@ class TopicViewModel(
       fetchTopicData(uid)
     }
   }
-  fun deleteTopic(topicID: String, groupUID: String, callBack: () -> Unit) {
-    viewModelScope.launch { db.deleteTopic(topicID, groupUID) { callBack() } }
-  }
 
   fun deleteTopic(topicID: String, groupUID: String, callBack: () -> Unit) {
     viewModelScope.launch { db.deleteTopic(topicID, groupUID) { callBack() } }
