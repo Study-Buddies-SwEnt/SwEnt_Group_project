@@ -508,7 +508,7 @@ class DatabaseConnection : DbRepository {
    * Add the user given in the parameter to the group given in the parameter
    * If no user is given add the user actually logged in
    *
-   * return -1 in case of invalid entries
+   * return nothing but use callBack to now if the add was a succes or a failure
    */
   override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
@@ -561,6 +561,48 @@ class DatabaseConnection : DbRepository {
         }
         .addOnFailureListener { e ->
           callBack(true)
+          Log.d("MyPrint", "Failed to add group to user with error: ", e)
+        }
+  }
+
+  /*
+   * Add the user actually logged in to the group given in the parameter
+   */
+  override suspend fun addSelfToGroup(groupUID: String) {
+
+    if (groupUID == "") {
+      Log.d("MyPrint", "Group UID is empty")
+      return
+    }
+
+    val userToAdd = getCurrentUserUID()
+
+    if (getUser(userToAdd) == User.empty()) {
+      // should never happen
+      Log.d("MyPrint", "User not connected")
+      return
+    }
+
+    val document = groupDataCollection.document(groupUID).get().await()
+    if (!document.exists()) {
+      Log.d("MyPrint", "Group with uid $groupUID does not exist")
+      return
+    }
+    // add user to group
+    groupDataCollection
+        .document(groupUID)
+        .update("members", FieldValue.arrayUnion(userToAdd))
+        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnFailureListener { e ->
+          Log.d("MyPrint", "Failed to add user to group with error: ", e)
+        }
+
+    // add group to the user's list of groups
+    userMembershipsCollection
+        .document(userToAdd)
+        .update("groups", FieldValue.arrayUnion(groupUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+        .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
   }
