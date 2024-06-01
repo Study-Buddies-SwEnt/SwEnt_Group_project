@@ -7,8 +7,7 @@ data class User(
     val email: String,
     val username: String,
     val photoUrl: Uri,
-    val location: String,
-    val dailyPlanners: List<DailyPlanner> = emptyList() // Default value provided here
+    val location: String
 ) {
   companion object {
     fun empty(): User {
