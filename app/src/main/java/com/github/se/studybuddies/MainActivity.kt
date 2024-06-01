@@ -175,7 +175,8 @@ class MainActivity : ComponentActivity() {
                   if (date != null && currentUser != null) {
                       val viewModelFactory = CalendarViewModelFactory(currentUser)
                       val viewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
-                      DailyPlannerScreen(date, viewModel, navigationActions)
+                      DailyPlannerScreen(date,
+                          viewModel, navigationActions)
                       Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
               }

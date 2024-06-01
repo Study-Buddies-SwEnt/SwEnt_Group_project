@@ -79,32 +79,74 @@ class DatabaseConnection : DbRepository {
                 appointments = plannerMap["appointments"] as Map<String, String>,
                 notes = plannerMap["notes"] as List<String>)
           }
-      User(uid, email, username, photoUrl, location, plannerList)
+      User(uid, email, username, photoUrl, location)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
     }
   }
+    override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+        if (uid.isEmpty()) return
 
-  override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
-    val plannerMap =
-        dailyPlanners.map { planner ->
-          mapOf(
-              "date" to planner.date,
-              "goals" to planner.goals,
-              "appointments" to planner.appointments,
-              "notes" to planner.notes)
-        }
-      dailyPlannerDataCollection
-        .document(uid)
-        .update("dailyPlanners", plannerMap)
-        .addOnSuccessListener {
-          Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
-        }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
-  }
+        val plannersMap = dailyPlanners.associateBy { it.date }
+        val data = mapOf("dailyPlanners" to plannersMap)
 
-  override suspend fun getCurrentUser(): User {
+        dailyPlannerDataCollection.document(uid)
+            .set(data)
+            .addOnSuccessListener {
+                Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
+            }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to update DailyPlanners for user $uid: ", e)
+            }
+    }
+
+    suspend fun getAllDailyPlanners(uid: String): List<DailyPlanner> {
+        if (uid.isEmpty()) {
+            return emptyList()
+        }
+
+        val document = dailyPlannerDataCollection.document(uid).get().await()
+        return if (document.exists()) {
+            val dailyPlanners = document.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
+            dailyPlanners.values.map { plannerMap ->
+                DailyPlanner(
+                    date = plannerMap["date"] as String,
+                    goals = plannerMap["goals"] as? List<String> ?: emptyList(),
+                    appointments = plannerMap["appointments"] as? Map<String, String> ?: emptyMap(),
+                    notes = plannerMap["notes"] as? List<String> ?: emptyList()
+                )
+            }
+        } else {
+            emptyList()
+        }
+    }
+
+    suspend fun getDailyPlanner(uid: String, date: String): DailyPlanner {
+        if (uid.isEmpty() || date.isEmpty()) {
+            return DailyPlanner(date)
+        }
+
+        val document = dailyPlannerDataCollection.document(uid).get().await()
+        return if (document.exists()) {
+            val dailyPlanners = document.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
+            val plannerMap = dailyPlanners[date]
+            if (plannerMap != null) {
+                DailyPlanner(
+                    date = plannerMap["date"] as String,
+                    goals = plannerMap["goals"] as? List<String> ?: emptyList(),
+                    appointments = plannerMap["appointments"] as? Map<String, String> ?: emptyMap(),
+                    notes = plannerMap["notes"] as? List<String> ?: emptyList()
+                )
+            } else {
+                DailyPlanner(date)
+            }
+        } else {
+            DailyPlanner(date)
+        }
+    }
+
+    override suspend fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
   }
 
@@ -141,7 +183,11 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override suspend fun getDefaultProfilePicture(): Uri {
+
+
+
+
+    override suspend fun getDefaultProfilePicture(): Uri {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
@@ -160,8 +206,7 @@ class DatabaseConnection : DbRepository {
             "email" to email,
             "username" to username,
             "photoUrl" to profilePictureUri.toString(),
-            "location" to location,
-            "dailyPlanners" to emptyList<Map<String, Any>>())
+            "location" to location)
     if (profilePictureUri != getDefaultProfilePicture()) {
       userDataCollection
           .document(uid)
@@ -252,6 +297,8 @@ class DatabaseConnection : DbRepository {
           Log.d("MyPrint", "Failed to create user contact list with error: ", e)
         }
   }
+
+
 
   override fun updateUserData(
       uid: String,
