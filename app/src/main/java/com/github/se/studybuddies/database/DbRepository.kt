@@ -1,14 +1,11 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
-import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
-import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
 import com.github.se.studybuddies.data.TopicFolder
@@ -17,7 +14,6 @@ import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 
 interface DbRepository {
   fun isFakeDatabase(): Boolean
@@ -82,52 +78,7 @@ interface DbRepository {
 
   suspend fun deleteGroup(groupUID: String)
 
-  fun sendMessage(chatUID: String, message: Message, chatType: ChatType, additionalUID: String = "")
-
-  fun saveMessage(path: String, data: Map<String, Any>)
-
   fun uploadChatImage(uid: String, chatUID: String, imageUri: Uri, callback: (Uri?) -> Unit)
-
-  fun deleteMessage(groupUID: String, message: Message, chatType: ChatType)
-
-  suspend fun removeTopic(uid: String)
-
-  fun editMessage(groupUID: String, message: Message, chatType: ChatType, newText: String)
-
-  fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String = ""): String
-
-  fun getGroupMessagesPath(groupUID: String): String
-
-  fun getTopicMessagesPath(groupUID: String, topicUID: String): String
-
-  fun getPrivateMessagesPath(chatUID: String): String
-
-  fun getPrivateChatMembersPath(chatUID: String): String
-
-  fun subscribeToPrivateChats(
-      userUID: String,
-      scope: CoroutineScope,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher,
-      onUpdate: (List<Chat>) -> Unit
-  )
-
-  fun getMessages(
-      chat: Chat,
-      liveData: MutableStateFlow<List<Message>>,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher
-  )
-
-  fun votePollMessage(chat: Chat, message: Message.PollMessage)
-
-  fun checkForExistingChat(
-      currentUserUID: String,
-      otherUID: String,
-      onResult: (Boolean, String?) -> Unit
-  )
-
-  fun startDirectMessage(otherUID: String)
 
   // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
@@ -157,8 +108,6 @@ interface DbRepository {
   suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
 
   suspend fun updateStrongUser(fileID: String, newValue: Boolean)
-
-  fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
 

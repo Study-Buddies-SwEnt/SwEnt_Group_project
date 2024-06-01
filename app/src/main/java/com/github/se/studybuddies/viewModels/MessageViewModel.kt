@@ -10,6 +10,7 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.RealtimeRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +21,10 @@ import kotlinx.coroutines.launch
 
 class MessageViewModel(
     val chat: Chat,
-    private val db: DbRepository = ServiceLocator.provideDatabase()
+    private val db: RealtimeRepository = ServiceLocator.provideRealtimeDatabase(),
+    private val firebaseDB: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
+
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
   private val _currentUser = MutableLiveData<User>()
   val currentUser = _currentUser
@@ -73,7 +76,7 @@ class MessageViewModel(
   }
 
   private fun getCurrentUser() {
-    viewModelScope.launch { _currentUser.value = db.getCurrentUser() }
+    viewModelScope.launch { _currentUser.value = firebaseDB.getCurrentUser() }
   }
 
   fun sendTextMessage(text: String) {

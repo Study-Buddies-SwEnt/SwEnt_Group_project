@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.RealtimeRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -75,11 +76,13 @@ import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
 
 class MainActivity : ComponentActivity() {
+    val db: DbRepository = ServiceLocator.provideDatabase()
+    private val realTimeDB : RealtimeRepository = ServiceLocator.provideRealtimeDatabase()
   @SuppressLint("StateFlowValueCalledInComposition")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val db: DbRepository = ServiceLocator.provideDatabase()
-    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
+
+    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = realTimeDB)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
     val studyBuddies = application as LocationApp

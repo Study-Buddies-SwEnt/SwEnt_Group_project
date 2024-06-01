@@ -2,16 +2,11 @@ package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
-import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ChatType
-import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
-import com.github.se.studybuddies.data.Message
-import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -19,13 +14,8 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -35,7 +25,6 @@ class MockDatabase : DbRepository {
   private val groupDataCollection = fakeGroupDataCollection
   private val topicDataCollection = fakeTopicDataCollection
   private val topicItemCollection = fakeTopicItemCollection
-  private val rtDb = mutableMapOf<String, Map<String, Any>>()
   private val storage = mutableMapOf<String, Uri>()
 
   override fun isFakeDatabase(): Boolean {
@@ -329,85 +318,6 @@ class MockDatabase : DbRepository {
     groupDataCollection[groupUID] = Group.empty()
   }
 
-  override fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String): String {
-    return when (chatType) {
-      ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
-      ChatType.GROUP -> getGroupMessagesPath(chatUID)
-      ChatType.TOPIC -> getTopicMessagesPath(chatUID, additionalUID)
-    }
-  }
-
-  override fun sendMessage(
-      chatUID: String,
-      message: Message,
-      chatType: ChatType,
-      additionalUID: String
-  ) {
-    // Mock version
-    val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
-
-    val messageData =
-        mutableMapOf(
-            MessageVal.SENDER_UID to message.sender.uid, MessageVal.TIMESTAMP to message.timestamp)
-    when (message) {
-      is Message.TextMessage -> {
-        messageData[MessageVal.TEXT] = message.text
-        messageData[MessageVal.TYPE] = MessageVal.TEXT
-        saveMessage(messagePath, messageData)
-      }
-      is Message.PhotoMessage -> {
-
-        uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
-            messageData[MessageVal.PHOTO] = uri.toString()
-            messageData[MessageVal.TYPE] = MessageVal.PHOTO
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload photo")
-          }
-        }
-      }
-      is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
-      }
-      is Message.LinkMessage -> {
-        messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.LINK
-        saveMessage(messagePath, messageData)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
-
-  override fun saveMessage(path: String, data: Map<String, Any>) {
-    rtDb[path] = data
-  }
-
-  override fun getGroupMessagesPath(groupUID: String): String {
-    // Mock version
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    // Mock version
-    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateMessagesPath(chatUID: String): String {
-    // Mock version
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateChatMembersPath(chatUID: String): String {
-    // Mock version
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
-  }
-
   override fun uploadChatImage(
       uid: String,
       chatUID: String,
@@ -415,105 +325,6 @@ class MockDatabase : DbRepository {
       callback: (Uri?) -> Unit
   ) {
     callback(imageUri)
-  }
-
-  override fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb.remove(messagePath)
-  }
-
-  override suspend fun removeTopic(uid: String) {
-    topicDataCollection.remove(uid)
-  }
-
-  override fun editMessage(
-      groupUID: String,
-      message: Message,
-      chatType: ChatType,
-      newText: String
-  ) {
-    when (message) {
-      is Message.TextMessage -> {
-        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-        rtDb[messagePath] = mapOf(MessageVal.TEXT to newText)
-      }
-      is Message.LinkMessage -> {
-        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-        rtDb[messagePath] = mapOf(MessageVal.LINK to newText)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
-    }
-  }
-
-  override fun subscribeToPrivateChats(
-      userUID: String,
-      scope: CoroutineScope,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher,
-      onUpdate: (List<Chat>) -> Unit
-  ) {
-    // To do
-  }
-
-  override fun getMessages(
-      chat: Chat,
-      liveData: MutableStateFlow<List<Message>>,
-      ioDispatcher: CoroutineDispatcher,
-      mainDispatcher: CoroutineDispatcher
-  ) {
-    // TO DO
-  }
-
-  override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
-    TODO("Not yet implemented")
-  }
-
-  override fun checkForExistingChat(
-      currentUserUID: String,
-      otherUID: String,
-      onResult: (Boolean, String?) -> Unit
-  ) {
-    val query =
-        rtDb[ChatVal.DIRECT_MESSAGES]
-            ?.filterValues { it is Map<*, *> }
-            ?.mapValues { it.value as Map<*, *> }
-            ?.filterValues { it[ChatVal.MEMBERS] is List<*> }
-            ?.mapValues { it.value[ChatVal.MEMBERS] as List<*> }
-            ?.filterValues { otherUID in it }
-
-    object : ValueEventListener {
-      override fun onDataChange(snapshot: DataSnapshot) {
-        snapshot.children.forEach { chatSnapshot ->
-          if (chatSnapshot.hasChild("${ChatVal.MEMBERS}/$otherUID")) {
-            onResult(true, chatSnapshot.key)
-            return
-          }
-        }
-        onResult(false, null)
-      }
-
-      override fun onCancelled(databaseError: DatabaseError) {
-        Log.w("DatabaseConnect", "Failed to check for existing chat", databaseError.toException())
-        onResult(false, null)
-      }
-    }
-  }
-
-  override fun startDirectMessage(otherUID: String) {
-    val currentUserUID = getCurrentUserUID()
-    checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
-      if (chatExists) {
-        Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
-      } else {
-        Log.d("MyPrint", "startDirectMessage: creating new chat")
-        val newChatId = UUID.randomUUID().toString()
-        val memberPath = getPrivateChatMembersPath(newChatId)
-        val members = mapOf(currentUserUID to true, otherUID to true)
-        rtDb[memberPath] = members
-      }
-    }
   }
 
   override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
@@ -675,18 +486,6 @@ class MockDatabase : DbRepository {
         document.strongUsers = strongUsers.toList()
       }
     }
-  }
-
-  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
-    var isRunning = false
-    groupUID?.let { uid ->
-      val timerState = rtDb["timer/$uid"] as? TimerState
-      timerState?.let {
-        _timerValue.value = it.endTime - System.currentTimeMillis()
-        isRunning = it.isRunning
-      }
-    } ?: error("Group UID is not set. Call setup() with valid Group UID.")
-    return isRunning
   }
 
   override fun getAllTopics(
