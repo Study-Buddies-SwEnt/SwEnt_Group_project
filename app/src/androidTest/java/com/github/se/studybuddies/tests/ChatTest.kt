@@ -18,12 +18,16 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.ChatScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.EditDialog
-import com.github.se.studybuddies.ui.chat.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.MessageBubble
 import com.github.se.studybuddies.ui.chat.OptionsDialog
 import com.github.se.studybuddies.ui.chat.PickFile
 import com.github.se.studybuddies.ui.chat.PickLink
 import com.github.se.studybuddies.ui.chat.PickPicture
+import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
+import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
+import com.github.se.studybuddies.ui.chat.utility.SendFileMessage
+import com.github.se.studybuddies.ui.chat.utility.SendLinkMessage
+import com.github.se.studybuddies.ui.chat.utility.SendPhotoMessage
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
