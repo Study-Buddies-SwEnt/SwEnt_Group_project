@@ -423,6 +423,7 @@ class MainActivity : ComponentActivity() {
   /** Start a call if there is no active call or the active call is not the same as the new call */
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
+        if (activeCall.id != groupUID) {
           activeCall.leave()
           StreamVideo.instance().call(callType, groupUID) // Return a new call
         } else {
