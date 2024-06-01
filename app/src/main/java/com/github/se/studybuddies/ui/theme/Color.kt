@@ -16,3 +16,4 @@ val Red = Color(255, 91, 91)
 
 val LightBlue = Color(220, 249, 255)
 val Blue = Color(91, 156, 255)
+val DarkBlue = Color(38, 94, 179, 255)

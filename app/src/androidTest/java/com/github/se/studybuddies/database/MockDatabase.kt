@@ -1,10 +1,12 @@
-package com.github.se.studybuddies.utility.fakeDatabase
+package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -17,7 +19,6 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DbRepository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -49,18 +50,29 @@ class MockDatabase : DbRepository {
     return getUser(getCurrentUserUID())
   }
 
+  override suspend fun getContact(contactUID: String): Contact {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun createContact(otherUID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun getAllContacts(uid: String): ContactList {
+    TODO("Not yet implemented")
+  }
+
   override fun getCurrentUserUID(): String {
-    return "userTest"
+    return "E2EUserTest"
   }
 
   override suspend fun getAllFriends(uid: String): List<User> {
     return try {
-      val snapshot = userDataCollection[uid]
+      val user = userDataCollection.getOrElse(uid) { User.empty() }
       val snapshotQuery = userDataCollection
       val items = mutableListOf<User>()
 
-      if (snapshot != null) {
-        // val userUIDs = snapshot.data?.get("friends") as? List<String>
+      if (user != User.empty()) {
         for (item in snapshotQuery) {
           val id = item.value.uid
           items.add(getUser(id))
@@ -104,7 +116,6 @@ class MockDatabase : DbRepository {
       profilePictureUri: Uri,
       location: String
   ) {
-    val task = hashMapOf("email" to email, "username" to username, "location" to location)
     userDataCollection[uid] = User(uid, email, username, profilePictureUri, location)
   }
 
@@ -154,23 +165,18 @@ class MockDatabase : DbRepository {
       newIsRunning: Boolean
   ): Int {
     if (groupUID.isEmpty()) {
-      Log.d("MyPrint", "Group UID is empty")
+      Log.d("MockDatabase : updateGroupTimer", "Group UID is empty")
       return -1
     }
 
-    val document = groupDataCollection[groupUID]
-    if (document == null) {
-      Log.d("MyPrint", "Group with UID $groupUID does not exist")
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
+      Log.d("MockDatabase: updateGroupTimer", "Group with UID $groupUID does not exist")
       return -1
     }
-
-    // Create a map for the new timer state
-    val newTimerState = mapOf("endTime" to newEndTime, "isRunning" to newIsRunning)
-
     // Update the timerState field in the group document
     try {
-      groupDataCollection[groupUID] =
-          document.copy(timerState = TimerState(newEndTime, newIsRunning))
+      groupDataCollection[groupUID] = group.copy(timerState = TimerState(newEndTime, newIsRunning))
     } catch (e: Exception) {
       Log.e("MyPrint", "Exception when updating timer: ", e)
       return -1
@@ -236,9 +242,10 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
-    if (groupUID == "") {
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
       callBack(true)
-      Log.d("MyPrint", "Group UID is empty")
+      Log.d("MockDatabase : addUserToGroup", "Group with uid $groupUID does not exist")
       return
     }
 
@@ -256,14 +263,8 @@ class MockDatabase : DbRepository {
       return
     }
 
-    val document = groupDataCollection[groupUID]
-    if (document == null) {
-      callBack(true)
-      Log.d("MyPrint", "Group with uid $groupUID does not exist")
-      return
-    }
     // add user to group
-    groupDataCollection[groupUID] = document.copy(members = document.members + userToAdd)
+    groupDataCollection[groupUID] = group.copy(members = group.members + userToAdd)
 
     // add group to the user's list of groups
     userMembershipsCollection[userToAdd]?.let {
@@ -275,11 +276,14 @@ class MockDatabase : DbRepository {
 
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
 
-    // change name of group
-    groupDataCollection[groupUID] = groupDataCollection[groupUID]!!.copy(name = name)
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
+      Log.d("MockDatabase : updateGroup", "Group with uid $groupUID does not exist")
+      return
+    }
 
-    // change picture of group
-    groupDataCollection[groupUID] = groupDataCollection[groupUID]!!.copy(picture = photoUri)
+    groupDataCollection[groupUID] =
+        Group(group.uid, name, photoUri, group.members, group.topics, group.timerState)
   }
 
   override suspend fun removeUserFromGroup(groupUID: String, userUID: String) {
@@ -294,8 +298,12 @@ class MockDatabase : DbRepository {
       groupDataCollection[groupUID] = it.copy(members = updatedList)
     }
 
-    val document = groupDataCollection[groupUID]
-    val members = document?.members as? List<String> ?: emptyList()
+    val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
+    if (group == Group.empty()) {
+      Log.d("MockDatabase : removeUserFromGroup", "Group with uid $groupUID does not exist")
+      return
+    }
+    val members = group.members as? List<String> ?: emptyList()
 
     if (members.isEmpty()) {
       groupDataCollection.remove(groupUID)
@@ -321,72 +329,11 @@ class MockDatabase : DbRepository {
     groupDataCollection[groupUID] = Group.empty()
   }
 
-  override fun getGroupMessagesPath(groupUID: String): String {
-    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
-    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateMessagesPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
-  }
-
-  override fun getPrivateChatMembersPath(chatUID: String): String {
-    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
-  }
-
   override fun getMessagePath(chatUID: String, chatType: ChatType, additionalUID: String): String {
     return when (chatType) {
       ChatType.PRIVATE -> getPrivateMessagesPath(chatUID)
       ChatType.GROUP -> getGroupMessagesPath(chatUID)
       ChatType.TOPIC -> getTopicMessagesPath(chatUID, additionalUID)
-    }
-  }
-
-  override fun saveMessage(path: String, data: Map<String, Any>) {
-    rtDb[path] = data
-  }
-
-  override fun uploadChatImage(
-      uid: String,
-      chatUID: String,
-      imageUri: Uri,
-      callback: (Uri?) -> Unit
-  ) {
-    callback(imageUri)
-  }
-
-  override fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
-    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-    rtDb.remove(messagePath)
-  }
-
-  override suspend fun removeTopic(uid: String) {
-    getTopic(uid) { topic -> }
-
-    // rtDb.getReference(topic.toString()).removeValue()
-  }
-
-  override fun editMessage(
-      groupUID: String,
-      message: Message,
-      chatType: ChatType,
-      newText: String
-  ) {
-    when (message) {
-      is Message.TextMessage -> {
-        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-        rtDb[messagePath] = mapOf(MessageVal.TEXT to newText)
-      }
-      is Message.LinkMessage -> {
-        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
-        rtDb[messagePath] = mapOf(MessageVal.LINK to newText)
-      }
-      else -> {
-        Log.d("MyPrint", "Message type not recognized")
-      }
     }
   }
 
@@ -396,6 +343,7 @@ class MockDatabase : DbRepository {
       chatType: ChatType,
       additionalUID: String
   ) {
+    // Mock version
     val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/${message.uid}"
 
     val messageData =
@@ -436,6 +384,69 @@ class MockDatabase : DbRepository {
     }
   }
 
+  override fun saveMessage(path: String, data: Map<String, Any>) {
+    rtDb[path] = data
+  }
+
+  override fun getGroupMessagesPath(groupUID: String): String {
+    // Mock version
+    return ChatVal.GROUPS + "/$groupUID/" + ChatVal.MESSAGES
+  }
+
+  override fun getTopicMessagesPath(groupUID: String, topicUID: String): String {
+    // Mock version
+    return ChatVal.GROUPS + "/$topicUID/" + ChatVal.TOPICS + "/$groupUID/" + ChatVal.MESSAGES
+  }
+
+  override fun getPrivateMessagesPath(chatUID: String): String {
+    // Mock version
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MESSAGES
+  }
+
+  override fun getPrivateChatMembersPath(chatUID: String): String {
+    // Mock version
+    return ChatVal.DIRECT_MESSAGES + "/$chatUID/" + ChatVal.MEMBERS
+  }
+
+  override fun uploadChatImage(
+      uid: String,
+      chatUID: String,
+      imageUri: Uri,
+      callback: (Uri?) -> Unit
+  ) {
+    callback(imageUri)
+  }
+
+  override fun deleteMessage(groupUID: String, message: Message, chatType: ChatType) {
+    val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+    rtDb.remove(messagePath)
+  }
+
+  override suspend fun removeTopic(uid: String) {
+    topicDataCollection.remove(uid)
+  }
+
+  override fun editMessage(
+      groupUID: String,
+      message: Message,
+      chatType: ChatType,
+      newText: String
+  ) {
+    when (message) {
+      is Message.TextMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb[messagePath] = mapOf(MessageVal.TEXT to newText)
+      }
+      is Message.LinkMessage -> {
+        val messagePath = getMessagePath(groupUID, chatType) + "/${message.uid}"
+        rtDb[messagePath] = mapOf(MessageVal.LINK to newText)
+      }
+      else -> {
+        Log.d("MyPrint", "Message type not recognized")
+      }
+    }
+  }
+
   override fun subscribeToPrivateChats(
       userUID: String,
       scope: CoroutineScope,
@@ -443,39 +454,7 @@ class MockDatabase : DbRepository {
       mainDispatcher: CoroutineDispatcher,
       onUpdate: (List<Chat>) -> Unit
   ) {
-    val ref = rtDb[ChatVal.DIRECT_MESSAGES]
-
-    object : ValueEventListener {
-      override fun onDataChange(snapshot: DataSnapshot) {
-        scope.launch(ioDispatcher) {
-          val chatList =
-              snapshot.children.mapNotNull { chat ->
-                val members = chat.child(ChatVal.MEMBERS).children.mapNotNull { it.key }
-                if (userUID in members) {
-                  val otherUserId = members.firstOrNull { it != userUID }
-                  otherUserId?.let { userId ->
-                    val otherUser = getUser(userId)
-                    val currentUser = getUser(userUID)
-                    Chat(
-                        uid = chat.key ?: "",
-                        name = otherUser.username,
-                        picture = otherUser.photoUrl,
-                        type = ChatType.PRIVATE,
-                        members = listOf(otherUser, currentUser))
-                  }
-                } else {
-                  null
-                }
-              }
-
-          withContext(mainDispatcher) { onUpdate(chatList.sortedBy { it.name }) }
-        }
-      }
-
-      override fun onCancelled(error: DatabaseError) {
-        println("Database read failed: " + error.code)
-      }
-    }
+    // To do
   }
 
   override fun getMessages(
@@ -484,58 +463,7 @@ class MockDatabase : DbRepository {
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher
   ) {
-    val ref = rtDb[getMessagePath(chat.uid, chat.type, chat.additionalUID)]
-
-    object : ValueEventListener {
-      override fun onDataChange(snapshot: DataSnapshot) {
-        CoroutineScope(ioDispatcher).launch {
-          val newMessages =
-              snapshot.children.mapNotNull { postSnapshot ->
-                val senderUID = postSnapshot.child(MessageVal.SENDER_UID).value.toString()
-                val timestamp =
-                    postSnapshot.child(MessageVal.TIMESTAMP).value.toString().toLongOrNull()
-                        ?: return@mapNotNull null
-                val user = getUser(senderUID)
-                when (val type = postSnapshot.child(MessageVal.TYPE).value.toString()) {
-                  MessageVal.TEXT -> {
-                    val text = postSnapshot.child(MessageVal.TEXT).value.toString()
-                    Message.TextMessage(postSnapshot.key.toString(), text, user, timestamp)
-                  }
-                  MessageVal.PHOTO -> {
-                    val photoUri =
-                        postSnapshot.child(MessageVal.PHOTO).value.toString().let(Uri::parse)
-                    Message.PhotoMessage(postSnapshot.key.toString(), photoUri, user, timestamp)
-                  }
-                  MessageVal.FILE -> {
-                    val fileUri =
-                        postSnapshot.child(MessageVal.FILE).value.toString().let(Uri::parse)
-                    val fileName = postSnapshot.child(MessageVal.FILE_NAME).value.toString()
-                    Message.FileMessage(
-                        postSnapshot.key.toString(), fileName, fileUri, user, timestamp)
-                  }
-                  MessageVal.LINK -> {
-                    val linkUri =
-                        postSnapshot.child(MessageVal.LINK).value.toString().let(Uri::parse)
-                    val linkName = postSnapshot.child(MessageVal.LINK_NAME).value.toString()
-                    Message.LinkMessage(
-                        postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
-                  }
-                  else -> {
-                    Log.d("MyPrint", "Message type not recognized: $type")
-                    null
-                  }
-                }
-              }
-
-          // Post new message list to the main thread to update the UI
-          withContext(mainDispatcher) { liveData.value = newMessages }
-        }
-      }
-
-      override fun onCancelled(error: DatabaseError) {
-        Log.w("DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
-      }
-    }
+    // TO DO
   }
 
   override fun checkForExistingChat(
@@ -697,7 +625,12 @@ class MockDatabase : DbRepository {
   }
 
   override fun updateTopicName(uid: String, name: String) {
-    topicDataCollection[uid] = topicDataCollection[uid]!!.copy(name = name)
+    val topic = topicDataCollection.getOrElse(uid) { Topic.empty() }
+    if (topic == Topic.empty()) {
+      Log.d("MockDatabase : updateTopicName", "Topic with uid $uid does not exist")
+      return
+    }
+    topicDataCollection[uid] = Topic(topic.uid, name, topic.exercises, topic.theory)
   }
 
   override fun createTopicFolder(name: String, parentUID: String, callBack: (TopicFolder) -> Unit) {
@@ -780,7 +713,13 @@ class MockDatabase : DbRepository {
   }
 
   override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
-    userDataCollection[uid] = userDataCollection[uid]!!.copy(dailyPlanners = dailyPlanners)
+    val user = userDataCollection.getOrElse(uid) { User.empty() }
+    if (user == User.empty()) {
+      Log.d("MockDatabase : updateDailyPlanners", "User with uid $uid does not exist")
+      return
+    }
+    userDataCollection[uid] =
+        User(user.uid, user.email, user.username, user.photoUrl, user.location, dailyPlanners)
   }
 
   companion object {

@@ -5,11 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Contact
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.launch
 
 class ContactViewModel(private val contactID: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+  private val db = ServiceLocator.provideDatabase()
   private val _contact = MutableLiveData(Contact.empty())
   val contact: LiveData<Contact> = _contact
 

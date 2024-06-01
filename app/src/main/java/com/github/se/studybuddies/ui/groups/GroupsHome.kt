@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -84,10 +87,16 @@ fun GroupsHome(
     navigationActions: NavigationActions,
     db: DbRepository
 ) {
-  groupsHomeViewModel.fetchGroups(uid)
   val groups by groupsHomeViewModel.groups.observeAsState()
   val groupList = remember { mutableStateOf(groups?.getAllTasks() ?: emptyList()) }
   var isLoading by remember { mutableStateOf(true) }
+  val refresh = remember { mutableStateOf(true) }
+
+  LaunchedEffect(refresh) {
+    groupsHomeViewModel.fetchGroups(uid)
+    Log.e("GroupsHome", "fetchGroups")
+    refresh.value = false
+  }
 
   groups?.let {
     groupList.value = it.getAllTasks()
@@ -104,7 +113,7 @@ fun GroupsHome(
             if (groupList.value.isNotEmpty()) {
               isLoading = false // Stop loading as chats are not empty
             } else {
-              handler.postDelayed(this, 1000) // Continue checking every second
+              handler.postDelayed(this, 3000) // Continue checking every second
             }
           }
         }
@@ -114,7 +123,7 @@ fun GroupsHome(
           isLoading = false // Ensure isLoading is set to false after the original delay
           handler.removeCallbacks(runnable) // Stop any further checks if time expires
         },
-        2000)
+        3000)
   }
 
   MainScreenScaffold(
@@ -151,7 +160,9 @@ fun GroupsHome(
                 verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                 horizontalAlignment = Alignment.Start,
                 content = {
-                  items(groupList.value) { group -> GroupItem(group, navigationActions, db) }
+                  items(groupList.value) { group ->
+                    GroupItem(group, navigationActions, db, refresh)
+                  }
                   item { AddGroupButton(navigationActions) }
                   item { AddLinkButton(navigationActions, db) }
                 })
@@ -163,7 +174,12 @@ fun GroupsHome(
 }
 
 @Composable
-fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions, db: DbRepository) {
+fun GroupsSettingsButton(
+    groupUID: String,
+    navigationActions: NavigationActions,
+    db: DbRepository,
+    refresh: MutableState<Boolean> = remember { mutableStateOf(false) }
+) {
   var isLeaveGroupDialogVisible by remember { mutableStateOf(false) }
   var isDeleteGroupDialogVisible by remember { mutableStateOf(false) }
   val expandedState = remember { mutableStateOf(false) }
@@ -235,6 +251,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                               groupViewModel.leaveGroup(groupUID)
                               navigationActions.navigateTo(Route.GROUPSHOME)
                               isLeaveGroupDialogVisible = false
+                              refresh.value = true
                             },
                             modifier =
                                 Modifier.clip(RoundedCornerShape(4.dp))
@@ -299,6 +316,7 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
                               groupViewModel.deleteGroup(groupUID)
                               navigationActions.navigateTo(Route.GROUPSHOME)
                               isDeleteGroupDialogVisible = false
+                              refresh.value = true
                             },
                             modifier =
                                 Modifier.clip(RoundedCornerShape(4.dp))
@@ -335,7 +353,12 @@ fun GroupsSettingsButton(groupUID: String, navigationActions: NavigationActions,
 }
 
 @Composable
-fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbRepository) {
+fun GroupItem(
+    group: Group,
+    navigationActions: NavigationActions,
+    db: DbRepository,
+    refresh: MutableState<Boolean> = remember { mutableStateOf(false) }
+) {
   Box(
       modifier =
           Modifier.fillMaxWidth()
@@ -370,7 +393,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions, db: DbReposito
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
-          GroupsSettingsButton(group.uid, navigationActions, db)
+          GroupsSettingsButton(group.uid, navigationActions, db, refresh)
         }
       }
 }

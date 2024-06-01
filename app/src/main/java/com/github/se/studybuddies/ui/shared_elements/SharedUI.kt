@@ -314,7 +314,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
 @Composable
 fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
   TopAppBar(
-      modifier = Modifier.width(412.dp).height(90.dp).padding(bottom = 2.dp),
+      modifier = Modifier.fillMaxWidth().padding(4.dp),
       contentColor = Color.Transparent,
       backgroundColor = Color.Transparent,
       elevation = 0.dp) {
