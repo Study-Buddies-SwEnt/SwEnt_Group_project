@@ -37,17 +37,17 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(navigationActions: NavigationActions) {
+fun LoginScreen(navigationActions: NavigationActions, onUserLoggedIn: (String) -> Unit) {
   val signInLauncher =
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-        onSignInResult(res, navigationActions)
+        onSignInResult(res, navigationActions, onUserLoggedIn)
       }
 
   Column(
@@ -87,7 +87,6 @@ fun LoginScreen(navigationActions: NavigationActions) {
                       .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
                       .setIsSmartLockEnabled(false)
                       .build()
-
               signInLauncher.launch(signInIntent)
             },
             colors =
@@ -113,12 +112,14 @@ fun LoginScreen(navigationActions: NavigationActions) {
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    onUserLoggedIn: (String) -> Unit
 ) {
   if (result.resultCode == Activity.RESULT_OK) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     if (userId != null) {
-      val db = DatabaseConnection()
+      val db = ServiceLocator.provideDatabase()
+      onUserLoggedIn(userId)
       db.userExists(
           userId,
           onSuccess = { userExists ->

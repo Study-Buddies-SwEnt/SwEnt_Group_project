@@ -3,11 +3,11 @@ package com.github.se.studybuddies.tests
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateGroupScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
