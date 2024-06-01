@@ -83,9 +83,7 @@ fun ContactScreen(
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
 
-  var showOnMapState = remember {mutableStateOf(false) }
-  if(contactData != null) {
-      showOnMapState = remember {mutableStateOf(contactData!!.showOnMap) }}
+  val showOnMapState = remember {mutableStateOf(contactData?.showOnMap ?: false)}
 
   val context = LocalContext.current
 
@@ -94,6 +92,10 @@ fun ContactScreen(
     Log.d("contact", "otherUserData username is ${nameState.value}")
     photoState.value = it.photoUrl
   }
+
+    contactData?.let {
+        showOnMapState.value = it.showOnMap
+    }
 
   val getContent =
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -163,7 +165,7 @@ fun ContactScreen(
                     item {
                       SaveButton(nameState) {
                         contactsViewModel.updateContact(contactID, showOnMapState.value)
-                        navigationActions.navigateTo("${Route.CHAT}/${contactID}")
+                        navigationActions.navigateTo(Route.CHAT)
                       }
                     }
                     item { DeleteButton { isDeleteContactDialogVisible = true } }

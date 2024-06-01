@@ -1434,7 +1434,7 @@ class DatabaseConnection : DbRepository {
       val otherUID = contactsViewModel.getOtherUser(contactID, uid)
 
       userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
-      //userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
+      userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
 
       contactDataCollection
           .document(contactID)
