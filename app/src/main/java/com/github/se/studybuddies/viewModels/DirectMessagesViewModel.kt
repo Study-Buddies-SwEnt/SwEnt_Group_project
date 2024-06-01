@@ -40,6 +40,10 @@ class DirectMessagesViewModel(
     }
   }
 
+  fun deletePrivateChat(chatID: String){
+    db.deletePrivateChat(chatID)
+  }
+
   fun startDirectMessage(messageUserUID: String): String {
     var contactID = ""
     viewModelScope.launch { contactID = db.startDirectMessage(messageUserUID) }

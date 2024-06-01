@@ -60,6 +60,7 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ContactsViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 
 @SuppressLint("SuspiciousIndentation")
@@ -69,6 +70,7 @@ fun ContactScreen(
     contactsViewModel: ContactsViewModel,
     navigationActions: NavigationActions,
     userViewModel: UserViewModel,
+    directMessagesViewModel: DirectMessagesViewModel
 ) {
 
   var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
@@ -169,6 +171,7 @@ fun ContactScreen(
                     onDelete = {
                       isDeleteContactDialogVisible = false
                       contactsViewModel.deleteContact(contactID)
+                      directMessagesViewModel.deletePrivateChat(contactID)
                       navigationActions.navigateTo(Route.DIRECT_MESSAGE)
                     },
                     onCancel = { isDeleteContactDialogVisible = false })
@@ -204,7 +207,7 @@ private fun DeleteContactDialog(onDelete: () -> Unit, onCancel: () -> Unit, cont
     Box(
         modifier =
             Modifier.width(300.dp)
-                .height(200.dp)
+                .height(270.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
                 .testTag(contactID + "_delete_box")) {
@@ -231,14 +234,14 @@ private fun DeleteContactDialog(onDelete: () -> Unit, onCancel: () -> Unit, cont
                           onClick = { onCancel() },
                           modifier =
                               Modifier.clip(RoundedCornerShape(4.dp))
-                                  .width(80.dp)
-                                  .height(40.dp)
+                                  //.width(80.dp)
+                                  //.height(40.dp)
                                   .testTag(contactID + "_delete_no_button"),
                           colors =
                               ButtonDefaults.buttonColors(
                                   containerColor = Blue, contentColor = White)) {
                             Text(
-                                text = stringResource(R.string.cancel),
+                                text = stringResource(R.string.no),
                                 modifier = Modifier.testTag(contactID + "_delete_no_text"))
                           }
                     }
