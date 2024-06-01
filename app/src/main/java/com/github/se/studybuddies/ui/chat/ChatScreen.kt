@@ -2,7 +2,6 @@ package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -32,9 +31,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -72,24 +68,12 @@ import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.permissions.checkPermission
-import com.github.se.studybuddies.permissions.getStoragePermission
-import com.github.se.studybuddies.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.shared_elements.ChatTopBar
-import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
-import com.github.se.studybuddies.ui.shared_elements.SaveButton
-import com.github.se.studybuddies.ui.shared_elements.SetPicture
-import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.theme.DarkBlue
-import com.github.se.studybuddies.ui.theme.LightBlue
-import com.github.se.studybuddies.utils.SaveType
-import com.github.se.studybuddies.utils.saveToStorage
-import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.utility.MessageTextFields
 import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
 import com.github.se.studybuddies.ui.chat.utility.ShowAlertDialog
-import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
+import com.github.se.studybuddies.ui.shared_elements.ChatTopBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
