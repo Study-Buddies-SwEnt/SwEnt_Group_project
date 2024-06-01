@@ -110,7 +110,6 @@ fun ChatScreen(
 ) {
   val messages by viewModel.messages.collectAsState(initial = emptyList())
   val showOptionsDialog = remember { mutableStateOf(false) }
-  val showEditDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
   var showSearchBar by remember { mutableStateOf(false) }
   var searchText by remember { mutableStateOf("") }
@@ -124,9 +123,7 @@ fun ChatScreen(
     }
   }
 
-  selectedMessage?.let {
-    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
-  }
+  selectedMessage?.let { OptionsDialog(viewModel, it, showOptionsDialog, navigationActions) }
 
   IconsOptionsList(viewModel, showIconsOptions)
 
@@ -473,9 +470,10 @@ fun OptionsDialog(
     viewModel: MessageViewModel,
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
-    showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
 ) {
+  val showEditDialog = remember { mutableStateOf(false) }
+  EditDialog(viewModel, selectedMessage, showEditDialog)
 
   ShowAlertDialog(
       showDialog = showOptionsDialog,

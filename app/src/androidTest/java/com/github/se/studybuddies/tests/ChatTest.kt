@@ -460,8 +460,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
                   User(User.empty().uid, "testUser", "testUser", Uri.EMPTY, location = "offline"),
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
-      val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
+      OptionsDialog(vm, message, showOptionsDialog, mockNavActions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       optionDialog { assertIsDisplayed() }
@@ -493,8 +492,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               sender = User("userUID", "testUser", "testUser", Uri.EMPTY, "offline"),
               timestamp = System.currentTimeMillis())
       val showOptionsDialog = remember { mutableStateOf(true) }
-      val showEditDialog = remember { mutableStateOf(false) }
-      OptionsDialog(vm, message, showOptionsDialog, showEditDialog, mockNavActions)
+      OptionsDialog(vm, message, showOptionsDialog, mockNavActions)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       optionDialog { assertIsDisplayed() }
