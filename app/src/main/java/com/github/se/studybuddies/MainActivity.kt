@@ -172,18 +172,22 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
-            composable(
-                route = "${Route.DAILYPLANNER}/{date}",
-                arguments = listOf(navArgument("date") { type = NavType.StringType })) {
-                    backStackEntry ->
+              composable(
+                  route = "${Route.DAILYPLANNER}/{date}",
+                  arguments = listOf(navArgument("date") { type = NavType.StringType })
+              ) { backStackEntry ->
                   val date = backStackEntry.arguments?.getString("date")
                   val currentUser = auth.currentUser
                   if (date != null && currentUser != null) {
-                    val viewModelFactory = CalendarViewModelFactory(currentUser.uid)
-                    DailyPlannerScreen(date, viewModelFactory, navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to Daily Planner")
+                      val viewModel: CalendarViewModel = viewModel(
+                          factory = CalendarViewModelFactory(currentUser.uid)
+                      )
+                      DailyPlannerScreen(date, viewModel, navigationActions)
+                      Log.d("MyPrint", "Successfully navigated to Daily Planner")
+                  } else {
+                      Log.d("MyPrint", "Failed to navigate to Daily Planner: date or currentUser is null")
                   }
-                }
+              }
 
             composable(
                 route = "${Route.ACCOUNT}/{backRoute}",
