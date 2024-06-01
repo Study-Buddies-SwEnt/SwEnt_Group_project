@@ -724,7 +724,6 @@ class DatabaseConnection : DbRepository {
         saveMessage(messagePath, messageData)
       }
       is Message.PhotoMessage -> {
-
         uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
           if (uri != null) {
             Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
@@ -737,9 +736,17 @@ class DatabaseConnection : DbRepository {
         }
       }
       is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
+        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
+            messageData[MessageVal.FILE] = uri.toString()
+            messageData[MessageVal.FILE_NAME] = message.fileName
+            messageData[MessageVal.TYPE] = MessageVal.FILE
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload file")
+          }
+        }
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
