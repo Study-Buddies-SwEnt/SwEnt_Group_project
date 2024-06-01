@@ -43,6 +43,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
                     is Message.TextMessage -> message.text.contains(query, ignoreCase = true)
                     is Message.LinkMessage -> message.linkName.contains(query, ignoreCase = true)
                     is Message.FileMessage -> message.fileName.contains(query, ignoreCase = true)
+                      is Message.PollMessage -> message.question.contains(query, ignoreCase = true) || message.options.any { it.contains(query, ignoreCase = true) }
                     else -> false
                   }
             }
@@ -112,6 +113,35 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
               timestamp = System.currentTimeMillis())
         }
     sendMessage(message!!)
+  }
+
+    fun sendPollMessage(question: String, singleChoice: Boolean, options: List<String>) {
+    val message =
+        _currentUser.value?.let {
+          Message.PollMessage(
+              question = question,
+              singleChoice = singleChoice,
+              options = options,
+              votes = mutableMapOf(),
+              sender = it,
+              timestamp = System.currentTimeMillis())
+        }
+    sendMessage(message!!)
+  }
+
+    fun votePollMessage(message: Message.PollMessage, option: String) {
+        //TODO check if the user has already voted and it's a single choice poll
+    val user = _currentUser.value ?: return
+    val votes = message.votes.toMutableMap()
+    val userVotes = votes[option]?.toMutableList() ?: mutableListOf()
+    if (userVotes.contains(user)) {
+      userVotes.remove(user)
+    } else {
+      userVotes.add(user)
+    }
+    votes[option] = userVotes
+    val newMessage = message.copy(votes = votes)
+//    db.editMessage(chat.uid, newMessage, chat.type) //TODO implement this in the DB
   }
 
   private fun sendMessage(message: Message) {

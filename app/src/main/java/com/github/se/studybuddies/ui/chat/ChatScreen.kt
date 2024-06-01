@@ -44,9 +44,12 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -72,7 +75,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -108,9 +113,6 @@ fun ChatScreen(
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
-  val showAddImage = remember { mutableStateOf(false) }
-  val showAddLink = remember { mutableStateOf(false) }
-  val showAddFile = remember { mutableStateOf(false) }
   var showSearchBar by remember { mutableStateOf(false) }
   var searchText by remember { mutableStateOf("") }
 
@@ -127,14 +129,15 @@ fun ChatScreen(
     OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
   }
 
-  IconsOptionsList(viewModel, showIconsOptions, showAddImage, showAddLink, showAddFile)
+  IconsOptionsList(viewModel, showIconsOptions)
 
   Column(
       modifier =
-          Modifier.fillMaxSize()
-              .background(LightBlue)
-              .navigationBarsPadding()
-              .testTag("chat_screen")) {
+      Modifier
+          .fillMaxSize()
+          .background(LightBlue)
+          .navigationBarsPadding()
+          .testTag("chat_screen")) {
         SecondaryTopBar(onClick = { navigationActions.goBack() }) {
           when (viewModel.chat.type) {
             ChatType.GROUP,
@@ -146,7 +149,9 @@ fun ChatScreen(
               Icons.Default.Search,
               contentDescription = "Search",
               modifier =
-                  Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
+              Modifier
+                  .clickable { showSearchBar = !showSearchBar }
+                  .testTag("search_button"))
         }
         if (showSearchBar) {
           Column {
@@ -164,21 +169,24 @@ fun ChatScreen(
             MessageTypeFilter(viewModel = viewModel)
           }
         }
-        LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
+        LazyColumn(state = listState, modifier = Modifier
+            .weight(1f)
+            .padding(8.dp)) {
           items(messages) { message ->
             val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
             val displayName = viewModel.chat.type != ChatType.PRIVATE && !isCurrentUserMessageSender
             Row(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(2.dp)
-                        .combinedClickable(
-                            onClick = {},
-                            onLongClick = {
-                              selectedMessage = message
-                              showOptionsDialog.value = true
-                            })
-                        .testTag("chat_message_row"),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            selectedMessage = message
+                            showOptionsDialog.value = true
+                        })
+                    .testTag("chat_message_row"),
                 horizontalArrangement =
                     if (isCurrentUserMessageSender) {
                       Arrangement.End
@@ -188,6 +196,7 @@ fun ChatScreen(
                   MessageBubble(
                       message,
                       displayName,
+                      viewModel
                   )
                 }
           }
@@ -207,7 +216,9 @@ fun SearchBar(
     TextField(
         value = searchText,
         onValueChange = onSearchTextChanged,
-        modifier = Modifier.fillMaxWidth().testTag("search_bar_text_field"),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("search_bar_text_field"),
         placeholder = { Text(stringResource(R.string.search)) },
         singleLine = true,
         colors =
@@ -231,7 +242,10 @@ fun SearchBar(
 fun MessageTypeFilter(viewModel: MessageViewModel) {
   val filterType = viewModel.filterType.collectAsState().value
   Row(
-      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("message_type_filter"),
+      modifier = Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .testTag("message_type_filter"),
       horizontalArrangement = Arrangement.SpaceEvenly) {
         MessageFilterType.entries.forEach { type ->
           val backgroundColor = if (filterType == type.messageType) DarkBlue else Blue
@@ -258,22 +272,25 @@ enum class MessageFilterType(
 }
 
 @Composable
-fun MessageBubble(message: Message, displayName: Boolean = false) {
+fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: MessageViewModel) {
   val browserLauncher =
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.StartActivityForResult()) {}
 
-  Row(modifier = Modifier.padding(1.dp).testTag("chat_text_bubble")) {
+  Row(modifier = Modifier
+      .padding(1.dp)
+      .testTag("chat_text_bubble")) {
     if (displayName) {
       Image(
           painter = rememberAsyncImagePainter(message.sender.photoUrl.toString()),
           contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
           modifier =
-              Modifier.size(40.dp)
-                  .clip(CircleShape)
-                  .border(2.dp, Gray, CircleShape)
-                  .align(Alignment.CenterVertically)
-                  .testTag("chat_user_profile_picture"),
+          Modifier
+              .size(40.dp)
+              .clip(CircleShape)
+              .border(2.dp, Gray, CircleShape)
+              .align(Alignment.CenterVertically)
+              .testTag("chat_user_profile_picture"),
           contentScale = ContentScale.Crop)
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -281,9 +298,10 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
 
     Box(
         modifier =
-            Modifier.background(White, RoundedCornerShape(20.dp))
-                .padding(1.dp)
-                .testTag("chat_text_bubble_box")) {
+        Modifier
+            .background(White, RoundedCornerShape(20.dp))
+            .padding(1.dp)
+            .testTag("chat_text_bubble_box")) {
           Column(modifier = Modifier.padding(8.dp)) {
             if (displayName) {
               Text(
@@ -304,9 +322,10 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                     painter = rememberAsyncImagePainter(message.photoUri.toString()),
                     contentDescription = stringResource(R.string.contentDescription_photo),
                     modifier =
-                        Modifier.size(200.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .testTag("chat_message_image"),
+                    Modifier
+                        .size(200.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .testTag("chat_message_image"),
                     contentScale = ContentScale.Crop)
               }
               is Message.LinkMessage -> {
@@ -320,11 +339,12 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                       text = message.linkName,
                       style = TextStyle(color = Blue),
                       modifier =
-                          Modifier.clickable {
-                                val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
-                                browserLauncher.launch(intent)
-                              }
-                              .testTag("chat_message_link"))
+                      Modifier
+                          .clickable {
+                              val intent = Intent(Intent.ACTION_VIEW, message.linkUri)
+                              browserLauncher.launch(intent)
+                          }
+                          .testTag("chat_message_link"))
                 }
               }
               is Message.FileMessage -> {
@@ -338,23 +358,44 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                       text = message.fileName,
                       style = TextStyle(color = Blue),
                       modifier =
-                          Modifier.clickable {
-                                val intent =
-                                    Intent().apply {
+                      Modifier
+                          .clickable {
+                              val intent =
+                                  Intent().apply {
                                       action = Intent.ACTION_VIEW
                                       setDataAndType(message.fileUri, MessageVal.FILE_TYPE)
                                       flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    }
-                                browserLauncher.launch(
-                                    Intent.createChooser(
-                                        intent,
-                                        "Open with") // I tried to extract the string resource but
-                                    // it didn't work
-                                    )
-                              }
-                              .testTag("chat_message_file"))
+                                  }
+                              browserLauncher.launch(
+                                  Intent.createChooser(
+                                      intent,
+                                      "Open with"
+                                  ) // I tried to extract the string resource but
+                                  // it didn't work
+                              )
+                          }
+                          .testTag("chat_message_file"))
                 }
               }
+                is Message.PollMessage -> {
+                    Column {
+                        Text(
+                            text = message.question,
+                            style = TextStyle(color = Black),
+                            modifier = Modifier.testTag("chat_message_poll_question"))
+                        LazyColumn {
+                            items(message.options) { it ->
+                                PollButton(
+                                    text = it,
+                                    isSelected = message.votes.contains(it),
+                                    singleChoice = message.singleChoice
+                                ) {
+                                    viewModel.votePollMessage(message, it)
+                                }
+                            }
+                        }
+                    }
+                }
             }
             Text(
                 text = message.getTime(),
@@ -363,6 +404,28 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
           }
         }
   }
+}
+
+@Composable
+fun PollButton(text : String, isSelected : Boolean, singleChoice : Boolean, onItemSelected: (String) -> Unit){
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onItemSelected(text) }
+    ) {
+        if(singleChoice){
+            RadioButton(selected = isSelected, onClick = {onItemSelected(text)})
+        } else {
+            Checkbox(checked = isSelected, onCheckedChange = { onItemSelected(text) })
+        }
+        Text(
+            text = text,
+            style = TextStyle(color = Black),
+            modifier = Modifier.testTag("chat_message_poll_option")
+        )
+    }
 }
 
 @Composable
@@ -376,10 +439,11 @@ fun MessageTextFields(
       value = textToSend,
       onValueChange = { textToSend = it },
       modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .background(White, RoundedCornerShape(20.dp))
-              .testTag("chat_text_field"),
+      Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .background(White, RoundedCornerShape(20.dp))
+          .testTag("chat_text_field"),
       shape = RoundedCornerShape(20.dp),
       textStyle = TextStyle(color = Black),
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
@@ -393,7 +457,10 @@ fun MessageTextFields(
               }),
       leadingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("icon_more_messages_types"),
+            modifier = Modifier
+                .size(48.dp)
+                .padding(6.dp)
+                .testTag("icon_more_messages_types"),
             onClick = {
               showIconsOptions.value = !showIconsOptions.value
               Log.d("MyPrint", "Icon clicked, showIconsOptions.value: ${showIconsOptions.value}")
@@ -406,7 +473,10 @@ fun MessageTextFields(
       },
       trailingIcon = {
         IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("chat_send_button"),
+            modifier = Modifier
+                .size(48.dp)
+                .padding(6.dp)
+                .testTag("chat_send_button"),
             onClick = {
               if (textToSend.isNotBlank()) {
                 onSend(textToSend)
@@ -622,7 +692,10 @@ fun ChatGroupTitle(chat: Chat) {
   Image(
       painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
+      modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .testTag("group_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
@@ -633,7 +706,9 @@ fun ChatGroupTitle(chat: Chat) {
       items(chat.members) { member ->
         Text(
             text = member.username,
-            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .testTag("group_title_member_name"),
             style = TextStyle(color = Gray),
             maxLines = 1)
       }
@@ -646,7 +721,10 @@ fun PrivateChatTitle(chat: Chat) {
   Image(
       painter = rememberAsyncImagePainter(chat.picture),
       contentDescription = "User profile picture",
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
+      modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .testTag("private_title_profile_picture"),
       contentScale = ContentScale.Crop)
 
   Spacer(modifier = Modifier.width(8.dp))
@@ -656,14 +734,57 @@ fun PrivateChatTitle(chat: Chat) {
 @Composable
 fun IconsOptionsList(
     viewModel: MessageViewModel,
-    showIconsOptions: MutableState<Boolean>,
-    showAddImage: MutableState<Boolean>,
-    showAddLink: MutableState<Boolean>,
-    showAddFile: MutableState<Boolean>,
+    showIconsOptions: MutableState<Boolean>
 ) {
+    val showAddImage = remember { mutableStateOf(false) }
+    val showAddLink = remember { mutableStateOf(false) }
+    val showAddFile = remember { mutableStateOf(false) }
+    val showAddPoll = remember { mutableStateOf(false) }
+
   SendPhotoMessage(viewModel, showAddImage)
   SendLinkMessage(viewModel, showAddLink)
   SendFileMessage(viewModel, showAddFile)
+  SendPollMessage(viewModel, showAddPoll)
+
+    val iconButtonOptions = listOf(
+        IconButtonOptionData(
+            testTag = "icon_send_image",
+            onClickAction = {
+                showIconsOptions.value = false
+                showAddImage.value = true
+            },
+            painterResourceId = R.drawable.image_24px,
+            contentDescription = stringResource(R.string.app_name)
+        ),
+        IconButtonOptionData(
+            testTag = "icon_send_link",
+            onClickAction = {
+                showIconsOptions.value = false
+                showAddLink.value = true
+            },
+            painterResourceId = R.drawable.link_24px,
+            contentDescription = stringResource(R.string.app_name)
+        ),
+        IconButtonOptionData(
+            testTag = "icon_send_file",
+            onClickAction = {
+                showIconsOptions.value = false
+                showAddFile.value = true
+            },
+            painterResourceId = R.drawable.picture_as_pdf_24px,
+            contentDescription = stringResource(R.string.app_name)
+        ),
+        IconButtonOptionData(
+            testTag = "icon_send_poll",
+            onClickAction = {
+                showIconsOptions.value = false
+                showAddPoll.value = true
+            },
+            painterResourceId = R.drawable.how_to_vote_24px,
+            contentDescription = stringResource(R.string.app_name)
+        )
+    )
+
   ShowAlertDialog(
       modifier = Modifier.testTag("dialog_more_messages_types"),
       showDialog = showIconsOptions,
@@ -671,41 +792,24 @@ fun IconsOptionsList(
       title = {},
       content = {
         LazyRow {
-          items(3) {
-            when (it) {
-              0 ->
-                  IconButtonOption(
-                      modifier = Modifier.testTag("icon_send_image"),
-                      onClickAction = {
-                        showIconsOptions.value = false
-                        showAddImage.value = true
-                      },
-                      painterResourceId = R.drawable.image_24px,
-                      contentDescription = stringResource(R.string.app_name))
-              1 ->
-                  IconButtonOption(
-                      modifier = Modifier.testTag("icon_send_link"),
-                      onClickAction = {
-                        showIconsOptions.value = false
-                        showAddLink.value = true
-                      },
-                      painterResourceId = R.drawable.link_24px,
-                      contentDescription = stringResource(R.string.app_name))
-              2 ->
-                  IconButtonOption(
-                      modifier = Modifier.testTag("icon_send_file"),
-                      onClickAction = {
-                        showIconsOptions.value = false
-                        showAddFile.value = true
-                      },
-                      painterResourceId = R.drawable.picture_as_pdf_24px,
-                      contentDescription = stringResource(R.string.app_name))
-            }
+          items(iconButtonOptions) { option ->
+            IconButtonOption(
+                modifier = Modifier.testTag(option.testTag),
+                onClickAction = option.onClickAction,
+                painterResourceId = option.painterResourceId,
+                contentDescription = option.contentDescription)
           }
         }
       },
       button = {})
 }
+
+data class IconButtonOptionData(
+    val testTag: String,
+    val onClickAction: () -> Unit,
+    val painterResourceId: Int,
+    val contentDescription: String
+)
 
 @Composable
 fun IconButtonOption(
@@ -773,7 +877,10 @@ fun ImagePickerBox(
   val context = LocalContext.current
   Box(
       contentAlignment = Alignment.Center,
-      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
+      modifier = Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .testTag("add_image_box")) {
         SetPicture(photoState) {
           checkPermission(context, permission, requestPermissionLauncher) {
             getContent.launch("image/*")
@@ -795,11 +902,16 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
       content = {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_link_box")) {
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .testTag("add_link_box")) {
               OutlinedTextField(
                   value = linkState.value,
                   onValueChange = { linkState.value = it },
-                  modifier = Modifier.fillMaxWidth().testTag("add_link_text_field"),
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .testTag("add_link_text_field"),
                   textStyle = TextStyle(color = Black),
                   singleLine = true,
                   placeholder = { Text(stringResource(R.string.enter_link)) },
@@ -909,14 +1021,15 @@ fun FilePickerBox(
   Box(
       contentAlignment = Alignment.Center,
       modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .clickable {
-                checkPermission(context, permission, requestPermissionLauncher) {
+      Modifier
+          .padding(8.dp)
+          .fillMaxWidth()
+          .clickable {
+              checkPermission(context, permission, requestPermissionLauncher) {
                   getContent.launch(MessageVal.FILE_TYPE)
-                }
               }
-              .testTag("add_file_box")) {
+          }
+          .testTag("add_file_box")) {
         if (fileState.value == Uri.EMPTY) {
           Text(
               text = stringResource(R.string.select_a_file),
@@ -925,6 +1038,116 @@ fun FilePickerBox(
           Text(text = fileName.value, modifier = Modifier.testTag("select_file"))
         }
       }
+}
+
+@Preview
+@Composable
+fun ChatScreenPreview() {
+    val navController = rememberNavController()
+    val navigationActions = NavigationActions(navController)
+  ChatScreen(
+      viewModel = MessageViewModel(Chat.empty()),
+      navigationActions = navigationActions
+  )
+}
+
+@Composable
+fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableState<Boolean>){
+    val question = remember { mutableStateOf("") }
+    val options = remember { mutableStateOf(listOf("")) }
+    val singleChoice = remember { mutableStateOf(true) }
+
+    ShowAlertDialog(
+        modifier = Modifier.testTag("add_poll_dialog"),
+        showDialog = showAddPoll,
+        onDismiss = { showAddPoll.value = false },
+        title = {},
+        content = {
+            Column {
+
+                OutlinedTextField(
+                    label = { Text(stringResource(R.string.poll_question)) },
+                    value = question.value,
+                    onValueChange = { question.value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("add_poll_question_text_field"),
+                    textStyle = TextStyle(color = Black),
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.enter_poll_question)) },
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = stringResource(R.string.poll_options))
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(options.value) { option ->
+                        OutlinedTextField(
+                            value = option,
+                            onValueChange = {
+                                options.value = options.value.toMutableList().apply {
+                                    set(indexOf(option), it)
+                                    removeAll{option -> option.isBlank()}
+                                    if (lastOrNull()?.isNotBlank() == true) add("")
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("add_poll_options_text_field"),
+                            textStyle = TextStyle(color = Black),
+                            singleLine = true,
+                            placeholder = { Text(stringResource(R.string.enter_poll_options)) },
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                /*options.value.forEachIndexed {
+                        index, _ ->
+                    OutlinedTextField(
+                        value = options.value[index],
+                        onValueChange = {
+                            options.value = options.value.toMutableList().apply {
+                                set(index, it)
+                                removeAll{option -> option.isBlank()}
+                                if (lastOrNull()?.isNotBlank() == true) add("")
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("add_poll_options_text_field"),
+                        textStyle = TextStyle(color = Black),
+                        singleLine = true,
+                        placeholder = { Text(stringResource(R.string.enter_poll_options)) },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))*/
+//                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .testTag("add_poll_single_choice_row"),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.single_choice),
+                        style = TextStyle(color = Black),
+                        modifier = Modifier.testTag("add_poll_single_choice_text")
+                    )
+                    Switch(checked = singleChoice.value, onCheckedChange = { singleChoice.value = it })
+                }
+            }
+        },
+        button = {
+            SaveButton(question.value.isNotBlank() && options.value.size > 1) {
+                messageViewModel.sendPollMessage(question.value, singleChoice.value, options.value.toList())
+                showAddPoll.value = false
+            }
+        }
+    )
 }
 
 @Composable
