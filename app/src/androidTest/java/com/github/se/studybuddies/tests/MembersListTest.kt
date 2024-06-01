@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.ui.groups.MembersList
-import com.github.se.studybuddies.utility.fakeDatabase.MockDatabase
+import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
