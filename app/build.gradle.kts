@@ -106,6 +106,8 @@ android {
 
 dependencies {
 
+    androidTestImplementation ("androidx.test.uiautomator:uiautomator:2.3.0")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
@@ -201,6 +203,9 @@ dependencies {
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
     // ...with Java.
     androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.44")
+    androidTestImplementation("org.mockito:mockito-android:3.12.4")
+
+
 
 }
 tasks.register("jacocoTestReport", JacocoReport::class) {

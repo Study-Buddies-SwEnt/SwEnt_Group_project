@@ -1,6 +1,5 @@
 package com.github.se.studybuddies.ui.video_call
 
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,29 +32,27 @@ import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import io.getstream.video.android.compose.permission.LaunchCallPermissions
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.lobby.CallLobby
-import io.getstream.video.android.core.call.state.ToggleCamera
-import io.getstream.video.android.core.call.state.ToggleMicrophone
 
 @Composable
 fun CallLobbyScreen(
-    groupUID: String,
+    state: ConnectState,
     callLobbyViewModel: CallLobbyViewModel,
-    navigationActions: NavigationActions
+    onAction: (ConnectAction) -> Unit,
+    navigationActions: NavigationActions,
 ) {
-  LockScreenOrientation(orientation = Configuration.ORIENTATION_PORTRAIT)
-  val call by remember { mutableStateOf(callLobbyViewModel.call) }
   val isLoading by callLobbyViewModel.isLoading.collectAsState()
-  val isCameraEnabled by call.camera.isEnabled.collectAsState()
-  val isMicrophoneEnabled by call.microphone.isEnabled.collectAsState()
+  val isCameraEnabled by state.call.camera.isEnabled.collectAsState()
+  val isMicrophoneEnabled by state.call.microphone.isEnabled.collectAsState()
   val context = LocalContext.current
+  val groupUID = state.call.cid
 
   LaunchCallPermissions(
-      call = call,
+      call = state.call,
       onPermissionsResult = {
         if (it.values.contains(false)) {
           Toast.makeText(
                   context,
-                  "Call permissions are required to join the call",
+                  context.getString(R.string.permissions_not_granted_call),
                   Toast.LENGTH_LONG,
               )
               .show()
@@ -67,6 +62,12 @@ fun CallLobbyScreen(
 
   VideoTheme {
     Box(modifier = Modifier.fillMaxSize().testTag("call_lobby")) {
+      if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center),
+            color = Blue,
+        )
+      }
       Column(
           modifier = Modifier.fillMaxSize().testTag("content"),
           horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,28 +86,15 @@ fun CallLobbyScreen(
             modifier = Modifier.testTag("preview_text"),
         )
         CallLobby(
-            call = call,
+            call = state.call,
             modifier = Modifier.fillMaxWidth().testTag("call_preview"),
             isCameraEnabled = isCameraEnabled,
-            isMicrophoneEnabled = isMicrophoneEnabled,
-            onCallAction = { action ->
-              when (action) {
-                is ToggleCamera -> callLobbyViewModel.enableCamera(action.isEnabled)
-                is ToggleMicrophone -> callLobbyViewModel.enableMicrophone(action.isEnabled)
-                else -> Unit
-              }
-            })
+            isMicrophoneEnabled = isMicrophoneEnabled)
         FloatingActionButton(
             modifier = Modifier.size(60.dp).testTag("join_call_button"),
-            onClick = { navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID") }) {
+            onClick = { onAction(ConnectAction.OnConnectClick) }) {
               Text(stringResource(R.string.join_call))
             }
-      }
-      if (isLoading) {
-        CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center),
-            color = Blue,
-        )
       }
     }
   }

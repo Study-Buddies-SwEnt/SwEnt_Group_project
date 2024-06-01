@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,29 +37,37 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(navigationActions: NavigationActions) {
+fun LoginScreen(navigationActions: NavigationActions, onUserLoggedIn: (String) -> Unit) {
   val signInLauncher =
       rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-        onSignInResult(res, navigationActions)
+        onSignInResult(res, navigationActions, onUserLoggedIn)
       }
 
   Column(
       modifier = Modifier.fillMaxSize().testTag("LoginScreen"),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center) {
-        Image(
-            painter = painterResource(R.drawable.main_logo),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.width(189.dp).height(189.dp))
-        Spacer(Modifier.height(67.dp))
+        Box(
+            modifier =
+                Modifier.height(300.dp)
+                    .width(300.dp)
+                    .background(Color.White, shape = RoundedCornerShape(60))) {
+              Image(
+                  painter = painterResource(R.drawable.study_buddies_logo),
+                  contentDescription = null,
+                  colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Blue),
+                  contentScale = ContentScale.FillBounds,
+                  modifier = Modifier.width(260.dp).height(250.dp).align(Alignment.Center))
+            }
+
+        Spacer(Modifier.height(30.dp))
         Text(
             text = "Study Buddies",
             style =
@@ -69,7 +78,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                     textAlign = TextAlign.Center,
                 ),
             modifier = Modifier.width(360.dp).height(120.dp).testTag("LoginTitle"))
-        Spacer(Modifier.height(150.dp))
+        Spacer(Modifier.height(70.dp))
         Button(
             onClick = {
               val signInIntent =
@@ -78,7 +87,6 @@ fun LoginScreen(navigationActions: NavigationActions) {
                       .setAvailableProviders(arrayListOf(AuthUI.IdpConfig.GoogleBuilder().build()))
                       .setIsSmartLockEnabled(false)
                       .build()
-
               signInLauncher.launch(signInIntent)
             },
             colors =
@@ -104,12 +112,14 @@ fun LoginScreen(navigationActions: NavigationActions) {
 
 private fun onSignInResult(
     result: FirebaseAuthUIAuthenticationResult,
-    navigationActions: NavigationActions
+    navigationActions: NavigationActions,
+    onUserLoggedIn: (String) -> Unit
 ) {
   if (result.resultCode == Activity.RESULT_OK) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     if (userId != null) {
-      val db = DatabaseConnection()
+      val db = ServiceLocator.provideDatabase()
+      onUserLoggedIn(userId)
       db.userExists(
           userId,
           onSuccess = { userExists ->

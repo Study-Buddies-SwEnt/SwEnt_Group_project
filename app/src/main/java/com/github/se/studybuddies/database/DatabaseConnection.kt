@@ -32,8 +32,6 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -297,6 +295,18 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e -> onFailure(e) }
   }
 
+  override fun groupExists(
+      groupUID: String,
+      onSuccess: (Boolean) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    groupDataCollection
+        .document(groupUID)
+        .get()
+        .addOnSuccessListener { document -> onSuccess(document.exists()) }
+        .addOnFailureListener { e -> onFailure(e) }
+  }
+
   // using the groups & userMemberships collections
   override suspend fun getAllGroups(uid: String): GroupList {
     try {
@@ -498,9 +508,10 @@ class DatabaseConnection : DbRepository {
    *
    * return -1 in case of invalid entries
    */
-  override suspend fun addUserToGroup(groupUID: String, user: String) {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
     if (groupUID == "") {
+      callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -514,12 +525,14 @@ class DatabaseConnection : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
+      callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -527,8 +540,12 @@ class DatabaseConnection : DbRepository {
     groupDataCollection
         .document(groupUID)
         .update("members", FieldValue.arrayUnion(userToAdd))
-        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnSuccessListener {
+          Log.d("MyPrint", "User successfully added to group")
+          callBack(false)
+        }
         .addOnFailureListener { e ->
+          callBack(true)
           Log.d("MyPrint", "Failed to add user to group with error: ", e)
         }
 
@@ -536,8 +553,12 @@ class DatabaseConnection : DbRepository {
     userMembershipsCollection
         .document(userToAdd)
         .update("groups", FieldValue.arrayUnion(groupUID))
-        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
+        .addOnSuccessListener {
+          Log.d("MyPrint", "Group successfully added to user")
+          callBack(false)
+        }
         .addOnFailureListener { e ->
+          callBack(true)
           Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
   }
@@ -681,6 +702,8 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the Realtime Database for messages
+
+  // using the Realtime Database for messages
   override fun sendMessage(
       chatUID: String,
       message: Message,
@@ -712,21 +735,12 @@ class DatabaseConnection : DbRepository {
         }
       }
       is Message.FileMessage -> {
-        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
-            messageData[MessageVal.FILE] = uri.toString()
-            messageData[MessageVal.FILE_NAME] = message.fileName
-            messageData[MessageVal.TYPE] = MessageVal.FILE
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload file")
-          }
-        }
+        messageData[MessageVal.PHOTO] = message.fileUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.FILE
+        saveMessage(messagePath, messageData)
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
@@ -783,9 +797,7 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-
-    val topic = getTopic(uid)
-    rtDb.getReference(topic.toString()).removeValue()
+    getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
   }
 
   override fun editMessage(
@@ -993,9 +1005,9 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the topicData and topicItemData collections
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val document = topicDataCollection.document(uid).get().await()
-    return if (document.exists()) {
+    if (document.exists()) {
       val name = document.getString(topic_name) ?: ""
       val exercisesList = document.get(topic_exercises) as List<String>
       val theoryList = document.get(topic_theory) as List<String>
@@ -1011,10 +1023,23 @@ class DatabaseConnection : DbRepository {
           } else {
             emptyList()
           }
-      Topic(uid, name, exercises, theory)
+      val topic = Topic(uid, name, exercises, theory)
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      Topic.empty()
+      callBack(Topic.empty())
+    }
+  }
+
+  override suspend fun getTopicFile(id: String): TopicFile {
+    val document = topicItemCollection.document(id).get().await()
+    return if (document.exists()) {
+      val name = document.getString(topic_name) ?: ""
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val parentUID = document.getString(item_parent) ?: ""
+      TopicFile(id, name, strongUsers, parentUID)
+    } else {
+      TopicFile.empty()
     }
   }
 
@@ -1100,15 +1125,60 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  override suspend fun deleteTopic(topicId: String) {
-    val itemRef = topicDataCollection.document(topicId)
-    try {
-      itemRef.delete().await()
-      Log.d("Database", "Item deleted successfully: $topicId")
-    } catch (e: Exception) {
-      Log.e("Database", "Error deleting item: $topicId, Error: $e")
-      throw e
+  override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
+    getTopic(topicId) { topic ->
+      val items: List<TopicItem> = topic.exercises + topic.theory
+      iterateTopicItemDeletion(items) {
+        topicDataCollection
+            .document(topic.uid)
+            .delete()
+            .addOnSuccessListener {
+              groupDataCollection
+                  .document(groupUID)
+                  .update("topics", FieldValue.arrayRemove(topicId))
+                  .addOnSuccessListener {
+                    callBack()
+                    Log.d("MyPrint", "Topic successfully removed from group")
+                  }
+                  .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
+              Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
+            }
+            .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
+      }
     }
+  }
+
+  private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
+    items.forEach { topicItem ->
+      when (topicItem) {
+        is TopicFile -> {
+          topicItemCollection
+              .document(topicItem.uid)
+              .delete()
+              .addOnSuccessListener {
+                Log.d("MyPrint", "Topic file ${topicItem.uid} successfully deleted")
+              }
+              .addOnFailureListener {
+                Log.d("MyPrint", "Failed to delete topic file ${topicItem.uid}")
+              }
+        }
+        is TopicFolder -> {
+          val children = topicItem.items
+          iterateTopicItemDeletion(children) {
+            topicItemCollection
+                .document(topicItem.uid)
+                .delete()
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Topic folder ${topicItem.uid} successfully deleted")
+                }
+                .addOnFailureListener {
+                  Log.d("MyPrint", "Failed to delete topic folder ${topicItem.uid}")
+                }
+          }
+        }
+      }
+    }
+    callBack()
   }
 
   override fun updateTopicName(uid: String, name: String) {
@@ -1194,6 +1264,28 @@ class DatabaseConnection : DbRepository {
         }
   }
 
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection.document(fileID).get().await()
+    if (document.exists()) {
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    }
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    if (newValue) {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayUnion(currentUser))
+    } else {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayRemove(currentUser))
+    }
+  }
+
   override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
     var isRunning = false
     groupUID?.let { uid ->
@@ -1223,7 +1315,6 @@ class DatabaseConnection : DbRepository {
       onUpdate: (TopicList) -> Unit
   ) {
     val docRef = groupDataCollection.document(groupUID)
-
     docRef.addSnapshotListener { snapshot, e ->
       if (e != null) {
         Log.w("MyPrint", "Listen failed.", e)
@@ -1231,14 +1322,12 @@ class DatabaseConnection : DbRepository {
       }
 
       if (snapshot != null && snapshot.exists()) {
+
         scope.launch(ioDispatcher) {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
           if (topicUIDs.isNotEmpty()) {
-            topicUIDs
-                .map { topicUid -> async { getTopic(topicUid) } }
-                .awaitAll()
-                .forEach { topic -> items.add(topic) }
+            topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }
@@ -1252,7 +1341,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun getAllContacts(uid: String): ContactList {
+  override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()
@@ -1278,7 +1367,7 @@ class DatabaseConnection : DbRepository {
     return ContactList(emptyList())
   }
 
-  suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactUID: String): Contact {
     val document = contactDataCollection.document(contactUID).get().await()
     return if (document.exists()) {
       val members = document.get("members") as? List<String> ?: emptyList()
@@ -1290,7 +1379,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")

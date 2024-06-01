@@ -60,4 +60,12 @@ class ChatScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val sendFileMessageDialog: KNode = onNode { hasTestTag("add_file_dialog") }
   val sendFileMessageBox: KNode = onNode { hasTestTag("add_file_box") }
   val sendFileMessageSaveButton: KNode = onNode { hasTestTag("save_button") }
+
+  val messageTypeFilter: KNode = onNode { hasTestTag("message_type_filter") }
+  val messageTypeFilterButton: KNode =
+      messageTypeFilter.child { hasTestTag("message_type_filter_button") }
+
+  val messageFilterTextField: KNode = onNode { hasTestTag("search_bar_text_field") }
+
+  val searchButton: KNode = onNode { hasTestTag("search_button") }
 }

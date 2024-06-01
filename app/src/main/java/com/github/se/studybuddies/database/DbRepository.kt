@@ -1,9 +1,10 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
-import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -14,7 +15,6 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,18 +25,15 @@ interface DbRepository {
   // using the userData collection
   suspend fun getUser(uid: String): User?
 
-  suspend fun getCurrentUser(): User?
+  suspend fun getCurrentUser(): User
 
-  fun getCurrentUserUID(): String {
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
-    return if (uid != null) {
-      Log.d("MyPrint", "Fetched user UID is $uid")
-      uid
-    } else {
-      Log.d("MyPrint", "Failed to get current user UID")
-      ""
-    }
-  }
+  suspend fun getContact(contactUID: String): Contact
+
+  suspend fun createContact(otherUID: String)
+
+  suspend fun getAllContacts(uid: String): ContactList
+
+  fun getCurrentUserUID(): String
 
   suspend fun getAllFriends(uid: String): List<User>
 
@@ -62,6 +59,8 @@ interface DbRepository {
 
   fun userExists(uid: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit)
 
+  fun groupExists(groupUID: String, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit)
+
   // using the groups & userMemberships collections
   suspend fun getAllGroups(uid: String): GroupList
 
@@ -75,7 +74,7 @@ interface DbRepository {
 
   suspend fun createGroup(name: String, photoUri: Uri)
 
-  suspend fun addUserToGroup(groupUID: String, user: String = "")
+  suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
@@ -83,7 +82,6 @@ interface DbRepository {
 
   suspend fun deleteGroup(groupUID: String)
 
-  // using the Realtime Database for messages
   fun sendMessage(chatUID: String, message: Message, chatType: ChatType, additionalUID: String = "")
 
   fun saveMessage(path: String, data: Map<String, Any>)
@@ -130,7 +128,9 @@ interface DbRepository {
   fun startDirectMessage(otherUID: String)
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic
+  suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
+
+  suspend fun getTopicFile(id: String): TopicFile
 
   suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem>
 
@@ -142,7 +142,7 @@ interface DbRepository {
 
   fun addTheory(uid: String, theory: TopicItem)
 
-  suspend fun deleteTopic(topicId: String)
+  suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit)
 
   fun updateTopicName(uid: String, name: String)
 
@@ -151,6 +151,10 @@ interface DbRepository {
   fun createTopicFile(name: String, parentUID: String, callBack: (TopicFile) -> Unit)
 
   fun updateTopicItem(item: TopicItem)
+
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
+
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean)
 
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
