@@ -23,7 +23,6 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.ui.groups.GroupsHome
-import com.github.se.studybuddies.utilities.MockDatabase
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso

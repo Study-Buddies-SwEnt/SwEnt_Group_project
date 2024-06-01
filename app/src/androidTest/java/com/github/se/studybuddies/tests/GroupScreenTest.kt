@@ -9,11 +9,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.printToLog
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupScreen
-import com.github.se.studybuddies.utilities.MockDatabase
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport

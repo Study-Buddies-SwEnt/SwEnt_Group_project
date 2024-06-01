@@ -9,7 +9,6 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.ui.account.CreateAccount
-import com.github.se.studybuddies.utilities.MockDatabase
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
