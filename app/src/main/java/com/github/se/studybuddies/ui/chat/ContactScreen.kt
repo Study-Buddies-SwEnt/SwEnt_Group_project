@@ -226,24 +226,24 @@ private fun DeleteContactDialog(onDelete: () -> Unit, onCancel: () -> Unit, cont
                     color = Blue,
                     textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(20.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth().testTag(contactID + "_delete_row"),
-                    horizontalArrangement = Arrangement.SpaceEvenly) {
+
                       DeleteButton(onClick = { onDelete() })
+                Spacer(modifier = Modifier.height(20.dp))
+
                       Button(
                           onClick = { onCancel() },
                           modifier =
                               Modifier.clip(RoundedCornerShape(4.dp))
-                                  //.width(80.dp)
-                                  //.height(40.dp)
+                                  .width(100.dp)
+                                  .height(40.dp)
                                   .testTag(contactID + "_delete_no_button"),
                           colors =
                               ButtonDefaults.buttonColors(
                                   containerColor = Blue, contentColor = White)) {
                             Text(
-                                text = stringResource(R.string.no),
+                                text = stringResource(R.string.cancel),
                                 modifier = Modifier.testTag(contactID + "_delete_no_text"))
-                          }
+
                     }
               }
         }
