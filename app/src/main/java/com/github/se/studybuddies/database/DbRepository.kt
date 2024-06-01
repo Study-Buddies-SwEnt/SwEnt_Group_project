@@ -1,9 +1,10 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
-import android.util.Log
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
+import com.github.se.studybuddies.data.Contact
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
@@ -14,7 +15,6 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,18 +25,15 @@ interface DbRepository {
   // using the userData collection
   suspend fun getUser(uid: String): User?
 
-  suspend fun getCurrentUser(): User?
+  suspend fun getCurrentUser(): User
 
-  fun getCurrentUserUID(): String {
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
-    return if (uid != null) {
-      Log.d("MyPrint", "Fetched user UID is $uid")
-      uid
-    } else {
-      Log.d("MyPrint", "Failed to get current user UID")
-      ""
-    }
-  }
+  suspend fun getContact(contactUID: String): Contact
+
+  suspend fun createContact(otherUID: String)
+
+  suspend fun getAllContacts(uid: String): ContactList
+
+  fun getCurrentUserUID(): String
 
   suspend fun getAllFriends(uid: String): List<User>
 
@@ -87,7 +84,6 @@ interface DbRepository {
 
   suspend fun deleteGroup(groupUID: String)
 
-  // using the Realtime Database for messages
   fun sendMessage(chatUID: String, message: Message, chatType: ChatType, additionalUID: String = "")
 
   fun saveMessage(path: String, data: Map<String, Any>)

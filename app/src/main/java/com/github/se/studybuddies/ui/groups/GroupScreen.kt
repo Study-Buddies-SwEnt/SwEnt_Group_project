@@ -126,7 +126,7 @@ fun GroupScreen(
                         textId = "Timer")))
       }) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHome"),
+            modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHomeColumn"),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
         ) {

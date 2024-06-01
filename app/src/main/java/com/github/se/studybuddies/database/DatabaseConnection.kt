@@ -744,6 +744,8 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the Realtime Database for messages
+
+  // using the Realtime Database for messages
   override fun sendMessage(
       chatUID: String,
       message: Message,
@@ -775,21 +777,12 @@ class DatabaseConnection : DbRepository {
         }
       }
       is Message.FileMessage -> {
-        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
-            messageData[MessageVal.FILE] = uri.toString()
-            messageData[MessageVal.FILE_NAME] = message.fileName
-            messageData[MessageVal.TYPE] = MessageVal.FILE
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload file")
-          }
-        }
+        messageData[MessageVal.PHOTO] = message.fileUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.FILE
+        saveMessage(messagePath, messageData)
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
@@ -1364,7 +1357,6 @@ class DatabaseConnection : DbRepository {
       onUpdate: (TopicList) -> Unit
   ) {
     val docRef = groupDataCollection.document(groupUID)
-
     docRef.addSnapshotListener { snapshot, e ->
       if (e != null) {
         Log.w("MyPrint", "Listen failed.", e)
@@ -1372,6 +1364,7 @@ class DatabaseConnection : DbRepository {
       }
 
       if (snapshot != null && snapshot.exists()) {
+
         scope.launch(ioDispatcher) {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
@@ -1390,7 +1383,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun getAllContacts(uid: String): ContactList {
+  override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()
@@ -1416,7 +1409,7 @@ class DatabaseConnection : DbRepository {
     return ContactList(emptyList())
   }
 
-  suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactUID: String): Contact {
     val document = contactDataCollection.document(contactUID).get().await()
     return if (document.exists()) {
       val members = document.get("members") as? List<String> ?: emptyList()
@@ -1428,7 +1421,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
