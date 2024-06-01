@@ -53,6 +53,8 @@ class DatabaseConnection : DbRepository {
   private val topicItemCollection = db.collection("topicItemData")
   private val contactDataCollection = db.collection("contactData")
   private val userContactsCollection = db.collection("userContacts")
+  private val dailyPlannerCollection = db.collection("dailyPlannerData")
+
 
   override fun isFakeDatabase(): Boolean {
     return false
@@ -60,48 +62,46 @@ class DatabaseConnection : DbRepository {
 
   // using the userData collection
   override suspend fun getUser(uid: String): User {
-    if (uid.isEmpty()) {
-      return User.empty()
-    }
-    val document = userDataCollection.document(uid).get().await()
-    return if (document.exists()) {
-      val email = document.getString("email") ?: ""
-      val username = document.getString("username") ?: ""
-      val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-      val location = document.getString("location") ?: "offline"
-      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
-      val plannerList =
-          dailyPlanners.map { plannerMap ->
-            DailyPlanner(
-                date = plannerMap["date"] as String,
-                goals = plannerMap["goals"] as List<String>,
-                appointments = plannerMap["appointments"] as Map<String, String>,
-                notes = plannerMap["notes"] as List<String>)
-          }
-      User(uid, email, username, photoUrl, location, plannerList)
-    } else {
-      Log.d("MyPrint", "user document not found for id $uid")
-      User.empty()
-    }
+      if (uid.isEmpty()) {
+          return User.empty()
+      }
+      val document = userDataCollection.document(uid).get().await()
+      return if (document.exists()) {
+          val email = document.getString("email") ?: ""
+          val username = document.getString("username") ?: ""
+          val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
+          val location = document.getString("location") ?: "offline"
+          val dailyPlanners = getDailyPlanners(uid)
+          User(uid, email, username, photoUrl, location)
+      } else {
+          Log.d("MyPrint", "user document not found for id $uid")
+          User.empty()
+      }
   }
+    suspend fun getDailyPlanners(uid: String): List<DailyPlanner> {
+        val dailyPlannersQuery = dailyPlannerCollection.whereEqualTo("uid", uid).get().await()
+        return dailyPlannersQuery.documents.mapNotNull { document ->
+            document.toObject(DailyPlanner::class.java)
+        }
+    }
+   override  fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
+        val plannerMap =
+            dailyPlanners.map { planner ->
+                mapOf(
+                    "date" to planner.date,
+                    "goals" to planner.goals,
+                    "appointments" to planner.appointments,
+                    "notes" to planner.notes)
+            }
+        dailyPlannerCollection
+            .document(uid)
+            .update("dailyPlanners", plannerMap)
+            .addOnSuccessListener {
+                Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
+            }
+            .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
+    }
 
-  override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
-    val plannerMap =
-        dailyPlanners.map { planner ->
-          mapOf(
-              "date" to planner.date,
-              "goals" to planner.goals,
-              "appointments" to planner.appointments,
-              "notes" to planner.notes)
-        }
-    userDataCollection
-        .document(uid)
-        .update("dailyPlanners", plannerMap)
-        .addOnSuccessListener {
-          Log.d("MyPrint", "DailyPlanners successfully updated for user $uid")
-        }
-        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to update DailyPlanners: ", e) }
-  }
 
   override suspend fun getCurrentUser(): User {
     return getUser(getCurrentUserUID())
@@ -144,134 +144,141 @@ class DatabaseConnection : DbRepository {
     return storage.child("userData/default.jpg").downloadUrl.await()
   }
 
-  override suspend fun createUser(
-      uid: String,
-      email: String,
-      username: String,
-      profilePictureUri: Uri,
-      location: String
-  ) {
-    Log.d(
-        "MyPrint",
-        "Creating new user with uid $uid, email $email, username $username and picture link $profilePictureUri")
-    val user =
-        hashMapOf(
-            "email" to email,
-            "username" to username,
-            "photoUrl" to profilePictureUri.toString(),
-            "location" to location,
-            "dailyPlanners" to emptyList<Map<String, Any>>())
-    if (profilePictureUri != getDefaultProfilePicture()) {
-      userDataCollection
-          .document(uid)
-          .set(user)
-          .addOnSuccessListener {
-            val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
-            pictureRef
-                .putFile(profilePictureUri)
+    override suspend fun createUser(
+        uid: String,
+        email: String,
+        username: String,
+        profilePictureUri: Uri,
+        location: String
+    ) {
+        Log.d(
+            "MyPrint",
+            "Creating new user with uid $uid, email $email, username $username and picture link $profilePictureUri")
+        val user =
+            hashMapOf(
+                "email" to email,
+                "username" to username,
+                "photoUrl" to profilePictureUri.toString(),
+                "location" to location)
+        if (profilePictureUri != getDefaultProfilePicture()) {
+            userDataCollection
+                .document(uid)
+                .set(user)
                 .addOnSuccessListener {
-                  pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                    userDataCollection.document(uid).update("photoUrl", uri.toString())
-                  }
-                  Log.d("MyPrint", "User data successfully created")
-                }
-                .addOnFailureListener { e ->
-                  Log.d(
-                      "MyPrint",
-                      "Failed to upload photo with error with link $profilePictureUri: ",
-                      e)
-                }
-            Log.d("MyPrint", "User data successfully created for uid $uid")
-          }
-          .addOnFailureListener { e ->
-            Log.d("MyPrint", "Failed to create user data with error: ", e)
-          }
-    } else {
-      // If the profile picture URI is the default one, copy it to the user's folder
-      val defaultPictureRef = storage.child("userData/default.jpg")
-      val profilePictureRef = storage.child("userData/$uid/profilePicture.jpg")
-
-      defaultPictureRef
-          .getBytes(Long.MAX_VALUE)
-          .addOnSuccessListener { defaultPictureData ->
-            profilePictureRef
-                .putBytes(defaultPictureData)
-                .addOnSuccessListener {
-                  // Once the default picture is uploaded, update the user data with the correct
-                  // photo URL
-                  profilePictureRef.downloadUrl.addOnSuccessListener { uri ->
-                    val updatedUserData = user + mapOf("photoUrl" to uri.toString())
-                    userDataCollection
-                        .document(uid)
-                        .set(updatedUserData)
+                    val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
+                    pictureRef
+                        .putFile(profilePictureUri)
                         .addOnSuccessListener {
-                          Log.d("MyPrint", "User data successfully created for uid $uid")
+                            pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                                userDataCollection.document(uid).update("photoUrl", uri.toString())
+                            }
+                            Log.d("MyPrint", "User data successfully created")
                         }
                         .addOnFailureListener { e ->
-                          Log.d("MyPrint", "Failed to update user data with error: ", e)
+                            Log.d(
+                                "MyPrint",
+                                "Failed to upload photo with error with link $profilePictureUri: ",
+                                e)
                         }
-                  }
+                    Log.d("MyPrint", "User data successfully created for uid $uid")
                 }
                 .addOnFailureListener { e ->
-                  Log.d(
-                      "MyPrint",
-                      "Failed to upload default profile picture for user $uid with error: ",
-                      e)
+                    Log.d("MyPrint", "Failed to create user data with error: ", e)
                 }
-          }
-          .addOnFailureListener { e ->
-            Log.d("MyPrint", "Failed to retrieve default profile picture with error: ", e)
-          }
+        } else {
+            // If the profile picture URI is the default one, copy it to the user's folder
+            val defaultPictureRef = storage.child("userData/default.jpg")
+            val profilePictureRef = storage.child("userData/$uid/profilePicture.jpg")
+
+            defaultPictureRef
+                .getBytes(Long.MAX_VALUE)
+                .addOnSuccessListener { defaultPictureData ->
+                    profilePictureRef
+                        .putBytes(defaultPictureData)
+                        .addOnSuccessListener {
+                            // Once the default picture is uploaded, update the user data with the correct
+                            // photo URL
+                            profilePictureRef.downloadUrl.addOnSuccessListener { uri ->
+                                val updatedUserData = user + mapOf("photoUrl" to uri.toString())
+                                userDataCollection
+                                    .document(uid)
+                                    .set(updatedUserData)
+                                    .addOnSuccessListener {
+                                        Log.d("MyPrint", "User data successfully created for uid $uid")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.d("MyPrint", "Failed to update user data with error: ", e)
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.d(
+                                "MyPrint",
+                                "Failed to upload default profile picture for user $uid with error: ",
+                                e)
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.d("MyPrint", "Failed to retrieve default profile picture with error: ", e)
+                }
+        }
+
+        val membership = hashMapOf("groups" to emptyList<String>())
+        userMembershipsCollection
+            .document(uid)
+            .set(membership)
+            .addOnSuccessListener { Log.d("MyPrint", "User memberships successfully created") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to create user memberships with error: ", e)
+            }
+
+        val contactList = hashMapOf("contacts" to emptyList<String>())
+        userContactsCollection
+            .document(uid)
+            .set(contactList)
+            .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to create user contact list with error: ", e)
+            }
+        val dailyPlanner = hashMapOf( "dailyPlanners" to emptyList<Map<String, Any>>())
+        userContactsCollection
+            .document(uid)
+            .set(dailyPlanner)
+            .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to create user contact list with error: ", e)
+            }
     }
 
-    val membership = hashMapOf("groups" to emptyList<String>())
-    userMembershipsCollection
-        .document(uid)
-        .set(membership)
-        .addOnSuccessListener { Log.d("MyPrint", "User memberships successfully created") }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to create user memberships with error: ", e)
-        }
-
-    val contactList = hashMapOf("contacts" to emptyList<String>())
-    userContactsCollection
-        .document(uid)
-        .set(contactList)
-        .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to create user contact list with error: ", e)
-        }
-  }
-
-  override fun updateUserData(
-      uid: String,
-      email: String,
-      username: String,
-      profilePictureUri: Uri,
-      location: String
-  ) {
-    val task = hashMapOf("email" to email, "username" to username, "location" to location)
-    userDataCollection
-        .document(uid)
-        .update(task as Map<String, Any>)
-        .addOnSuccessListener {
-          val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
-          pictureRef
-              .putFile(profilePictureUri)
-              .addOnSuccessListener {
-                pictureRef.downloadUrl.addOnSuccessListener { uri ->
-                  userDataCollection.document(uid).update("photoUrl", uri.toString())
-                }
-              }
-              .addOnFailureListener { e ->
-                Log.d("MyPrint", "Failed to upload photo with error: ", e)
-              }
-          Log.d("MyPrint", "User data successfully updated")
-        }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to update user data with error: ", e)
-        }
-  }
+    override fun updateUserData(
+        uid: String,
+        email: String,
+        username: String,
+        profilePictureUri: Uri,
+        location: String
+    ) {
+        val task = hashMapOf("email" to email, "username" to username, "location" to location)
+        userDataCollection
+            .document(uid)
+            .update(task as Map<String, Any>)
+            .addOnSuccessListener {
+                val pictureRef = storage.child("userData/$uid/profilePicture.jpg")
+                pictureRef
+                    .putFile(profilePictureUri)
+                    .addOnSuccessListener {
+                        pictureRef.downloadUrl.addOnSuccessListener { uri ->
+                            userDataCollection.document(uid).update("photoUrl", uri.toString())
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("MyPrint", "Failed to upload photo with error: ", e)
+                    }
+                Log.d("MyPrint", "User data successfully updated")
+            }
+            .addOnFailureListener { e ->
+                Log.d("MyPrint", "Failed to update user data with error: ", e)
+            }
+    }
 
   override fun updateLocation(uid: String, location: String) {
     userDataCollection

@@ -162,9 +162,9 @@ interface DbRepository {
 
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
-    fun updateDailyPlanner(planner: DailyPlanner)
+    fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
 
-  fun getAllTopics(
+    fun getAllTopics(
       groupUID: String,
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
