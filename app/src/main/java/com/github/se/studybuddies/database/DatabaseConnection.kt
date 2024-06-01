@@ -241,7 +241,7 @@ class DatabaseConnection : DbRepository {
                 Log.d("MyPrint", "Failed to create user contact list with error: ", e)
             }
         val dailyPlanner = hashMapOf( "dailyPlanners" to emptyList<Map<String, Any>>())
-        userContactsCollection
+        dailyPlannerCollection
             .document(uid)
             .set(dailyPlanner)
             .addOnSuccessListener { Log.d("MyPrint", "User contact list successfully created") }
