@@ -23,17 +23,17 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -69,7 +69,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.R.string.select_a_picture
 import com.github.se.studybuddies.data.Group
@@ -135,17 +134,18 @@ fun MainScreenScaffold(
                     navigationIcon = { DrawerMenuIcon(scope, drawerState) },
                     actions = { iconOptions() },
                     modifier = Modifier.testTag(title + "_top_app_bar"))
-                Divider(
-                    color = Blue,
+                HorizontalDivider(
+                    modifier = Modifier.align(Alignment.BottomStart),
                     thickness = 4.dp,
-                    modifier = Modifier.align(Alignment.BottomStart))
+                    color = Blue)
               }
             },
             bottomBar = {
               BottomNavigationBar(
                   navigationActions = navigationActions,
                   destinations = BOTTOM_NAVIGATION_DESTINATIONS,
-                  currentRoute = backRoute)
+                  currentRoute = backRoute,
+                  iconSize = 32)
             },
             content = content)
       }
@@ -166,10 +166,10 @@ fun TopNavigationBar(
         navigationIcon = { navigationIcon() },
         actions = { actions() },
         modifier = Modifier.testTag("top_app_bar"))
-    Divider(
-        color = Blue,
+    HorizontalDivider(
+        modifier = Modifier.align(Alignment.BottomStart).testTag("divider"),
         thickness = 4.dp,
-        modifier = Modifier.align(Alignment.BottomStart).testTag("divider"))
+        color = Blue)
   }
 }
 
@@ -178,9 +178,10 @@ fun TopNavigationBar(
 fun BottomNavigationBar(
     navigationActions: NavigationActions,
     destinations: List<Destination>,
-    currentRoute: String = ""
+    currentRoute: String = "",
+    iconSize: Int
 ) {
-  var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
+  var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
   NavigationBar(
       modifier =
           Modifier.clip(RoundedCornerShape(100.dp))
@@ -203,7 +204,10 @@ fun BottomNavigationBar(
           alwaysShowLabel = true,
           icon = {
             Icon(
-                painter = painterResource(item.icon), contentDescription = item.textId, tint = Blue)
+                painter = painterResource(item.icon),
+                contentDescription = item.textId,
+                tint = Blue,
+                modifier = Modifier.size(iconSize.dp))
           },
           colors =
               androidx.compose.material3.NavigationBarItemDefaults.colors(
@@ -255,7 +259,7 @@ fun GoBackRouteButton(
     backRoute: String,
 ) {
   Icon(
-      imageVector = Icons.Default.ArrowBack,
+      imageVector = Icons.AutoMirrored.Filled.ArrowBack,
       contentDescription = "Go back",
       modifier =
           Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
@@ -298,7 +302,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
               }) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Image(
-              painter = rememberImagePainter(group.picture),
+              painter = rememberAsyncImagePainter(group.picture),
               contentDescription = "Group profile picture",
               modifier = Modifier.size(32.dp),
               contentScale = ContentScale.Crop)
