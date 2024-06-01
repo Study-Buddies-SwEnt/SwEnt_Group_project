@@ -35,6 +35,8 @@ class MockDatabase : DbRepository {
   private val groupDataCollection = fakeGroupDataCollection
   private val topicDataCollection = fakeTopicDataCollection
   private val topicItemCollection = fakeTopicItemCollection
+  private val contactDataCollection = fakeContactDataCollection
+  private val userContactcollection = fakeUserContactCollection
   private val rtDb = mutableMapOf<String, Map<String, Any>>()
   private val storage = mutableMapOf<String, Uri>()
 
@@ -59,6 +61,18 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {
+    TODO("Not yet implemented")
+  }
+
+  override fun deleteContact(contactID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun deletePrivateChat(chatID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun updateContact(contactID: String, showOnMap: Boolean) {
     TODO("Not yet implemented")
   }
 
@@ -716,17 +730,7 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override fun deleteContact(contactID: String) {
-    TODO("Not yet implemented")
-  }
 
-  override fun deletePrivateChat(chatID: String) {
-    TODO("Not yet implemented")
-  }
-
-  override fun updateContact(contactID: String, showOnMap: Boolean) {
-    TODO("Not yet implemented")
-  }
 
   override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
     val user = userDataCollection.getOrElse(uid) { User.empty() }

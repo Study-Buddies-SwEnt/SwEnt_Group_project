@@ -1,6 +1,8 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateOf
+import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
@@ -76,6 +78,14 @@ val fakeGroup1 =
         timerState = TimerState(0L, false),
     )
 
+val fakeContact1 =
+    Contact(
+        id = "contactTest1",
+        members = mutableListOf(fakeUser1.uid, fakeUser2.uid),
+        showOnMap = true
+    )
+
+
 val fakeUserDataCollection =
     mutableMapOf<String, User>().apply {
       put(fakeUser1.uid, fakeUser1)
@@ -87,6 +97,16 @@ val fakeUserMembershipsCollection =
       put(fakeUser1.uid, mutableListOf(fakeGroup1.uid))
       put(fakeUser2.uid, mutableListOf<String>())
     }
+
+val fakeContactDataCollection =
+    mutableMapOf<String, Contact>().apply { put(fakeContact1.id, fakeContact1) }
+
+val fakeUserContactCollection =
+mutableMapOf<String, MutableList<String>>().apply {
+    put(fakeUser1.uid, mutableListOf(fakeContact1.id))
+    put(fakeUser2.uid, mutableListOf(fakeContact1.id))
+}
+
 
 val fakeGroupDataCollection =
     mutableMapOf<String, Group>().apply { put(fakeGroup1.uid, fakeGroup1) }
