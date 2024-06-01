@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,13 +38,18 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -82,6 +88,7 @@ import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
@@ -104,6 +111,8 @@ fun ChatScreen(
   val showAddImage = remember { mutableStateOf(false) }
   val showAddLink = remember { mutableStateOf(false) }
   val showAddFile = remember { mutableStateOf(false) }
+  var showSearchBar by remember { mutableStateOf(false) }
+  var searchText by remember { mutableStateOf("") }
 
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
   val listState = rememberLazyListState()
@@ -131,6 +140,28 @@ fun ChatScreen(
             ChatType.GROUP,
             ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)
             ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
+          }
+          Spacer(Modifier.weight(1f, true))
+          Icon(
+              Icons.Default.Search,
+              contentDescription = "Search",
+              modifier =
+                  Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
+        }
+        if (showSearchBar) {
+          Column {
+            SearchBar(
+                searchText,
+                onSearchTextChanged = {
+                  searchText = it
+                  viewModel.setSearchQuery(it)
+                  Log.d("MyPrint", "Search query: $it")
+                },
+                onClearSearch = {
+                  searchText = ""
+                  viewModel.setSearchQuery("")
+                })
+            MessageTypeFilter(viewModel = viewModel)
           }
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
@@ -164,6 +195,66 @@ fun ChatScreen(
         MessageTextFields(
             onSend = { viewModel.sendTextMessage(it) }, showIconsOptions = showIconsOptions)
       }
+}
+
+@Composable
+fun SearchBar(
+    searchText: String,
+    onSearchTextChanged: (String) -> Unit,
+    onClearSearch: () -> Unit
+) {
+  Column {
+    TextField(
+        value = searchText,
+        onValueChange = onSearchTextChanged,
+        modifier = Modifier.fillMaxWidth().testTag("search_bar_text_field"),
+        placeholder = { Text(stringResource(R.string.search)) },
+        singleLine = true,
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+            ),
+        trailingIcon = {
+          IconButton(onClick = onClearSearch) {
+            if (searchText.isNotEmpty())
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = stringResource(R.string.content_description_clear_search))
+          }
+        },
+    )
+  }
+}
+
+@Composable
+fun MessageTypeFilter(viewModel: MessageViewModel) {
+  val filterType = viewModel.filterType.collectAsState().value
+  Row(
+      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("message_type_filter"),
+      horizontalArrangement = Arrangement.SpaceEvenly) {
+        MessageFilterType.entries.forEach { type ->
+          val backgroundColor = if (filterType == type.messageType) DarkBlue else Blue
+          Button(
+              modifier = Modifier.testTag("message_type_filter_button"),
+              onClick = { viewModel.setFilterType(type.messageType) },
+              colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
+          ) {
+            Text(stringResource(type.displayNameRes), style = TextStyle(color = White))
+          }
+        }
+      }
+}
+
+enum class MessageFilterType(
+    @StringRes val displayNameRes: Int,
+    val messageType: Class<out Message>?
+) {
+  ALL(R.string.all_message_type, null),
+  TEXT(R.string.test_message_type, Message.TextMessage::class.java),
+  PHOTO(R.string.photo_message_type, Message.PhotoMessage::class.java),
+  LINK(R.string.link_message_type, Message.LinkMessage::class.java),
+  FILE(R.string.file_message_type, Message.FileMessage::class.java)
 }
 
 @Composable

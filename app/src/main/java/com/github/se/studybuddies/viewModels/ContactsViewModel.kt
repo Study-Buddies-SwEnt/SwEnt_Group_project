@@ -4,13 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.ContactList
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ContactsViewModel(private val uid: String? = null) : ViewModel() {
-  private val db = DatabaseConnection()
+  private val db = ServiceLocator.provideDatabase()
   private val _contacts = MutableStateFlow<ContactList>(ContactList(emptyList()))
   val contacts: StateFlow<ContactList> = _contacts
 
