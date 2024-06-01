@@ -134,11 +134,14 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     fun votePollMessage(message: Message.PollMessage, option: String) {
         val currentUserUID = _currentUser.value?.uid ?: return
 
-//        if (message.singleChoice) {
-//            message.votes.keys.forEach { opt ->
-//                message.votes[opt] = message.votes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
-//            }
-//        }
+        if (message.singleChoice) {
+            // Remove user's previous votes if it's a single-choice poll
+            message.votes.keys.forEach { opt ->
+                if (opt != option) {
+                    message.votes[opt] = message.votes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
+                }
+            }
+        }
 
         // For both single and multiple-choice polls
         val currentVotes = message.votes[option]?.toMutableList() ?: mutableListOf()
@@ -152,12 +155,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
         message.votes[option] = currentVotes
 
         // Update the message in the database
-        db.votePollMessage(chat.uid, message.uid, option, currentUserUID, chat.type, chat.additionalUID)
-
-//        // Update the local state
-//        _messages.value = _messages.value.map {
-//            if (it.uid == message.uid) message else it
-//        }
+        db.votePollMessage(chat, message)
     }
 
   private fun sendMessage(message: Message) {

@@ -1052,21 +1052,19 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    fun votePollMessage(chatUID: String, messageUID: String, option: String, userUID: String, chatType: ChatType, additionalUID: String = "") {
-        val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/$messageUID/${MessageVal.POLL_VOTES}/$option"
+    fun votePollMessage(chat: Chat, message: Message.PollMessage) {
+        val messagePath = getMessagePath(chat.uid, chat.type, chat.additionalUID) + "/${message.uid}/${MessageVal.POLL_VOTES}"
         val reference = rtDb.getReference(messagePath)
 
         reference.runTransaction(object : Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
-                val currentVotes = currentData.getValue(String::class.java)?.split(",")?.toMutableList() ?: mutableListOf()
-
-                if (currentVotes.contains(userUID)) {
-                    currentVotes.remove(userUID)
-                } else {
-                    currentVotes.add(userUID)
+                val updatedVotesMap = mutableMapOf<String, String>()
+                message.votes.forEach { (option, users) ->
+                    val userIds = users.filter { it.uid.isNotEmpty() }.joinToString(",") { it.uid }
+                    updatedVotesMap[option] = userIds
                 }
 
-                currentData.value = if (currentVotes.isEmpty()) null else currentVotes.joinToString(",")
+                currentData.value = updatedVotesMap
                 return Transaction.success(currentData)
             }
 
