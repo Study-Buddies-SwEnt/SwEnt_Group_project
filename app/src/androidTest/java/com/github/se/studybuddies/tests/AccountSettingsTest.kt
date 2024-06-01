@@ -1,6 +1,10 @@
 package com.github.se.studybuddies.tests
 
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -77,6 +81,21 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     // assert: the nav action has been called
     verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
     confirmVerified(mockNavActions)
+  }
+
+  // Sign out test used to often fail the CI on git
+  @Test
+  fun signOut() {
+    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("sign_out_button")
+          .assertIsEnabled()
+          .assertHasClickAction()
+          .performClick()
+      composeTestRule.waitForIdle()
+      verify { mockNavActions.navigateTo(Route.LOGIN) }
+      confirmVerified(mockNavActions)
+    }
   }
 
   @Test
