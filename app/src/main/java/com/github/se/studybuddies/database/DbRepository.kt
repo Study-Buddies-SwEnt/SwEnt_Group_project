@@ -76,6 +76,8 @@ interface DbRepository {
 
   suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
 
+  suspend fun addSelfToGroup(groupUID: String)
+
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
   suspend fun removeUserFromGroup(groupUID: String, userUID: String = "")
@@ -118,6 +120,8 @@ interface DbRepository {
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher
   )
+
+  fun votePollMessage(chat: Chat, message: Message.PollMessage)
 
   fun checkForExistingChat(
       currentUserUID: String,

@@ -90,19 +90,7 @@ class GroupViewModel(
   }
 
   fun leaveGroup(groupUID: String, userUID: String = "") {
-    viewModelScope.launch {
-      db.removeUserFromGroup(groupUID, userUID)
-      val user: String =
-          if (userUID != "") {
-            userUID
-          } else {
-            db.getCurrentUser().toString()
-          }
-      val userToRemove = db.getUser(user)
-      val updatedMembers = _members.value?.toMutableList()
-      updatedMembers?.remove(userToRemove)
-      _members.value = updatedMembers ?: emptyList()
-    }
+    viewModelScope.launch { db.removeUserFromGroup(groupUID, userUID) }
   }
 
   fun deleteGroup(groupUID: String) {
@@ -119,13 +107,19 @@ class GroupViewModel(
             db.getCurrentUser().toString()
           }
       val newUser = db.getUser(userUID)
-      var updatedMembers = _members.value?.toMutableList()
-      if (newUser != null) {
-        updatedMembers?.add(newUser)
+      if (newUser != User.empty()) {
+        var updatedMembers = _members.value?.toMutableList()
+        if (newUser != null) {
+          updatedMembers?.add(newUser)
+        }
+        updatedMembers = updatedMembers?.toSet()?.toMutableList()
+        _members.value = updatedMembers ?: emptyList()
       }
-      updatedMembers = updatedMembers?.toSet()?.toMutableList()
-      _members.value = updatedMembers ?: emptyList()
     }
+  }
+
+  fun addSelfToGroup(groupUID: String) {
+    viewModelScope.launch { db.addSelfToGroup(groupUID) }
   }
 
   fun updateGroup(groupUID: String, name: String, photoURI: Uri?) {
