@@ -705,9 +705,9 @@ fun IconsOptionsList(viewModel: MessageViewModel, showIconsOptions: MutableState
   val showAddFile = remember { mutableStateOf(false) }
   val showAddPoll = remember { mutableStateOf(false) }
 
-    PickPicture(showAddImage) { viewModel.sendPhotoMessage(it.value) }
-    PickLink(viewModel, showAddLink)
-    PickFile(viewModel, showAddFile)
+  PickPicture(showAddImage) { viewModel.sendPhotoMessage(it.value) }
+  PickLink(viewModel, showAddLink)
+  PickFile(viewModel, showAddFile)
   SendPollMessage(viewModel, showAddPoll)
 
   val iconButtonOptions =
@@ -811,7 +811,7 @@ fun PickPicture(showAddImage: MutableState<Boolean>, onSave: (MutableState<Uri>)
       },
       button = {
         SaveButton(photoState.value.toString().isNotBlank()) {
-            onSave(photoState)
+          onSave(photoState)
           showAddImage.value = false
           photoState.value = Uri.EMPTY
         }

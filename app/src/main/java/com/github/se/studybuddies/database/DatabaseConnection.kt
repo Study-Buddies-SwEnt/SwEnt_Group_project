@@ -2,7 +2,6 @@ package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
@@ -1127,9 +1126,27 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    override fun fileAddResource(fileID: String, resource: MutableState<Uri>) {
-        TODO("Not yet implemented")
+  override fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit) {
+    val imageRef = storage.child("topicResources/$fileID/${image.lastPathSegment}.jpg")
+    imageRef.putFile(image).addOnSuccessListener { callBack() }
+  }
+
+  override suspend fun getTopicFileImages(fileID: String): List<Uri> {
+    val path = storage.child("topicResources/$fileID")
+
+    return try {
+      val result = path.listAll().await()
+      if (result.items.isEmpty()) {
+        emptyList()
+      } else {
+        result.items
+            .filter { item -> item.name.endsWith(".jpg", true) }
+            .map { image -> image.downloadUrl.await() }
+      }
+    } catch (e: Exception) {
+      emptyList()
     }
+  }
 
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
@@ -1429,7 +1446,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    override suspend fun getAllContacts(uid: String): ContactList {
+  override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()

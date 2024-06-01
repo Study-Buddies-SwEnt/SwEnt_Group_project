@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.ui.topics
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,17 +12,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +51,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
@@ -53,6 +62,7 @@ import com.github.se.studybuddies.ui.chat.ShowAlertDialog
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
 
 @Composable
@@ -63,6 +73,9 @@ fun TopicResources(
 ) {
   topicFileViewModel.fetchTopicFile(fileID)
   val fileData by topicFileViewModel.topicFile.collectAsState()
+  val imagesData by topicFileViewModel.images.collectAsState()
+
+  val images = remember { mutableStateOf(imagesData) }
 
   val nameState = remember { mutableStateOf(fileData.fileName) }
   val strongUserIDs = remember { mutableStateOf(fileData.strongUsers) }
@@ -77,7 +90,14 @@ fun TopicResources(
     strongUserIDs.value = fileData.strongUsers
     topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
   }
+  LaunchedEffect(imagesData.size) { images.value = imagesData }
 
+  val showOptions = remember { mutableStateOf(false) }
+  val showUploadImage = remember { mutableStateOf(false) }
+  val showUploadLink = remember { mutableStateOf(false) }
+  val showUploadFile = remember { mutableStateOf(false) }
+
+  AddResources(topicFileViewModel, showOptions, showUploadImage, showUploadLink, showUploadFile)
   Scaffold(
       modifier = Modifier.fillMaxSize(),
       topBar = {
@@ -91,6 +111,16 @@ fun TopicResources(
                       Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
             },
             actions = {})
+      },
+      floatingActionButton = {
+        Button(
+            onClick = { showOptions.value = !showOptions.value },
+            modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+              Icon(
+                  imageVector = Icons.Default.Add,
+                  contentDescription = stringResource(R.string.create_a_topic_item),
+                  tint = White)
+            }
       }) {
         Column(
             modifier = Modifier.fillMaxSize().padding(it),
@@ -134,14 +164,36 @@ fun TopicResources(
                   horizontalAlignment = Alignment.Start,
                   content = {
                     if (areaState.value == FileArea.RESOURCES) {
-                      item {
-                        Column(modifier = Modifier.fillMaxSize()) { Text("Resources go here") }
+                      if (images.value.isEmpty()) {
+                        item {
+                          Column(modifier = Modifier.fillMaxSize()) {
+                            Text(stringResource(R.string.no_resources_yet))
+                          }
+                        }
+                      } else {
+                        items(images.value) { image -> ResourceImage(image) }
                       }
                     } else {
                       items(strongUsers.value) { user -> UserBox(user) }
                     }
                   })
             }
+      }
+}
+
+@Composable
+fun ResourceImage(image: Uri) {
+  Log.d("Topics", "current image is $image")
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.Center) {
+        Image(
+            painter = rememberAsyncImagePainter(image.toString()),
+            contentDescription = stringResource(R.string.image_resource),
+            modifier =
+                Modifier.size(200.dp).clip(RoundedCornerShape(20.dp)).testTag("chat_message_image"),
+            contentScale = ContentScale.Crop)
       }
 }
 
@@ -187,45 +239,45 @@ fun AddResources(
     showUploadLink: MutableState<Boolean>,
     showUploadFile: MutableState<Boolean>,
 ) {
-    PickPicture(showUploadImage) { topicFileViewModel.addResource(it) }
-    //UploadLink(viewModel, showUploadLink)
-    //UploadFile(viewModel, showUploadFile)
-    ShowAlertDialog(
-        showDialog = showOptions,
-        onDismiss = { showOptions.value = false },
-        title = {},
-        content = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                IconButtonOption(
-                    modifier = Modifier.testTag("icon_send_image"),
-                    onClickAction = {
-                        showOptions.value = false
-                        showUploadImage.value = true
-                    },
-                    painterResourceId = R.drawable.image_24px,
-                    contentDescription = stringResource(R.string.app_name))
-                IconButtonOption(
-                    modifier = Modifier.testTag("icon_send_link"),
-                    onClickAction = {
-                        showOptions.value = false
-                        showUploadLink.value = true
-                    },
-                    painterResourceId = R.drawable.link_24px,
-                    contentDescription = stringResource(R.string.app_name))
-                IconButtonOption(
-                    modifier = Modifier.testTag("icon_send_file"),
-                    onClickAction = {
-                        showOptions.value = false
-                        showUploadFile.value = true
-                    },
-                    painterResourceId = R.drawable.picture_as_pdf_24px,
-                    contentDescription = stringResource(R.string.app_name))
+  PickPicture(showUploadImage) { topicFileViewModel.addImage(it.value) }
+  // UploadLink(viewModel, showUploadLink)
+  // UploadFile(viewModel, showUploadFile)
+  ShowAlertDialog(
+      showDialog = showOptions,
+      onDismiss = { showOptions.value = false },
+      title = {},
+      content = {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center) {
+              IconButtonOption(
+                  modifier = Modifier.testTag("icon_send_image"),
+                  onClickAction = {
+                    showOptions.value = false
+                    showUploadImage.value = true
+                  },
+                  painterResourceId = R.drawable.image_24px,
+                  contentDescription = stringResource(R.string.app_name))
+              /*IconButtonOption(
+                  modifier = Modifier.testTag("icon_send_link"),
+                  onClickAction = {
+                      showOptions.value = false
+                      showUploadLink.value = true
+                  },
+                  painterResourceId = R.drawable.link_24px,
+                  contentDescription = stringResource(R.string.app_name))
+              IconButtonOption(
+                  modifier = Modifier.testTag("icon_send_file"),
+                  onClickAction = {
+                      showOptions.value = false
+                      showUploadFile.value = true
+                  },
+                  painterResourceId = R.drawable.picture_as_pdf_24px,
+                  contentDescription = stringResource(R.string.app_name))*/
             }
-        },
-        button = {})
+      },
+      button = {})
 }
 
 @Composable
@@ -236,10 +288,10 @@ fun IconButtonOption(
     modifier: Modifier = Modifier,
     tint: Color = Blue,
 ) {
-    IconButton(onClick = onClickAction, modifier = modifier.padding(8.dp)) {
-        Icon(
-            painter = painterResource(id = painterResourceId),
-            contentDescription = contentDescription,
-            tint = tint)
-    }
+  IconButton(onClick = onClickAction, modifier = modifier.padding(8.dp)) {
+    Icon(
+        painter = painterResource(id = painterResourceId),
+        contentDescription = contentDescription,
+        tint = tint)
+  }
 }

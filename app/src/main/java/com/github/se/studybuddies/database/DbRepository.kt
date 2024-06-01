@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.database
 
 import android.net.Uri
-import androidx.compose.runtime.MutableState
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Contact
@@ -171,9 +170,11 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-    fun fileAddResource(fileID: String, resource: MutableState<Uri>)
+  fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
 
-    companion object {
+  suspend fun getTopicFileImages(fileID: String): List<Uri>
+
+  companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

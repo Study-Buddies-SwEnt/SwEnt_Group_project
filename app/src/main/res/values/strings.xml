@@ -147,5 +147,7 @@
     <string name="poll_options">Options</string>
     <string name="enter_poll_options">Enter poll option</string>
     <string name="single_choice">Single answer</string>
+    <string name="image_resource">image resource</string>
+    <string name="no_resources_yet">No resources yet</string>
 
 </resources>
