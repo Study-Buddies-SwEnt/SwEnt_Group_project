@@ -1418,18 +1418,8 @@ class DatabaseConnection : DbRepository {
 
   override fun deletePrivateChat(chatID: String) {
 
-      val memberPath = getPrivateChatMembersPath(chatID)
-      rtDb
-          .getReference(memberPath)
-          .removeValue()
-
-    storage
-        .child("chatData/$chatID")
-        .delete()
-        .addOnSuccessListener { Log.d("Deletion", "chat with ID $chatID successfully deleted") }
-        .addOnFailureListener { e ->
-          Log.d("Deletion", "Failed to delete chat with ID $chatID with error: ", e)
-        }
+    val memberPath = getPrivateChatMembersPath(chatID)
+    rtDb.getReference(memberPath).removeValue()
   }
 
   override fun deleteContact(contactID: String) {
@@ -1439,7 +1429,7 @@ class DatabaseConnection : DbRepository {
     val otherUID = contactsViewModel.getOtherUser(contactID, uid)
 
     userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
-    //userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
+    userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
 
     contactDataCollection
         .document(contactID)

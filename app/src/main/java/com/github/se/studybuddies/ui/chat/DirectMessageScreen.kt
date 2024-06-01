@@ -35,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +60,7 @@ import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun DirectMessageScreen(
@@ -233,6 +235,9 @@ fun UserItem(
     showAddPrivateMessageList: MutableState<Boolean>,
     contactsViewModel: ContactsViewModel
 ) {
+
+  val coroutineScope = rememberCoroutineScope()
+
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
@@ -240,10 +245,12 @@ fun UserItem(
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
-                    showAddPrivateMessageList.value = false
-                    val contactID = viewModel.startDirectMessage(user.uid)
-                    Log.d("MyPrint", "DMscreen contactID is $contactID")
-                    // contactsViewModel.createContact(user.uid, contactID)
+                    coroutineScope.launch {
+                      showAddPrivateMessageList.value = false
+                      val contactID = viewModel.startDirectMessage(user.uid)
+                      Log.d("MyPrint", "DMscreen contactID is $contactID")
+                      // contactsViewModel.createContact(user.uid, contactID)
+                    }
                   })
               .testTag("user_item")) {
         Image(

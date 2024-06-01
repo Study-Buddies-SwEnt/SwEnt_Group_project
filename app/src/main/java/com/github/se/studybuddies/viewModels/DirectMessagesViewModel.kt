@@ -40,7 +40,7 @@ class DirectMessagesViewModel(
     }
   }
 
-  fun deletePrivateChat(chatID: String){
+  fun deletePrivateChat(chatID: String) {
     db.deletePrivateChat(chatID)
   }
 

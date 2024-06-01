@@ -297,12 +297,13 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val contactID = backStackEntry.arguments?.getString("contactID")
-                    val uid = db.getCurrentUserUID()
+                  val uid = db.getCurrentUserUID()
                   ifNotNull(contactID) { contactUID ->
                     val contactsVM = remember { ContactsViewModel(uid) }
                     val userVM = remember { UserViewModel(uid, db) }
-                      val directMessageVM = remember {DirectMessagesViewModel(uid, db) }
-                    ContactScreen(contactUID, contactsVM, navigationActions, userVM, directMessageVM)
+                    val directMessageVM = remember { DirectMessagesViewModel(uid, db) }
+                    ContactScreen(
+                        contactUID, contactsVM, navigationActions, userVM, directMessageVM)
                     Log.d(
                         "MyPrint", "Successfully navigated to Contact Settings with ID $contactUID")
                   }

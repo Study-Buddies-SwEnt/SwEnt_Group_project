@@ -12,10 +12,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -227,23 +225,21 @@ private fun DeleteContactDialog(onDelete: () -> Unit, onCancel: () -> Unit, cont
                     textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(20.dp))
 
-                      DeleteButton(onClick = { onDelete() })
+                DeleteButton(onClick = { onDelete() })
                 Spacer(modifier = Modifier.height(20.dp))
 
-                      Button(
-                          onClick = { onCancel() },
-                          modifier =
-                              Modifier.clip(RoundedCornerShape(4.dp))
-                                  .width(100.dp)
-                                  .height(40.dp)
-                                  .testTag(contactID + "_delete_no_button"),
-                          colors =
-                              ButtonDefaults.buttonColors(
-                                  containerColor = Blue, contentColor = White)) {
-                            Text(
-                                text = stringResource(R.string.cancel),
-                                modifier = Modifier.testTag(contactID + "_delete_no_text"))
-
+                Button(
+                    onClick = { onCancel() },
+                    modifier =
+                        Modifier.clip(RoundedCornerShape(4.dp))
+                            .width(100.dp)
+                            .height(40.dp)
+                            .testTag(contactID + "_delete_no_button"),
+                    colors =
+                        ButtonDefaults.buttonColors(containerColor = Blue, contentColor = White)) {
+                      Text(
+                          text = stringResource(R.string.cancel),
+                          modifier = Modifier.testTag(contactID + "_delete_no_text"))
                     }
               }
         }
