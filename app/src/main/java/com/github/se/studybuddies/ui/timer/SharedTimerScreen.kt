@@ -42,10 +42,10 @@ fun SharedTimerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Shared Timer") },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/$groupUID")
             },
-            actions = {})
+            rightButton = {})
       },
   ) {
     Column(

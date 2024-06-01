@@ -1,17 +1,11 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.util.Log
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,8 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -63,8 +55,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -101,9 +91,7 @@ fun TopicScreen(
     chatViewModel: ChatViewModel,
     navigationActions: NavigationActions
 ) {
-  val loading = remember { mutableStateOf(true) }
-
-  topicViewModel.fetchTopicData(topicUID) { loading.value = false }
+  topicViewModel.fetchTopicData(topicUID)
   val topicData by topicViewModel.topic.collectAsState()
   val group by groupViewModel.group.observeAsState()
 
@@ -130,8 +118,8 @@ fun TopicScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
-            navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
-            actions = {
+            leftButton = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
+            rightButton = {
               IconButton(
                   onClick = {
                     navigationActions.navigateTo("${Route.TOPIC_SETTINGS}/$groupUID/$topicUID")
@@ -217,7 +205,7 @@ fun TopicScreen(
                                         grp.picture,
                                         ChatType.TOPIC,
                                         groupViewModel.members.value!!.toList(),
-                                        grp.uid)
+                                        additionalUID = grp.uid)
                                   }
                                 })
                             navigationActions.navigateTo(Route.CHAT)
@@ -281,59 +269,23 @@ fun TopicScreen(
                           thickness = 4.dp)
                     }
                   }
-              if (loading.value) {
-                BackHandler {}
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                  val infiniteTransition =
-                      rememberInfiniteTransition(label = stringResource(R.string.loading))
-                  val angle by
-                      infiniteTransition.animateFloat(
-                          initialValue = 0f,
-                          targetValue = 360f,
-                          animationSpec =
-                              infiniteRepeatable(
-                                  animation = tween(durationMillis = 1000, easing = LinearEasing)),
-                          label = stringResource(R.string.loading))
-                  Canvas(modifier = Modifier.size((100f).dp)) {
-                    drawArc(
-                        color = Blue,
-                        startAngle = angle,
-                        sweepAngle = 270f,
-                        useCenter = false,
-                        style = Stroke(width = 10f, cap = StrokeCap.Round))
-                  }
-                }
-              } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                    horizontalAlignment = Alignment.Start,
-                    content = {
-                      if (areaState.value == ItemArea.EXERCISES) {
-                        items(exercisesState) { topicItem ->
-                          TopicContentItem(
-                              topicItem,
-                              folderFieldVisible,
-                              fileFieldVisible,
-                              parentUID,
-                              0,
-                              topicViewModel,
-                              navigationActions)
-                        }
-                      } else if (areaState.value == ItemArea.THEORY) {
-                        items(theoryState.value) { topicItem ->
-                          TopicContentItem(
-                              topicItem,
-                              folderFieldVisible,
-                              fileFieldVisible,
-                              parentUID,
-                              0,
-                              topicViewModel,
-                              navigationActions)
-                        }
+              LazyColumn(
+                  modifier = Modifier.fillMaxSize(),
+                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.Start,
+                  content = {
+                    if (areaState.value == ItemArea.EXERCISES) {
+                      items(exercisesState) { topicItem ->
+                        TopicContentItem(
+                            topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
                       }
-                    })
-              }
+                    } else if (areaState.value == ItemArea.THEORY) {
+                      items(theoryState.value) { topicItem ->
+                        TopicContentItem(
+                            topicItem, folderFieldVisible, fileFieldVisible, parentUID, 0)
+                      }
+                    }
+                  })
             }
         if (folderFieldVisible.value) {
           TopicItemField(
@@ -342,11 +294,8 @@ fun TopicScreen(
               onDone = {
                 folderFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
-                  loading.value = false
                   topicViewModel.createTopicFolder(
-                      enteredName.value, areaState.value, parentUID.value) {
-                        loading.value = true
-                      }
+                      enteredName.value, areaState.value, parentUID.value)
                 }
                 enteredName.value = ""
                 parentUID.value = ""
@@ -364,11 +313,8 @@ fun TopicScreen(
               onDone = {
                 fileFieldVisible.value = false
                 if (enteredName.value.isNotBlank()) {
-                  loading.value = false
                   topicViewModel.createTopicFile(
-                      enteredName.value, areaState.value, parentUID.value) {
-                        loading.value = true
-                      }
+                      enteredName.value, areaState.value, parentUID.value)
                 }
                 enteredName.value = ""
                 parentUID.value = ""
@@ -388,36 +334,20 @@ fun TopicContentItem(
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
     parentUID: MutableState<String>,
-    depth: Int,
-    topicViewModel: TopicViewModel,
-    navigationActions: NavigationActions
+    depth: Int
 ) {
   when (topicItem) {
     is TopicFolder -> {
-      FolderItem(
-          topicItem,
-          folderFieldVisible,
-          fileFieldVisible,
-          parentUID,
-          depth,
-          topicViewModel,
-          navigationActions)
+      FolderItem(topicItem, folderFieldVisible, fileFieldVisible, parentUID, depth)
     }
     is TopicFile -> {
-      FileItem(topicItem, depth, topicViewModel, navigationActions)
+      FileItem(topicItem, depth)
     }
   }
 }
 
 @Composable
-fun FileItem(
-    fileItem: TopicFile,
-    depth: Int,
-    topicViewModel: TopicViewModel,
-    navigationActions: NavigationActions
-) {
-  val isUserStrong = remember { mutableStateOf(false) }
-  topicViewModel.getIsUserStrong(fileItem.uid) { isUserStrong.value = it }
+fun FileItem(fileItem: TopicFile, depth: Int) {
   Box(
       modifier =
           Modifier.fillMaxWidth()
@@ -429,32 +359,16 @@ fun FileItem(
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
               .clickable {
-                Log.d("MyPrint", "Navigating to resources ${fileItem.uid}")
-                navigationActions.navigateTo("${Route.TOPICRESOURCES}/${fileItem.uid}")
+                // TODO: implement strong users and resources
               }) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp).padding(start = 36.dp, end = 22.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-              Text(
-                  text = fileItem.name,
-                  modifier = Modifier.align(Alignment.CenterVertically),
-                  style = TextStyle(fontSize = 20.sp),
-                  lineHeight = 28.sp)
-              Switch(
-                  modifier = Modifier.size(20.dp),
-                  checked = isUserStrong.value,
-                  onCheckedChange = {
-                    val newValue = !isUserStrong.value
-                    isUserStrong.value = newValue
-                    topicViewModel.updateStrongUser(fileItem.uid, newValue)
-                  },
-                  colors =
-                      SwitchDefaults.colors(
-                          checkedThumbColor = White,
-                          checkedTrackColor = Blue,
-                          uncheckedTrackColor = Color.LightGray))
-            }
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Spacer(modifier = Modifier.size(20.dp))
+          Text(
+              text = fileItem.name,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
+        }
       }
 }
 
@@ -465,9 +379,7 @@ fun FolderItem(
     folderFieldVisible: MutableState<Boolean>,
     fileFieldVisible: MutableState<Boolean>,
     parentUID: MutableState<String>,
-    depth: Int,
-    topicViewModel: TopicViewModel,
-    navigationActions: NavigationActions
+    depth: Int
 ) {
   val isExpanded = remember { mutableStateOf(false) }
 
@@ -482,7 +394,9 @@ fun FolderItem(
                   val y = size.height - strokeWidth / 2
                   drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
                 }
-                .clickable { isExpanded.value = !isExpanded.value }) {
+                .combinedClickable(
+                    onClick = { isExpanded.value = !isExpanded.value },
+                    onLongClick = { Log.d("MyPrint", "long pressed") })) {
           Row(
               modifier = Modifier.fillMaxWidth().padding(6.dp),
               verticalAlignment = Alignment.CenterVertically) {
@@ -509,14 +423,7 @@ fun FolderItem(
     if (isExpanded.value) {
       Log.d("MyPrint", "isExpanded")
       folderItem.items.forEach { child ->
-        TopicContentItem(
-            child,
-            folderFieldVisible,
-            fileFieldVisible,
-            parentUID,
-            depth + 1,
-            topicViewModel,
-            navigationActions)
+        TopicContentItem(child, folderFieldVisible, fileFieldVisible, parentUID, depth + 1)
       }
     }
   }

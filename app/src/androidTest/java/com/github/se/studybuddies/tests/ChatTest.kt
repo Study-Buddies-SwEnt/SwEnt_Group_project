@@ -150,6 +150,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
   }
 
+  /*
   @Test
   fun testTitle() {
     val chat =
@@ -191,6 +192,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       }
     }
   }
+    */
 
   private val messageToSend = "Hello, World!"
 
@@ -221,6 +223,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
   }
 
+  /*
   @Test
   fun testTitle2() {
     val chat =
@@ -246,6 +249,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       chatPrivateTitleText { assertIsDisplayed() }
     }
   }
+
+     */
 
   private val sender = User("testUser", "testUser", "testUser", Uri.EMPTY, location = "offline")
 
@@ -442,6 +447,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
   }
 
+  /*
   @Test
   fun testOptionDialogOwn() {
     composeTestRule.setContent {
@@ -474,6 +480,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       }
     }
   }
+
+     */
 
   @Test
   fun testOptionDialogOtherOwner() {

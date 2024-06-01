@@ -35,6 +35,8 @@ class MockDatabase : DbRepository {
   private val groupDataCollection = fakeGroupDataCollection
   private val topicDataCollection = fakeTopicDataCollection
   private val topicItemCollection = fakeTopicItemCollection
+  private val contactDataCollection = fakeContactDataCollection
+  private val userContactcollection = fakeUserContactCollection
   private val rtDb = mutableMapOf<String, Map<String, Any>>()
   private val storage = mutableMapOf<String, Uri>()
 
@@ -50,15 +52,27 @@ class MockDatabase : DbRepository {
     return getUser(getCurrentUserUID())
   }
 
-  override suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactID: String): Contact {
     TODO("Not yet implemented")
   }
 
-  override suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String, contactID: String) {
     TODO("Not yet implemented")
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {
+    TODO("Not yet implemented")
+  }
+
+  override fun deleteContact(contactID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun deletePrivateChat(chatID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun updateContact(contactID: String, showOnMap: Boolean) {
     TODO("Not yet implemented")
   }
 
@@ -241,10 +255,9 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
+  override suspend fun addUserToGroup(groupUID: String, user: String) {
     val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
     if (group == Group.empty()) {
-      callBack(true)
       Log.d("MockDatabase : addUserToGroup", "Group with uid $groupUID does not exist")
       return
     }
@@ -258,7 +271,6 @@ class MockDatabase : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
-      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
@@ -271,7 +283,6 @@ class MockDatabase : DbRepository {
       val updatedList = it + groupUID
       userMembershipsCollection[userToAdd] = updatedList.toMutableList()
     }
-    callBack(false)
   }
 
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
@@ -501,31 +512,32 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override fun startDirectMessage(otherUID: String) {
+  override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
+    var contactID = ""
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
         val newChatId = UUID.randomUUID().toString()
+        contactID = newChatId
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb[memberPath] = members
       }
     }
+    return contactID
   }
 
-  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
+  override suspend fun getTopic(uid: String): Topic {
     val topic = topicDataCollection[uid]
     if (topic != null) {
-      callBack(topic)
-    } else {
-      Log.d("MyPrint", "topic document not found for id $uid")
-      callBack(Topic.empty())
-    }
+      return topic
+    } else return Topic("", "", emptyList(), emptyList())
   }
 
+  /*
   override suspend fun getTopicFile(id: String): TopicFile {
     val document = topicItemCollection[id]
     return if (document != null && document is TopicFile) {
@@ -537,6 +549,8 @@ class MockDatabase : DbRepository {
       TopicFile.empty()
     }
   }
+
+   */
 
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
@@ -592,24 +606,23 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
-    getTopic(topicId) { topic ->
-      val items: List<TopicItem> = topic.exercises + topic.theory
-      iterateTopicItemDeletion(items) {
-        topicDataCollection.remove(topic.uid)
-        val currentGroup = groupDataCollection[groupUID]!!
-        val newList = currentGroup.topics.filter { it != topicId }
-        val updatedGroup =
-            Group(
-                currentGroup.uid,
-                currentGroup.name,
-                currentGroup.picture,
-                currentGroup.members,
-                newList,
-                currentGroup.timerState)
-        groupDataCollection.remove(groupUID)
-        groupDataCollection[groupUID] = updatedGroup
-        callBack()
-      }
+    val topic = getTopic(topicId)
+    val items: List<TopicItem> = topic.exercises + topic.theory
+    iterateTopicItemDeletion(items) {
+      topicDataCollection.remove(topic.uid)
+      val currentGroup = groupDataCollection[groupUID]!!
+      val newList = currentGroup.topics.filter { it != topicId }
+      val updatedGroup =
+          Group(
+              currentGroup.uid,
+              currentGroup.name,
+              currentGroup.picture,
+              currentGroup.members,
+              newList,
+              currentGroup.timerState)
+      groupDataCollection.remove(groupUID)
+      groupDataCollection[groupUID] = updatedGroup
+      callBack()
     }
   }
 
@@ -651,7 +664,7 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] = item
   }
 
-  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
     val document = topicItemCollection[fileID]
     if (document != null && document is TopicFile) {
       val strongUsers = document.strongUsers
@@ -662,7 +675,7 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
     val currentUser = getCurrentUserUID()
     val document = topicItemCollection[fileID]
     if (document != null && document is TopicFile) {
@@ -703,7 +716,10 @@ class MockDatabase : DbRepository {
         val items = mutableListOf<Topic>()
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
-          topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
+          topicUIDs.map { topicUID ->
+            val topic = getTopic(topicUID)
+            items.add(topic)
+          }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }

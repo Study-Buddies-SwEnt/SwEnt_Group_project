@@ -11,10 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class DirectMessageViewModel(
+class DirectMessagesViewModel(
     private val userUid: String = "",
     private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
+
   private val _userUid = MutableStateFlow(userUid)
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
   val directMessages =
@@ -39,7 +40,13 @@ class DirectMessageViewModel(
     }
   }
 
-  fun startDirectMessage(messageUserUID: String) {
-    db.startDirectMessage(messageUserUID)
+  fun deletePrivateChat(chatID: String) {
+    db.deletePrivateChat(chatID)
+  }
+
+  fun startDirectMessage(messageUserUID: String): String {
+    var contactID = ""
+    viewModelScope.launch { contactID = db.startDirectMessage(messageUserUID) }
+    return contactID
   }
 }

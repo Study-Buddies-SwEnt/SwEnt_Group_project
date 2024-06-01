@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,7 +41,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -89,15 +89,16 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.permissions.getStoragePermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.ChatTopBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
-import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -134,19 +135,12 @@ fun ChatScreen(
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
-        SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-          when (viewModel.chat.type) {
-            ChatType.GROUP,
-            ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)
-            ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
-          }
-          Spacer(Modifier.weight(1f, true))
-          Icon(
-              Icons.Default.Search,
-              contentDescription = "Search",
-              modifier =
-                  Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
+        when (viewModel.chat.type) {
+          ChatType.GROUP,
+          ChatType.TOPIC, -> GroupChatTopBar(viewModel.chat, navigationActions)
+          ChatType.PRIVATE -> PrivateChatTopBar(viewModel.chat, navigationActions)
         }
+        /*
         if (showSearchBar) {
           Column {
             SearchBar(
@@ -163,6 +157,7 @@ fun ChatScreen(
             MessageTypeFilter(viewModel = viewModel)
           }
         }
+        */
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
@@ -486,7 +481,8 @@ fun OptionsDialog(
             selectedMessage = selectedMessage,
             showOptionsDialog = showOptionsDialog,
             showEditDialog = showEditDialog,
-            navigationActions = navigationActions)
+            navigationActions = navigationActions,
+        )
       },
       button = {})
 }
@@ -619,8 +615,9 @@ fun NonUserMessageOptions(
       onClick = {
         showOptionsDialog.value = false
         viewModel.currentUser.value
-            ?.let { DirectMessageViewModel(it.uid) }
+            ?.let { DirectMessagesViewModel(it.uid) }
             ?.startDirectMessage(selectedMessage.sender.uid)
+        // TODO()
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {
         Text(
@@ -663,39 +660,87 @@ fun EditDialog(
 }
 
 @Composable
-fun ChatGroupTitle(chat: Chat) {
-  Image(
-      painter = rememberAsyncImagePainter(chat.picture),
-      contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
-      contentScale = ContentScale.Crop)
+fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
+  ChatTopBar(
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME) },
+      rightButton = {
+        IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
+          Icon(
+              modifier = Modifier.size(20.dp),
+              painter = painterResource(R.drawable.video_call),
+              contentDescription = "",
+              tint = Blue)
+        }
+      }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp)) {
+              Image(
+                  painter = rememberAsyncImagePainter(chat.picture),
+                  contentDescription =
+                      stringResource(R.string.contentDescription_group_profile_picture),
+                  modifier =
+                      Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
+                  contentScale = ContentScale.Crop)
 
-  Spacer(modifier = Modifier.width(8.dp))
-  Column {
-    Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
-    Spacer(modifier = Modifier.width(8.dp))
-    LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
-      items(chat.members) { member ->
-        Text(
-            text = member.username,
-            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
-            style = TextStyle(color = Gray),
-            maxLines = 1)
+              Spacer(modifier = Modifier.width(8.dp))
+              Column {
+                Text(
+                    text = chat.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
+                Spacer(modifier = Modifier.width(8.dp))
+                LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
+                  items(chat.members) { member ->
+                    Text(
+                        text = member.username,
+                        modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+                        style = TextStyle(color = Gray),
+                        maxLines = 1)
+                  }
+                }
+              }
+            }
       }
-    }
-  }
 }
 
 @Composable
-fun PrivateChatTitle(chat: Chat) {
-  Image(
-      painter = rememberAsyncImagePainter(chat.picture),
-      contentDescription = "User profile picture",
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
-      contentScale = ContentScale.Crop)
+fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
-  Spacer(modifier = Modifier.width(8.dp))
-  Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
+  ChatTopBar(
+      leftButton = {
+        GoBackRouteButton(navigationActions = navigationActions, Route.DIRECT_MESSAGE)
+      },
+      rightButton = {
+        IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
+          Icon(
+              modifier = Modifier.size(20.dp),
+              painter = painterResource(R.drawable.video_call),
+              contentDescription = "",
+              tint = Blue)
+        }
+      }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
+                  navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${chat.uid}")
+                }) {
+              Image(
+                  painter = rememberAsyncImagePainter(chat.picture),
+                  contentDescription = "User profile picture",
+                  modifier =
+                      Modifier.size(40.dp)
+                          .clip(CircleShape)
+                          .testTag("private_title_profile_picture"),
+                  contentScale = ContentScale.Crop)
+              Spacer(modifier = Modifier.width(8.dp))
+              Column() {
+                Text(
+                    text = chat.name,
+                    maxLines = 1,
+                    modifier = Modifier.testTag("private_title_name"))
+              }
+            }
+      }
 }
 
 @Composable

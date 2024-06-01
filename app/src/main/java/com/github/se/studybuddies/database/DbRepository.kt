@@ -27,9 +27,7 @@ interface DbRepository {
 
   suspend fun getCurrentUser(): User
 
-  suspend fun getContact(contactUID: String): Contact
-
-  suspend fun createContact(otherUID: String)
+  suspend fun getContact(contactID: String): Contact
 
   suspend fun getAllContacts(uid: String): ContactList
 
@@ -74,7 +72,7 @@ interface DbRepository {
 
   suspend fun createGroup(name: String, photoUri: Uri)
 
-  suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
+  suspend fun addUserToGroup(groupUID: String, user: String = "")
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
@@ -127,12 +125,10 @@ interface DbRepository {
       onResult: (Boolean, String?) -> Unit
   )
 
-  fun startDirectMessage(otherUID: String)
+  suspend fun startDirectMessage(otherUID: String): String
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
-
-  suspend fun getTopicFile(id: String): TopicFile
+  suspend fun getTopic(uid: String): Topic
 
   suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem>
 
@@ -154,10 +150,6 @@ interface DbRepository {
 
   fun updateTopicItem(item: TopicItem)
 
-  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
-
-  suspend fun updateStrongUser(fileID: String, newValue: Boolean)
-
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
@@ -169,6 +161,14 @@ interface DbRepository {
       mainDispatcher: CoroutineDispatcher,
       onUpdate: (TopicList) -> Unit
   )
+
+  suspend fun createContact(otherUID: String, contactID: String)
+
+  fun deleteContact(contactID: String)
+
+  fun deletePrivateChat(chatID: String)
+
+  fun updateContact(contactID: String, showOnMap: Boolean)
 
   companion object {
     const val topic_name = "name"

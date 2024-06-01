@@ -48,8 +48,8 @@ fun TopicCreation(
       topBar = {
         TopNavigationBar(
             title = { Sub_title("Create Topic") },
-            navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
-            actions = {})
+            leftButton = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxSize().padding(20.dp).testTag("create_topic_column"),
@@ -78,9 +78,8 @@ fun TopicCreation(
               Spacer(modifier = Modifier.height(20.dp))
 
               SaveButton(nameState.value.isNotBlank()) {
-                topicViewModel.createTopic(nameState.value, groupUID) {
-                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                }
+                topicViewModel.createTopic(nameState.value, groupUID)
+                navigationActions.navigateTo("${Route.GROUP}/$groupUID")
               }
             }
       }

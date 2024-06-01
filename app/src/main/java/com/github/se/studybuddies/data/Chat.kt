@@ -8,19 +8,13 @@ data class Chat(
     var picture: Uri,
     val type: ChatType,
     var members: List<User>,
-    val additionalUID: String = ""
+    val additionalUID: String = "",
     //    var messages: List<Message>
 ) {
   companion object {
     fun empty(): Chat {
       return Chat(
-          uid = "",
-          name = "",
-          picture = Uri.EMPTY,
-          type = ChatType.GROUP,
-          members = emptyList(),
-          //          messages = emptyList()
-      )
+          uid = "", name = "", picture = Uri.EMPTY, type = ChatType.GROUP, members = emptyList())
     }
   }
 }
