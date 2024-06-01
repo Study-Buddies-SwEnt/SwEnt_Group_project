@@ -31,13 +31,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection : DbRepository {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -1052,7 +1052,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  fun votePollMessage(chat: Chat, message: Message.PollMessage) {
+  override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
     val messagePath =
         getMessagePath(chat.uid, chat.type, chat.additionalUID) +
             "/${message.uid}/${MessageVal.POLL_VOTES}"

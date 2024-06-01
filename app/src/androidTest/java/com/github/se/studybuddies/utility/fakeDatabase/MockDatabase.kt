@@ -21,12 +21,12 @@ import com.github.se.studybuddies.database.DbRepository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class MockDatabase : DbRepository {
   private val userDataCollection = fakeUserDataCollection
@@ -536,6 +536,10 @@ class MockDatabase : DbRepository {
         Log.w("DatabaseConnection - getMessages()", "Failed to read value.", error.toException())
       }
     }
+  }
+
+  override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
+    TODO("Not yet implemented")
   }
 
   override fun checkForExistingChat(
