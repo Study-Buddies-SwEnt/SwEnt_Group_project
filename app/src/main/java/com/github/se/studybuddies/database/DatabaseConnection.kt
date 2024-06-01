@@ -1006,15 +1006,15 @@ class DatabaseConnection : DbRepository {
     return contactID
   }
 
-    override fun updateContact(contactID: String, showOnMap: Boolean) {
-        contactDataCollection
-            .document(contactID)
-            .update("showOnMap", showOnMap)
-            .addOnSuccessListener { Log.d("UpdateContact", "contact successfully updated") }
-            .addOnFailureListener { e ->
-                Log.d("UpdateContact", "Failed modify contact with error: ", e)
-            }
-    }
+  override fun updateContact(contactID: String, showOnMap: Boolean) {
+    contactDataCollection
+        .document(contactID)
+        .update("showOnMap", showOnMap)
+        .addOnSuccessListener { Log.d("UpdateContact", "contact successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateContact", "Failed modify contact with error: ", e)
+        }
+  }
 
   // using the topicData and topicItemData collections
   override suspend fun getTopic(uid: String): Topic {
@@ -1416,33 +1416,33 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override fun deletePrivateChat(chatID : String){
-        storage
-            .child("chatData/$chatID")
-            .delete()
-            .addOnSuccessListener { Log.d("Deletion", "chat with ID $chatID successfully deleted") }
-            .addOnFailureListener { e ->
-                Log.d("Deletion", "Failed to delete chat with ID $chatID with error: ", e)
-            }
-    }
+  override fun deletePrivateChat(chatID: String) {
+    storage
+        .child("chatData/$chatID")
+        .delete()
+        .addOnSuccessListener { Log.d("Deletion", "chat with ID $chatID successfully deleted") }
+        .addOnFailureListener { e ->
+          Log.d("Deletion", "Failed to delete chat with ID $chatID with error: ", e)
+        }
+  }
 
   override fun deleteContact(contactID: String) {
 
-      deletePrivateChat(contactID)
-      val uid = getCurrentUserUID()
-      val contactsViewModel = ContactsViewModel()
-      val otherUID = contactsViewModel.getOtherUser(contactID, uid)
+    deletePrivateChat(contactID)
+    val uid = getCurrentUserUID()
+    val contactsViewModel = ContactsViewModel()
+    val otherUID = contactsViewModel.getOtherUser(contactID, uid)
 
-      userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
-      userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
+    userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
+    userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
 
-      contactDataCollection
-          .document(contactID)
-          .delete()
-          .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
-          .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
+    contactDataCollection
+        .document(contactID)
+        .delete()
+        .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
+        .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
 
-      Log.d("contact","called deletecontact in db")
+    Log.d("contact", "called deletecontact in db")
   }
 
   companion object {

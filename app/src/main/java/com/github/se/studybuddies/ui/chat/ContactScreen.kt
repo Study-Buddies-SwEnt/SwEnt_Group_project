@@ -83,7 +83,7 @@ fun ContactScreen(
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
 
-  val showOnMapState = remember {mutableStateOf(contactData?.showOnMap ?: false)}
+  val showOnMapState = remember { mutableStateOf(contactData?.showOnMap ?: false) }
 
   val context = LocalContext.current
 
@@ -93,9 +93,7 @@ fun ContactScreen(
     photoState.value = it.photoUrl
   }
 
-    contactData?.let {
-        showOnMapState.value = it.showOnMap
-    }
+  contactData?.let { showOnMapState.value = it.showOnMap }
 
   val getContent =
       rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -117,10 +115,7 @@ fun ContactScreen(
   }
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(White)
-          .testTag("modify_group_scaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
@@ -142,10 +137,9 @@ fun ContactScreen(
             verticalArrangement = Arrangement.Top) {
               LazyColumn(
                   modifier =
-                  Modifier
-                      .fillMaxSize()
-                      .padding(paddingValues)
-                      .testTag("modify_contact_column"),
+                      Modifier.fillMaxSize()
+                          .padding(paddingValues)
+                          .testTag("modify_contact_column"),
                   verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                   horizontalAlignment = Alignment.CenterHorizontally) {
                     item { Spacer(modifier = Modifier.padding(10.dp)) }
@@ -154,9 +148,7 @@ fun ContactScreen(
                           painter = rememberImagePainter(photoState.value),
                           contentDescription = "Profile Picture",
                           modifier =
-                          Modifier
-                              .size(200.dp)
-                              .border(1.dp, Blue, RoundedCornerShape(5.dp)),
+                              Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),
                           contentScale = ContentScale.Crop)
                     }
                     item { Spacer(modifier = Modifier.padding(20.dp)) }
@@ -186,56 +178,38 @@ fun ContactScreen(
 }
 
 @Composable
-private fun ToggleMapVisibilityButton(showOnMapState : MutableState<Boolean>) {
+private fun ToggleMapVisibilityButton(showOnMapState: MutableState<Boolean>) {
 
-    if (showOnMapState.value){
-        Button(
-            onClick = {showOnMapState.value = false},
-            modifier =
-            Modifier
-                .width(300.dp)
-                .height(50.dp)
-                .clip(RoundedCornerShape(4.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = Blue, contentColor = White)) {
-            Text(
-                text = stringResource(R.string.location_shared))}
-    }
-    else
-        {
-            Button(
-                onClick = {showOnMapState.value = true},
-                modifier =
-                Modifier
-                    .width(300.dp)
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                colors =
-                ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = White)) {
-                Text(
-                    text = stringResource(R.string.location_not_shared))
-            }
-    }
+  if (showOnMapState.value) {
+    Button(
+        onClick = { showOnMapState.value = false },
+        modifier = Modifier.width(300.dp).height(50.dp).clip(RoundedCornerShape(4.dp)),
+        colors = ButtonDefaults.buttonColors(containerColor = Blue, contentColor = White)) {
+          Text(text = stringResource(R.string.location_shared))
+        }
+  } else {
+    Button(
+        onClick = { showOnMapState.value = true },
+        modifier = Modifier.width(300.dp).height(50.dp).clip(RoundedCornerShape(4.dp)),
+        colors =
+            ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = White)) {
+          Text(text = stringResource(R.string.location_not_shared))
+        }
+  }
 }
 
 @Composable
-private fun DeleteContactDialog(
-    onDelete: () -> Unit,
-    onCancel: () -> Unit,
-    contactID: String
-) {
+private fun DeleteContactDialog(onDelete: () -> Unit, onCancel: () -> Unit, contactID: String) {
   Dialog(onDismissRequest = {}) {
     Box(
         modifier =
-        Modifier
-            .width(300.dp)
-            .height(200.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .testTag(contactID + "_delete_box")) {
+            Modifier.width(300.dp)
+                .height(200.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .testTag(contactID + "_delete_box")) {
           Column(
-              modifier = Modifier
-                  .padding(16.dp)
-                  .testTag(contactID + "_delete_column"),
+              modifier = Modifier.padding(16.dp).testTag(contactID + "_delete_column"),
               verticalArrangement = Arrangement.Center,
               horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -250,27 +224,25 @@ private fun DeleteContactDialog(
                     textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(contactID + "_delete_row"),
+                    modifier = Modifier.fillMaxWidth().testTag(contactID + "_delete_row"),
                     horizontalArrangement = Arrangement.SpaceEvenly) {
                       DeleteButton(onClick = { onDelete() })
-                Button(
-                    onClick = { onCancel() },
-                    modifier =
-                    Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .width(80.dp)
-                        .height(40.dp)
-                        .testTag(contactID + "_delete_no_button"),
-                    colors =
-                        ButtonDefaults.buttonColors(containerColor = Blue, contentColor = White)) {
-                      Text(
-                          text = stringResource(R.string.cancel),
-                          modifier = Modifier.testTag(contactID + "_delete_no_text"))
+                      Button(
+                          onClick = { onCancel() },
+                          modifier =
+                              Modifier.clip(RoundedCornerShape(4.dp))
+                                  .width(80.dp)
+                                  .height(40.dp)
+                                  .testTag(contactID + "_delete_no_button"),
+                          colors =
+                              ButtonDefaults.buttonColors(
+                                  containerColor = Blue, contentColor = White)) {
+                            Text(
+                                text = stringResource(R.string.cancel),
+                                modifier = Modifier.testTag(contactID + "_delete_no_text"))
+                          }
                     }
               }
-          }
         }
   }
 }

@@ -69,7 +69,7 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun deleteContact(contactID: String) {
-    Log.d("contact","called deletecontact in VM")
+    Log.d("contact", "called deletecontact in VM")
     db.deleteContact(contactID)
   }
 }
