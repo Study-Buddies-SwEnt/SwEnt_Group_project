@@ -64,12 +64,12 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun updateContact(contactID: String, showOnMap: Boolean?) {
-    TODO("db.update")
+  fun updateContact(contactID: String, showOnMap: Boolean) {
+    db.updateContact(contactID, showOnMap)
   }
 
   fun deleteContact(contactID: String) {
+    Log.d("contact","called deletecontact in VM")
     db.deleteContact(contactID)
-    (TODO("db.deletechat"))
   }
 }

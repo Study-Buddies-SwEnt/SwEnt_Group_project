@@ -164,7 +164,11 @@ interface DbRepository {
 
   fun deleteContact(contactID: String)
 
-  companion object {
+    fun deletePrivateChat(chatID : String)
+
+   fun updateContact(contactID: String, showOnMap: Boolean)
+
+    companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

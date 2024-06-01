@@ -29,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -81,7 +82,11 @@ fun ContactScreen(
 
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
-  val showOnMapState = remember { mutableStateOf(contactData?.showOnMap) }
+
+  var showOnMapState = remember {mutableStateOf(false) }
+  if(contactData != null) {
+      showOnMapState = remember {mutableStateOf(contactData!!.showOnMap) }}
+
   val context = LocalContext.current
 
   otherUserData?.let {
@@ -110,7 +115,10 @@ fun ContactScreen(
   }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
+      modifier = Modifier
+          .fillMaxSize()
+          .background(White)
+          .testTag("modify_group_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
@@ -132,9 +140,10 @@ fun ContactScreen(
             verticalArrangement = Arrangement.Top) {
               LazyColumn(
                   modifier =
-                      Modifier.fillMaxSize()
-                          .padding(paddingValues)
-                          .testTag("modify_contact_column"),
+                  Modifier
+                      .fillMaxSize()
+                      .padding(paddingValues)
+                      .testTag("modify_contact_column"),
                   verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                   horizontalAlignment = Alignment.CenterHorizontally) {
                     item { Spacer(modifier = Modifier.padding(10.dp)) }
@@ -143,11 +152,13 @@ fun ContactScreen(
                           painter = rememberImagePainter(photoState.value),
                           contentDescription = "Profile Picture",
                           modifier =
-                              Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),
+                          Modifier
+                              .size(200.dp)
+                              .border(1.dp, Blue, RoundedCornerShape(5.dp)),
                           contentScale = ContentScale.Crop)
                     }
                     item { Spacer(modifier = Modifier.padding(20.dp)) }
-                    item { ToggleMapVisibilityButton(contactID, contactsViewModel) }
+                    item { ToggleMapVisibilityButton(showOnMapState) }
                     item { Spacer(modifier = Modifier.padding(0.dp)) }
                     item {
                       SaveButton(nameState) {
@@ -173,24 +184,56 @@ fun ContactScreen(
 }
 
 @Composable
-private fun ToggleMapVisibilityButton(contactID: String, contactsViewModel: ContactsViewModel) {}
+private fun ToggleMapVisibilityButton(showOnMapState : MutableState<Boolean>) {
+
+    if (showOnMapState.value){
+        Button(
+            onClick = {showOnMapState.value = false},
+            modifier =
+            Modifier
+                .width(300.dp)
+                .height(50.dp)
+                .clip(RoundedCornerShape(4.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Blue, contentColor = White)) {
+            Text(
+                text = stringResource(R.string.location_shared))}
+    }
+    else
+        {
+            Button(
+                onClick = {showOnMapState.value = true},
+                modifier =
+                Modifier
+                    .width(300.dp)
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                colors =
+                ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = White)) {
+                Text(
+                    text = stringResource(R.string.location_not_shared))
+            }
+    }
+}
 
 @Composable
 private fun DeleteContactDialog(
-    onDelete: (Long?) -> Unit,
+    onDelete: () -> Unit,
     onCancel: () -> Unit,
     contactID: String
 ) {
   Dialog(onDismissRequest = {}) {
     Box(
         modifier =
-            Modifier.width(300.dp)
-                .height(200.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
-                .testTag(contactID + "_delete_box")) {
+        Modifier
+            .width(300.dp)
+            .height(200.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .testTag(contactID + "_delete_box")) {
           Column(
-              modifier = Modifier.padding(16.dp).testTag(contactID + "_delete_column"),
+              modifier = Modifier
+                  .padding(16.dp)
+                  .testTag(contactID + "_delete_column"),
               verticalArrangement = Arrangement.Center,
               horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -205,17 +248,19 @@ private fun DeleteContactDialog(
                     textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth().testTag(contactID + "_delete_row"),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(contactID + "_delete_row"),
                     horizontalArrangement = Arrangement.SpaceEvenly) {
-                      DeleteButton(onClick = { onDelete })
-                    }
+                      DeleteButton(onClick = { onDelete() })
                 Button(
-                    onClick = onCancel,
+                    onClick = { onCancel() },
                     modifier =
-                        Modifier.clip(RoundedCornerShape(4.dp))
-                            .width(80.dp)
-                            .height(40.dp)
-                            .testTag(contactID + "_delete_no_button"),
+                    Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .width(80.dp)
+                        .height(40.dp)
+                        .testTag(contactID + "_delete_no_button"),
                     colors =
                         ButtonDefaults.buttonColors(containerColor = Blue, contentColor = White)) {
                       Text(
@@ -223,6 +268,7 @@ private fun DeleteContactDialog(
                           modifier = Modifier.testTag(contactID + "_delete_no_text"))
                     }
               }
+          }
         }
   }
 }
