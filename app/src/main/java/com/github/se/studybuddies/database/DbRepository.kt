@@ -27,9 +27,8 @@ interface DbRepository {
 
   suspend fun getCurrentUser(): User
 
-  suspend fun getContact(contactUID: String): Contact
+  suspend fun getContact(contactID: String): Contact
 
-  suspend fun createContact(otherUID: String)
 
   suspend fun getAllContacts(uid: String): ContactList
 
@@ -164,9 +163,6 @@ interface DbRepository {
 
   suspend fun createContact(otherUID: String, contactID: String)
 
-  suspend fun getContact(contactID: String): Contact
-
-  suspend fun getAllContacts(uid: String): ContactList
 
   fun deleteContact(contactID: String)
 

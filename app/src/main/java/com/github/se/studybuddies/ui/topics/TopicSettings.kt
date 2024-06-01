@@ -41,6 +41,7 @@ import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
@@ -96,9 +97,8 @@ fun TopicSettings(
 
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
-                topicViewModel.updateTopicName(nameState.value) {
+                topicViewModel.updateTopicName(nameState.value)
                   navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                }
               }
               Button(
                   onClick = { alertVisible.value = true },

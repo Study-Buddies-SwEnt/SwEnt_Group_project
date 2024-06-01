@@ -788,9 +788,12 @@ class DatabaseConnection : DbRepository {
     rtDb.getReference(messagePath).removeValue()
   }
 
+
   override suspend fun removeTopic(uid: String) {
-    getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
+    val topic = getTopic(uid)
+    rtDb.getReference(topic.toString()).removeValue()
   }
+
 
   override fun editMessage(
       groupUID: String,
@@ -1114,7 +1117,7 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
-    getTopic(topicId) { topic ->
+    val topic = getTopic(topicId)
       val items: List<TopicItem> = topic.exercises + topic.theory
       iterateTopicItemDeletion(items) {
         topicDataCollection
@@ -1133,8 +1136,9 @@ class DatabaseConnection : DbRepository {
             }
             .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
       }
+      callBack()
     }
-  }
+
 
   private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
     items.forEach { topicItem ->

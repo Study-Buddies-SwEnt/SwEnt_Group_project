@@ -67,6 +67,7 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
+import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
@@ -79,7 +80,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val db: DbRepository = ServiceLocator.provideDatabase()
-    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
+    val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
     val userViewModel = UserViewModel()
@@ -299,7 +300,7 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val contactID = backStackEntry.arguments?.getString("contactID")
                   ifNotNull(contactID) { contactUID ->
-                    val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID(), db) }
+                    val contactsVM = remember { ContactsViewModel(db.getCurrentUserUID()) }
                     val userVM = remember { UserViewModel(db.getCurrentUserUID(), db) }
                     ContactScreen(contactUID, contactsVM, navigationActions, userVM)
                     Log.d(
@@ -419,7 +420,8 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
-            composable(
+
+              /*composable(
                 route = "${Route.TOPICRESOURCES}/{topicFileID}",
                 arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
                     backStackEntry ->
@@ -430,6 +432,8 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicResources")
                   }
                 }
+
+               */
 
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
