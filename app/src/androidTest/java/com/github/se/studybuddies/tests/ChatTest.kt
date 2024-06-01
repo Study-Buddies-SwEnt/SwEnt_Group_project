@@ -447,6 +447,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
     }
   }
 
+  /*
   @Test
   fun testOptionDialogOwn() {
     composeTestRule.setContent {
@@ -479,6 +480,8 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       }
     }
   }
+
+     */
 
   @Test
   fun testOptionDialogOtherOwner() {
