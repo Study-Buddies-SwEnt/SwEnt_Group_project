@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
@@ -74,7 +73,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.create_group)) },
             leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             rightButton = {})
       }) {

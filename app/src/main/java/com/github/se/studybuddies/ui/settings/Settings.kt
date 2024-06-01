@@ -25,7 +25,7 @@ fun Settings(backRoute: String, navigationActions: NavigationActions) {
         TopNavigationBar(
             title = { Main_title(title = stringResource(R.string.settings)) },
             rightButton = {
-              GoBackRouteButton(navigationActions = navigationActions, backRoute = backRoute)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             leftButton = {})
       }) {

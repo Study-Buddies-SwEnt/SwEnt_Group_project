@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -25,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,7 +50,6 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.CalendarViewModel
-import kotlin.math.*
 
 @Composable
 fun DailyPlannerScreen(
@@ -85,7 +81,7 @@ fun DailyPlannerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
-            leftButton = { GoBackRouteButton(navigationActions, Route.CALENDAR) },
+            leftButton = { GoBackRouteButton(navigationActions) },
             rightButton = {
               IconButton(onClick = { deleteMode = !deleteMode }) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)

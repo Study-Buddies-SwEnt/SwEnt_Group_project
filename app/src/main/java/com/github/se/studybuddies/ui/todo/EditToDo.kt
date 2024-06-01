@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.DeleteButton
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
@@ -76,7 +75,7 @@ fun EditToDo(
           TopNavigationBar(
               title = { Sub_title(stringResource(R.string.edit_task)) },
               leftButton = {
-                GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
+                GoBackRouteButton(navigationActions = navigationActions)
               },
               rightButton = {})
         }) {

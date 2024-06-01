@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
@@ -73,7 +72,7 @@ fun TimerScreen(
         TopNavigationBar(
             title = { Sub_title(title = "Timer") },
             rightButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             leftButton = {})
       },

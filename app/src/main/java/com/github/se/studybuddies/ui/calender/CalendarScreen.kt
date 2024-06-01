@@ -52,7 +52,7 @@ fun CalendarApp(viewModel: CalendarViewModel, navigationActions: NavigationActio
         TopNavigationBar(
             title = { Sub_title(title = "Calendar") },
             leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             rightButton = {})
       },

@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -29,7 +28,7 @@ fun Placeholder(navigationActions: NavigationActions) {
         TopNavigationBar(
             title = { Sub_title(title = "") },
             leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             rightButton = {})
       },

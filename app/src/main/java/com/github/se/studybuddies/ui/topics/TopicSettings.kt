@@ -73,7 +73,8 @@ fun TopicSettings(
             title = { Sub_title(title = stringResource(R.string.topic_settings)) },
             leftButton = {
               GoBackRouteButton(
-                  navigationActions = navigationActions, "${Route.TOPIC}/$topicUID/$groupUID")
+                  navigationActions = navigationActions
+              )
             },
             rightButton = {})
       }) {

@@ -617,7 +617,6 @@ fun NonUserMessageOptions(
         viewModel.currentUser.value
             ?.let { DirectMessagesViewModel(it.uid) }
             ?.startDirectMessage(selectedMessage.sender.uid)
-        // TODO()
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {
         Text(
@@ -662,7 +661,7 @@ fun EditDialog(
 @Composable
 fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
   ChatTopBar(
-      leftButton = { GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME) },
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
       rightButton = {
         IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
           Icon(
@@ -707,7 +706,7 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
   ChatTopBar(
       leftButton = {
-        GoBackRouteButton(navigationActions = navigationActions, Route.DIRECT_MESSAGE)
+        GoBackRouteButton(navigationActions = navigationActions)
       },
       rightButton = {
         IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {

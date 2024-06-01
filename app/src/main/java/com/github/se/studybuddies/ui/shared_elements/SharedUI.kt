@@ -252,13 +252,12 @@ fun SearchIcon() {
 @Composable
 fun GoBackRouteButton(
     navigationActions: NavigationActions,
-    backRoute: String,
 ) {
   Icon(
       imageVector = Icons.Default.ArrowBack,
       contentDescription = "Go back",
       modifier =
-          Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
+          Modifier.clickable { navigationActions.goBack()}.testTag("go_back_button"))
 }
 
 @Composable

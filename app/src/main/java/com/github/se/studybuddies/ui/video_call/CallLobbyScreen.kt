@@ -74,7 +74,7 @@ fun CallLobbyScreen(
       ) {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.call_lobby)) },
-            leftButton = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
+            leftButton = { GoBackRouteButton(navigationActions) },
             rightButton = {})
         Icon(
             modifier = Modifier.size(36.dp).testTag("phone_icon"),
