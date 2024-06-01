@@ -53,6 +53,7 @@ class DatabaseConnection : DbRepository {
   private val topicItemCollection = db.collection("topicItemData")
   private val contactDataCollection = db.collection("contactData")
   private val userContactsCollection = db.collection("userContacts")
+    private val dailyPlannerDataCollection=db.collection("dailyPlannerData")
 
   override fun isFakeDatabase(): Boolean {
     return false
@@ -94,7 +95,7 @@ class DatabaseConnection : DbRepository {
               "appointments" to planner.appointments,
               "notes" to planner.notes)
         }
-    userDataCollection
+      dailyPlannerDataCollection
         .document(uid)
         .update("dailyPlanners", plannerMap)
         .addOnSuccessListener {
@@ -232,6 +233,15 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
         }
+
+      val daily = hashMapOf("dailyPlanners" to emptyList<Map<String, Any>>())
+      dailyPlannerDataCollection
+          .document(uid)
+          .set(daily)
+          .addOnSuccessListener { Log.d("MyPrint", "User daily palnner successfully created") }
+          .addOnFailureListener { e ->
+              Log.d("MyPrint", "Failed to create user daily palnenr with error: ", e)
+          }
 
     val contactList = hashMapOf("contacts" to emptyList<String>())
     userContactsCollection
