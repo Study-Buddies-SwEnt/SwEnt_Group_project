@@ -23,6 +23,8 @@ import com.github.se.studybuddies.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
@@ -1050,7 +1052,36 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  // using the topicData and topicItemData collections
+    fun votePollMessage(chatUID: String, messageUID: String, option: String, userUID: String, chatType: ChatType, additionalUID: String = "") {
+        val messagePath = getMessagePath(chatUID, chatType, additionalUID) + "/$messageUID/${MessageVal.POLL_VOTES}/$option"
+        val reference = rtDb.getReference(messagePath)
+
+        reference.runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val currentVotes = currentData.getValue(String::class.java)?.split(",")?.toMutableList() ?: mutableListOf()
+
+                if (currentVotes.contains(userUID)) {
+                    currentVotes.remove(userUID)
+                } else {
+                    currentVotes.add(userUID)
+                }
+
+                currentData.value = if (currentVotes.isEmpty()) null else currentVotes.joinToString(",")
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                if (error != null) {
+                    Log.w("DatabaseConnection", "Failed to update poll vote", error.toException())
+                } else {
+                    Log.d("DatabaseConnection", "Poll vote successfully updated")
+                }
+            }
+        })
+    }
+
+
+    // using the topicData and topicItemData collections
   override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val document = topicDataCollection.document(uid).get().await()
     if (document.exists()) {
