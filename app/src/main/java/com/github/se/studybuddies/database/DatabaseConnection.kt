@@ -958,19 +958,16 @@ class DatabaseConnection : DbRepository {
                                 .toBoolean()
                         val options =
                             postSnapshot.child(MessageVal.POLL_OPTIONS).value.toString().split(",")
-                       /* val votes =
-                            postSnapshot
-                                .child(MessageVal.POLL_VOTES)
-                                .value
-                                .toString()
-                                .split(",")
-                                .associate {
-                                  val parts = it.split(":")
-                                  val userUIDs = parts[1].split(",")
-                                  parts[0] to userUIDs.map { uid -> getUser(uid) }
-                                }
-                                .toMutableMap()*/
-                          val votes = mutableMapOf<String, List<User>>() // TODO fix votes
+                          val votes = mutableMapOf<String, List<User>>()
+                          val votesSnapshot = postSnapshot.child(MessageVal.POLL_VOTES)
+                          if (votesSnapshot.exists()) {
+                              votesSnapshot.children.forEach { voteEntry ->
+                                  val option = voteEntry.key.toString()
+                                  val userUIDs = voteEntry.value.toString().split(",")
+                                  val users = userUIDs.map { uid -> getUser(uid) }
+                                  votes[option] = users
+                              }
+                          }
                         Message.PollMessage(
                             postSnapshot.key.toString(),
                             question,
