@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,9 +45,13 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -105,13 +110,9 @@ fun ChatScreen(
     viewModel: MessageViewModel,
     navigationActions: NavigationActions,
 ) {
-  val messages = viewModel.messages.collectAsState(initial = emptyList()).value
+  val messages by viewModel.messages.collectAsState(initial = emptyList())
   val showOptionsDialog = remember { mutableStateOf(false) }
-  val showEditDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
-  val showAddImage = remember { mutableStateOf(false) }
-  val showAddLink = remember { mutableStateOf(false) }
-  val showAddFile = remember { mutableStateOf(false) }
   var showSearchBar by remember { mutableStateOf(false) }
   var searchText by remember { mutableStateOf("") }
 
@@ -124,11 +125,9 @@ fun ChatScreen(
     }
   }
 
-  selectedMessage?.let {
-    OptionsDialog(viewModel, it, showOptionsDialog, showEditDialog, navigationActions)
-  }
+  selectedMessage?.let { OptionsDialog(viewModel, it, showOptionsDialog, navigationActions) }
 
-  IconsOptionsList(viewModel, showIconsOptions, showAddImage, showAddLink, showAddFile)
+  IconsOptionsList(viewModel, showIconsOptions)
 
   Column(
       modifier =
@@ -180,10 +179,7 @@ fun ChatScreen(
                     } else {
                       Arrangement.Start
                     }) {
-                  MessageBubble(
-                      message,
-                      displayName,
-                  )
+                  MessageBubble(message, displayName, viewModel)
                 }
           }
         }
@@ -225,10 +221,10 @@ fun SearchBar(
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
   val filterType = viewModel.filterType.collectAsState().value
-  Row(
+  LazyRow(
       modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("message_type_filter"),
-      horizontalArrangement = Arrangement.SpaceEvenly) {
-        MessageFilterType.entries.forEach { type ->
+      horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(MessageFilterType.entries) { type ->
           val backgroundColor = if (filterType == type.messageType) DarkBlue else Blue
           Button(
               modifier = Modifier.testTag("message_type_filter_button"),
@@ -249,11 +245,12 @@ enum class MessageFilterType(
   TEXT(R.string.test_message_type, Message.TextMessage::class.java),
   PHOTO(R.string.photo_message_type, Message.PhotoMessage::class.java),
   LINK(R.string.link_message_type, Message.LinkMessage::class.java),
-  FILE(R.string.file_message_type, Message.FileMessage::class.java)
+  FILE(R.string.file_message_type, Message.FileMessage::class.java),
+  POLL(R.string.poll_message_type, Message.PollMessage::class.java)
 }
 
 @Composable
-fun MessageBubble(message: Message, displayName: Boolean = false) {
+fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: MessageViewModel) {
   val browserLauncher =
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.StartActivityForResult()) {}
@@ -350,6 +347,27 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
                               .testTag("chat_message_file"))
                 }
               }
+              is Message.PollMessage -> {
+                Column {
+                  Text(
+                      text = message.question,
+                      style = TextStyle(color = Black),
+                      modifier = Modifier.testTag("chat_message_poll_question"))
+                  message.options.forEach { option ->
+                    val isSelected =
+                        message.votes[option]?.any { it.uid == viewModel.currentUser.value?.uid } ==
+                            true
+                    val voteNumber = message.votes[option]?.size ?: 0
+                    PollButton(
+                        text = option,
+                        isSelected = isSelected,
+                        voteNumber = voteNumber,
+                        singleChoice = message.singleChoice) {
+                          viewModel.votePollMessage(message, option)
+                        }
+                  }
+                }
+              }
             }
             Text(
                 text = message.getTime(),
@@ -358,6 +376,32 @@ fun MessageBubble(message: Message, displayName: Boolean = false) {
           }
         }
   }
+}
+
+@Composable
+fun PollButton(
+    text: String,
+    isSelected: Boolean,
+    voteNumber: Int,
+    singleChoice: Boolean,
+    onItemSelected: (String) -> Unit
+) {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.SpaceEvenly,
+      modifier = Modifier.clickable { onItemSelected(text) }) {
+        if (singleChoice) {
+          RadioButton(selected = isSelected, onClick = { onItemSelected(text) })
+        } else {
+          Checkbox(checked = isSelected, onCheckedChange = { onItemSelected(text) })
+        }
+        Text(
+            text = text,
+            style = TextStyle(color = Black),
+            modifier = Modifier.testTag("chat_message_poll_option"))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = voteNumber.toString(), style = TextStyle(color = Gray))
+      }
 }
 
 @Composable
@@ -422,9 +466,10 @@ fun OptionsDialog(
     viewModel: MessageViewModel,
     selectedMessage: Message,
     showOptionsDialog: MutableState<Boolean>,
-    showEditDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
 ) {
+  val showEditDialog = remember { mutableStateOf(false) }
+  EditDialog(viewModel, selectedMessage, showEditDialog)
 
   ShowAlertDialog(
       showDialog = showOptionsDialog,
@@ -699,16 +744,52 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 }
 
 @Composable
-fun IconsOptionsList(
-    viewModel: MessageViewModel,
-    showIconsOptions: MutableState<Boolean>,
-    showAddImage: MutableState<Boolean>,
-    showAddLink: MutableState<Boolean>,
-    showAddFile: MutableState<Boolean>,
-) {
+fun IconsOptionsList(viewModel: MessageViewModel, showIconsOptions: MutableState<Boolean>) {
+  val showAddImage = remember { mutableStateOf(false) }
+  val showAddLink = remember { mutableStateOf(false) }
+  val showAddFile = remember { mutableStateOf(false) }
+  val showAddPoll = remember { mutableStateOf(false) }
+
   SendPhotoMessage(viewModel, showAddImage)
   SendLinkMessage(viewModel, showAddLink)
   SendFileMessage(viewModel, showAddFile)
+  SendPollMessage(viewModel, showAddPoll)
+
+  val iconButtonOptions =
+      listOf(
+          IconButtonOptionData(
+              testTag = "icon_send_image",
+              onClickAction = {
+                showIconsOptions.value = false
+                showAddImage.value = true
+              },
+              painterResourceId = R.drawable.image_24px,
+              contentDescription = stringResource(R.string.app_name)),
+          IconButtonOptionData(
+              testTag = "icon_send_link",
+              onClickAction = {
+                showIconsOptions.value = false
+                showAddLink.value = true
+              },
+              painterResourceId = R.drawable.link_24px,
+              contentDescription = stringResource(R.string.app_name)),
+          IconButtonOptionData(
+              testTag = "icon_send_file",
+              onClickAction = {
+                showIconsOptions.value = false
+                showAddFile.value = true
+              },
+              painterResourceId = R.drawable.picture_as_pdf_24px,
+              contentDescription = stringResource(R.string.app_name)),
+          IconButtonOptionData(
+              testTag = "icon_send_poll",
+              onClickAction = {
+                showIconsOptions.value = false
+                showAddPoll.value = true
+              },
+              painterResourceId = R.drawable.how_to_vote_24px,
+              contentDescription = stringResource(R.string.app_name)))
+
   ShowAlertDialog(
       modifier = Modifier.testTag("dialog_more_messages_types"),
       showDialog = showIconsOptions,
@@ -716,41 +797,24 @@ fun IconsOptionsList(
       title = {},
       content = {
         LazyRow {
-          items(3) {
-            when (it) {
-              0 ->
-                  IconButtonOption(
-                      modifier = Modifier.testTag("icon_send_image"),
-                      onClickAction = {
-                        showIconsOptions.value = false
-                        showAddImage.value = true
-                      },
-                      painterResourceId = R.drawable.image_24px,
-                      contentDescription = stringResource(R.string.app_name))
-              1 ->
-                  IconButtonOption(
-                      modifier = Modifier.testTag("icon_send_link"),
-                      onClickAction = {
-                        showIconsOptions.value = false
-                        showAddLink.value = true
-                      },
-                      painterResourceId = R.drawable.link_24px,
-                      contentDescription = stringResource(R.string.app_name))
-              2 ->
-                  IconButtonOption(
-                      modifier = Modifier.testTag("icon_send_file"),
-                      onClickAction = {
-                        showIconsOptions.value = false
-                        showAddFile.value = true
-                      },
-                      painterResourceId = R.drawable.picture_as_pdf_24px,
-                      contentDescription = stringResource(R.string.app_name))
-            }
+          items(iconButtonOptions) { option ->
+            IconButtonOption(
+                modifier = Modifier.testTag(option.testTag),
+                onClickAction = option.onClickAction,
+                painterResourceId = option.painterResourceId,
+                contentDescription = option.contentDescription)
           }
         }
       },
       button = {})
 }
+
+data class IconButtonOptionData(
+    val testTag: String,
+    val onClickAction: () -> Unit,
+    val painterResourceId: Int,
+    val contentDescription: String
+)
 
 @Composable
 fun IconButtonOption(
@@ -970,6 +1034,85 @@ fun FilePickerBox(
           Text(text = fileName.value, modifier = Modifier.testTag("select_file"))
         }
       }
+}
+
+@Composable
+fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableState<Boolean>) {
+  val question = remember { mutableStateOf("") }
+  val options = remember { mutableStateOf(listOf("")) }
+  val singleChoice = remember { mutableStateOf(true) }
+
+  ShowAlertDialog(
+      modifier = Modifier.testTag("add_poll_dialog"),
+      showDialog = showAddPoll,
+      onDismiss = { showAddPoll.value = false },
+      title = {},
+      content = {
+        Column {
+          OutlinedTextField(
+              label = { Text(stringResource(R.string.poll_question)) },
+              value = question.value,
+              onValueChange = { question.value = it },
+              modifier = Modifier.fillMaxWidth().testTag("add_poll_question_text_field"),
+              textStyle = TextStyle(color = Black),
+              singleLine = true,
+              placeholder = { Text(stringResource(R.string.enter_poll_question)) },
+          )
+          Spacer(modifier = Modifier.height(16.dp))
+
+          Text(text = stringResource(R.string.poll_options))
+
+          LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
+            items(options.value) { option ->
+              OutlinedTextField(
+                  value = option,
+                  onValueChange = {
+                    options.value =
+                        options.value.toMutableList().apply {
+                          set(indexOf(option), it)
+                          removeAll { option -> option.isBlank() }
+                          if (lastOrNull()?.isNotBlank() == true) add("")
+                        }
+                  },
+                  modifier = Modifier.fillMaxWidth().testTag("add_poll_options_text_field"),
+                  textStyle = TextStyle(color = Black),
+                  singleLine = true,
+                  placeholder = { Text(stringResource(R.string.enter_poll_options)) },
+              )
+              Spacer(modifier = Modifier.height(8.dp))
+            }
+          }
+          Row(
+              modifier =
+                  Modifier.fillMaxWidth().padding(8.dp).testTag("add_poll_single_choice_row"),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    text = stringResource(R.string.single_choice),
+                    style = TextStyle(color = Black),
+                    modifier = Modifier.testTag("add_poll_single_choice_text"))
+                Switch(
+                    checked = singleChoice.value,
+                    onCheckedChange = { singleChoice.value = it },
+                    colors =
+                        SwitchDefaults.colors(
+                            checkedThumbColor = com.github.se.studybuddies.ui.theme.White,
+                            checkedTrackColor = Blue,
+                            uncheckedTrackColor = Color.LightGray))
+              }
+        }
+      },
+      button = {
+        val nonEmptyOptions = options.value.filter { it.isNotBlank() }
+        SaveButton(question.value.isNotBlank() && nonEmptyOptions.size >= 2) {
+          messageViewModel.sendPollMessage(
+              question.value, singleChoice.value, nonEmptyOptions.toList())
+          showAddPoll.value = false
+          question.value = ""
+          options.value = listOf("")
+          singleChoice.value = true
+        }
+      })
 }
 
 @Composable
