@@ -66,6 +66,16 @@ sealed class Message {
       override val timestamp: Long,
   ) : Message()
 
+  data class PollMessage(
+      override val uid: String = UUID.randomUUID().toString(),
+      val question: String,
+      val singleChoice: Boolean,
+      val options: List<String>,
+      val votes: MutableMap<String, List<User>>,
+      override val sender: User,
+      override val timestamp: Long,
+  ) : Message()
+
   /*   data class AudioMessage(
        override val uid: String = UUID.randomUUID().toString(),
        val audioUri: Uri,
@@ -91,14 +101,6 @@ sealed class Message {
   data class ContactMessage(
        override val uid: String = UUID.randomUUID().toString(),
        val contact: User,
-       override val sender: User,
-       override val timestamp: Long,
-   ) : Message()
-
-   data class PollMessage(
-       override val uid: String = UUID.randomUUID().toString(),
-       val question: String,
-       val options: List<String>,
        override val sender: User,
        override val timestamp: Long,
    ) : Message()
@@ -130,4 +132,9 @@ object MessageVal {
   const val FILE = "fileUri"
   const val FILE_NAME = "fileName"
   const val FILE_TYPE = "application/pdf"
+  const val POLL = "poll"
+  const val POLL_QUESTION = "question"
+  const val POLL_SINGLE_CHOICE = "singleChoice"
+  const val POLL_OPTIONS = "options"
+  const val POLL_VOTES = "votes"
 }

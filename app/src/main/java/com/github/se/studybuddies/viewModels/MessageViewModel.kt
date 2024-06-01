@@ -28,7 +28,7 @@ class MessageViewModel(
 
   private val _filterType = MutableStateFlow<Class<out Message>?>(null)
   val filterType: StateFlow<Class<out Message>?> = _filterType.asStateFlow()
-  private val _searchQuery = MutableStateFlow<String>("")
+  private val _searchQuery = MutableStateFlow("")
 
   val messages =
       combine(_messages, _searchQuery, _filterType) { messages, query, filterType ->
@@ -45,6 +45,9 @@ class MessageViewModel(
                     is Message.TextMessage -> message.text.contains(query, ignoreCase = true)
                     is Message.LinkMessage -> message.linkName.contains(query, ignoreCase = true)
                     is Message.FileMessage -> message.fileName.contains(query, ignoreCase = true)
+                    is Message.PollMessage ->
+                        message.question.contains(query, ignoreCase = true) ||
+                            message.options.any { it.contains(query, ignoreCase = true) }
                     else -> false
                   }
             }
@@ -114,6 +117,54 @@ class MessageViewModel(
               timestamp = System.currentTimeMillis())
         }
     sendMessage(message!!)
+  }
+
+  fun sendPollMessage(question: String, singleChoice: Boolean, options: List<String>) {
+    val message =
+        _currentUser.value?.let {
+          Message.PollMessage(
+              question = question,
+              singleChoice = singleChoice,
+              options = options,
+              votes = mutableMapOf(),
+              sender = it,
+              timestamp = System.currentTimeMillis())
+        }
+    sendMessage(message!!)
+  }
+
+  fun votePollMessage(message: Message.PollMessage, option: String) {
+    val currentUserUID = _currentUser.value?.uid ?: return
+
+    val updatedVotes = message.votes.toMutableMap()
+    if (message.singleChoice) {
+      // Remove user's previous votes if it's a single-choice poll
+      updatedVotes.keys.forEach { opt ->
+        if (opt != option) {
+          updatedVotes[opt] = updatedVotes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
+        }
+      }
+    }
+
+    // For both single and multiple-choice polls
+    val currentVotes = updatedVotes[option]?.toMutableList() ?: mutableListOf()
+    if (currentVotes.any { it.uid == currentUserUID }) {
+      // Remove vote if already selected
+      currentVotes.removeAll { it.uid == currentUserUID }
+    } else {
+      // Add vote if not selected
+      currentVotes.add(_currentUser.value!!)
+    }
+    updatedVotes[option] = currentVotes
+
+    // Create a new message instance to trigger recomposition
+    val updatedMessage = message.copy(votes = updatedVotes)
+
+    // Update the message in the database
+    db.votePollMessage(chat, updatedMessage)
+
+    // Update the local state immutably
+    _messages.value = _messages.value.map { if (it.uid == message.uid) updatedMessage else it }
   }
 
   private fun sendMessage(message: Message) {
