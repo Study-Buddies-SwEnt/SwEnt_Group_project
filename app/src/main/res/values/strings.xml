@@ -127,6 +127,7 @@
     <string name="file_message_type">File</string>
     <string name="link_message_type">Link</string>
     <string name="photo_message_type">Photo</string>
+    <string name="poll_message_type">Poll</string>
     <string name="permissions_not_granted_call">Camera and microphone permissions are required to join the call</string>
     <string name="speaking_while_muted">You are speaking while muted !</string>
     <string name="members">Members</string>

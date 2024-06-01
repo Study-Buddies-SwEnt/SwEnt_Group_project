@@ -108,7 +108,7 @@ fun ChatScreen(
     viewModel: MessageViewModel,
     navigationActions: NavigationActions,
 ) {
-  val messages = viewModel.messages.collectAsState(initial = emptyList()).value
+  val messages by viewModel.messages.collectAsState(initial = emptyList())
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showEditDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
@@ -228,10 +228,10 @@ fun SearchBar(
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
   val filterType = viewModel.filterType.collectAsState().value
-  Row(
+  LazyRow(
       modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("message_type_filter"),
-      horizontalArrangement = Arrangement.SpaceEvenly) {
-        MessageFilterType.entries.forEach { type ->
+      horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(MessageFilterType.entries) { type ->
           val backgroundColor = if (filterType == type.messageType) DarkBlue else Blue
           Button(
               modifier = Modifier.testTag("message_type_filter_button"),
@@ -252,7 +252,8 @@ enum class MessageFilterType(
   TEXT(R.string.test_message_type, Message.TextMessage::class.java),
   PHOTO(R.string.photo_message_type, Message.PhotoMessage::class.java),
   LINK(R.string.link_message_type, Message.LinkMessage::class.java),
-  FILE(R.string.file_message_type, Message.FileMessage::class.java)
+  FILE(R.string.file_message_type, Message.FileMessage::class.java),
+  POLL(R.string.poll_message_type, Message.PollMessage::class.java)
 }
 
 @Composable

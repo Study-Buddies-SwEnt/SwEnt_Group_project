@@ -26,7 +26,7 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
 
   private val _filterType = MutableStateFlow<Class<out Message>?>(null)
   val filterType: StateFlow<Class<out Message>?> = _filterType.asStateFlow()
-  private val _searchQuery = MutableStateFlow<String>("")
+  private val _searchQuery = MutableStateFlow("")
 
   val messages =
       combine(_messages, _searchQuery, _filterType) { messages, query, filterType ->
@@ -134,18 +134,18 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
   fun votePollMessage(message: Message.PollMessage, option: String) {
     val currentUserUID = _currentUser.value?.uid ?: return
 
+    val updatedVotes = message.votes.toMutableMap()
     if (message.singleChoice) {
       // Remove user's previous votes if it's a single-choice poll
-      message.votes.keys.forEach { opt ->
+      updatedVotes.keys.forEach { opt ->
         if (opt != option) {
-          message.votes[opt] =
-              message.votes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
+          updatedVotes[opt] = updatedVotes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
         }
       }
     }
 
     // For both single and multiple-choice polls
-    val currentVotes = message.votes[option]?.toMutableList() ?: mutableListOf()
+    val currentVotes = updatedVotes[option]?.toMutableList() ?: mutableListOf()
     if (currentVotes.any { it.uid == currentUserUID }) {
       // Remove vote if already selected
       currentVotes.removeAll { it.uid == currentUserUID }
@@ -153,13 +153,16 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
       // Add vote if not selected
       currentVotes.add(_currentUser.value!!)
     }
-    message.votes[option] = currentVotes
+    updatedVotes[option] = currentVotes
+
+    // Create a new message instance to trigger recomposition
+    val updatedMessage = message.copy(votes = updatedVotes)
 
     // Update the message in the database
-    db.votePollMessage(chat, message)
+    db.votePollMessage(chat, updatedMessage)
 
-    // Update the local state
-    _messages.value = _messages.value.map { if (it.uid == message.uid) message else it }
+    // Update the local state immutably
+    _messages.value = _messages.value.map { if (it.uid == message.uid) updatedMessage else it }
   }
 
   private fun sendMessage(message: Message) {
