@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
 import com.github.se.studybuddies.ui.map.MapScreen

@@ -1,7 +1,12 @@
 package com.github.se.studybuddies.tests
 
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.AccountSettingsScreen
@@ -16,8 +21,6 @@ import io.mockk.confirmVerified
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit4.MockKRule
 import io.mockk.verify
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,8 +33,8 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
-  val uid = "userTest"
-  val backRoute = Route.GROUPSHOME
+  private val uid = "userTest"
+  private val backRoute = Route.GROUPSHOME
   private val db = MockDatabase()
 
   @Before
@@ -42,13 +45,13 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @Test
   fun elementsAreDisplayed() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.AccountSettingsScreen>(
-        composeTestRule) {
-          runBlocking {
-            delay(6000) // Adjust the delay time as needed
-          }
-          signOutButton { assertIsDisplayed() }
-        }
+    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      columnAccountSetting { assertIsDisplayed() }
+      spacer1 { assertIsDisplayed() }
+      spacer2 { assertIsDisplayed() }
+      spacer3 { assertIsDisplayed() }
+      signOutButton { assertIsDisplayed() }
+    }
   }
 
   @Test
@@ -81,18 +84,18 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
     confirmVerified(mockNavActions)
   }
 
+  // Sign out test used to often fail the CI on git
   @Test
-  fun canSignOut() {
-    ComposeScreen.onComposeScreen<com.github.se.studybuddies.screens.AccountSettingsScreen>(
-        composeTestRule) {
-          runBlocking { delay(6000) }
-          signOutButton {
-            assertIsEnabled()
-            assertHasClickAction()
-            performClick()
-          }
-        }
-    // verify { mockNavActions.navigateTo(Route.LOGIN) }
-    // confirmVerified(mockNavActions)
+  fun signOut() {
+    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("sign_out_button")
+          .assertIsEnabled()
+          .assertHasClickAction()
+          .performClick()
+      composeTestRule.waitForIdle()
+      verify { mockNavActions.navigateTo(Route.LOGIN) }
+      confirmVerified(mockNavActions)
+    }
   }
 }
