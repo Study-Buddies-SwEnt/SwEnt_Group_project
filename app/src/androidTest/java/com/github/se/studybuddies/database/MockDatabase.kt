@@ -285,6 +285,39 @@ class MockDatabase : DbRepository {
     }
   }
 
+  /*
+   * Add the user actually logged in to the group given in the parameter
+   */
+  override suspend fun addSelfToGroup(groupUID: String) {
+
+    if (groupUID == "") {
+      Log.d("MyPrint", "Group UID is empty")
+      return
+    }
+
+    val userToAdd = getCurrentUserUID()
+
+    if (getUser(userToAdd) == User.empty()) {
+      // should never happen
+      Log.d("MyPrint", "User not connected")
+      return
+    }
+
+    val document = groupDataCollection[groupUID]
+    if (document == null) {
+      Log.d("MyPrint", "Group with uid $groupUID does not exist")
+      return
+    }
+    // add user to group
+    groupDataCollection[groupUID] = document.copy(members = document.members + userToAdd)
+
+    // add group to the user's list of groups
+    userMembershipsCollection[userToAdd]?.let {
+      val updatedList = it + groupUID
+      userMembershipsCollection[userToAdd] = updatedList.toMutableList()
+    }
+  }
+
   override fun updateGroup(groupUID: String, name: String, photoUri: Uri) {
 
     val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
