@@ -166,18 +166,19 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to Settings")
                   }
                 }
-            composable(
-                route = "${Route.DAILYPLANNER}/{date}",
-                arguments = listOf(navArgument("date") { type = NavType.StringType })) {
-                    backStackEntry ->
+              composable(
+                  route = "${Route.DAILYPLANNER}/{date}",
+                  arguments = listOf(navArgument("date") { type = NavType.StringType })
+              ) { backStackEntry ->
                   val date = backStackEntry.arguments?.getString("date")
                   val currentUser = ServiceLocator.getCurrentUserUID()
                   if (date != null && currentUser != null) {
-                    val viewModelFactory = CalendarViewModelFactory(currentUser)
-                    DailyPlannerScreen(date, viewModelFactory, navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to Daily Planner")
+                      val viewModelFactory = CalendarViewModelFactory(currentUser)
+                      val viewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
+                      DailyPlannerScreen(date, viewModel, navigationActions)
+                      Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
-                }
+              }
             composable(
                 route = "${Route.ACCOUNT}/{backRoute}",
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
