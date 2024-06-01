@@ -960,16 +960,16 @@ class DatabaseConnection : DbRepository {
                                 .toBoolean()
                         val options =
                             postSnapshot.child(MessageVal.POLL_OPTIONS).value.toString().split(",")
-                          val votes = mutableMapOf<String, List<User>>()
-                          val votesSnapshot = postSnapshot.child(MessageVal.POLL_VOTES)
-                          if (votesSnapshot.exists()) {
-                              votesSnapshot.children.forEach { voteEntry ->
-                                  val option = voteEntry.key.toString()
-                                  val userUIDs = voteEntry.value.toString().split(",")
-                                  val users = userUIDs.map { uid -> getUser(uid) }
-                                  votes[option] = users
-                              }
+                        val votes = mutableMapOf<String, List<User>>()
+                        val votesSnapshot = postSnapshot.child(MessageVal.POLL_VOTES)
+                        if (votesSnapshot.exists()) {
+                          votesSnapshot.children.forEach { voteEntry ->
+                            val option = voteEntry.key.toString()
+                            val userUIDs = voteEntry.value.toString().split(",")
+                            val users = userUIDs.map { uid -> getUser(uid) }
+                            votes[option] = users
                           }
+                        }
                         Message.PollMessage(
                             postSnapshot.key.toString(),
                             question,
@@ -1052,34 +1052,42 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    fun votePollMessage(chat: Chat, message: Message.PollMessage) {
-        val messagePath = getMessagePath(chat.uid, chat.type, chat.additionalUID) + "/${message.uid}/${MessageVal.POLL_VOTES}"
-        val reference = rtDb.getReference(messagePath)
+  fun votePollMessage(chat: Chat, message: Message.PollMessage) {
+    val messagePath =
+        getMessagePath(chat.uid, chat.type, chat.additionalUID) +
+            "/${message.uid}/${MessageVal.POLL_VOTES}"
+    val reference = rtDb.getReference(messagePath)
 
-        reference.runTransaction(object : Transaction.Handler {
-            override fun doTransaction(currentData: MutableData): Transaction.Result {
-                val updatedVotesMap = mutableMapOf<String, String>()
-                message.votes.forEach { (option, users) ->
-                    val userIds = users.filter { it.uid.isNotEmpty() }.joinToString(",") { it.uid }
-                    updatedVotesMap[option] = userIds
-                }
-
-                currentData.value = updatedVotesMap
-                return Transaction.success(currentData)
+    reference.runTransaction(
+        object : Transaction.Handler {
+          override fun doTransaction(currentData: MutableData): Transaction.Result {
+            val updatedVotesMap = mutableMapOf<String, String>()
+            message.votes.forEach { (option, users) ->
+              val userIds = users.filter { it.uid.isNotEmpty() }.joinToString(",") { it.uid }
+              if (userIds.isNotEmpty()) {
+                updatedVotesMap[option] = userIds
+              }
             }
 
-            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
-                if (error != null) {
-                    Log.w("DatabaseConnection", "Failed to update poll vote", error.toException())
-                } else {
-                    Log.d("DatabaseConnection", "Poll vote successfully updated")
-                }
+            currentData.value = if (updatedVotesMap.isEmpty()) null else updatedVotesMap
+            return Transaction.success(currentData)
+          }
+
+          override fun onComplete(
+              error: DatabaseError?,
+              committed: Boolean,
+              currentData: DataSnapshot?
+          ) {
+            if (error != null) {
+              Log.w("DatabaseConnection", "Failed to update poll vote", error.toException())
+            } else {
+              Log.d("DatabaseConnection", "Poll vote successfully updated")
             }
+          }
         })
-    }
+  }
 
-
-    // using the topicData and topicItemData collections
+  // using the topicData and topicItemData collections
   override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val document = topicDataCollection.document(uid).get().await()
     if (document.exists()) {

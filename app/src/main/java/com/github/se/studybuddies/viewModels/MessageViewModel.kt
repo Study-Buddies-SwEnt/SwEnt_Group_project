@@ -131,32 +131,36 @@ class MessageViewModel(val chat: Chat) : ViewModel() {
     sendMessage(message!!)
   }
 
-    fun votePollMessage(message: Message.PollMessage, option: String) {
-        val currentUserUID = _currentUser.value?.uid ?: return
+  fun votePollMessage(message: Message.PollMessage, option: String) {
+    val currentUserUID = _currentUser.value?.uid ?: return
 
-        if (message.singleChoice) {
-            // Remove user's previous votes if it's a single-choice poll
-            message.votes.keys.forEach { opt ->
-                if (opt != option) {
-                    message.votes[opt] = message.votes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
-                }
-            }
+    if (message.singleChoice) {
+      // Remove user's previous votes if it's a single-choice poll
+      message.votes.keys.forEach { opt ->
+        if (opt != option) {
+          message.votes[opt] =
+              message.votes[opt]?.filter { it.uid != currentUserUID } ?: emptyList()
         }
-
-        // For both single and multiple-choice polls
-        val currentVotes = message.votes[option]?.toMutableList() ?: mutableListOf()
-        if (currentVotes.any { it.uid == currentUserUID }) {
-            // Remove vote if already selected
-            currentVotes.removeAll { it.uid == currentUserUID }
-        } else {
-            // Add vote if not selected
-            currentVotes.add(_currentUser.value!!)
-        }
-        message.votes[option] = currentVotes
-
-        // Update the message in the database
-        db.votePollMessage(chat, message)
+      }
     }
+
+    // For both single and multiple-choice polls
+    val currentVotes = message.votes[option]?.toMutableList() ?: mutableListOf()
+    if (currentVotes.any { it.uid == currentUserUID }) {
+      // Remove vote if already selected
+      currentVotes.removeAll { it.uid == currentUserUID }
+    } else {
+      // Add vote if not selected
+      currentVotes.add(_currentUser.value!!)
+    }
+    message.votes[option] = currentVotes
+
+    // Update the message in the database
+    db.votePollMessage(chat, message)
+
+    // Update the local state
+    _messages.value = _messages.value.map { if (it.uid == message.uid) message else it }
+  }
 
   private fun sendMessage(message: Message) {
     if (chat.type == ChatType.TOPIC)

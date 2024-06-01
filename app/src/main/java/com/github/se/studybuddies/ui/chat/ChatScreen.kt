@@ -76,9 +76,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -361,14 +359,19 @@ fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: Mes
                       text = message.question,
                       style = TextStyle(color = Black),
                       modifier = Modifier.testTag("chat_message_poll_question"))
-                    message.options.forEach { option ->
-                        PollButton(
-                            text = option,
-                            isSelected = message.votes.contains(option),
-                            singleChoice = message.singleChoice) {
-                            viewModel.votePollMessage(message, option)
+                  message.options.forEach { option ->
+                    val isSelected =
+                        message.votes[option]?.any { it.uid == viewModel.currentUser.value?.uid } ==
+                            true
+                    val voteNumber = message.votes[option]?.size ?: 0
+                    PollButton(
+                        text = option,
+                        isSelected = isSelected,
+                        voteNumber = voteNumber,
+                        singleChoice = message.singleChoice) {
+                          viewModel.votePollMessage(message, option)
                         }
-                    }
+                  }
                 }
               }
             }
@@ -385,12 +388,14 @@ fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: Mes
 fun PollButton(
     text: String,
     isSelected: Boolean,
+    voteNumber: Int,
     singleChoice: Boolean,
     onItemSelected: (String) -> Unit
 ) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.clickable{ onItemSelected(text) }) {
+      horizontalArrangement = Arrangement.SpaceEvenly,
+      modifier = Modifier.clickable { onItemSelected(text) }) {
         if (singleChoice) {
           RadioButton(selected = isSelected, onClick = { onItemSelected(text) })
         } else {
@@ -400,6 +405,8 @@ fun PollButton(
             text = text,
             style = TextStyle(color = Black),
             modifier = Modifier.testTag("chat_message_poll_option"))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = voteNumber.toString(), style = TextStyle(color = Gray))
       }
 }
 
@@ -984,14 +991,6 @@ fun FilePickerBox(
       }
 }
 
-@Preview
-@Composable
-fun ChatScreenPreview() {
-  val navController = rememberNavController()
-  val navigationActions = NavigationActions(navController)
-  ChatScreen(viewModel = MessageViewModel(Chat.empty()), navigationActions = navigationActions)
-}
-
 @Composable
 fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableState<Boolean>) {
   val question = remember { mutableStateOf("") }
@@ -1052,14 +1051,14 @@ fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableStat
         }
       },
       button = {
-          val nonEmptyOptions = options.value.filter { it.isNotBlank() }
+        val nonEmptyOptions = options.value.filter { it.isNotBlank() }
         SaveButton(question.value.isNotBlank() && nonEmptyOptions.size >= 2) {
           messageViewModel.sendPollMessage(
               question.value, singleChoice.value, nonEmptyOptions.toList())
           showAddPoll.value = false
-            question.value = ""
-            options.value = listOf("")
-            singleChoice.value = true
+          question.value = ""
+          options.value = listOf("")
+          singleChoice.value = true
         }
       })
 }
