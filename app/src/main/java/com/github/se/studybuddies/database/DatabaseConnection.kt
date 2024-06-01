@@ -29,13 +29,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class DatabaseConnection : DbRepository {
   private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -958,7 +958,7 @@ class DatabaseConnection : DbRepository {
                                 .toBoolean()
                         val options =
                             postSnapshot.child(MessageVal.POLL_OPTIONS).value.toString().split(",")
-                        val votes =
+                       /* val votes =
                             postSnapshot
                                 .child(MessageVal.POLL_VOTES)
                                 .value
@@ -969,7 +969,8 @@ class DatabaseConnection : DbRepository {
                                   val userUIDs = parts[1].split(",")
                                   parts[0] to userUIDs.map { uid -> getUser(uid) }
                                 }
-                                .toMutableMap()
+                                .toMutableMap()*/
+                          val votes = mutableMapOf<String, List<User>>() // TODO fix votes
                         Message.PollMessage(
                             postSnapshot.key.toString(),
                             question,

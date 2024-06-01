@@ -361,16 +361,14 @@ fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: Mes
                       text = message.question,
                       style = TextStyle(color = Black),
                       modifier = Modifier.testTag("chat_message_poll_question"))
-                  LazyColumn {
-                    items(message.options) { it ->
-                      PollButton(
-                          text = it,
-                          isSelected = message.votes.contains(it),
-                          singleChoice = message.singleChoice) {
-                            viewModel.votePollMessage(message, it)
-                          }
+                    message.options.forEach { option ->
+                        PollButton(
+                            text = option,
+                            isSelected = message.votes.contains(option),
+                            singleChoice = message.singleChoice) {
+                            viewModel.votePollMessage(message, option)
+                        }
                     }
-                  }
                 }
               }
             }
@@ -392,7 +390,7 @@ fun PollButton(
 ) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { onItemSelected(text) }) {
+      modifier = Modifier.clickable{ onItemSelected(text) }) {
         if (singleChoice) {
           RadioButton(selected = isSelected, onClick = { onItemSelected(text) })
         } else {
@@ -1054,10 +1052,14 @@ fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableStat
         }
       },
       button = {
-        SaveButton(question.value.isNotBlank() && options.value.size > 1) {
+          val nonEmptyOptions = options.value.filter { it.isNotBlank() }
+        SaveButton(question.value.isNotBlank() && nonEmptyOptions.size >= 2) {
           messageViewModel.sendPollMessage(
-              question.value, singleChoice.value, options.value.toList())
+              question.value, singleChoice.value, nonEmptyOptions.toList())
           showAddPoll.value = false
+            question.value = ""
+            options.value = listOf("")
+            singleChoice.value = true
         }
       })
 }
