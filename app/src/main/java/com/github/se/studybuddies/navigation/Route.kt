@@ -10,7 +10,6 @@ object Route {
   const val GROUPSETTING = "GroupSetting"
   const val LEAVEGROUP = "LeaveGroup"
   const val GROUPMEMBERS = "GroupMembers"
-  const val GROUPMEMBERADD = "GroupMemberAdd"
   const val GROUP = "Group"
   const val CALENDAR = "Calendar"
   const val SETTINGS = "Settings"

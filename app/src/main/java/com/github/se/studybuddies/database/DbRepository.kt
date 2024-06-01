@@ -74,8 +74,6 @@ interface DbRepository {
 
   suspend fun addUserToGroup(groupUID: String, user: String = "")
 
-  suspend fun addSelfToGroup(groupUID: String)
-
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
   suspend fun removeUserFromGroup(groupUID: String, userUID: String = "")
