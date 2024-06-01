@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -67,7 +66,6 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
-import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
@@ -421,19 +419,19 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-              /*composable(
-                route = "${Route.TOPICRESOURCES}/{topicFileID}",
-                arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
-                    backStackEntry ->
-                  val topicFileID = backStackEntry.arguments?.getString("topicFileID")
-                  if (topicFileID != null) {
-                    val topicFileViewModel = remember { TopicFileViewModel(topicFileID, db) }
-                    TopicResources(topicFileID, topicFileViewModel, navigationActions)
-                    Log.d("MyPrint", "Successfully navigated to TopicResources")
-                  }
-                }
+            /*composable(
+             route = "${Route.TOPICRESOURCES}/{topicFileID}",
+             arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
+                 backStackEntry ->
+               val topicFileID = backStackEntry.arguments?.getString("topicFileID")
+               if (topicFileID != null) {
+                 val topicFileViewModel = remember { TopicFileViewModel(topicFileID, db) }
+                 TopicResources(topicFileID, topicFileViewModel, navigationActions)
+                 Log.d("MyPrint", "Successfully navigated to TopicResources")
+               }
+             }
 
-               */
+            */
 
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
@@ -490,6 +488,4 @@ class MainActivity : ComponentActivity() {
       userViewModel.updateLocation(currentUser, "offline")
     }
   }
-
-
 }

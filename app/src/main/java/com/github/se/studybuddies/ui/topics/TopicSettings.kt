@@ -98,7 +98,7 @@ fun TopicSettings(
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
                 topicViewModel.updateTopicName(nameState.value)
-                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                navigationActions.navigateTo("${Route.GROUP}/$groupUID")
               }
               Button(
                   onClick = { alertVisible.value = true },

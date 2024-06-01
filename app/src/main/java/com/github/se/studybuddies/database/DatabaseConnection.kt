@@ -788,12 +788,10 @@ class DatabaseConnection : DbRepository {
     rtDb.getReference(messagePath).removeValue()
   }
 
-
   override suspend fun removeTopic(uid: String) {
     val topic = getTopic(uid)
     rtDb.getReference(topic.toString()).removeValue()
   }
-
 
   override fun editMessage(
       groupUID: String,
@@ -1118,27 +1116,26 @@ class DatabaseConnection : DbRepository {
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
     val topic = getTopic(topicId)
-      val items: List<TopicItem> = topic.exercises + topic.theory
-      iterateTopicItemDeletion(items) {
-        topicDataCollection
-            .document(topic.uid)
-            .delete()
-            .addOnSuccessListener {
-              groupDataCollection
-                  .document(groupUID)
-                  .update("topics", FieldValue.arrayRemove(topicId))
-                  .addOnSuccessListener {
-                    callBack()
-                    Log.d("MyPrint", "Topic successfully removed from group")
-                  }
-                  .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
-              Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
-            }
-            .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
-      }
-      callBack()
+    val items: List<TopicItem> = topic.exercises + topic.theory
+    iterateTopicItemDeletion(items) {
+      topicDataCollection
+          .document(topic.uid)
+          .delete()
+          .addOnSuccessListener {
+            groupDataCollection
+                .document(groupUID)
+                .update("topics", FieldValue.arrayRemove(topicId))
+                .addOnSuccessListener {
+                  callBack()
+                  Log.d("MyPrint", "Topic successfully removed from group")
+                }
+                .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
+            Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
+          }
+          .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
     }
-
+    callBack()
+  }
 
   private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
     items.forEach { topicItem ->
