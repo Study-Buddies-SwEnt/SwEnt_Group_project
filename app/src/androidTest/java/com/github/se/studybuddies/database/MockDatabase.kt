@@ -477,6 +477,10 @@ class MockDatabase : DbRepository {
     // TO DO
   }
 
+  override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
+    TODO("Not yet implemented")
+  }
+
   override fun checkForExistingChat(
       currentUserUID: String,
       otherUID: String,

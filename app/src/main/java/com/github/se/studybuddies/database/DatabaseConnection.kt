@@ -24,6 +24,8 @@ import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FieldValue
@@ -714,7 +716,6 @@ class DatabaseConnection : DbRepository {
         saveMessage(messagePath, messageData)
       }
       is Message.PhotoMessage -> {
-
         uploadChatImage(message.uid, chatUID, message.photoUri) { uri ->
           if (uri != null) {
             Log.d("MyPrint", "Successfully uploaded photo with uri: $uri")
@@ -727,13 +728,31 @@ class DatabaseConnection : DbRepository {
         }
       }
       is Message.FileMessage -> {
-        messageData[MessageVal.PHOTO] = message.fileUri.toString()
-        messageData[MessageVal.TYPE] = MessageVal.FILE
-        saveMessage(messagePath, messageData)
+        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
+          if (uri != null) {
+            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
+            messageData[MessageVal.FILE] = uri.toString()
+            messageData[MessageVal.FILE_NAME] = message.fileName
+            messageData[MessageVal.TYPE] = MessageVal.FILE
+            saveMessage(messagePath, messageData)
+          } else {
+            Log.d("MyPrint", "Failed to upload file")
+          }
+        }
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
         messageData[MessageVal.TYPE] = MessageVal.LINK
+        saveMessage(messagePath, messageData)
+      }
+      is Message.PollMessage -> {
+        messageData[MessageVal.POLL_QUESTION] = message.question
+        messageData[MessageVal.POLL_SINGLE_CHOICE] = message.singleChoice
+        messageData[MessageVal.POLL_OPTIONS] = message.options.joinToString(",")
+        val votesMap = message.votes.mapValues { entry -> entry.value.joinToString(",") { it.uid } }
+        messageData[MessageVal.POLL_VOTES] =
+            votesMap.entries.joinToString(",") { "${it.key}:${it.value}" }
+        messageData[MessageVal.TYPE] = MessageVal.POLL
         saveMessage(messagePath, messageData)
       }
       else -> {
@@ -924,6 +943,35 @@ class DatabaseConnection : DbRepository {
                         Message.LinkMessage(
                             postSnapshot.key.toString(), linkName, linkUri, user, timestamp)
                       }
+                      MessageVal.POLL -> {
+                        val question = postSnapshot.child(MessageVal.POLL_QUESTION).value.toString()
+                        val singleChoice =
+                            postSnapshot
+                                .child(MessageVal.POLL_SINGLE_CHOICE)
+                                .value
+                                .toString()
+                                .toBoolean()
+                        val options =
+                            postSnapshot.child(MessageVal.POLL_OPTIONS).value.toString().split(",")
+                        val votes = mutableMapOf<String, List<User>>()
+                        val votesSnapshot = postSnapshot.child(MessageVal.POLL_VOTES)
+                        if (votesSnapshot.exists()) {
+                          votesSnapshot.children.forEach { voteEntry ->
+                            val option = voteEntry.key.toString()
+                            val userUIDs = voteEntry.value.toString().split(",")
+                            val users = userUIDs.map { uid -> getUser(uid) }
+                            votes[option] = users
+                          }
+                        }
+                        Message.PollMessage(
+                            postSnapshot.key.toString(),
+                            question,
+                            singleChoice,
+                            options,
+                            votes,
+                            user,
+                            timestamp)
+                      }
                       else -> {
                         Log.d("MyPrint", "Message type not recognized: $type")
                         null
@@ -1014,6 +1062,41 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e ->
           Log.d("UpdateContact", "Failed modify contact with error: ", e)
         }
+  }
+
+  override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
+    val messagePath =
+        getMessagePath(chat.uid, chat.type, chat.additionalUID) +
+            "/${message.uid}/${MessageVal.POLL_VOTES}"
+    val reference = rtDb.getReference(messagePath)
+
+    reference.runTransaction(
+        object : Transaction.Handler {
+          override fun doTransaction(currentData: MutableData): Transaction.Result {
+            val updatedVotesMap = mutableMapOf<String, String>()
+            message.votes.forEach { (option, users) ->
+              val userIds = users.filter { it.uid.isNotEmpty() }.joinToString(",") { it.uid }
+              if (userIds.isNotEmpty()) {
+                updatedVotesMap[option] = userIds
+              }
+            }
+
+            currentData.value = if (updatedVotesMap.isEmpty()) null else updatedVotesMap
+            return Transaction.success(currentData)
+          }
+
+          override fun onComplete(
+              error: DatabaseError?,
+              committed: Boolean,
+              currentData: DataSnapshot?
+          ) {
+            if (error != null) {
+              Log.w("DatabaseConnection", "Failed to update poll vote", error.toException())
+            } else {
+              Log.d("DatabaseConnection", "Poll vote successfully updated")
+            }
+          }
+        })
   }
 
   // using the topicData and topicItemData collections
