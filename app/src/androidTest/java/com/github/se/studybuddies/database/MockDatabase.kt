@@ -52,7 +52,7 @@ class MockDatabase : DbRepository {
     return getUser(getCurrentUserUID())
   }
 
-  override suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactID: String): Contact {
     TODO("Not yet implemented")
   }
 
@@ -254,7 +254,6 @@ class MockDatabase : DbRepository {
       }
     }
   }
-
 
   override suspend fun addUserToGroup(groupUID: String, user: String) {
     val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
@@ -509,7 +508,6 @@ class MockDatabase : DbRepository {
     }
   }
 
-
   override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
     var contactID = ""
@@ -528,12 +526,11 @@ class MockDatabase : DbRepository {
     return contactID
   }
 
-  override suspend fun getTopic(uid: String) : Topic {
+  override suspend fun getTopic(uid: String): Topic {
     val topic = topicDataCollection[uid]
-    if (topic != null){
-    return topic
-    }
-    else return Topic("","", emptyList(), emptyList())
+    if (topic != null) {
+      return topic
+    } else return Topic("", "", emptyList(), emptyList())
   }
 
   /*
@@ -606,23 +603,23 @@ class MockDatabase : DbRepository {
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
     val topic = getTopic(topicId)
-      val items: List<TopicItem> = topic.exercises + topic.theory
-      iterateTopicItemDeletion(items) {
-        topicDataCollection.remove(topic.uid)
-        val currentGroup = groupDataCollection[groupUID]!!
-        val newList = currentGroup.topics.filter { it != topicId }
-        val updatedGroup =
-            Group(
-                currentGroup.uid,
-                currentGroup.name,
-                currentGroup.picture,
-                currentGroup.members,
-                newList,
-                currentGroup.timerState)
-        groupDataCollection.remove(groupUID)
-        groupDataCollection[groupUID] = updatedGroup
-        callBack()
-      }
+    val items: List<TopicItem> = topic.exercises + topic.theory
+    iterateTopicItemDeletion(items) {
+      topicDataCollection.remove(topic.uid)
+      val currentGroup = groupDataCollection[groupUID]!!
+      val newList = currentGroup.topics.filter { it != topicId }
+      val updatedGroup =
+          Group(
+              currentGroup.uid,
+              currentGroup.name,
+              currentGroup.picture,
+              currentGroup.members,
+              newList,
+              currentGroup.timerState)
+      groupDataCollection.remove(groupUID)
+      groupDataCollection[groupUID] = updatedGroup
+      callBack()
+    }
   }
 
   private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
@@ -663,7 +660,7 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] = item
   }
 
-   suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
     val document = topicItemCollection[fileID]
     if (document != null && document is TopicFile) {
       val strongUsers = document.strongUsers
@@ -674,7 +671,7 @@ class MockDatabase : DbRepository {
     }
   }
 
-   suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
     val currentUser = getCurrentUserUID()
     val document = topicItemCollection[fileID]
     if (document != null && document is TopicFile) {
@@ -717,7 +714,8 @@ class MockDatabase : DbRepository {
         if (topicUIDs.isNotEmpty()) {
           topicUIDs.map { topicUID ->
             val topic = getTopic(topicUID)
-            items.add(topic) }
+            items.add(topic)
+          }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }
@@ -729,8 +727,6 @@ class MockDatabase : DbRepository {
       onUpdate(TopicList(emptyList()))
     }
   }
-
-
 
   override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
     val user = userDataCollection.getOrElse(uid) { User.empty() }
