@@ -1,12 +1,8 @@
 package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -23,8 +19,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,23 +29,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -66,17 +52,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
@@ -85,23 +68,15 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.permissions.checkPermission
-import com.github.se.studybuddies.permissions.getStoragePermission
-import com.github.se.studybuddies.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.shared_elements.SaveButton
+import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
+import com.github.se.studybuddies.ui.chat.utility.MessageTextFields
+import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
+import com.github.se.studybuddies.ui.chat.utility.ShowAlertDialog
 import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
-import com.github.se.studybuddies.ui.shared_elements.SetPicture
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
-import com.github.se.studybuddies.utils.SaveType
-import com.github.se.studybuddies.utils.saveToStorage
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -409,227 +384,6 @@ fun PollButton(
       }
 }
 
-@Composable
-fun MessageTextFields(
-    onSend: (String) -> Unit,
-    defaultText: String = "",
-    showIconsOptions: MutableState<Boolean>,
-) {
-  var textToSend by remember { mutableStateOf(defaultText) }
-  OutlinedTextField(
-      value = textToSend,
-      onValueChange = { textToSend = it },
-      modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .background(White, RoundedCornerShape(20.dp))
-              .testTag("chat_text_field"),
-      shape = RoundedCornerShape(20.dp),
-      textStyle = TextStyle(color = Black),
-      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
-      keyboardActions =
-          KeyboardActions(
-              onSend = {
-                if (textToSend.isNotBlank()) {
-                  onSend(textToSend)
-                  textToSend = ""
-                }
-              }),
-      leadingIcon = {
-        IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("icon_more_messages_types"),
-            onClick = {
-              showIconsOptions.value = !showIconsOptions.value
-              Log.d("MyPrint", "Icon clicked, showIconsOptions.value: ${showIconsOptions.value}")
-            }) {
-              Icon(
-                  Icons.Outlined.Add,
-                  contentDescription = stringResource(R.string.contentDescription_icon_add),
-                  tint = Blue)
-            }
-      },
-      trailingIcon = {
-        IconButton(
-            modifier = Modifier.size(48.dp).padding(6.dp).testTag("chat_send_button"),
-            onClick = {
-              if (textToSend.isNotBlank()) {
-                onSend(textToSend)
-                textToSend = ""
-              }
-            }) {
-              Icon(
-                  imageVector = Icons.AutoMirrored.Outlined.Send,
-                  contentDescription = stringResource(R.string.contentDescription_icon_send),
-                  tint = Blue)
-            }
-      },
-      placeholder = { Text(stringResource(R.string.type_a_message)) })
-}
-
-@Composable
-fun OptionsDialog(
-    viewModel: MessageViewModel,
-    selectedMessage: Message,
-    showOptionsDialog: MutableState<Boolean>,
-    navigationActions: NavigationActions,
-) {
-  val showEditDialog = remember { mutableStateOf(false) }
-  EditDialog(viewModel, selectedMessage, showEditDialog)
-
-  ShowAlertDialog(
-      showDialog = showOptionsDialog,
-      onDismiss = { showOptionsDialog.value = false },
-      title = { Text(text = stringResource(R.string.options)) },
-      content = {
-        OptionDialogContent(
-            viewModel = viewModel,
-            selectedMessage = selectedMessage,
-            showOptionsDialog = showOptionsDialog,
-            showEditDialog = showEditDialog,
-            navigationActions = navigationActions)
-      },
-      button = {})
-}
-
-@Composable
-fun OptionDialogContent(
-    viewModel: MessageViewModel,
-    selectedMessage: Message,
-    showOptionsDialog: MutableState<Boolean>,
-    showEditDialog: MutableState<Boolean>,
-    navigationActions: NavigationActions,
-) {
-
-  Column(modifier = Modifier.testTag("option_dialog")) {
-    CommonOptions(selectedMessage, showOptionsDialog)
-    if (viewModel.isUserMessageSender(selectedMessage)) {
-      UserMessageOptions(
-          viewModel = viewModel,
-          selectedMessage = selectedMessage,
-          showOptionsDialog = showOptionsDialog,
-          showEditDialog = showEditDialog)
-    } else if (viewModel.chat.type != ChatType.PRIVATE) {
-      NonUserMessageOptions(
-          viewModel = viewModel,
-          selectedMessage = selectedMessage,
-          showOptionsDialog = showOptionsDialog,
-          navigationActions = navigationActions)
-    }
-  }
-}
-
-@Composable
-fun CommonOptions(
-    selectedMessage: Message,
-    showOptionsDialog: MutableState<Boolean>,
-) {
-  val context = LocalContext.current
-  Text(text = selectedMessage.getDate())
-  when (selectedMessage) {
-    is Message.PhotoMessage -> {
-      DownloadButton(permission = imagePermissionVersion(), context) {
-        val name = selectedMessage.uid
-        CoroutineScope(Dispatchers.Main).launch {
-          saveToStorage(context, selectedMessage.photoUri, name, SaveType.Photo())
-        }
-        showOptionsDialog.value = false
-      }
-    }
-    is Message.FileMessage -> {
-      DownloadButton(permission = getStoragePermission(), context) {
-        val name = selectedMessage.fileName
-        CoroutineScope(Dispatchers.Main).launch {
-          saveToStorage(context, selectedMessage.fileUri, name, SaveType.PDF())
-        }
-        showOptionsDialog.value = false
-      }
-    }
-    else -> {}
-  }
-}
-
-@Composable
-fun DownloadButton(permission: String, context: Context, onClick: () -> Unit) {
-  var hasPermission by remember { mutableStateOf(false) }
-  val requestPermissionLauncher =
-      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        hasPermission = isGranted
-      }
-  LaunchedEffect(key1 = Unit) {
-    checkPermission(context, permission, requestPermissionLauncher) { hasPermission = true }
-  }
-  if (hasPermission) {
-    Button(modifier = Modifier.testTag("option_dialog_download"), onClick = { onClick() }) {
-      Text(
-          text = stringResource(R.string.download),
-          style = TextStyle(color = White),
-      )
-    }
-  }
-}
-
-@Composable
-fun UserMessageOptions(
-    viewModel: MessageViewModel,
-    selectedMessage: Message,
-    showOptionsDialog: MutableState<Boolean>,
-    showEditDialog: MutableState<Boolean>,
-) {
-  Spacer(modifier = Modifier.height(8.dp))
-  when (selectedMessage) {
-    is Message.TextMessage /*, is Message.LinkMessage*/ -> {
-      Button(
-          modifier = Modifier.testTag("option_dialog_edit"),
-          onClick = {
-            showEditDialog.value = true
-            showOptionsDialog.value = false
-          }) {
-            Text(
-                text = stringResource(R.string.edit),
-                style = TextStyle(color = White),
-            )
-          }
-      Spacer(modifier = Modifier.height(8.dp))
-    }
-    else -> {}
-  }
-  Button(
-      modifier = Modifier.testTag("option_dialog_delete"),
-      onClick = {
-        viewModel.deleteMessage(selectedMessage)
-        showOptionsDialog.value = false
-      }) {
-        Text(
-            text = stringResource(R.string.delete),
-            style = TextStyle(color = White),
-        )
-      }
-}
-
-@Composable
-fun NonUserMessageOptions(
-    viewModel: MessageViewModel,
-    selectedMessage: Message,
-    showOptionsDialog: MutableState<Boolean>,
-    navigationActions: NavigationActions,
-) {
-  Spacer(modifier = Modifier.height(8.dp))
-  Button(
-      modifier = Modifier.testTag("option_dialog_start_direct_message"),
-      onClick = {
-        showOptionsDialog.value = false
-        viewModel.currentUser.value
-            ?.let { DirectMessageViewModel(it.uid) }
-            ?.startDirectMessage(selectedMessage.sender.uid)
-        navigationActions.navigateTo(Route.DIRECT_MESSAGE)
-      }) {
-        Text(
-            text = stringResource(R.string.start_direct_message),
-            style = TextStyle(color = White),
-        )
-      }
-}
-
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun EditDialog(
@@ -696,395 +450,4 @@ fun PrivateChatTitle(chat: Chat) {
 
   Spacer(modifier = Modifier.width(8.dp))
   Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
-}
-
-@Composable
-fun IconsOptionsList(viewModel: MessageViewModel, showIconsOptions: MutableState<Boolean>) {
-  val showAddImage = remember { mutableStateOf(false) }
-  val showAddLink = remember { mutableStateOf(false) }
-  val showAddFile = remember { mutableStateOf(false) }
-  val showAddPoll = remember { mutableStateOf(false) }
-
-  SendPhotoMessage(viewModel, showAddImage)
-  SendLinkMessage(viewModel, showAddLink)
-  SendFileMessage(viewModel, showAddFile)
-  SendPollMessage(viewModel, showAddPoll)
-
-  val iconButtonOptions =
-      listOf(
-          IconButtonOptionData(
-              testTag = "icon_send_image",
-              onClickAction = {
-                showIconsOptions.value = false
-                showAddImage.value = true
-              },
-              painterResourceId = R.drawable.image_24px,
-              contentDescription = stringResource(R.string.app_name)),
-          IconButtonOptionData(
-              testTag = "icon_send_link",
-              onClickAction = {
-                showIconsOptions.value = false
-                showAddLink.value = true
-              },
-              painterResourceId = R.drawable.link_24px,
-              contentDescription = stringResource(R.string.app_name)),
-          IconButtonOptionData(
-              testTag = "icon_send_file",
-              onClickAction = {
-                showIconsOptions.value = false
-                showAddFile.value = true
-              },
-              painterResourceId = R.drawable.picture_as_pdf_24px,
-              contentDescription = stringResource(R.string.app_name)),
-          IconButtonOptionData(
-              testTag = "icon_send_poll",
-              onClickAction = {
-                showIconsOptions.value = false
-                showAddPoll.value = true
-              },
-              painterResourceId = R.drawable.how_to_vote_24px,
-              contentDescription = stringResource(R.string.app_name)))
-
-  ShowAlertDialog(
-      modifier = Modifier.testTag("dialog_more_messages_types"),
-      showDialog = showIconsOptions,
-      onDismiss = { showIconsOptions.value = false },
-      title = {},
-      content = {
-        LazyRow {
-          items(iconButtonOptions) { option ->
-            IconButtonOption(
-                modifier = Modifier.testTag(option.testTag),
-                onClickAction = option.onClickAction,
-                painterResourceId = option.painterResourceId,
-                contentDescription = option.contentDescription)
-          }
-        }
-      },
-      button = {})
-}
-
-data class IconButtonOptionData(
-    val testTag: String,
-    val onClickAction: () -> Unit,
-    val painterResourceId: Int,
-    val contentDescription: String
-)
-
-@Composable
-fun IconButtonOption(
-    onClickAction: () -> Unit,
-    painterResourceId: Int,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    tint: Color = Blue,
-) {
-  IconButton(onClick = onClickAction, modifier = modifier.padding(8.dp)) {
-    Icon(
-        painter = painterResource(id = painterResourceId),
-        contentDescription = contentDescription,
-        tint = tint)
-  }
-}
-
-@Composable
-fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableState<Boolean>) {
-  val photoState = remember { mutableStateOf(Uri.EMPTY) }
-  val imageInput = "image/*"
-  val permission = imagePermissionVersion()
-
-  val getContent = setupGetContentLauncherPhoto(photoState)
-
-  val requestPermissionLauncher = setupRequestPermissionLauncher(getContent, imageInput)
-
-  ShowAlertDialog(
-      modifier = Modifier.testTag("add_image_dialog"),
-      showDialog = showAddImage,
-      onDismiss = { showAddImage.value = false },
-      title = {},
-      content = {
-        ImagePickerBox(
-            photoState = photoState,
-            permission = permission,
-            getContent = getContent,
-            requestPermissionLauncher = requestPermissionLauncher)
-      },
-      button = {
-        SaveButton(photoState.value.toString().isNotBlank()) {
-          messageViewModel.sendPhotoMessage(photoState.value)
-          showAddImage.value = false
-          photoState.value = Uri.EMPTY
-        }
-      })
-}
-
-@Composable
-fun setupGetContentLauncherPhoto(
-    uriState: MutableState<Uri>,
-): ManagedActivityResultLauncher<String, Uri?> {
-  return rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-    uri?.let { uriState.value = it }
-  }
-}
-
-@Composable
-fun ImagePickerBox(
-    photoState: MutableState<Uri>,
-    permission: String,
-    getContent: ManagedActivityResultLauncher<String, Uri?>,
-    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
-) {
-  val context = LocalContext.current
-  Box(
-      contentAlignment = Alignment.Center,
-      modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_image_box")) {
-        SetPicture(photoState) {
-          checkPermission(context, permission, requestPermissionLauncher) {
-            getContent.launch("image/*")
-          }
-        }
-      }
-}
-
-@Composable
-fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableState<Boolean>) {
-  val linkState = remember { mutableStateOf("") }
-  val linkName = remember { mutableStateOf("") }
-
-  ShowAlertDialog(
-      modifier = Modifier.testTag("add_link_dialog"),
-      showDialog = showAddLink,
-      onDismiss = { showAddLink.value = false },
-      title = {},
-      content = {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(8.dp).fillMaxWidth().testTag("add_link_box")) {
-              OutlinedTextField(
-                  value = linkState.value,
-                  onValueChange = { linkState.value = it },
-                  modifier = Modifier.fillMaxWidth().testTag("add_link_text_field"),
-                  textStyle = TextStyle(color = Black),
-                  singleLine = true,
-                  placeholder = { Text(stringResource(R.string.enter_link)) },
-              )
-            }
-      },
-      button = {
-        SaveButton(
-            linkState.value.isNotBlank(),
-        ) {
-          val uriString = linkState.value.trim()
-          val uri =
-              if (!isValidUrl(uriString)) Uri.parse("https://$uriString") else Uri.parse(uriString)
-          linkName.value = uriString.substringAfter("//")
-          messageViewModel.sendLinkMessage(linkName.value, uri)
-          showAddLink.value = false
-          linkState.value = ""
-          linkName.value = ""
-        }
-      })
-}
-
-fun isValidUrl(url: String): Boolean {
-  return try {
-    val uri = Uri.parse(url)
-    uri.scheme == "http" || uri.scheme == "https"
-  } catch (e: Exception) {
-    false
-  }
-}
-
-@Composable
-fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableState<Boolean>) {
-  val fileState = remember { mutableStateOf(Uri.EMPTY) }
-  val fileName = remember { mutableStateOf("") }
-  val context = LocalContext.current
-  val fileInput = MessageVal.FILE_TYPE
-  val permission = imagePermissionVersion()
-
-  val getContent = setupGetContentFile(fileState, fileName, context)
-  val requestPermissionLauncher = setupRequestPermissionLauncher(getContent, fileInput)
-
-  ShowAlertDialog(
-      modifier = Modifier.testTag("add_file_dialog"),
-      showDialog = showAddFile,
-      onDismiss = { showAddFile.value = false },
-      title = {},
-      content = {
-        FilePickerBox(
-            fileState = fileState,
-            fileName = fileName,
-            permission = permission,
-            getContent = getContent,
-            requestPermissionLauncher = requestPermissionLauncher)
-      },
-      button = {
-        SaveButton(fileState.value.toString().isNotBlank()) {
-          messageViewModel.sendFileMessage(fileName.value, fileState.value)
-          showAddFile.value = false
-          fileState.value = Uri.EMPTY
-          fileName.value = ""
-        }
-      })
-}
-
-@Composable
-fun setupGetContentFile(
-    fileState: MutableState<Uri>,
-    fileName: MutableState<String>,
-    context: Context,
-): ManagedActivityResultLauncher<String, Uri?> {
-  return rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-    uri?.let { fileUri ->
-      fileState.value = fileUri
-      context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
-        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        if (cursor.moveToFirst() && nameIndex != -1) {
-          fileName.value = cursor.getString(nameIndex)
-        }
-      }
-    }
-  }
-}
-
-@Composable
-fun setupRequestPermissionLauncher(
-    getContent: ManagedActivityResultLauncher<String, Uri?>,
-    fileInput: String,
-): ManagedActivityResultLauncher<String, Boolean> {
-  return rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted,
-    ->
-    if (isGranted) {
-      getContent.launch(fileInput)
-    }
-  }
-}
-
-@Composable
-fun FilePickerBox(
-    fileState: MutableState<Uri>,
-    fileName: MutableState<String>,
-    permission: String,
-    getContent: ManagedActivityResultLauncher<String, Uri?>,
-    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
-) {
-  val context = LocalContext.current
-  Box(
-      contentAlignment = Alignment.Center,
-      modifier =
-          Modifier.padding(8.dp)
-              .fillMaxWidth()
-              .clickable {
-                checkPermission(context, permission, requestPermissionLauncher) {
-                  getContent.launch(MessageVal.FILE_TYPE)
-                }
-              }
-              .testTag("add_file_box")) {
-        if (fileState.value == Uri.EMPTY) {
-          Text(
-              text = stringResource(R.string.select_a_file),
-              modifier = Modifier.testTag("select_file"))
-        } else {
-          Text(text = fileName.value, modifier = Modifier.testTag("select_file"))
-        }
-      }
-}
-
-@Composable
-fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableState<Boolean>) {
-  val question = remember { mutableStateOf("") }
-  val options = remember { mutableStateOf(listOf("")) }
-  val singleChoice = remember { mutableStateOf(true) }
-
-  ShowAlertDialog(
-      modifier = Modifier.testTag("add_poll_dialog"),
-      showDialog = showAddPoll,
-      onDismiss = { showAddPoll.value = false },
-      title = {},
-      content = {
-        Column {
-          OutlinedTextField(
-              label = { Text(stringResource(R.string.poll_question)) },
-              value = question.value,
-              onValueChange = { question.value = it },
-              modifier = Modifier.fillMaxWidth().testTag("add_poll_question_text_field"),
-              textStyle = TextStyle(color = Black),
-              singleLine = true,
-              placeholder = { Text(stringResource(R.string.enter_poll_question)) },
-          )
-          Spacer(modifier = Modifier.height(16.dp))
-
-          Text(text = stringResource(R.string.poll_options))
-
-          LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
-            items(options.value) { option ->
-              OutlinedTextField(
-                  value = option,
-                  onValueChange = {
-                    options.value =
-                        options.value.toMutableList().apply {
-                          set(indexOf(option), it)
-                          removeAll { option -> option.isBlank() }
-                          if (lastOrNull()?.isNotBlank() == true) add("")
-                        }
-                  },
-                  modifier = Modifier.fillMaxWidth().testTag("add_poll_options_text_field"),
-                  textStyle = TextStyle(color = Black),
-                  singleLine = true,
-                  placeholder = { Text(stringResource(R.string.enter_poll_options)) },
-              )
-              Spacer(modifier = Modifier.height(8.dp))
-            }
-          }
-          Row(
-              modifier =
-                  Modifier.fillMaxWidth().padding(8.dp).testTag("add_poll_single_choice_row"),
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    text = stringResource(R.string.single_choice),
-                    style = TextStyle(color = Black),
-                    modifier = Modifier.testTag("add_poll_single_choice_text"))
-                Switch(
-                    checked = singleChoice.value,
-                    onCheckedChange = { singleChoice.value = it },
-                    colors =
-                        SwitchDefaults.colors(
-                            checkedThumbColor = com.github.se.studybuddies.ui.theme.White,
-                            checkedTrackColor = Blue,
-                            uncheckedTrackColor = Color.LightGray))
-              }
-        }
-      },
-      button = {
-        val nonEmptyOptions = options.value.filter { it.isNotBlank() }
-        SaveButton(question.value.isNotBlank() && nonEmptyOptions.size >= 2) {
-          messageViewModel.sendPollMessage(
-              question.value, singleChoice.value, nonEmptyOptions.toList())
-          showAddPoll.value = false
-          question.value = ""
-          options.value = listOf("")
-          singleChoice.value = true
-        }
-      })
-}
-
-@Composable
-fun ShowAlertDialog(
-    modifier: Modifier = Modifier,
-    showDialog: MutableState<Boolean>,
-    onDismiss: () -> Unit,
-    title: @Composable () -> Unit,
-    content: @Composable () -> Unit,
-    button: @Composable () -> Unit = {},
-) {
-  if (showDialog.value) {
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismiss,
-        text = content,
-        title = title,
-        confirmButton = button)
-  }
 }
