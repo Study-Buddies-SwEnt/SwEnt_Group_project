@@ -3,15 +3,15 @@ package com.github.se.studybuddies.viewModels
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
-import kotlinx.coroutines.*
+import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class SharedTimerViewModel(
     private val groupUID: String,
-    private val db: DbRepository = DatabaseConnection()
+    private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
   private val _timerValue = MutableStateFlow(0L)
   val timerValue: StateFlow<Long> = _timerValue

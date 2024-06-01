@@ -24,7 +24,16 @@ sealed class Message {
   }
 
   companion object {
-    fun empty(): TextMessage = TextMessage(text = "", sender = User.empty(), timestamp = 0)
+    fun emptyText(): TextMessage = TextMessage(text = "", sender = User.empty(), timestamp = 0)
+
+    fun emptyPhoto(): PhotoMessage =
+        PhotoMessage(photoUri = Uri.EMPTY, sender = User.empty(), timestamp = 0)
+
+    fun emptyLink(): LinkMessage =
+        LinkMessage(linkName = "", linkUri = Uri.EMPTY, sender = User.empty(), timestamp = 0)
+
+    fun emptyFile(): FileMessage =
+        FileMessage(fileName = "", fileUri = Uri.EMPTY, sender = User.empty(), timestamp = 0)
   }
 
   data class TextMessage(

@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.account
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,11 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -46,6 +44,7 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationActions) {
   val coroutineScope = rememberCoroutineScope()
@@ -111,37 +110,26 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             rightButton = {})
       }) { paddingValue ->
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top) {
-              LazyColumn(
-                  modifier = Modifier.fillMaxWidth().padding(paddingValue).testTag("content"),
-                  verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.CenterHorizontally) {
-                    item { Spacer(modifier = Modifier.size(20.dp)) }
-                    item {
-                      Text(
-                          stringResource(R.string.you_have_signed_in_with_email, email),
-                          modifier = Modifier.width(300.dp))
-                    }
-                    item { Spacer(modifier = Modifier.padding(5.dp)) }
-                    item { AccountFields(usernameState) }
-                    item { Spacer(modifier = Modifier.padding(5.dp)) }
-                    item {
-                      SetProfilePicture(photoState) {
-                        checkPermission(context, permission, requestPermissionLauncher) {
-                          getContent.launch(imageInput)
-                        }
-                      }
-                    }
-                    item { Spacer(modifier = Modifier.size(10.dp)) }
-                    item {
-                      SaveButton(usernameState) {
-                        userViewModel.createUser(uid, email, usernameState.value, photoState.value)
-                        navigationActions.navigateTo(Route.SOLOSTUDYHOME)
-                      }
-                    }
-                  }
+            modifier = Modifier.fillMaxSize().testTag("create_account_column"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+              Spacer(modifier = Modifier.size(20.dp))
+              Text(
+                  stringResource(R.string.you_have_signed_in_with_email, email),
+                  modifier = Modifier.width(300.dp))
+              Spacer(modifier = Modifier.size(5.dp))
+              AccountFields(usernameState)
+              Spacer(modifier = Modifier.size(5.dp))
+              SetProfilePicture(photoState) {
+                checkPermission(context, permission, requestPermissionLauncher) {
+                  getContent.launch(imageInput)
+                }
+              }
+              Spacer(modifier = Modifier.size(5.dp))
+              SaveButton(usernameState, testTag = "save_button_account") {
+                userViewModel.createUser(uid, email, usernameState.value, photoState.value)
+                navigationActions.navigateTo(Route.SOLOSTUDYHOME)
+              }
             }
       }
 }

@@ -9,16 +9,18 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class GroupViewModel(uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
-    ViewModel() {
+class GroupViewModel(
+    uid: String? = null,
+    private val db: DbRepository = ServiceLocator.provideDatabase()
+) : ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
   private val _member = MutableLiveData(User.empty())

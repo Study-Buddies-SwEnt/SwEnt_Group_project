@@ -175,6 +175,20 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
       chatGroupTitleText { assertIsDisplayed() }
       chatGroupTitleMembers { assertIsDisplayed() }
       chatGroupTitleMember { assertIsDisplayed() }
+      searchButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+      messageFilterTextField {
+        assertIsDisplayed()
+        performTextInput("test")
+      }
+      messageTypeFilter { assertIsDisplayed() }
+      messageTypeFilterButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+      }
     }
   }
 

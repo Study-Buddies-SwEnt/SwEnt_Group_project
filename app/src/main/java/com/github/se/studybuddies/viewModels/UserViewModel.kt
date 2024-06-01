@@ -7,15 +7,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class UserViewModel(val uid: String? = null, private val db: DbRepository = DatabaseConnection()) :
-    ViewModel() {
+class UserViewModel(
+    val uid: String? = null,
+    private val db: DbRepository = ServiceLocator.provideDatabase()
+) : ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
 

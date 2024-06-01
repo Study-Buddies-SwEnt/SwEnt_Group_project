@@ -694,6 +694,8 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the Realtime Database for messages
+
+  // using the Realtime Database for messages
   override fun sendMessage(
       chatUID: String,
       message: Message,
@@ -725,21 +727,12 @@ class DatabaseConnection : DbRepository {
         }
       }
       is Message.FileMessage -> {
-        uploadChatFile(message.uid, chatUID, message.fileUri) { uri ->
-          if (uri != null) {
-            Log.d("MyPrint", "Successfully uploaded file with uri: $uri")
-            messageData[MessageVal.FILE] = uri.toString()
-            messageData[MessageVal.FILE_NAME] = message.fileName
-            messageData[MessageVal.TYPE] = MessageVal.FILE
-            saveMessage(messagePath, messageData)
-          } else {
-            Log.d("MyPrint", "Failed to upload file")
-          }
-        }
+        messageData[MessageVal.PHOTO] = message.fileUri.toString()
+        messageData[MessageVal.TYPE] = MessageVal.FILE
+        saveMessage(messagePath, messageData)
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
-        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
@@ -796,9 +789,7 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-
-    val topic = getTopic(uid)
-    rtDb.getReference(topic.toString()).removeValue()
+    getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
   }
 
   override fun editMessage(
@@ -1122,15 +1113,60 @@ class DatabaseConnection : DbRepository {
         .addOnFailureListener { e -> Log.d("MyPrint", "topic failed to update with error ", e) }
   }
 
-  override suspend fun deleteTopic(topicId: String) {
-    val itemRef = topicDataCollection.document(topicId)
-    try {
-      itemRef.delete().await()
-      Log.d("Database", "Item deleted successfully: $topicId")
-    } catch (e: Exception) {
-      Log.e("Database", "Error deleting item: $topicId, Error: $e")
-      throw e
+  override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
+    getTopic(topicId) { topic ->
+      val items: List<TopicItem> = topic.exercises + topic.theory
+      iterateTopicItemDeletion(items) {
+        topicDataCollection
+            .document(topic.uid)
+            .delete()
+            .addOnSuccessListener {
+              groupDataCollection
+                  .document(groupUID)
+                  .update("topics", FieldValue.arrayRemove(topicId))
+                  .addOnSuccessListener {
+                    callBack()
+                    Log.d("MyPrint", "Topic successfully removed from group")
+                  }
+                  .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
+              Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
+            }
+            .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
+      }
     }
+  }
+
+  private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
+    items.forEach { topicItem ->
+      when (topicItem) {
+        is TopicFile -> {
+          topicItemCollection
+              .document(topicItem.uid)
+              .delete()
+              .addOnSuccessListener {
+                Log.d("MyPrint", "Topic file ${topicItem.uid} successfully deleted")
+              }
+              .addOnFailureListener {
+                Log.d("MyPrint", "Failed to delete topic file ${topicItem.uid}")
+              }
+        }
+        is TopicFolder -> {
+          val children = topicItem.items
+          iterateTopicItemDeletion(children) {
+            topicItemCollection
+                .document(topicItem.uid)
+                .delete()
+                .addOnSuccessListener {
+                  Log.d("MyPrint", "Topic folder ${topicItem.uid} successfully deleted")
+                }
+                .addOnFailureListener {
+                  Log.d("MyPrint", "Failed to delete topic folder ${topicItem.uid}")
+                }
+          }
+        }
+      }
+    }
+    callBack()
   }
 
   override fun updateTopicName(uid: String, name: String) {
@@ -1245,7 +1281,6 @@ class DatabaseConnection : DbRepository {
       onUpdate: (TopicList) -> Unit
   ) {
     val docRef = groupDataCollection.document(groupUID)
-
     docRef.addSnapshotListener { snapshot, e ->
       if (e != null) {
         Log.w("MyPrint", "Listen failed.", e)
@@ -1253,6 +1288,7 @@ class DatabaseConnection : DbRepository {
       }
 
       if (snapshot != null && snapshot.exists()) {
+
         scope.launch(ioDispatcher) {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()

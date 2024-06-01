@@ -1,6 +1,8 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,10 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +41,7 @@ import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -53,6 +62,8 @@ fun TopicSettings(
   val theoryState = remember { mutableStateOf(topicData.theory) }
 
   topicData.let { nameState.value = it.name }
+
+  val alertVisible = remember { mutableStateOf(false) }
 
   Scaffold(
       modifier = Modifier.fillMaxSize().testTag("topic_settings"),
@@ -85,10 +96,63 @@ fun TopicSettings(
 
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
-                topicViewModel.updateTopicName(nameState.value)
-                navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                topicViewModel.updateTopicName(nameState.value) {
+                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                }
               }
+              Button(
+                  onClick = { alertVisible.value = true },
+                  modifier =
+                      Modifier.padding(10.dp)
+                          .width(300.dp)
+                          .height(50.dp)
+                          .background(
+                              color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp)),
+                  colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) {
+                    Text(stringResource(R.string.delete_topic), color = White)
+                  }
             }
+        if (alertVisible.value) {
+          AlertDialog(
+              onDismissRequest = { alertVisible.value = false },
+              text = {
+                Text(
+                    text =
+                        stringResource(
+                            R.string
+                                .are_you_sure_you_want_to_delete_this_topic_this_action_cannot_be_reversed),
+                    color = Color.Black)
+              },
+              confirmButton = {
+                TextButton(
+                    modifier =
+                        Modifier.border(
+                                width = 2.dp, color = Color.Red, shape = RoundedCornerShape(50))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50)),
+                    onClick = {
+                      topicViewModel.deleteTopic(topicUID, groupUID) {
+                        navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                      }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    shape = RoundedCornerShape(50)) {
+                      Text(text = stringResource(R.string.delete), color = Color.Red)
+                    }
+              },
+              dismissButton = {
+                TextButton(
+                    modifier =
+                        Modifier.border(width = 2.dp, color = Blue, shape = RoundedCornerShape(50))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50)),
+                    onClick = { alertVisible.value = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    shape = RoundedCornerShape(50)) {
+                      Text(
+                          text = stringResource(R.string.cancel),
+                      )
+                    }
+              })
+        }
       }
 }
 
@@ -116,7 +180,7 @@ fun TopicSettings(
       }
 }
 
-
+*/
 
 /*
 @Composable
@@ -130,5 +194,5 @@ fun TopicItemRow(item: TopicItem, onDelete: () -> Unit) {
         }
       }
 }
-*/
+
 */
