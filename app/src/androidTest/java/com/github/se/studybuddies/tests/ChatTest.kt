@@ -21,9 +21,9 @@ import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.chat.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.MessageBubble
 import com.github.se.studybuddies.ui.chat.OptionsDialog
-import com.github.se.studybuddies.ui.chat.SendFileMessage
-import com.github.se.studybuddies.ui.chat.SendLinkMessage
-import com.github.se.studybuddies.ui.chat.SendPhotoMessage
+import com.github.se.studybuddies.ui.chat.PickFile
+import com.github.se.studybuddies.ui.chat.PickLink
+import com.github.se.studybuddies.ui.chat.PickPicture
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -601,7 +601,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddImage = remember { mutableStateOf(true) }
-      SendPhotoMessage(vm, showAddImage)
+      PickPicture(showAddImage) { vm.sendPhotoMessage(it.value) }
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendPhotoMessageDialog { assertIsDisplayed() }
@@ -629,7 +629,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddLink = remember { mutableStateOf(true) }
-      SendLinkMessage(vm, showAddLink)
+      PickLink(vm, showAddLink)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendLinkMessageDialog { assertIsDisplayed() }
@@ -654,7 +654,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddFile = remember { mutableStateOf(true) }
-      SendFileMessage(vm, showAddFile)
+      PickFile(vm, showAddFile)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendFileMessageDialog { assertIsDisplayed() }
