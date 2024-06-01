@@ -591,7 +591,7 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
             verticalAlignment = Alignment.CenterVertically,
             modifier =
                 Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
-                  navigationActions.navigateTo("$Route.CONTACT_SETTINGS/${chat.uid}")
+                  navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${chat.uid}")
                 }) {
               Image(
                   painter = rememberAsyncImagePainter(chat.picture),

@@ -115,7 +115,7 @@ fun ContactScreen(
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
             leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, "${Route.CHAT}/${contactID}")
+              GoBackRouteButton(navigationActions = navigationActions, Route.CHAT)
             },
             rightButton = {
               IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
