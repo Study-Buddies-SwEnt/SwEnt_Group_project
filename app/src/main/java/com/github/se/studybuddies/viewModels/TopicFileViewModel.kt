@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.viewModels
 
+import android.net.Uri
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.TopicFile
@@ -37,5 +39,9 @@ class TopicFileViewModel(
       }
       callBack(users)
     }
+  }
+
+  fun addResource(resource: MutableState<Uri>) {
+    db.fileAddResource(fileID, resource)
   }
 }

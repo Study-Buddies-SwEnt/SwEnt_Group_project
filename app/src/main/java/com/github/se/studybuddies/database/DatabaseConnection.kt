@@ -2,6 +2,7 @@ package com.github.se.studybuddies.database
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.ChatVal
@@ -1043,6 +1044,10 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+    override fun fileAddResource(fileID: String, resource: MutableState<Uri>) {
+        TODO("Not yet implemented")
+    }
+
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
     for (itemUID in listUID) {
@@ -1341,7 +1346,7 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override suspend fun getAllContacts(uid: String): ContactList {
+    override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()

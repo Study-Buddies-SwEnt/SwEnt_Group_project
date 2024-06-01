@@ -20,9 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +48,8 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.chat.PickPicture
+import com.github.se.studybuddies.ui.chat.ShowAlertDialog
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
@@ -172,4 +177,69 @@ private fun UserBox(user: User) {
               }
         }
   }
+}
+
+@Composable
+fun AddResources(
+    topicFileViewModel: TopicFileViewModel,
+    showOptions: MutableState<Boolean>,
+    showUploadImage: MutableState<Boolean>,
+    showUploadLink: MutableState<Boolean>,
+    showUploadFile: MutableState<Boolean>,
+) {
+    PickPicture(showUploadImage) { topicFileViewModel.addResource(it) }
+    //UploadLink(viewModel, showUploadLink)
+    //UploadFile(viewModel, showUploadFile)
+    ShowAlertDialog(
+        showDialog = showOptions,
+        onDismiss = { showOptions.value = false },
+        title = {},
+        content = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                IconButtonOption(
+                    modifier = Modifier.testTag("icon_send_image"),
+                    onClickAction = {
+                        showOptions.value = false
+                        showUploadImage.value = true
+                    },
+                    painterResourceId = R.drawable.image_24px,
+                    contentDescription = stringResource(R.string.app_name))
+                IconButtonOption(
+                    modifier = Modifier.testTag("icon_send_link"),
+                    onClickAction = {
+                        showOptions.value = false
+                        showUploadLink.value = true
+                    },
+                    painterResourceId = R.drawable.link_24px,
+                    contentDescription = stringResource(R.string.app_name))
+                IconButtonOption(
+                    modifier = Modifier.testTag("icon_send_file"),
+                    onClickAction = {
+                        showOptions.value = false
+                        showUploadFile.value = true
+                    },
+                    painterResourceId = R.drawable.picture_as_pdf_24px,
+                    contentDescription = stringResource(R.string.app_name))
+            }
+        },
+        button = {})
+}
+
+@Composable
+fun IconButtonOption(
+    onClickAction: () -> Unit,
+    painterResourceId: Int,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    tint: Color = Blue,
+) {
+    IconButton(onClick = onClickAction, modifier = modifier.padding(8.dp)) {
+        Icon(
+            painter = painterResource(id = painterResourceId),
+            contentDescription = contentDescription,
+            tint = tint)
+    }
 }

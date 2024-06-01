@@ -661,9 +661,9 @@ fun IconsOptionsList(
     showAddLink: MutableState<Boolean>,
     showAddFile: MutableState<Boolean>,
 ) {
-  SendPhotoMessage(viewModel, showAddImage)
-  SendLinkMessage(viewModel, showAddLink)
-  SendFileMessage(viewModel, showAddFile)
+  PickPicture(showAddImage) { viewModel.sendPhotoMessage(it.value) }
+  PickLink(viewModel, showAddLink)
+  PickFile(viewModel, showAddFile)
   ShowAlertDialog(
       modifier = Modifier.testTag("dialog_more_messages_types"),
       showDialog = showIconsOptions,
@@ -724,7 +724,7 @@ fun IconButtonOption(
 }
 
 @Composable
-fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableState<Boolean>) {
+fun PickPicture(showAddImage: MutableState<Boolean>, onSave: (MutableState<Uri>) -> Unit) {
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
   val imageInput = "image/*"
   val permission = imagePermissionVersion()
@@ -747,7 +747,7 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
       },
       button = {
         SaveButton(photoState.value.toString().isNotBlank()) {
-          messageViewModel.sendPhotoMessage(photoState.value)
+            onSave(photoState)
           showAddImage.value = false
           photoState.value = Uri.EMPTY
         }
@@ -783,7 +783,7 @@ fun ImagePickerBox(
 }
 
 @Composable
-fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableState<Boolean>) {
+fun PickLink(messageViewModel: MessageViewModel, showAddLink: MutableState<Boolean>) {
   val linkState = remember { mutableStateOf("") }
   val linkName = remember { mutableStateOf("") }
 
@@ -832,7 +832,7 @@ fun isValidUrl(url: String): Boolean {
 }
 
 @Composable
-fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableState<Boolean>) {
+fun PickFile(messageViewModel: MessageViewModel, showAddFile: MutableState<Boolean>) {
   val fileState = remember { mutableStateOf(Uri.EMPTY) }
   val fileName = remember { mutableStateOf("") }
   val context = LocalContext.current
