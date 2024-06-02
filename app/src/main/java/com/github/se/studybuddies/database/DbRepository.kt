@@ -190,7 +190,6 @@ interface DbRepository {
 
   suspend fun getTopicFileImages(fileID: String): List<Uri>
 
-
   companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"

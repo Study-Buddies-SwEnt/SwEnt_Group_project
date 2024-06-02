@@ -575,7 +575,6 @@ class MockDatabase : DbRepository {
     }
   }
 
-
   override suspend fun getTopicFile(id: String): TopicFile {
     val document = topicItemCollection[id]
     return if (document != null && document is TopicFile) {
@@ -706,7 +705,6 @@ class MockDatabase : DbRepository {
   override fun updateTopicItem(item: TopicItem) {
     topicItemCollection[item.uid] = item
   }
-
 
   override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
     val document = topicItemCollection[fileID]

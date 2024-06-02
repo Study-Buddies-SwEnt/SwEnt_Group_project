@@ -1540,7 +1540,6 @@ class DatabaseConnection : DbRepository {
         }
   }
 
-
   override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
     val document = topicItemCollection.document(fileID).get().await()
     if (document.exists()) {
