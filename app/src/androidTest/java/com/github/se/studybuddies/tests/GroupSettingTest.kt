@@ -181,6 +181,10 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
         val members = group.members // get the members of the group
         // assert(members.contains(validUser)) // check if the members list contains "testUser2"
       }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("success_snackbar"))
       successSnackbar { assertIsDisplayed() }
       composeTestRule
           .onNodeWithTag("success_text")
