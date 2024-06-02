@@ -200,11 +200,11 @@ fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActio
           Modifier.fillMaxWidth().testTag("${topic.uid}_item").background(Color.White).clickable {
             navigationActions.navigateTo("${Route.TOPIC}/$topicUid/$groupUID")
           }
-      /*.drawBehind {
+      .drawBehind {
         val strokeWidth = 1f
         val y = size.height - strokeWidth / 2
         drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-      }*/
+      }
       ) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("${topic.uid}_row")) {
           Spacer(modifier = Modifier.size(16.dp).testTag("${topic.uid}_spacer"))

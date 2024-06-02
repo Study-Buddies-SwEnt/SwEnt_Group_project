@@ -368,12 +368,6 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     }
   }
 
-  private fun printNodeTree(loc: String = "") {
-    composeTestRule
-        .onAllNodes(isRoot(), useUnmergedTree = true)
-        .printToLog("Print root @${loc} : ", maxDepth = 10)
-  }
-
   // The topic items aren't detected by git CI thus we decided to comment them
   /*
   @Test
