@@ -19,12 +19,12 @@ import com.github.se.studybuddies.screens.ChatScreen
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.chat.MessageBubble
-import com.github.se.studybuddies.ui.chat.OptionsDialog
-import com.github.se.studybuddies.ui.chat.PickFile
-import com.github.se.studybuddies.ui.chat.PickLink
-import com.github.se.studybuddies.ui.chat.PickPicture
 import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
+import com.github.se.studybuddies.ui.chat.utility.PickPicture
+import com.github.se.studybuddies.ui.chat.utility.SendFileMessage
+import com.github.se.studybuddies.ui.chat.utility.SendLinkMessage
+import com.github.se.studybuddies.ui.chat.utility.SendPhotoMessage
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -602,7 +602,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddImage = remember { mutableStateOf(true) }
-      PickPicture(showAddImage) { vm.sendPhotoMessage(it.value) }
+      SendPhotoMessage(vm, showAddImage)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendPhotoMessageDialog { assertIsDisplayed() }
@@ -630,7 +630,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddLink = remember { mutableStateOf(true) }
-      PickLink(vm, showAddLink)
+      SendLinkMessage(vm, showAddLink)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendLinkMessageDialog { assertIsDisplayed() }
@@ -655,7 +655,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddFile = remember { mutableStateOf(true) }
-      PickFile(vm, showAddFile)
+      SendFileMessage(vm, showAddFile)
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendFileMessageDialog { assertIsDisplayed() }

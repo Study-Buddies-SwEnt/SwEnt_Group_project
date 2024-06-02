@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "893106230708",
+    "firebase_url": "https://study-buddies-e655a-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "study-buddies-e655a",
     "storage_bucket": "study-buddies-e655a.appspot.com"
   },
@@ -14,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "893106230708-ccjmtv9ak7aemoi6f4cqd3tibf5ql464.apps.googleusercontent.com",
+          "client_id": "893106230708-4mofahu2nk4g4a3tuu772h0gq98gnn6h.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.github.se.studybuddies",
-            "certificate_hash": "53a78bf48d00fd0c9b9104c2b133eda3e7fd5a10"
+            "certificate_hash": "4637c073f38bfd7dc03662c4582382414e7462d1"
           }
         },
         {
