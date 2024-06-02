@@ -105,7 +105,7 @@ fun GroupSetting(
     permission = "android.permission.READ_EXTERNAL_STORAGE"
   }
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("groupSettingScaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.group_settings)) },
@@ -114,34 +114,40 @@ fun GroupSetting(
             },
             rightButton = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top) {
-              LazyColumn(
-                  modifier =
-                      Modifier.fillMaxSize().padding(paddingValues).testTag("modify_group_column"),
-                  verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.CenterHorizontally) {
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item { ModifyName(nameState) }
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item {
-                      ModifyProfilePicture(photoState) {
-                        checkPermission(context, permission, requestPermissionLauncher) {
-                          getContent.launch(imageInput)
+        if (isBoxVisible.value) {
+          ShowContact(groupUID, groupViewModel, isBoxVisible)
+        } else {
+          Column(
+              modifier = Modifier.fillMaxSize().testTag("setting_column"),
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.Top) {
+                LazyColumn(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues)
+                            .testTag("setting_lazy_column"),
+                    verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer1")) }
+                      item { ModifyName(nameState) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer2")) }
+                      item {
+                        ModifyProfilePicture(photoState) {
+                          checkPermission(context, permission, requestPermissionLauncher) {
+                            getContent.launch(imageInput)
+                          }
                         }
                       }
-                    }
-                    item { Spacer(modifier = Modifier.padding(20.dp)) }
-                    item { AddMemberButton(groupUID, groupViewModel) }
-                    item { Spacer(modifier = Modifier.padding(0.dp)) }
-                    item { ShareLinkButton(groupLink.value) }
-                    item { Spacer(modifier = Modifier.padding(10.dp)) }
-                    item {
-                      SaveButton(nameState) {
-                        groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
-                        navigationActions.navigateTo(Route.GROUPSHOME)
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer3")) }
+                      item { AddMemberButtonUID(groupUID, groupViewModel) }
+                      item { AddMemberButtonList(isBoxVisible) }
+                      item { ShareLinkButton(groupLink.value) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer4")) }
+                      item {
+                        SaveButton(nameState) {
+                          groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
+                          navigationActions.navigateTo(Route.GROUPSHOME)
+                        }
                       }
                     }
                   }
@@ -172,9 +178,10 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberImagePainter(photoState.value),
       contentDescription = "Profile Picture",
-      modifier = Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),
+      modifier =
+          Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)).testTag("image_pp"),
       contentScale = ContentScale.Crop)
-  Spacer(Modifier.height(20.dp))
+  Spacer(Modifier.height(20.dp).testTag("spacer_pp"))
   Text(
       text = stringResource(R.string.modify_the_profile_picture),
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
@@ -187,15 +194,23 @@ fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
   var showError by remember { mutableStateOf(false) }
   var showSucces by remember { mutableStateOf(false) }
 
-  Column {
+  Column(modifier = Modifier.testTag("add_member_column")) {
     Button(
-        onClick = { isTextFieldVisible = !isTextFieldVisible },
+        modifier = Modifier.testTag("add_member_button"),
+        onClick = {
+          isTextFieldVisible = !isTextFieldVisible
+          showSucces = false
+          showError = false
+        },
         shape = MaterialTheme.shapes.medium,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text(stringResource(R.string.add_members), color = Color.White)
+          Text(
+              stringResource(R.string.add_member_with_uid),
+              color = Color.White,
+              modifier = Modifier.testTag("add_member_button_text"))
         }
   }
 

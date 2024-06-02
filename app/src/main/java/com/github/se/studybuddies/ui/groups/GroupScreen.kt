@@ -97,17 +97,21 @@ fun GroupScreen(
       },
       floatingActionButton = {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("floating_action_row"),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.End) {
               Button(
                   onClick = { navigationActions.navigateTo("${Route.TOPICCREATION}/$groupUID") },
                   modifier =
-                      Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+                      Modifier.width(64.dp)
+                          .height(64.dp)
+                          .clip(MaterialTheme.shapes.medium)
+                          .testTag("create_topic_button")) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = stringResource(R.string.create_a_task),
-                        tint = White)
+                        tint = White,
+                        modifier = Modifier.testTag("create_topic_icon"))
                   }
             }
       },
@@ -124,16 +128,18 @@ fun GroupScreen(
                         route = "${Route.SHAREDTIMER}/$groupUID",
                         icon = R.drawable.timer,
                         textId = stringResource(R.string.timer))),
+            currentRoute = Route.GROUP,
             iconSize = 32)
       }) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("GroupsHomeColumn"),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("GroupScreenColumn"),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
         ) {
           Box(
               modifier =
                   Modifier.fillMaxWidth()
+                      .testTag("GroupBox")
                       .background(Color.White)
                       .clickable {
                         chatViewModel.setChat(
@@ -152,26 +158,31 @@ fun GroupScreen(
                         val y = size.height - strokeWidth / 2
                         drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
                       }) {
-                Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("GroupRowChat")) {
                   Box(
                       modifier =
-                          Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+                          Modifier.size(52.dp)
+                              .clip(CircleShape)
+                              .background(Color.Transparent)
+                              .testTag("BoxPP")) {
                         Image(
                             painter = rememberAsyncImagePainter(pictureState.value),
                             contentDescription = stringResource(R.string.group_picture),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop)
                       }
-                  Spacer(modifier = Modifier.size(16.dp))
+                  Spacer(modifier = Modifier.size(16.dp).testTag("SpacerPP"))
                   Text(
                       text = stringResource(R.string.group_chat),
-                      modifier = Modifier.align(Alignment.CenterVertically),
+                      modifier =
+                          Modifier.align(Alignment.CenterVertically).testTag("GeneralChatText"),
                       style = TextStyle(fontSize = 20.sp, lineHeight = 28.sp))
                 }
               }
-          HorizontalDivider(thickness = 4.dp, color = Blue)
+          HorizontalDivider(
+              thickness = 4.dp, color = Blue, modifier = Modifier.testTag("GroupDivider"))
           LazyColumn(
-              modifier = Modifier.fillMaxSize(),
+              modifier = Modifier.fillMaxSize().testTag("GroupLazyColumn"),
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
               horizontalAlignment = Alignment.Start,
           ) {
@@ -187,6 +198,7 @@ fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActio
   Box(
       modifier =
           Modifier.fillMaxWidth()
+              .testTag("${topic.uid}_item")
               .background(Color.White)
               .clickable { navigationActions.navigateTo("${Route.TOPIC}/$topicUid/$groupUID") }
               .drawBehind {
@@ -194,11 +206,11 @@ fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActio
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Spacer(modifier = Modifier.size(16.dp))
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("${topic.uid}_row")) {
+          Spacer(modifier = Modifier.size(16.dp).testTag("${topic.uid}_spacer"))
           Text(
               text = topic.name,
-              modifier = Modifier.align(Alignment.CenterVertically),
+              modifier = Modifier.align(Alignment.CenterVertically).testTag("${topic.uid}_text"),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
         }
