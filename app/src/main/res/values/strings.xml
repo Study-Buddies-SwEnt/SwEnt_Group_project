@@ -150,4 +150,5 @@
     <string name="single_choice">Single answer</string>
     <string name="image_resource">image resource</string>
     <string name="no_resources_yet">No resources yet</string>
+    <string name="dismiss_button">dismiss button</string>
 </resources>
