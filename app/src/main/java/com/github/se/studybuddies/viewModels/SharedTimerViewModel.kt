@@ -63,7 +63,7 @@ class SharedTimerViewModel(
   }
 
   fun startTimer() {
-    if (_running_local.value) return // Timer is already running
+    // Timer is already running
 
     _running_local.value = true
 
