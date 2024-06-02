@@ -1,7 +1,6 @@
 package com.github.se.studybuddies.ui.topics
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,8 +59,9 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.ui.chat.PickPicture
-import com.github.se.studybuddies.ui.chat.ShowAlertDialog
+import com.github.se.studybuddies.ui.chat.utility.IconButtonOption
+import com.github.se.studybuddies.ui.chat.utility.PickPicture
+import com.github.se.studybuddies.ui.chat.utility.ShowAlertDialog
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
@@ -200,7 +200,6 @@ fun TopicResources(
 
 @Composable
 fun ResourceImage(image: Uri, onClick: () -> Unit) {
-  Log.d("Topics", "current image is $image")
   Row(
       modifier = Modifier.fillMaxWidth().padding(8.dp),
       verticalAlignment = Alignment.CenterVertically,
@@ -256,7 +255,7 @@ fun AddResources(
     showUploadLink: MutableState<Boolean>,
     showUploadFile: MutableState<Boolean>,
 ) {
-  PickPicture(showUploadImage) { topicFileViewModel.addImage(it.value) }
+  PickPicture(showUploadImage) { topicFileViewModel.addImage(it) }
   // UploadLink(viewModel, showUploadLink)
   // UploadFile(viewModel, showUploadFile)
   ShowAlertDialog(
@@ -295,22 +294,6 @@ fun AddResources(
             }
       },
       button = {})
-}
-
-@Composable
-fun IconButtonOption(
-    onClickAction: () -> Unit,
-    painterResourceId: Int,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    tint: Color = Blue,
-) {
-  IconButton(onClick = onClickAction, modifier = modifier.padding(8.dp)) {
-    Icon(
-        painter = painterResource(id = painterResourceId),
-        contentDescription = contentDescription,
-        tint = tint)
-  }
 }
 
 @Composable
