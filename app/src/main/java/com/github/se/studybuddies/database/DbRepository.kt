@@ -9,6 +9,7 @@ import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
 import com.github.se.studybuddies.data.TopicFolder
@@ -64,7 +65,16 @@ interface DbRepository {
   // using the groups & userMemberships collections
   suspend fun getAllGroups(uid: String): GroupList
 
-  suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int
+  fun subscribeToGroupTimerUpdates(
+      groupUID: String,
+      _timerValue: MutableStateFlow<Long>,
+      _isRunning: MutableStateFlow<Boolean>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onTimerStateChanged: suspend (TimerState) -> Unit
+  )
+
+  suspend fun updateGroupTimer(groupUID: String, timerState: TimerState): Int
 
   suspend fun getGroup(groupUID: String): Group
 
@@ -160,8 +170,6 @@ interface DbRepository {
 
   suspend fun updateStrongUser(fileID: String, newValue: Boolean)
 
-  fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
-
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
 
   fun getAllTopics(
@@ -171,6 +179,10 @@ interface DbRepository {
       mainDispatcher: CoroutineDispatcher,
       onUpdate: (TopicList) -> Unit
   )
+
+  fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
+
+  suspend fun getTopicFileImages(fileID: String): List<Uri>
 
   companion object {
     const val topic_name = "name"

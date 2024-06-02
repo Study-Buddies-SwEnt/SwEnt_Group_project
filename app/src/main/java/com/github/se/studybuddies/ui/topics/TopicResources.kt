@@ -1,8 +1,10 @@
 package com.github.se.studybuddies.ui.topics
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,20 +12,28 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.shape.RoundedCornerShape
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,8 +44,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -46,9 +59,13 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.ui.chat.utility.IconButtonOption
+import com.github.se.studybuddies.ui.chat.utility.PickPicture
+import com.github.se.studybuddies.ui.chat.utility.ShowAlertDialog
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
 
 /**
@@ -66,6 +83,9 @@ fun TopicResources(
 ) {
   topicFileViewModel.fetchTopicFile(fileID)
   val fileData by topicFileViewModel.topicFile.collectAsState()
+  val imagesData by topicFileViewModel.images.collectAsState()
+
+  val images = remember { mutableStateOf(imagesData) }
 
   val nameState = remember { mutableStateOf(fileData.fileName) }
   val strongUserIDs = remember { mutableStateOf(fileData.strongUsers) }
@@ -80,79 +100,125 @@ fun TopicResources(
     strongUserIDs.value = fileData.strongUsers
     topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
   }
+  LaunchedEffect(imagesData.size) { images.value = imagesData }
 
-  Scaffold(
-      modifier = Modifier.fillMaxSize(),
-      topBar = {
-        TopNavigationBar(
-            title = { Sub_title(nameState.value) },
-            navigationIcon = {
-              Icon(
-                  imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                  contentDescription = stringResource(R.string.go_back),
-                  modifier =
-                  Modifier
-                      .clickable { navigationActions.goBack() }
-                      .testTag("go_back_button"))
-            },
-            actions = {})
-      }) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
-              Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                      Text(
-                          text = stringResource(R.string.resources),
-                          modifier =
-                          Modifier
-                              .weight(1f)
-                              .clickable { areaState.value = FileArea.RESOURCES }
-                              .padding(horizontal = 16.dp, vertical = 16.dp)
-                              .align(Alignment.CenterVertically),
-                          style = TextStyle(fontSize = 20.sp),
-                          textAlign = TextAlign.Center)
-                      Text(
-                          text = stringResource(R.string.strong_users),
-                          modifier =
-                          Modifier
-                              .weight(1f)
-                              .clickable { areaState.value = FileArea.STRONG_USERS }
-                              .padding(horizontal = 16.dp, vertical = 16.dp)
-                              .align(Alignment.CenterVertically),
-                          style = TextStyle(fontSize = 20.sp),
-                          textAlign = TextAlign.Center)
-                    }
-                HorizontalDivider(
+  val showOptions = remember { mutableStateOf(false) }
+  val showUploadImage = remember { mutableStateOf(false) }
+  val showUploadLink = remember { mutableStateOf(false) }
+  val showUploadFile = remember { mutableStateOf(false) }
+
+  val expandImage = remember { mutableStateOf(false) }
+  val expandedImage = remember { mutableStateOf(Uri.EMPTY) }
+
+  Box() {
+    AddResources(topicFileViewModel, showOptions, showUploadImage, showUploadLink, showUploadFile)
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+          TopNavigationBar(
+              title = { Sub_title(nameState.value) },
+              navigationIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Go back",
                     modifier =
-                    Modifier
-                        .align(
-                            if (areaState.value == FileArea.RESOURCES) Alignment.Start
-                            else Alignment.End
-                        )
-                        .fillMaxWidth(0.5f),
-                    color = Blue,
-                    thickness = 4.dp)
+                        Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
+              },
+              actions = {})
+        },
+        floatingActionButton = {
+          Button(
+              onClick = { showOptions.value = !showOptions.value },
+              modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.create_a_topic_item),
+                    tint = White)
               }
-              LazyColumn(
-                  modifier = Modifier.fillMaxSize(),
-                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.Start,
-                  content = {
-                    if (areaState.value == FileArea.RESOURCES) {
-                      item {
-                        Column(modifier = Modifier.fillMaxSize()) { Text(stringResource(R.string.resources_go_here)) }
+        }) {
+          Column(
+              modifier = Modifier.fillMaxSize().padding(it),
+              horizontalAlignment = Alignment.Start,
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                  Row(
+                      horizontalArrangement = Arrangement.SpaceBetween,
+                      verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Resources",
+                            modifier =
+                                Modifier.weight(1f)
+                                    .clickable { areaState.value = FileArea.RESOURCES }
+                                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                                    .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = 20.sp),
+                            textAlign = TextAlign.Center)
+                        Text(
+                            text = "Strong Users",
+                            modifier =
+                                Modifier.weight(1f)
+                                    .clickable { areaState.value = FileArea.STRONG_USERS }
+                                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                                    .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = 20.sp),
+                            textAlign = TextAlign.Center)
                       }
-                    } else {
-                      items(strongUsers.value) { user -> UserBox(user) }
-                    }
-                  })
-            }
+                  HorizontalDivider(
+                      modifier =
+                          Modifier.align(
+                                  if (areaState.value == FileArea.RESOURCES) Alignment.Start
+                                  else Alignment.End)
+                              .fillMaxWidth(0.5f),
+                      color = Blue,
+                      thickness = 4.dp)
+                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.Start,
+                    content = {
+                      if (areaState.value == FileArea.RESOURCES) {
+                        item { ShowResources(images, expandedImage, expandImage) }
+                      } else {
+                        items(strongUsers.value) { user -> UserBox(user) }
+                      }
+                    })
+              }
+        }
+    FullImage(expandImage, expandedImage.value) { expandImage.value = false }
+  }
+}
+
+@Composable
+fun ShowResources(
+    images: MutableState<List<Uri>>,
+    expandedImage: MutableState<Uri>,
+    expandImage: MutableState<Boolean>
+) {
+  if (images.value.isEmpty()) {
+    Column(modifier = Modifier.fillMaxSize()) { Text(stringResource(R.string.no_resources_yet)) }
+  } else {
+    images.value.forEach { image ->
+      ResourceImage(image) {
+        expandedImage.value = image
+        expandImage.value = true
+      }
+    }
+  }
+}
+
+@Composable
+fun ResourceImage(image: Uri, onClick: () -> Unit) {
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.Center) {
+        Image(
+            painter = rememberAsyncImagePainter(image.toString()),
+            contentDescription = stringResource(R.string.image_resource),
+            modifier =
+                Modifier.size(200.dp).clip(RoundedCornerShape(20.dp)).clickable { onClick() },
+            contentScale = ContentScale.Crop)
       }
 }
 
@@ -193,6 +259,103 @@ private fun UserBox(user: User) {
                     modifier = Modifier.align(Alignment.CenterVertically),
                     style = TextStyle(fontSize = 20.sp),
                     lineHeight = 28.sp)
+              }
+        }
+  }
+}
+
+@Composable
+fun AddResources(
+    topicFileViewModel: TopicFileViewModel,
+    showOptions: MutableState<Boolean>,
+    showUploadImage: MutableState<Boolean>,
+    showUploadLink: MutableState<Boolean>,
+    showUploadFile: MutableState<Boolean>,
+) {
+  PickPicture(showUploadImage) { topicFileViewModel.addImage(it) }
+  // UploadLink(viewModel, showUploadLink)
+  // UploadFile(viewModel, showUploadFile)
+  ShowAlertDialog(
+      showDialog = showOptions,
+      onDismiss = { showOptions.value = false },
+      title = {},
+      content = {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center) {
+              IconButtonOption(
+                  modifier = Modifier.testTag("icon_send_image"),
+                  onClickAction = {
+                    showOptions.value = false
+                    showUploadImage.value = true
+                  },
+                  painterResourceId = R.drawable.image_24px,
+                  contentDescription = stringResource(R.string.app_name))
+              /*IconButtonOption(
+                  modifier = Modifier.testTag("icon_send_link"),
+                  onClickAction = {
+                      showOptions.value = false
+                      showUploadLink.value = true
+                  },
+                  painterResourceId = R.drawable.link_24px,
+                  contentDescription = stringResource(R.string.app_name))
+              IconButtonOption(
+                  modifier = Modifier.testTag("icon_send_file"),
+                  onClickAction = {
+                      showOptions.value = false
+                      showUploadFile.value = true
+                  },
+                  painterResourceId = R.drawable.picture_as_pdf_24px,
+                  contentDescription = stringResource(R.string.app_name))*/
+            }
+      },
+      button = {})
+}
+
+@Composable
+fun FullImage(show: MutableState<Boolean>, image: Uri, onDismiss: () -> Unit) {
+  val scale = remember { mutableStateOf(1f) }
+  val offsetX = remember { mutableStateOf(0f) }
+  val offsetY = remember { mutableStateOf(0f) }
+
+  if (show.value) {
+    Column(
+        modifier = Modifier.fillMaxSize().background(color = Color.Black.copy(alpha = 0.8f)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top) {
+          Row(
+              modifier = Modifier.fillMaxWidth().background(color = Color.Black),
+              horizontalArrangement = Arrangement.End,
+              verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { onDismiss() }) {
+                  Icon(
+                      painter = painterResource(R.drawable.dismiss),
+                      contentDescription = stringResource(R.string.dismiss_button))
+                }
+              }
+          Box(
+              contentAlignment = Alignment.Center,
+              modifier =
+                  Modifier.fillMaxSize().pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                      scale.value *= zoom
+                      offsetX.value += pan.x
+                      offsetY.value += pan.y
+                    }
+                  }) {
+                Image(
+                    painter = rememberAsyncImagePainter(image.toString()),
+                    contentDescription = stringResource(R.string.image_resource),
+                    contentScale = ContentScale.None,
+                    modifier =
+                        Modifier.graphicsLayer {
+                              scaleX = scale.value
+                              scaleY = scale.value
+                              translationX = offsetX.value
+                              translationY = offsetY.value
+                            }
+                            .fillMaxSize())
               }
         }
   }

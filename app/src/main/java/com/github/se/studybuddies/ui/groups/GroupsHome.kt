@@ -103,7 +103,7 @@ fun GroupsHome(
   var isLoading by remember { mutableStateOf(true) }
   val refresh = remember { mutableStateOf(true) }
 
-  LaunchedEffect(refresh) {
+  LaunchedEffect(refresh.value) {
     groupsHomeViewModel.fetchGroups(uid)
     Log.e("GroupsHome", "fetchGroups")
     refresh.value = false

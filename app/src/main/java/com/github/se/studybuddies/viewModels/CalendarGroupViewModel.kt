@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CalendarViewModel(private val uid: String) : ViewModel() {
+class CalendarGroupViewModel(val groupuid: String) : ViewModel() {
 
-  private val dataSource by lazy { CalendarDataSource() }
+  private val value_date by lazy { CalendarDataSource() }
   private val databaseConnection = DatabaseConnection()
 
   private val _dailyPlanners = mutableStateMapOf<String, MutableStateFlow<DailyPlanner>>()
@@ -29,35 +29,35 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
 
   init {
     viewModelScope.launch {
-      syncDailyPlannersWithFirebase()
+      syncDailyPlannersWithFirebaseGroup()
       _uiState.update { currentState ->
-        currentState.copy(dates = dataSource.getDates(currentState.yearMonth))
+        currentState.copy(dates = value_date.getDates(currentState.yearMonth))
       }
     }
   }
 
-  private suspend fun syncDailyPlannersWithFirebase() {
-    val dailyPlanners = databaseConnection.getAllDailyPlanners(uid)
+  fun refreshDailyPlanners() {
+    viewModelScope.launch { syncDailyPlannersWithFirebaseGroup() }
+  }
+
+  private suspend fun syncDailyPlannersWithFirebaseGroup() {
+    val dailyPlannersGroup = databaseConnection.getAllGroupDailyPlanners(groupuid)
     val plannersMap = mutableMapOf<String, MutableStateFlow<DailyPlanner>>()
-    dailyPlanners.forEach { planner -> plannersMap[planner.date] = MutableStateFlow(planner) }
+    dailyPlannersGroup.forEach { planner -> plannersMap[planner.date] = MutableStateFlow(planner) }
     _dailyPlanners.clear()
     _dailyPlanners.putAll(plannersMap)
   }
 
-  fun refreshDailyPlanners() {
-    viewModelScope.launch { syncDailyPlannersWithFirebase() }
-  }
-
-  fun updateDailyPlanner(date: String, planner: DailyPlanner) {
+  fun updateDailyGroupPlanner(date: String, planner: DailyPlanner) {
     _dailyPlanners[date]?.value = planner
 
     viewModelScope.launch {
       val dailyPlanners = _dailyPlanners.values.map { it.value }.toList()
-      databaseConnection.updateDailyPlanners(uid, dailyPlanners)
+      databaseConnection.updateGroupPlanners(groupuid, dailyPlanners)
     }
   }
 
-  fun getDailyPlanner(date: String): StateFlow<DailyPlanner> {
+  fun getDailyPlannerGroup(date: String): StateFlow<DailyPlanner> {
     return _dailyPlanners.getOrPut(date) {
       MutableStateFlow(DailyPlanner(date)).also { fetchAndUpdatePlanner(date) }
     }
@@ -65,23 +65,23 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
 
   private fun fetchAndUpdatePlanner(date: String) {
     viewModelScope.launch {
-      val planner = databaseConnection.getDailyPlanner(uid, date)
+      val planner = databaseConnection.getDailyGroupPlanner(groupuid, date)
       _dailyPlanners[date]?.value = planner
     }
   }
 
-  fun toNextMonth(nextMonth: YearMonth) {
+  fun to_Next_Month(nextMonth: YearMonth) {
     viewModelScope.launch {
       _uiState.update { currentState ->
-        currentState.copy(yearMonth = nextMonth, dates = dataSource.getDates(nextMonth))
+        currentState.copy(yearMonth = nextMonth, dates = value_date.getDates(nextMonth))
       }
     }
   }
 
-  fun toPreviousMonth(prevMonth: YearMonth) {
+  fun to_Previous_Month(prevMonth: YearMonth) {
     viewModelScope.launch {
       _uiState.update { currentState ->
-        currentState.copy(yearMonth = prevMonth, dates = dataSource.getDates(prevMonth))
+        currentState.copy(yearMonth = prevMonth, dates = value_date.getDates(prevMonth))
       }
     }
   }
@@ -89,26 +89,26 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
   fun deleteGoal(date: String, goal: String) {
     val planner = _dailyPlanners[date]?.value ?: return
     val updatedGoals = planner.goals.toMutableList().apply { remove(goal) }
-    updateDailyPlanner(date, planner.copy(goals = updatedGoals))
+    updateDailyGroupPlanner(date, planner.copy(goals = updatedGoals))
   }
 
   fun deleteNote(date: String, note: String) {
     val planner = _dailyPlanners[date]?.value ?: return
     val updatedNotes = planner.notes.toMutableList().apply { remove(note) }
-    updateDailyPlanner(date, planner.copy(notes = updatedNotes))
+    updateDailyGroupPlanner(date, planner.copy(notes = updatedNotes))
   }
 
   fun deleteAppointment(date: String, time: String) {
     val planner = _dailyPlanners[date]?.value ?: return
     val updatedAppointments = planner.appointments.toMutableMap().apply { remove(time) }
-    updateDailyPlanner(date, planner.copy(appointments = updatedAppointments))
+    updateDailyGroupPlanner(date, planner.copy(appointments = updatedAppointments))
   }
 }
 
-class CalendarViewModelFactory(private val uid: String) : ViewModelProvider.Factory {
+class CalendarGroupViewModelFactory(private val uid: String) : ViewModelProvider.Factory {
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
-    if (modelClass.isAssignableFrom(CalendarViewModel::class.java)) {
-      return CalendarViewModel(uid) as T
+    if (modelClass.isAssignableFrom(CalendarGroupViewModel::class.java)) {
+      return CalendarGroupViewModel(uid) as T
     }
     throw IllegalArgumentException("Unknown ViewModel class")
   }
