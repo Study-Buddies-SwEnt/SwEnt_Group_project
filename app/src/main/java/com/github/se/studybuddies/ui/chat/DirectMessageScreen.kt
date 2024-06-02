@@ -57,6 +57,16 @@ import com.github.se.studybuddies.viewModels.DirectMessageViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
 
+/**
+ * Displays the main screen for direct messaging, providing interfaces to initiate new messages and
+ * manage existing ones.
+ *
+ * @param viewModel ViewModel that handles direct messaging operations.
+ * @param chatViewModel ViewModel for chat-specific data and functions.
+ * @param usersViewModel ViewModel for user data and interactions.
+ * @param navigationActions Provides navigation functionality within the application.
+ * @param contactsViewModel ViewModel that manages contact interactions.
+ */
 @Composable
 fun DirectMessageScreen(
     viewModel: DirectMessageViewModel,
@@ -121,6 +131,13 @@ fun DirectMessageScreen(
       iconOptions = {})
 }
 
+/**
+ * Displays an interactive row for adding new private messages. The button toggles its icon based on
+ * the state.
+ *
+ * @param showAddPrivateMessageList State that controls the visibility of the user listing for new
+ *   messages.
+ */
 @Composable
 fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
   Row(
@@ -149,6 +166,12 @@ fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
       }
 }
 
+/**
+ * Represents a single chat item in the list of direct messages.
+ *
+ * @param chat The chat data to display.
+ * @param onClick Action to perform when the chat item is clicked.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
@@ -175,6 +198,15 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       }
 }
 
+/**
+ * Displays a list of all users, allowing the initiation of new direct messages or managing existing
+ * contacts.
+ *
+ * @param showAddPrivateMessageList Mutable state controlling the display of the user list.
+ * @param viewModel ViewModel for direct messaging functionalities.
+ * @param usersViewModel ViewModel managing user data.
+ * @param contactsViewModel ViewModel for contact operations.
+ */
 @Composable
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
@@ -217,6 +249,15 @@ fun ListAllUsers(
   }
 }
 
+/**
+ * Creates an individual user item for the user list, which can be clicked to start a direct message
+ * or manage contacts.
+ *
+ * @param user The user data to display.
+ * @param viewModel ViewModel for handling direct message initiation.
+ * @param showAddPrivateMessageList State controlling the list display for adding new messages.
+ * @param contactsViewModel ViewModel for managing contacts.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserItem(

@@ -18,18 +18,35 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel that handles messaging functionalities for a specific chat. It manages the retrieval,
+ * filtering, sending, and editing of messages within a chat.
+ *
+ * @param chat The chat session this ViewModel is associated with.
+ * @param db The database repository for data operations. Defaults to a ServiceLocator provided
+ *   instance.
+ */
 class MessageViewModel(
     val chat: Chat,
     private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
+  // Holds a list of messages, providing thread-safe updates.
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
+  // Holds the current user information to identify the message sender.
   private val _currentUser = MutableLiveData<User>()
   val currentUser = _currentUser
 
+  // Filter for displaying messages of a specific type.
   private val _filterType = MutableStateFlow<Class<out Message>?>(null)
   val filterType: StateFlow<Class<out Message>?> = _filterType.asStateFlow()
+  // Holds the search query to filter messages based on text content.
   private val _searchQuery = MutableStateFlow("")
 
+  /**
+   * A flow that emits a list of messages filtered by type and search query and sorted by timestamp.
+   * This combines several sources of data to provide a dynamically updating filtered list of
+   * messages.
+   */
   val messages =
       combine(_messages, _searchQuery, _filterType) { messages, query, filterType ->
         messages
@@ -69,14 +86,17 @@ class MessageViewModel(
   }
 
   private fun getMessage() {
+    // Retrieve messages for the chat from the database.
     db.getMessages(chat, _messages, Dispatchers.IO, Dispatchers.Main)
   }
 
   private fun getCurrentUser() {
+    // Asynchronously fetch the current user and set it.
     viewModelScope.launch { _currentUser.value = db.getCurrentUser() }
   }
 
   fun sendTextMessage(text: String) {
+    // Compose and send a text message.
     val message =
         _currentUser.value?.let {
           Message.TextMessage(text = text, sender = it, timestamp = System.currentTimeMillis())
@@ -86,6 +106,7 @@ class MessageViewModel(
   }
 
   fun sendLinkMessage(linkName: String, linkUri: Uri) {
+    // Compose and send a link message.
     val message =
         _currentUser.value?.let {
           Message.LinkMessage(
@@ -99,6 +120,7 @@ class MessageViewModel(
   }
 
   fun sendPhotoMessage(photoUri: Uri) {
+    // Compose and send a photo message.
     val message =
         _currentUser.value?.let {
           Message.PhotoMessage(
@@ -108,6 +130,7 @@ class MessageViewModel(
   }
 
   fun sendFileMessage(fileName: String, fileUri: Uri) {
+    // Compose and send a file message.
     val message =
         _currentUser.value?.let {
           Message.FileMessage(
@@ -120,6 +143,7 @@ class MessageViewModel(
   }
 
   fun sendPollMessage(question: String, singleChoice: Boolean, options: List<String>) {
+    // Compose and send a poll message.
     val message =
         _currentUser.value?.let {
           Message.PollMessage(
@@ -134,6 +158,7 @@ class MessageViewModel(
   }
 
   fun votePollMessage(message: Message.PollMessage, option: String) {
+    // Handle voting on a poll message.
     val currentUserUID = _currentUser.value?.uid ?: return
 
     val updatedVotes = message.votes.toMutableMap()
@@ -209,6 +234,12 @@ class MessageViewModel(
         }
   }
 
+  /**
+   * Checks if the current user is the sender of a given message.
+   *
+   * @param message The message to check.
+   * @return True if the current user is the sender, false otherwise.
+   */
   fun isUserMessageSender(message: Message): Boolean {
     return if (_currentUser.value != null) {
       message.sender.uid == _currentUser.value!!.uid

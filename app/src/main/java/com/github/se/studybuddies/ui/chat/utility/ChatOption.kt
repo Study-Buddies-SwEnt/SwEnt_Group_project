@@ -46,6 +46,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Displays a row of icon options for different message types, using AlertDialog to facilitate
+ * selection.
+ *
+ * @param viewModel The ViewModel associated with message operations.
+ * @param showIconsOptions State controlling visibility of the icons options list.
+ */
 @Composable
 fun IconsOptionsList(viewModel: MessageViewModel, showIconsOptions: MutableState<Boolean>) {
   val showAddImage = remember { mutableStateOf(false) }
@@ -111,7 +118,14 @@ fun IconsOptionsList(viewModel: MessageViewModel, showIconsOptions: MutableState
       },
       button = {})
 }
-
+/**
+ * Data class representing properties of an IconButton in the UI.
+ *
+ * @param testTag Testing tag for the component.
+ * @param onClickAction Action performed when the icon button is clicked.
+ * @param painterResourceId Resource ID of the icon's image.
+ * @param contentDescription Text description of the icon for accessibility.
+ */
 data class IconButtonOptionData(
     val testTag: String,
     val onClickAction: () -> Unit,
@@ -119,6 +133,15 @@ data class IconButtonOptionData(
     val contentDescription: String
 )
 
+/**
+ * Composable that renders an IconButton with customizable options.
+ *
+ * @param onClickAction Action to perform on button click.
+ * @param painterResourceId Resource ID for the icon image.
+ * @param contentDescription Accessibility description of the icon.
+ * @param modifier Modifier for styling and optional configuration.
+ * @param tint Color tint for the icon.
+ */
 @Composable
 fun IconButtonOption(
     onClickAction: () -> Unit,
@@ -135,6 +158,15 @@ fun IconButtonOption(
   }
 }
 
+/**
+ * Composable to display message options, allowing editing or deletion based on message type and
+ * user permissions.
+ *
+ * @param viewModel The ViewModel for handling message operations.
+ * @param selectedMessage The message selected by the user for options.
+ * @param showOptionsDialog State controlling the visibility of the options dialog.
+ * @param navigationActions Provides navigation actions throughout the application.
+ */
 @Composable
 fun OptionsDialog(
     viewModel: MessageViewModel,
@@ -160,6 +192,15 @@ fun OptionsDialog(
       button = {})
 }
 
+/**
+ * Composable to display content specific to the selected message's options dialog.
+ *
+ * @param viewModel The ViewModel for handling message operations.
+ * @param selectedMessage The message selected by the user for options.
+ * @param showOptionsDialog State controlling the visibility of the options dialog.
+ * @param showEditDialog State for showing the edit message dialog.
+ * @param navigationActions Provides navigation actions throughout the application.
+ */
 @Composable
 fun OptionDialogContent(
     viewModel: MessageViewModel,
@@ -187,6 +228,12 @@ fun OptionDialogContent(
   }
 }
 
+/**
+ * Composable to display download options for messages that can be downloaded.
+ *
+ * @param selectedMessage The message selected by the user.
+ * @param showOptionsDialog State controlling the visibility of the options dialog.
+ */
 @Composable
 fun CommonOptions(
     selectedMessage: Message,
@@ -217,6 +264,14 @@ fun CommonOptions(
   }
 }
 
+/**
+ * Composable to create a button for downloading content, ensuring permissions are checked and
+ * requested as necessary.
+ *
+ * @param permission Permission required for the action.
+ * @param context Android context, necessary for checking permissions.
+ * @param onClick Action performed when the button is clicked.
+ */
 @Composable
 fun DownloadButton(permission: String, context: Context, onClick: () -> Unit) {
   var hasPermission by remember { mutableStateOf(false) }
@@ -237,6 +292,15 @@ fun DownloadButton(permission: String, context: Context, onClick: () -> Unit) {
   }
 }
 
+/**
+ * Displays options for user own messages, allowing editing or deletion based on message type and
+ * permissions.
+ *
+ * @param viewModel The ViewModel for handling message operations.
+ * @param selectedMessage The message selected by the user.
+ * @param showOptionsDialog State controlling the visibility of the options dialog.
+ * @param showEditDialog State for showing the edit message dialog.
+ */
 @Composable
 fun UserMessageOptions(
     viewModel: MessageViewModel,
@@ -275,6 +339,15 @@ fun UserMessageOptions(
       }
 }
 
+/**
+ * Composable to show options for messages from other users in non-private chat contexts, like
+ * starting a direct message.
+ *
+ * @param viewModel The ViewModel for handling message operations.
+ * @param selectedMessage The message being interacted with.
+ * @param showOptionsDialog State controlling the visibility of the options dialog.
+ * @param navigationActions Navigation actions for moving across different screens or contexts.
+ */
 @Composable
 fun NonUserMessageOptions(
     viewModel: MessageViewModel,
