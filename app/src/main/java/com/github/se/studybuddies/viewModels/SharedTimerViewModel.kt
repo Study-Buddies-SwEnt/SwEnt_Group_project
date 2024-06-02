@@ -31,7 +31,6 @@ class SharedTimerViewModel(
   val isRunning: StateFlow<Boolean> = _isRunning
 
   private var countDownTimer: CountDownTimer? = null
-  private var remainingTime = 0L
 
   init {
 
@@ -46,7 +45,7 @@ class SharedTimerViewModel(
   private suspend fun onTimerStateChanged(timerState: TimerState) {
 
     _timerValue.value = timerState.endTime
-    remainingTime = timerState.endTime
+
     _isRunning.value = timerState.isRunning
 
     if (_isRunning.value) {
@@ -59,7 +58,7 @@ class SharedTimerViewModel(
   fun setTimer(hours: Long = 0, minutes: Long = 0, seconds: Long = 0) {
     val newTime = (hours * 3600 + minutes * 60 + seconds) * 1000
     _timerValue.value = newTime
-    remainingTime = newTime
+
     viewModelScope.launch { db.updateGroupTimer(groupUID, TimerState(newTime, _isRunning.value)) }
   }
 
@@ -85,7 +84,6 @@ class SharedTimerViewModel(
               cancel()
             }
 
-            remainingTime = millisUntilFinished
             _timerValue.value = millisUntilFinished
           }
 
@@ -99,7 +97,7 @@ class SharedTimerViewModel(
 
     viewModelScope.launch(ioDispatcher) {
       _isRunning.value = false
-      db.updateGroupTimer(groupUID, TimerState(remainingTime, _isRunning.value))
+      db.updateGroupTimer(groupUID, TimerState(_timerValue.value, _isRunning.value))
     }
 
     countDownTimer?.cancel()
@@ -110,7 +108,7 @@ class SharedTimerViewModel(
 
     countDownTimer?.cancel()
     _timerValue.value = 0
-    remainingTime = 0
+
     _isRunning.value = false
     _running_local.value = false
     viewModelScope.launch(ioDispatcher) { db.updateGroupTimer(groupUID, TimerState(0L, false)) }
@@ -133,7 +131,6 @@ class SharedTimerViewModel(
     val newTime = _timerValue.value + additionalTime
     if (newTime >= 0) {
       _timerValue.value = newTime
-      remainingTime = newTime
 
       if (_isRunning.value) {
         countDownTimer?.cancel()
