@@ -150,8 +150,8 @@ fun GroupSetting(
                         }
                       }
                     }
-                  }
-            }
+              }
+        }
       }
 }
 
