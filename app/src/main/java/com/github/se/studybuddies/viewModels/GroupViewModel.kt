@@ -23,6 +23,8 @@ class GroupViewModel(
 ) : ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
+  private val _membersGroup = MutableLiveData<List<User>>(emptyList())
+  val membersGroup: LiveData<List<User>> = _membersGroup
   private val _member = MutableLiveData(User.empty())
   val members: LiveData<List<User>> = _members
   val member: LiveData<User> = _member
@@ -56,6 +58,23 @@ class GroupViewModel(
     }
   }
 
+
+  fun getAllFriends(uid: String) {
+    viewModelScope.launch {
+      val friends = db.getAllFriends(uid)
+      _members.postValue(friends)
+    }
+  }
+
+  fun getAllFriendsGroup(uid: String) {
+    viewModelScope.launch {
+      val friends = db.getAllFriends(uid)
+      _membersGroup.postValue(friends)
+    }
+  }
+
+
+
   fun createGroup(name: String, photoUri: Uri) {
     viewModelScope.launch { db.createGroup(name, photoUri) }
   }
@@ -83,7 +102,7 @@ class GroupViewModel(
 
   fun addUserToGroup(groupUID: String, text: String = "", callBack: (Boolean) -> Unit) {
     viewModelScope.launch {
-      db.addUserToGroup(groupUID, text) { isError -> callBack(isError) }
+      db.addUserToGroup(groupUID, text)
       val userUID: String =
           if (text != "") {
             text

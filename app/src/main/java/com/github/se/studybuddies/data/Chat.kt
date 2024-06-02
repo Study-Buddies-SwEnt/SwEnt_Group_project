@@ -8,7 +8,7 @@ data class Chat(
     var picture: Uri,
     val type: ChatType,
     var members: List<User>,
-    val additionalUID: String = "",
+    val additionalUID: String = ""
     //    var messages: List<Message>
 ) {
   companion object {

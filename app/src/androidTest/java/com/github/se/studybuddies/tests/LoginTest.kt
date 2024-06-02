@@ -34,12 +34,11 @@ class LoginTest : TestCase() {
   fun titleAndButtonAreCorrectlyDisplayed() {
     ComposeScreen.onComposeScreen<LoginScreen>(composeTestRule) {
       // Test the UI elements
-      /*loginTitle {
+      loginTitle {
         assertIsDisplayed()
         assertTextEquals("Study Buddies")
       }
 
-       */
       loginButton {
         assertIsDisplayed()
         assertHasClickAction()

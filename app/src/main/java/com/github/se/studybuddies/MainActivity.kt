@@ -49,6 +49,7 @@ import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.ui.todo.EditToDo
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
+import com.github.se.studybuddies.ui.topics.TopicResources
 import com.github.se.studybuddies.ui.topics.TopicScreen
 import com.github.se.studybuddies.ui.topics.TopicSettings
 import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
@@ -67,6 +68,7 @@ import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.github.se.studybuddies.viewModels.SharedTimerViewModel
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
+import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
@@ -433,7 +435,7 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-            /*composable(
+            composable(
              route = "${Route.TOPICRESOURCES}/{topicFileID}",
              arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
                  backStackEntry ->
@@ -445,7 +447,7 @@ class MainActivity : ComponentActivity() {
                }
              }
 
-            */
+
 
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->

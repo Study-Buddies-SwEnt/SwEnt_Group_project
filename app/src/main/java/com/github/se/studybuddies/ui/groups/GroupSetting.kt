@@ -54,6 +54,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
@@ -217,7 +218,7 @@ fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
                 onDone = {
                   // add the user to the database
                   isTextFieldVisible = false
-                  groupViewModel.addUserToGroup(groupUID, text)
+                  groupViewModel.addUserToGroup(groupUID, text){}
                 }))
   }
   if (showError) {
