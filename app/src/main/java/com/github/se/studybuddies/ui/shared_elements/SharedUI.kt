@@ -7,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScopeInstance.weight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -79,8 +81,11 @@ import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.navigation.SETTINGS_DESTINATIONS
+import com.github.se.studybuddies.ui.chat.MessageTypeFilter
+import com.github.se.studybuddies.ui.chat.SearchBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
+import com.github.se.studybuddies.viewModels.MessageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -351,6 +356,8 @@ fun ChatTopBar(
       // modifier = Modifier.align(Alignment.BottomStart).testTag("divider")
   )
 }
+
+
 
 @Composable
 private fun MenuButton(onClick: () -> Unit) {

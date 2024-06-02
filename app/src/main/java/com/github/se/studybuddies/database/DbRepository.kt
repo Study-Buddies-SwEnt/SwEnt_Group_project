@@ -72,7 +72,7 @@ interface DbRepository {
 
   suspend fun createGroup(name: String, photoUri: Uri)
 
-  suspend fun addUserToGroup(groupUID: String, user: String = "")
+    suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
 
   suspend fun addSelfToGroup(groupUID: String)
 
@@ -130,7 +130,7 @@ interface DbRepository {
   suspend fun startDirectMessage(otherUID: String): String
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic
+  suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
 
   suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem>
 

@@ -2,6 +2,7 @@ package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -31,6 +32,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -60,6 +62,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -88,8 +91,6 @@ fun ChatScreen(
   val messages by viewModel.messages.collectAsState(initial = emptyList())
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
-  var showSearchBar by remember { mutableStateOf(false) }
-  var searchText by remember { mutableStateOf("") }
 
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
   val listState = rememberLazyListState()
@@ -115,24 +116,6 @@ fun ChatScreen(
           ChatType.TOPIC, -> GroupChatTopBar(viewModel.chat, navigationActions)
           ChatType.PRIVATE -> PrivateChatTopBar(viewModel.chat, navigationActions)
         }
-        /*
-        if (showSearchBar) {
-          Column {
-            SearchBar(
-                searchText,
-                onSearchTextChanged = {
-                  searchText = it
-                  viewModel.setSearchQuery(it)
-                  Log.d("MyPrint", "Search query: $it")
-                },
-                onClearSearch = {
-                  searchText = ""
-                  viewModel.setSearchQuery("")
-                })
-            MessageTypeFilter(viewModel = viewModel)
-          }
-        }
-        */
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
             val isCurrentUserMessageSender = viewModel.isUserMessageSender(message)
@@ -454,6 +437,8 @@ fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
       }
 }
 
+
+
 @Composable
 fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
@@ -493,4 +478,33 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
               }
             }
       }
+}
+
+//TODO reimplement this correctly
+@Composable
+fun SearchButton(viewModel: MessageViewModel){
+    var showSearchBar by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+    Spacer(Modifier)
+    Icon(
+        Icons.Default.Search,
+        contentDescription = "Search",
+        modifier =
+        Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
+    if (showSearchBar) {
+        Column {
+            SearchBar(
+                searchText,
+                onSearchTextChanged = {
+                    searchText = it
+                    viewModel.setSearchQuery(it)
+                    Log.d("MyPrint", "Search query: $it")
+                },
+                onClearSearch = {
+                    searchText = ""
+                    viewModel.setSearchQuery("")
+                })
+            MessageTypeFilter(viewModel = viewModel)
+        }
+    }
 }

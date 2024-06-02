@@ -511,11 +511,12 @@ class DatabaseConnection : DbRepository {
    * Add the user given in the parameter to the group given in the parameter
    * If no user is given add the user actually logged in
    *
-   * return nothing but use callBack to now if the add was a succes or a failure
+   * return nothing but use callBack to know if the add was a succes or a failure
    */
-  override suspend fun addUserToGroup(groupUID: String, user: String) {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
     if (groupUID == "") {
+        callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -529,12 +530,14 @@ class DatabaseConnection : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+        callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
+        callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -542,7 +545,10 @@ class DatabaseConnection : DbRepository {
     groupDataCollection
         .document(groupUID)
         .update("members", FieldValue.arrayUnion(userToAdd))
-        .addOnSuccessListener { Log.d("MyPrint", "User successfully added to group") }
+        .addOnSuccessListener {
+            Log.d("MyPrint", "User successfully added to group")
+            callBack(false)
+        }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to add user to group with error: ", e)
         }
@@ -552,8 +558,9 @@ class DatabaseConnection : DbRepository {
         .document(userToAdd)
         .update("groups", FieldValue.arrayUnion(groupUID))
         .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
-        .addOnFailureListener { e ->
-          Log.d("MyPrint", "Failed to add group to user with error: ", e)
+        .addOnSuccessListener {
+            Log.d("MyPrint", "Group successfully added to user")
+            callBack(false)
         }
   }
 
@@ -851,8 +858,7 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-    val topic = getTopic(uid)
-    rtDb.getReference(topic.toString()).removeValue()
+      getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
   }
 
   override fun editMessage(
@@ -905,7 +911,7 @@ class DatabaseConnection : DbRepository {
       scope: CoroutineScope,
       ioDispatcher: CoroutineDispatcher,
       mainDispatcher: CoroutineDispatcher,
-      onUpdate: (List<Chat>) -> Unit,
+      onUpdate: (List<Chat>) -> Unit
   ) {
     val ref = rtDb.getReference(ChatVal.DIRECT_MESSAGES)
 

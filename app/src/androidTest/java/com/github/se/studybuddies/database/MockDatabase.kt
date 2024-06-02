@@ -639,24 +639,25 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
-    val topic = getTopic(topicId)
-    val items: List<TopicItem> = topic.exercises + topic.theory
-    iterateTopicItemDeletion(items) {
-      topicDataCollection.remove(topic.uid)
-      val currentGroup = groupDataCollection[groupUID]!!
-      val newList = currentGroup.topics.filter { it != topicId }
-      val updatedGroup =
+    getTopic(topicId) { topic ->
+      val items: List<TopicItem> = topic.exercises + topic.theory
+      iterateTopicItemDeletion(items) {
+        topicDataCollection.remove(topic.uid)
+        val currentGroup = groupDataCollection[groupUID]!!
+        val newList = currentGroup.topics.filter { it != topicId }
+        val updatedGroup =
           Group(
-              currentGroup.uid,
-              currentGroup.name,
-              currentGroup.picture,
-              currentGroup.members,
-              newList,
-              currentGroup.timerState)
-      groupDataCollection.remove(groupUID)
-      groupDataCollection[groupUID] = updatedGroup
-      callBack()
-    }
+            currentGroup.uid,
+            currentGroup.name,
+            currentGroup.picture,
+            currentGroup.members,
+            newList,
+            currentGroup.timerState)
+        groupDataCollection.remove(groupUID)
+        groupDataCollection[groupUID] = updatedGroup
+        callBack()
+      }
+  }
   }
 
   private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
