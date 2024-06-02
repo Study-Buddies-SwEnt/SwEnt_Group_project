@@ -473,6 +473,20 @@ class GroupListHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   @Test
   fun deleteGroupOption() = run {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      step("DeleteNo") {
+        composeTestRule
+            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+        composeTestRule
+            .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+        composeTestRule
+            .onNodeWithTag("groupTest1_delete_no_button", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+      }
       step("DeleteYes") {
         composeTestRule
             .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
@@ -488,20 +502,6 @@ class GroupListHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
             .performClick()
         verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
         confirmVerified(mockNavActions)
-      }
-      step("DeleteNo") {
-        composeTestRule
-            .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule
-            .onNodeWithTag("groupTest1_Delete group_item", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule
-            .onNodeWithTag("groupTest1_delete_no_button", useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
       }
     }
   }
