@@ -92,8 +92,9 @@
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="topic_name">name</string>
     <string name="call_lobby">Call Lobby</string>
-    <string name="preview_of_your_call_setup">Preview of your call setup</string>
+    <string name="preview_of_your_call_setup">This is a preview of your call setup</string>
     <string name="join_call">Join call</string>
+    <string name="start_call">Start call</string>
     <string name="phone_icon">Phone icon</string>
     <string name="warning_1_group_deletion">Are you sure you want to delete the group ?</string>
     <string name="warning_2_group_deletion">This will delete the group and all its content for all members</string>
@@ -142,10 +143,13 @@
     <string name="add_member_with_uid">Add member with UID</string>
     <string name="joining">Joining …</string>
     <string name="are_you_sure_you_want_to_delete_this_topic_this_action_cannot_be_reversed">Are you sure you want to delete this topic?\nThis action cannot be reversed</string>
+    <string name="video_call">Video Call</string>
     <string name="add_member">Add member</string>
     <string name="enter_poll_question">Enter poll question</string>
     <string name="poll_question">Question</string>
     <string name="poll_options">Options</string>
     <string name="enter_poll_options">Enter poll option</string>
     <string name="single_choice">Single answer</string>
+    <string name="group_profile_picture">Group profile picture</string>
+    <string name="search_groups">Search groups</string>
 </resources>
