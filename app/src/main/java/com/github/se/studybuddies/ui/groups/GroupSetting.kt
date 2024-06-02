@@ -10,9 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,17 +18,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -49,25 +41,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
-import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteToLastPageButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
@@ -124,9 +111,7 @@ fun GroupSetting(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.group_settings)) },
-            navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-            },
+            navigationIcon = { GoBackRouteToLastPageButton(navigationActions = navigationActions) },
             actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
         if (isBoxVisible.value) {
@@ -308,90 +293,4 @@ fun ShareLinkButton(groupLink: String) {
                 unfocusedIndicatorColor = Blue,
             ))
   }
-}
-
-@Composable
-fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
-
-  Column {
-    Button(
-        onClick = { isBoxVisible.value = true },
-        shape = MaterialTheme.shapes.medium,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = Blue,
-            )) {
-          Text(stringResource(R.string.add_member_from_list), color = Color.White)
-        }
-  }
-}
-
-@Composable
-fun ShowContact(
-    groupUID: String,
-    groupViewModel: GroupViewModel,
-    isBoxVisible: MutableState<Boolean>
-) {
-  groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
-  val members by groupViewModel.membersGroup.observeAsState()
-  members?.let {
-    Box(modifier = Modifier.fillMaxSize()) {
-      LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item { Spacer(modifier = Modifier.height(64.dp)) }
-        item {
-          Box(modifier = Modifier.fillMaxSize()) {
-            IconButton(
-                onClick = { isBoxVisible.value = false },
-                modifier = Modifier.align(Alignment.TopEnd)) {
-                  Icon(
-                      imageVector = Icons.Default.Close,
-                      modifier = Modifier.size(40.dp),
-                      contentDescription = "Close friends List",
-                  )
-                }
-          }
-        }
-        item { Spacer(modifier = Modifier.height(4.dp)) }
-        items(members!!) { member -> ShowOneUser(member, groupViewModel, groupUID, isBoxVisible) }
-      }
-    }
-  }
-}
-
-@Composable
-fun ShowOneUser(
-    user: User,
-    groupViewModel: GroupViewModel,
-    groupUID: String,
-    isBoxVisible: MutableState<Boolean>
-) {
-  Box(
-      modifier =
-          Modifier.clickable {
-                groupViewModel.addUserToGroup(groupUID, user.uid) {}
-                isBoxVisible.value = false
-              }
-              .fillMaxWidth()
-              .background(Color.White)
-              .drawBehind {
-                val strokeWidth = 4f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
-            Image(
-                painter = rememberAsyncImagePainter(user.photoUrl),
-                contentDescription = stringResource(id = R.string.user_picture),
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop)
-          }
-          Spacer(modifier = Modifier.size(16.dp))
-          Text(
-              text = user.username,
-              modifier = Modifier.align(Alignment.CenterVertically),
-              style = TextStyle(fontSize = 20.sp),
-              lineHeight = 28.sp)
-        }
-      }
 }
