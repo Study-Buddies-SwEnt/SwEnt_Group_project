@@ -43,14 +43,13 @@ fun GroupDailyPlannerScreen(
 
   val planner by viewModel.getDailyPlanner(date).collectAsState()
 
-  var goals by remember { mutableStateOf(listOf<String>()) }
-  var appointments by remember { mutableStateOf(mapOf<String, String>().toSortedMap()) }
-  var notes by remember { mutableStateOf(listOf<String>()) }
-
+  var appointments_groups by remember { mutableStateOf(mapOf<String, String>().toSortedMap()) }
+  var notes_groups by remember { mutableStateOf(listOf<String>()) }
+  var goals_groups by remember { mutableStateOf(listOf<String>()) }
   LaunchedEffect(planner) {
-    goals = planner.goals
-    appointments = planner.appointments.toSortedMap()
-    notes = planner.notes
+    goals_groups = planner.goals
+    appointments_groups = planner.appointments.toSortedMap()
+    notes_groups = planner.notes
   }
 
   var dialogState by remember { mutableStateOf<DialogState?>(null) }
@@ -74,35 +73,37 @@ fun GroupDailyPlannerScreen(
           Spacer(modifier = Modifier.height(5.dp))
 
           Row {
-            Column(modifier = Modifier.weight(1f).padding(end = 3.dp)) {
+            Row(modifier = Modifier.weight(1f).padding(end = 3.dp)) {
+              AppointmentsSection(
+                  appointments = appointments_groups,
+                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment },
+                  onDeleteAppointmentClick = { time ->
+                    viewModel.deleteAppointment(date, time)
+                    appointments_groups =
+                        appointments_groups.filterKeys { it != time }.toSortedMap()
+                  },
+                  deleteMode = deleteMode)
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
               PlannerSection(
                   title = stringResource(id = R.string.todays_goals),
-                  items = goals,
+                  items = goals_groups,
                   onAddItemClick = { dialogState = DialogState.AddGoal },
                   onDeleteItemClick = { goal ->
                     viewModel.deleteGoal(date, goal)
-                    goals = goals.filter { it != goal }
+                    goals_groups = goals_groups.filter { it != goal }
                   },
                   deleteMode = deleteMode)
               Spacer(modifier = Modifier.height(16.dp))
               PlannerSection(
                   title = stringResource(id = R.string.notes),
-                  items = notes,
+                  items = notes_groups,
                   onAddItemClick = { dialogState = DialogState.AddNote },
                   onDeleteItemClick = { note ->
                     viewModel.deleteNote(date, note)
-                    notes = notes.filter { it != note }
-                  },
-                  deleteMode = deleteMode)
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-              AppointmentsSection(
-                  appointments = appointments,
-                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment },
-                  onDeleteAppointmentClick = { time ->
-                    viewModel.deleteAppointment(date, time)
-                    appointments = appointments.filterKeys { it != time }.toSortedMap()
+                    notes_groups = notes_groups.filter { it != note }
                   },
                   deleteMode = deleteMode)
             }
@@ -116,8 +117,8 @@ fun GroupDailyPlannerScreen(
             title = stringResource(id = R.string.add_goal),
             label = stringResource(id = R.string.goal),
             onAddItem = { newItem ->
-              goals = goals + newItem
-              viewModel.updateDailyPlanner(date, planner.copy(goals = goals))
+              goals_groups = goals_groups + newItem
+              viewModel.updateDailyPlanner(date, planner.copy(goals = goals_groups))
             },
             onDismiss = { dialogState = null })
     DialogState.AddNote ->
@@ -125,15 +126,15 @@ fun GroupDailyPlannerScreen(
             title = stringResource(id = R.string.add_note),
             label = stringResource(id = R.string.note),
             onAddItem = { newItem ->
-              notes = notes + newItem
-              viewModel.updateDailyPlanner(date, planner.copy(notes = notes))
+              notes_groups = notes_groups + newItem
+              viewModel.updateDailyPlanner(date, planner.copy(notes = notes_groups))
             },
             onDismiss = { dialogState = null })
     DialogState.AddAppointment ->
         AddAppointmentDialog(
             onAddAppointment = { time, text ->
-              appointments = (appointments + (time to text)).toSortedMap()
-              viewModel.updateDailyPlanner(date, planner.copy(appointments = appointments))
+              appointments_groups = (appointments_groups + (time to text)).toSortedMap()
+              viewModel.updateDailyPlanner(date, planner.copy(appointments = appointments_groups))
             },
             onDismiss = { dialogState = null })
     null -> {}
