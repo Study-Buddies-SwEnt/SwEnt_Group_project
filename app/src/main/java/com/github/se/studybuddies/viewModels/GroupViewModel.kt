@@ -99,7 +99,7 @@ class GroupViewModel(
 
   fun addUserToGroup(groupUID: String, text: String = "", callBack: (Boolean) -> Unit) {
     viewModelScope.launch {
-      db.addUserToGroup(groupUID, text)
+      db.addUserToGroup(groupUID, text) { isError -> callBack(isError) }
       val userUID: String =
           if (text != "") {
             text
