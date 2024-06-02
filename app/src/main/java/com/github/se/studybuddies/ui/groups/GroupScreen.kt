@@ -125,9 +125,9 @@ fun GroupScreen(
                         icon = R.drawable.timer,
                         textId = stringResource(R.string.timer))),
             iconSize = 32)
-      }) { it ->
+      }) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHomeColumn"),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("GroupsHomeColumn"),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
         ) {
