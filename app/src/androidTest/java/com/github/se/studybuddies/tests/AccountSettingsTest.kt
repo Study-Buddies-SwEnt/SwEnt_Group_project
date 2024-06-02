@@ -89,6 +89,19 @@ class AccountSettingsTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
           .assertIsEnabled()
           .assertHasClickAction()
           .performClick()
+      verify { mockNavActions.navigateTo(Route.LOGIN) }
+      confirmVerified(mockNavActions)
+    }
+  }
+
+  @Test
+  fun canSignOut() {
+    ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      signOutButton {
+        assertIsEnabled()
+        assertHasClickAction()
+        performClick()
+      }
       composeTestRule.waitForIdle()
       verify { mockNavActions.navigateTo(Route.LOGIN) }
       confirmVerified(mockNavActions)
