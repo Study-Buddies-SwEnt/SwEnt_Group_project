@@ -29,6 +29,8 @@ import com.github.se.studybuddies.ui.account.CreateAccount
 import com.github.se.studybuddies.ui.account.LoginScreen
 import com.github.se.studybuddies.ui.calender.CalendarApp
 import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
+import com.github.se.studybuddies.ui.calender.GroupDailyPlannerScreen
+import com.github.se.studybuddies.ui.calender.GroupStudyCalendarApp
 import com.github.se.studybuddies.ui.chat.ChatScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
@@ -55,6 +57,8 @@ import com.github.se.studybuddies.ui.video_call.CallLobbyScreen
 import com.github.se.studybuddies.ui.video_call.CallState
 import com.github.se.studybuddies.ui.video_call.StreamVideoInitHelper
 import com.github.se.studybuddies.ui.video_call.VideoCallScreen
+import com.github.se.studybuddies.viewModels.CalendarGroupViewModel
+import com.github.se.studybuddies.viewModels.CalendarGroupViewModelFactory
 import com.github.se.studybuddies.viewModels.CalendarViewModel
 import com.github.se.studybuddies.viewModels.CalendarViewModelFactory
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
@@ -136,17 +140,39 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
-            composable(Route.CALENDAR) {
-              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
-                val calendarViewModel = remember {
-                  ServiceLocator.getCurrentUserUID()?.let { it1 -> CalendarViewModel(it1) }
+
+            composable(
+                route = "${Route.GROUPDAILYPLANNER}/{groupUID}/{date}",
+                arguments =
+                    listOf(
+                        navArgument("groupUID") { type = NavType.StringType },
+                        navArgument("date") { type = NavType.StringType })) { backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  val date = backStackEntry.arguments?.getString("date")
+                  val currentUser = ServiceLocator.getCurrentUserUID()
+                  if (groupUID != null && date != null && currentUser != null) {
+                    val viewModelFactory = CalendarGroupViewModelFactory(groupUID)
+                    val viewModel: CalendarGroupViewModel = viewModel(factory = viewModelFactory)
+                    GroupDailyPlannerScreen(date, groupUID, viewModel, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to Group Daily Planner")
+                  }
                 }
-                if (calendarViewModel != null) {
-                  CalendarApp(calendarViewModel, navigationActions)
+
+            composable(
+                route = "${Route.GROUPCALENDAR}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  ifNotNull(groupUID) { groupUid ->
+                    val viewModelFactory = groupUID?.let { CalendarGroupViewModelFactory(it) }
+                    val viewModel: CalendarGroupViewModel = viewModel(factory = viewModelFactory)
+                    if (groupUID != null) {
+                      GroupStudyCalendarApp(viewModel, groupUID, navigationActions)
+                    }
+                    Log.d("MyPrint", "Successfully navigated to Group Calendar")
+                  }
                 }
-                Log.d("MyPrint", "Successfully navigated to Calendar")
-              }
-            }
+
             composable(
                 route = "${Route.GROUP}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
@@ -176,10 +202,12 @@ class MainActivity : ComponentActivity() {
                   val currentUser = ServiceLocator.getCurrentUserUID()
                   if (date != null && currentUser != null) {
                     val viewModelFactory = CalendarViewModelFactory(currentUser)
-                    DailyPlannerScreen(date, viewModelFactory, navigationActions)
+                    val viewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
+                    DailyPlannerScreen(date, viewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
+
             composable(
                 route = "${Route.ACCOUNT}/{backRoute}",
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
@@ -319,6 +347,17 @@ class MainActivity : ComponentActivity() {
 
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
+              }
+            }
+            composable(Route.CALENDAR) {
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
+                val calendarViewModel = remember {
+                  ServiceLocator.getCurrentUserUID()?.let { it1 -> CalendarViewModel(it1) }
+                }
+                if (calendarViewModel != null) {
+                  CalendarApp(calendarViewModel, navigationActions)
+                }
+                Log.d("MyPrint", "Successfully navigated to Calendar")
               }
             }
             composable(
