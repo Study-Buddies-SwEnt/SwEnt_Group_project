@@ -171,31 +171,33 @@ fun TopicResources(
                     horizontalAlignment = Alignment.Start,
                     content = {
                       if (areaState.value == FileArea.RESOURCES) {
-                        if (images.value.isEmpty()) {
-                          item {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                              Text(stringResource(R.string.no_resources_yet))
-                            }
-                          }
-                        } else {
-                          items(images.value) { image ->
-                            ResourceImage(image) {
-                              expandedImage.value = image
-                              expandImage.value = true
-                            }
-                          }
-                        }
+                         item {
+                             ShowResources(images, expandedImage, expandImage)
+                         }
                       } else {
                         items(strongUsers.value) { user -> UserBox(user) }
                       }
                     })
               }
         }
-
-    if (expandImage.value) {
-      FullImage(expandedImage.value) { expandImage.value = false }
-    }
+      FullImage(expandImage, expandedImage.value) { expandImage.value = false }
   }
+}
+
+@Composable
+fun ShowResources(images: MutableState<List<Uri>>, expandedImage: MutableState<Uri>, expandImage: MutableState<Boolean>) {
+    if (images.value.isEmpty()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(stringResource(R.string.no_resources_yet))
+        }
+    } else {
+       images.value.forEach { image ->
+            ResourceImage(image) {
+                expandedImage.value = image
+                expandImage.value = true
+            }
+        }
+    }
 }
 
 @Composable
@@ -297,47 +299,49 @@ fun AddResources(
 }
 
 @Composable
-fun FullImage(image: Uri, onDismiss: () -> Unit) {
+fun FullImage(show: MutableState<Boolean>, image: Uri, onDismiss: () -> Unit) {
   val scale = remember { mutableStateOf(1f) }
   val offsetX = remember { mutableStateOf(0f) }
   val offsetY = remember { mutableStateOf(0f) }
 
-  Column(
-      modifier = Modifier.fillMaxSize().background(color = Color.Black.copy(alpha = 0.8f)),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Top) {
-        Row(
-            modifier = Modifier.fillMaxWidth().background(color = Color.Black),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically) {
-              IconButton(onClick = { onDismiss() }) {
-                Icon(
-                    painter = painterResource(R.drawable.dismiss),
-                    contentDescription = stringResource(R.string.dismiss_button))
-              }
+    if (show.value) {
+        Column(
+            modifier = Modifier.fillMaxSize().background(color = Color.Black.copy(alpha = 0.8f)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top) {
+            Row(
+                modifier = Modifier.fillMaxWidth().background(color = Color.Black),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { onDismiss() }) {
+                    Icon(
+                        painter = painterResource(R.drawable.dismiss),
+                        contentDescription = stringResource(R.string.dismiss_button))
+                }
             }
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier =
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
                 Modifier.fillMaxSize().pointerInput(Unit) {
-                  detectTransformGestures { _, pan, zoom, _ ->
-                    scale.value *= zoom
-                    offsetX.value += pan.x
-                    offsetY.value += pan.y
-                  }
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale.value *= zoom
+                        offsetX.value += pan.x
+                        offsetY.value += pan.y
+                    }
                 }) {
-              Image(
-                  painter = rememberAsyncImagePainter(image.toString()),
-                  contentDescription = stringResource(R.string.image_resource),
-                  contentScale = ContentScale.None,
-                  modifier =
-                      Modifier.graphicsLayer {
-                            scaleX = scale.value
-                            scaleY = scale.value
-                            translationX = offsetX.value
-                            translationY = offsetY.value
-                          }
-                          .fillMaxSize())
+                Image(
+                    painter = rememberAsyncImagePainter(image.toString()),
+                    contentDescription = stringResource(R.string.image_resource),
+                    contentScale = ContentScale.None,
+                    modifier =
+                    Modifier.graphicsLayer {
+                        scaleX = scale.value
+                        scaleY = scale.value
+                        translationX = offsetX.value
+                        translationY = offsetY.value
+                    }
+                        .fillMaxSize())
             }
-      }
+        }
+    }
 }
