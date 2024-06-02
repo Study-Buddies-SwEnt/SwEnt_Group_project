@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
@@ -35,19 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
-import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
@@ -58,10 +56,9 @@ import kotlin.math.*
 @Composable
 fun DailyPlannerScreen(
     date: String,
-    viewModelFactory: ViewModelProvider.Factory,
+    viewModel: CalendarViewModel,
     navigationActions: NavigationActions
 ) {
-  val viewModel: CalendarViewModel = viewModel(factory = viewModelFactory)
 
   LaunchedEffect(date) { viewModel.refreshDailyPlanners() }
 
@@ -91,14 +88,6 @@ fun DailyPlannerScreen(
                 Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
               }
             })
-      },
-      floatingActionButton = {
-        SaveButton(enabled = true) {
-          val updatedPlanner =
-              DailyPlanner(date = date, goals = goals, appointments = appointments, notes = notes)
-          viewModel.updateDailyPlanner(date, updatedPlanner)
-          navigationActions.navigateTo(Route.CALENDAR)
-        }
       }) { padding ->
         Column(modifier = Modifier.padding(10.dp).padding(padding)) {
           Spacer(modifier = Modifier.height(5.dp))
@@ -145,18 +134,25 @@ fun DailyPlannerScreen(
         AddItemDialog(
             title = stringResource(id = R.string.add_goal),
             label = stringResource(id = R.string.goal),
-            onAddItem = { newItem -> goals = goals + newItem },
+            onAddItem = { newItem ->
+              goals = goals + newItem
+              viewModel.updateDailyPlanner(date, planner.copy(goals = goals))
+            },
             onDismiss = { dialogState = null })
     DialogState.AddNote ->
         AddItemDialog(
             title = stringResource(id = R.string.add_note),
             label = stringResource(id = R.string.note),
-            onAddItem = { newItem -> notes = notes + newItem },
+            onAddItem = { newItem ->
+              notes = notes + newItem
+              viewModel.updateDailyPlanner(date, planner.copy(notes = notes))
+            },
             onDismiss = { dialogState = null })
     DialogState.AddAppointment ->
         AddAppointmentDialog(
             onAddAppointment = { time, text ->
               appointments = (appointments + (time to text)).toSortedMap()
+              viewModel.updateDailyPlanner(date, planner.copy(appointments = appointments))
             },
             onDismiss = { dialogState = null })
     null -> {}
@@ -298,6 +294,7 @@ fun AddAppointmentDialog(onAddAppointment: (String, String) -> Unit, onDismiss: 
   var newAppointmentText by remember { mutableStateOf("") }
   var newAppointmentHour by remember { mutableStateOf("") }
   var newAppointmentMinute by remember { mutableStateOf("") }
+  var errorMessage by remember { mutableStateOf("") }
 
   AlertDialog(
       onDismissRequest = onDismiss,
@@ -346,6 +343,10 @@ fun AddAppointmentDialog(onAddAppointment: (String, String) -> Unit, onDismiss: 
                         unfocusedIndicatorColor = Blue),
                 isError = newAppointmentMinute.toIntOrNull()?.let { it !in 0..59 } == true)
           }
+          if (errorMessage.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = errorMessage, color = Color.Red, style = TextStyle(fontSize = 14.sp))
+          }
         }
       },
       confirmButton = {
@@ -356,15 +357,18 @@ fun AddAppointmentDialog(onAddAppointment: (String, String) -> Unit, onDismiss: 
               if (newAppointmentText.isNotEmpty() &&
                   hour != null &&
                   minute != null &&
-                  hour in 0..24 &&
-                  minute in 0..60) {
+                  hour in 0..23 &&
+                  minute in 0..59) {
                 val time = String.format("%02d:%02d", hour, minute)
                 onAddAppointment(time, newAppointmentText)
                 newAppointmentText = ""
                 newAppointmentHour = ""
                 newAppointmentMinute = ""
+                errorMessage = ""
+                onDismiss()
+              } else {
+                errorMessage = "Incorrect time format"
               }
-              onDismiss()
             },
             colors = ButtonDefaults.buttonColors(backgroundColor = Blue)) {
               Text(stringResource(id = R.string.add), color = White)
