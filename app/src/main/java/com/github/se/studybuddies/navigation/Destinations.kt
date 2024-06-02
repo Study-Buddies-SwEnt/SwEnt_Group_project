@@ -26,11 +26,3 @@ val BOTTOM_NAVIGATION_DESTINATIONS =
         Destination(route = Route.GROUPSHOME, icon = R.drawable.groups, textId = "Groups"),
         Destination(route = Route.DIRECT_MESSAGE, icon = R.drawable.messages, textId = "Messages"),
         Destination(route = Route.MAP, icon = R.drawable.map, textId = "Map"))
-
-val GROUPS_BOTTOM_NAVIGATION_DESTINATIONS =
-    listOf(
-        Destination(route = Route.CALLLOBBY, icon = R.drawable.video_call, textId = "Video Call"),
-        Destination(
-            route = "${Route.SHAREDTIMER}/{groupUID}",
-            icon = R.drawable.messages,
-            textId = "Timer"))

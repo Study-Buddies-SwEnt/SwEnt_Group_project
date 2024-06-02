@@ -51,7 +51,7 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.database.DbRepository
-import com.github.se.studybuddies.navigation.GROUPS_BOTTOM_NAVIGATION_DESTINATIONS
+import com.github.se.studybuddies.navigation.Destination
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.BottomNavigationBar
@@ -114,10 +114,20 @@ fun GroupScreen(
       bottomBar = {
         BottomNavigationBar(
             navigationActions = navigationActions,
-            destinations = GROUPS_BOTTOM_NAVIGATION_DESTINATIONS)
-      }) {
+            destinations =
+                listOf(
+                    Destination(
+                        route = "${Route.CALLLOBBY}/$groupUID",
+                        icon = R.drawable.active_call,
+                        textId = stringResource(R.string.video_call)),
+                    Destination(
+                        route = "${Route.SHAREDTIMER}/$groupUID",
+                        icon = R.drawable.timer,
+                        textId = stringResource(R.string.timer))),
+            iconSize = 32)
+      }) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(it).testTag("GroupsHomeColumn"),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("GroupsHomeColumn"),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
         ) {
