@@ -17,7 +17,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -43,7 +42,6 @@ import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.CalendarViewModel
 import java.time.YearMonth
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarApp(viewModel: CalendarViewModel, navigationActions: NavigationActions) {
   val uiState by viewModel.uiState.collectAsState()

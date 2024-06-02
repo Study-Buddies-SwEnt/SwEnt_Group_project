@@ -3,7 +3,7 @@ package com.github.se.studybuddies.ui.video_call
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.ServiceLocator
 import com.google.firebase.auth.FirebaseAuth
 import io.getstream.log.Priority
 import io.getstream.video.android.core.StreamVideo
@@ -56,7 +56,7 @@ object StreamVideoInitHelper {
 
     auth = FirebaseAuth.getInstance()
     val loggedInUser = auth.currentUser
-    val username = DatabaseConnection().getCurrentUser().username
+    val username = ServiceLocator.provideDatabase().getCurrentUser().username
 
     try {
       // If we have a logged in user then we can initialise the SDK

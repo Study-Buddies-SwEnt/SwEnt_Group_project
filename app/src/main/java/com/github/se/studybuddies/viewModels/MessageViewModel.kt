@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.viewModels
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,23 +9,60 @@ import com.github.se.studybuddies.data.Chat
 import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.database.DatabaseConnection
+import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-class MessageViewModel(val chat: Chat) : ViewModel() {
-
-  private val db = DatabaseConnection()
+class MessageViewModel(
+    val chat: Chat,
+    private val db: DbRepository = ServiceLocator.provideDatabase()
+) : ViewModel() {
   private val _messages = MutableStateFlow<List<Message>>(emptyList())
-  val messages = _messages.map { messages -> messages.sortedBy { it.timestamp } }
   private val _currentUser = MutableLiveData<User>()
   val currentUser = _currentUser
+
+  private val _filterType = MutableStateFlow<Class<out Message>?>(null)
+  val filterType: StateFlow<Class<out Message>?> = _filterType.asStateFlow()
+  private val _searchQuery = MutableStateFlow<String>("")
+
+  val messages =
+      combine(_messages, _searchQuery, _filterType) { messages, query, filterType ->
+        messages
+            .filter { message ->
+              // Filter by type if not null
+              filterType?.isInstance(message) ?: true
+            }
+            .filter { message ->
+              // Filter by search query if not empty
+              if (query.isEmpty()) true
+              else
+                  when (message) {
+                    is Message.TextMessage -> message.text.contains(query, ignoreCase = true)
+                    is Message.LinkMessage -> message.linkName.contains(query, ignoreCase = true)
+                    is Message.FileMessage -> message.fileName.contains(query, ignoreCase = true)
+                    else -> false
+                  }
+            }
+            .sortedBy { it.timestamp }
+      }
 
   init {
     getMessage()
     getCurrentUser()
+  }
+
+  fun setFilterType(type: Class<out Message>?) {
+    Log.d("MessageViewModel", "setFilterType: $type")
+    _filterType.value = type
+  }
+
+  fun setSearchQuery(query: String) {
+    _searchQuery.value = query
   }
 
   private fun getMessage() {

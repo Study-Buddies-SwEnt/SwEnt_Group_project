@@ -19,8 +19,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.database.DatabaseConnection
 import com.github.se.studybuddies.database.DbRepository
+import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.mapService.LocationApp
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -71,25 +71,19 @@ import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
-import com.google.firebase.auth.FirebaseAuth
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
 import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
-  private lateinit var auth: FirebaseAuth
-
   @SuppressLint("StateFlowValueCalledInComposition")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    auth = FirebaseAuth.getInstance()
-    val db: DbRepository = DatabaseConnection()
+    val db: DbRepository = ServiceLocator.provideDatabase()
     val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
-
     val studyBuddies = application as LocationApp
-
     setContent {
       StudyBuddiesTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -102,13 +96,14 @@ class MainActivity : ComponentActivity() {
 
           NavHost(navController = navController, startDestination = startDestination) {
             composable(Route.START) {
-              ifNotNullElse(remember { auth.currentUser }, navController) { currentUser ->
+              ifNotNullElse(remember { ServiceLocator.getCurrentUserUID() }, navController) {
+                  currentUser ->
                 db.userExists(
                     uid = db.getCurrentUserUID(),
                     onSuccess = { userExists ->
                       if (userExists) {
-                        directMessageViewModel.setUserUID(currentUser.uid)
-                        usersViewModel.setUserUID(currentUser.uid)
+                        directMessageViewModel.setUserUID(currentUser)
+                        usersViewModel.setUserUID(currentUser)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -119,12 +114,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(Route.LOGIN) {
               Log.d("MyPrint", "Successfully navigated to LoginScreen")
-              LoginScreen(navigationActions)
+              LoginScreen(navigationActions) {}
             }
 
             composable(Route.GROUPSHOME) {
               LaunchedEffect(key1 = Unit) {
-                if (auth.currentUser != null && !StreamVideo.isInstalled) {
+                if (ServiceLocator.getCurrentUserUID() != null && !StreamVideo.isInstalled) {
                   StreamVideoInitHelper.init(applicationContext)
                   StreamVideoInitHelper.loadSdk()
                   Log.d("MyPrint", "StreamVideo SDK is installed")
@@ -134,22 +129,21 @@ class MainActivity : ComponentActivity() {
                 }
               }
 
-              ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser.uid, db) }
-                GroupsHome(currentUser.uid, groupsHomeViewModel, navigationActions, db)
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
+                val groupsHomeViewModel = remember { GroupsHomeViewModel(currentUser, db) }
+                GroupsHome(currentUser, groupsHomeViewModel, navigationActions, db)
                 Log.d("MyPrint", "Successfully navigated to GroupsHome")
               }
             }
             composable(Route.CALENDAR) {
-              ifNotNull(remember { auth.currentUser }) { _ ->
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
                 val calendarViewModel = remember {
-                  auth.currentUser?.let { it1 -> CalendarViewModel(it1.uid) }
+                  ServiceLocator.getCurrentUserUID()?.let { it1 -> CalendarViewModel(it1) }
                 }
                 if (calendarViewModel != null) {
                   CalendarApp(calendarViewModel, navigationActions)
                 }
-
-                Log.d("MyPrint", "Successfully navigated to Clendar")
+                Log.d("MyPrint", "Successfully navigated to Calendar")
               }
             }
             composable(
@@ -178,28 +172,27 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("date") { type = NavType.StringType })) {
                     backStackEntry ->
                   val date = backStackEntry.arguments?.getString("date")
-                  val currentUser = auth.currentUser
+                  val currentUser = ServiceLocator.getCurrentUserUID()
                   if (date != null && currentUser != null) {
-                    val viewModelFactory = CalendarViewModelFactory(currentUser.uid)
+                    val viewModelFactory = CalendarViewModelFactory(currentUser)
                     DailyPlannerScreen(date, viewModelFactory, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Daily Planner")
                   }
                 }
-
             composable(
                 route = "${Route.ACCOUNT}/{backRoute}",
                 arguments = listOf(navArgument("backRoute") { type = NavType.StringType })) {
                     backStackEntry ->
                   val backRoute = backStackEntry.arguments?.getString("backRoute")
-                  val currentUser = remember { auth.currentUser }
+                  val currentUser = remember { ServiceLocator.getCurrentUserUID() }
                   if (backRoute != null && currentUser != null) {
-                    val userViewModel = remember { UserViewModel(currentUser.uid, db) }
-                    AccountSettings(currentUser.uid, userViewModel, backRoute, navigationActions)
+                    val userViewModel = remember { UserViewModel(currentUser, db) }
+                    AccountSettings(currentUser, userViewModel, backRoute, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to Account")
                   }
                 }
             composable(Route.CREATEACCOUNT) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 val userViewModel = remember { UserViewModel(db = db) }
                 CreateAccount(userViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateAccount")
@@ -217,22 +210,22 @@ class MainActivity : ComponentActivity() {
                   }
                 }
             composable(Route.CREATEGROUP) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 val groupViewModel = remember { GroupViewModel(db = db) }
                 CreateGroup(groupViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateGroup")
               }
             }
             composable(Route.DIRECT_MESSAGE) {
-              ifNotNull(remember { auth.currentUser }) { currentUser ->
-                directMessageViewModel.setUserUID(currentUser.uid)
-                usersViewModel.setUserUID(currentUser.uid)
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
+                directMessageViewModel.setUserUID(currentUser)
+                usersViewModel.setUserUID(currentUser)
                 DirectMessageScreen(
                     directMessageViewModel,
                     chatViewModel,
                     usersViewModel,
                     navigationActions,
-                    ContactsViewModel(currentUser.uid))
+                    ContactsViewModel(currentUser))
               }
             }
             composable(
@@ -263,14 +256,14 @@ class MainActivity : ComponentActivity() {
               ChatScreen(messageViewModel, navigationActions)
             }
             composable(Route.SOLOSTUDYHOME) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
                 SoloStudyHome(navigationActions)
               }
             }
 
             composable(Route.TODOLIST) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                 ToDoListScreen(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to ToDoList")
@@ -278,13 +271,12 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(Route.CREATETODO) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
                 CreateToDo(toDoListViewModel, navigationActions)
                 Log.d("MyPrint", "Successfully navigated to CreateToDo")
               }
             }
-
             composable(
                 route = "${Route.EDITTODO}/{todoUID}",
                 arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
@@ -298,11 +290,10 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.MAP) {
-              ifNotNull(remember { auth.currentUser }) { currentUser ->
-                val userViewModel = remember { UserViewModel(currentUser.uid, db) }
-                val usersViewModel = remember { UsersViewModel(currentUser.uid, db) }
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
+                val userViewModel = remember { UserViewModel(currentUser, db) }
                 MapScreen(
-                    currentUser.uid,
+                    currentUser,
                     userViewModel,
                     usersViewModel,
                     navigationActions,
@@ -311,11 +302,10 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(Route.TIMER) {
-              ifNotNull(auth.currentUser) { _ ->
+              ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 val viewModel = remember { TimerViewModel.getInstance() }
 
                 TimerScreenContent(viewModel, navigationActions = navigationActions)
-
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
@@ -343,7 +333,6 @@ class MainActivity : ComponentActivity() {
                     navController.popBackStack("${Route.GROUP}/$groupUID", false)
                   }
                 }
-
             composable(
                 route = "${Route.VIDEOCALL}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
@@ -366,7 +355,6 @@ class MainActivity : ComponentActivity() {
                     VideoCallScreen(callId, state, videoVM::onAction, navigationActions)
                   }
                 }
-
             composable(
                 route = "${Route.SHAREDTIMER}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
@@ -415,7 +403,6 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
-
             composable(
                 route = "${Route.TOPICRESOURCES}/{topicFileID}",
                 arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
@@ -429,7 +416,9 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(Route.PLACEHOLDER) {
-              ifNotNull(remember { auth.currentUser }) { _ -> Placeholder(navigationActions) }
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
+                Placeholder(navigationActions)
+              }
             }
           }
         }
@@ -440,7 +429,7 @@ class MainActivity : ComponentActivity() {
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
         if (activeCall.id != groupUID) {
-          Log.w("CallActivity", "A call with id: ${groupUID} existed. Leaving.")
+          Log.w("CallActivity", "A call with id: $groupUID existed. Leaving.")
           activeCall.leave()
           // Return a new call
           StreamVideo.instance().call(callType, groupUID)
@@ -473,13 +462,12 @@ class MainActivity : ComponentActivity() {
 
   override fun onStop() {
     super.onStop()
-    val db = DatabaseConnection()
-    auth = FirebaseAuth.getInstance()
-    val currentUser = auth.currentUser
-    val userViewModel = UserViewModel(currentUser?.uid, db)
+    val db = ServiceLocator.provideDatabase()
+    val currentUser = ServiceLocator.getCurrentUserUID()
     // Set the user to offline when he closes the app
     if (currentUser != null) {
-      userViewModel.updateLocation(currentUser.uid, "offline")
+      val userViewModel = UserViewModel(currentUser, db)
+      userViewModel.updateLocation(currentUser, "offline")
     }
   }
 }
