@@ -41,7 +41,7 @@ fun GroupDailyPlannerScreen(
 
   LaunchedEffect(date) { viewModel.refreshDailyPlanners() }
 
-  val planner by viewModel.getDailyPlanner(date).collectAsState()
+  val planner by viewModel.getDailyPlannerGroup(date).collectAsState()
 
   var appointments_groups by remember { mutableStateOf(mapOf<String, String>().toSortedMap()) }
   var notes_groups by remember { mutableStateOf(listOf<String>()) }
@@ -118,7 +118,7 @@ fun GroupDailyPlannerScreen(
             label = stringResource(id = R.string.goal),
             onAddItem = { newItem ->
               goals_groups = goals_groups + newItem
-              viewModel.updateDailyPlanner(date, planner.copy(goals = goals_groups))
+              viewModel.updateDailyGroupPlanner(date, planner.copy(goals = goals_groups))
             },
             onDismiss = { dialogState = null })
     DialogState.AddNote ->
@@ -127,14 +127,15 @@ fun GroupDailyPlannerScreen(
             label = stringResource(id = R.string.note),
             onAddItem = { newItem ->
               notes_groups = notes_groups + newItem
-              viewModel.updateDailyPlanner(date, planner.copy(notes = notes_groups))
+              viewModel.updateDailyGroupPlanner(date, planner.copy(notes = notes_groups))
             },
             onDismiss = { dialogState = null })
     DialogState.AddAppointment ->
         AddAppointmentDialog(
             onAddAppointment = { time, text ->
               appointments_groups = (appointments_groups + (time to text)).toSortedMap()
-              viewModel.updateDailyPlanner(date, planner.copy(appointments = appointments_groups))
+              viewModel.updateDailyGroupPlanner(
+                  date, planner.copy(appointments = appointments_groups))
             },
             onDismiss = { dialogState = null })
     null -> {}

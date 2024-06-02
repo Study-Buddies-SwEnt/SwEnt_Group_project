@@ -37,9 +37,9 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
   }
 
   private suspend fun syncDailyPlannersWithFirebase() {
-    val dailyPlanners = databaseConnection.getAllDailyPlanners(uid)
+    val user = databaseConnection.getUser(uid)
     val plannersMap = mutableMapOf<String, MutableStateFlow<DailyPlanner>>()
-    dailyPlanners.forEach { planner -> plannersMap[planner.date] = MutableStateFlow(planner) }
+    user.dailyPlanners.forEach { planner -> plannersMap[planner.date] = MutableStateFlow(planner) }
     _dailyPlanners.clear()
     _dailyPlanners.putAll(plannersMap)
   }
@@ -52,22 +52,16 @@ class CalendarViewModel(private val uid: String) : ViewModel() {
     _dailyPlanners[date]?.value = planner
 
     viewModelScope.launch {
-      val dailyPlanners = _dailyPlanners.values.map { it.value }.toList()
-      databaseConnection.updateDailyPlanners(uid, dailyPlanners)
+      val user = databaseConnection.getUser(uid)
+      val updatedPlanners = user.dailyPlanners.toMutableList()
+      updatedPlanners.removeAll { it.date == date }
+      updatedPlanners.add(planner)
+      databaseConnection.updateDailyPlanners(uid, updatedPlanners)
     }
   }
 
   fun getDailyPlanner(date: String): StateFlow<DailyPlanner> {
-    return _dailyPlanners.getOrPut(date) {
-      MutableStateFlow(DailyPlanner(date)).also { fetchAndUpdatePlanner(date) }
-    }
-  }
-
-  private fun fetchAndUpdatePlanner(date: String) {
-    viewModelScope.launch {
-      val planner = databaseConnection.getDailyPlanner(uid, date)
-      _dailyPlanners[date]?.value = planner
-    }
+    return _dailyPlanners.getOrPut(date) { MutableStateFlow(DailyPlanner(date = date)) }
   }
 
   fun toNextMonth(nextMonth: YearMonth) {

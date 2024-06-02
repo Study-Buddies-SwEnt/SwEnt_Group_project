@@ -44,7 +44,6 @@ import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
-import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.CalendarGroupViewModel
 import java.time.YearMonth
 
@@ -73,8 +72,8 @@ fun GroupStudyCalendarApp(
           days = DateUtil.daysOfWeek,
           yearMonth = uiState.yearMonth,
           dates = uiState.dates,
-          onPreviousMonthButtonClicked = { prevMonth -> viewModel.toPreviousMonth(prevMonth) },
-          onNextMonthButtonClicked = { nextMonth -> viewModel.toNextMonth(nextMonth) },
+          onPreviousMonthButtonClicked = { prevMonth -> viewModel.to_Previous_Month(prevMonth) },
+          onNextMonthButtonClicked = { nextMonth -> viewModel.to_Next_Month(nextMonth) },
           onDateClickListener = { date ->
             navigationActions.navigateTo("${Route.GROUPDAILYPLANNER}/${groupUid}/$date")
           })
