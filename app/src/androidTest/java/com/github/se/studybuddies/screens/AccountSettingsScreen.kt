@@ -7,7 +7,7 @@ import io.github.kakaocup.compose.node.element.KNode
 class AccountSettingsScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<AccountSettingsScreen>(
         semanticsProvider = semanticsProvider,
-        viewBuilderAction = { hasTestTag("account_settings_column") }) {
+        viewBuilderAction = { hasTestTag("account_settings") }) {
 
   val topAppBox: KNode = onNode { hasTestTag("top_app_box") }
   val topAppBar: KNode = onNode { hasTestTag("top_app_bar") }

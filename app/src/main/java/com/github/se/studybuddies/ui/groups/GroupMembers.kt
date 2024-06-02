@@ -59,7 +59,7 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.GROUPS_MEMBERS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.ui.shared_elements.GoBackRouteToLastPageButton
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
@@ -78,54 +78,84 @@ fun GroupMembers(
   if (groupUID.isEmpty()) return
   groupViewModel.fetchGroupData(groupUID)
   val groupData by groupViewModel.group.observeAsState()
+
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
-  val currUser = groupViewModel.getCurrentUser()
+  val members = remember { groupData?.let { mutableStateOf(it.members) } }
+
   val isBoxVisible = remember { mutableStateOf(false) }
   groupData?.let { nameState.value = it.name }
 
   groupViewModel.fetchUsers()
   val userData by groupViewModel.members.observeAsState()
 
+  val currUser = groupViewModel.getCurrentUser()
+
+  /*
+  var nbMember = 0
+  groupData?.let {
+    nameState.value = it.name
+    if (members != null) {
+      members.value = it.members
+      nbMember = members.value.size
+    }
+  }
+
+  val userDatas = remember { mutableStateOf(mutableListOf<User>()) }
+
+  if (members != null) {
+    for (i in 0 until nbMember) {
+      Log.d("memberCheck", "$nbMember")
+      groupViewModel.fetchUserData(members.value[i])
+      val userData by groupViewModel.member.observeAsState()
+      if (userData?.username?.isNotBlank() == true) {
+        userData?.let { userDatas.value.add(it) }
+      }
+    }
+  }
+  userDatas.value = userDatas.value.toSet().toMutableList()
+     */
+
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("members_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.members)) },
-            navigationIcon = { GoBackRouteToLastPageButton(navigationActions = navigationActions) },
-            actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
+            leftButton = {
+              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+            },
+            rightButton = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
-        ) {
-          if (isBoxVisible.value) {
-            ShowContact(groupUID, groupViewModel, isBoxVisible)
-          } else {
-            LazyColumn(
-                modifier =
-                    Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
-                verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                  item { Name(nameState) }
-                  item { Spacer(modifier = Modifier.padding(5.dp)) }
-                  item { AddMemberButtonUID(groupUID, groupViewModel) }
-                  item { AddMemberButtonList(isBoxVisible) }
-                  item { Spacer(modifier = Modifier.padding(5.dp)) }
-                  if (userData?.size!! > 0) {
-                    items(userData!!.size) { index ->
-                      val user = userData!![index]
-                      MemberItem(groupUID, navigationActions, db, user, currUser)
-                    }
-                  } else { // Should never happen
-                    item {
-                      Text(
-                          stringResource(R.string.error_no_member_found_for_this_group),
-                          textAlign = TextAlign.Center,
-                          modifier = Modifier.testTag("EmptyGroupMemberText"))
-                    }
+        ) {}
+        if (isBoxVisible.value) {
+          ShowContact(groupUID, groupViewModel, isBoxVisible)
+        } else {
+          LazyColumn(
+              modifier =
+                  Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
+              verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
+              horizontalAlignment = Alignment.CenterHorizontally) {
+                item { Name(nameState) }
+                item { Spacer(modifier = Modifier.padding(5.dp)) }
+                item { AddMemberButtonUID(groupUID, groupViewModel) }
+                item { AddMemberButtonList(isBoxVisible) }
+                item { Spacer(modifier = Modifier.padding(5.dp)) }
+                if (userData?.size!! > 0) {
+                  items(userData!!.size) { index ->
+                    val user = userData!![index]
+                    MemberItem(groupUID, navigationActions, db, user, currUser)
+                  }
+                } else { // Should never happen
+                  item {
+                    Text(
+                        stringResource(R.string.error_no_member_found_for_this_group),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("EmptyGroupMemberText"))
                   }
                 }
-          }
+              }
         }
       }
 }
@@ -243,7 +273,6 @@ fun MemberOptionButton(
                               if (userUID == currUser) {
                                 navigationActions.navigateTo(Route.GROUPSHOME)
                               } else {
-                                navigationActions.navigateTo(Route.GROUPSHOME)
                                 navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
                               }
                               isRemoveUserDialogVisible = false

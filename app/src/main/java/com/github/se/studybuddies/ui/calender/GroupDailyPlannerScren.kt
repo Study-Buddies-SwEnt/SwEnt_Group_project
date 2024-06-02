@@ -60,10 +60,10 @@ fun GroupDailyPlannerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions, "${Route.GROUPCALENDAR}/$groupUID")
             },
-            actions = {
+            rightButton = {
               IconButton(onClick = { deleteMode = !deleteMode }) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
               }
