@@ -73,8 +73,7 @@ class GroupViewModel(
   }
 
   fun createGroup(name: String, photoUri: Uri) {
-    viewModelScope.launch {
-      db.createGroup(name, photoUri) }
+    viewModelScope.launch { db.createGroup(name, photoUri) }
   }
 
   suspend fun getDefaultPicture(): Uri {

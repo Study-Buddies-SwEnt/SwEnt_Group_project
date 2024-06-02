@@ -3,7 +3,6 @@ package com.github.se.studybuddies.ui.groups
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -222,7 +221,11 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
         modifier = Modifier.testTag("add_memberUID_text_field"),
         value = text,
         onValueChange = { text = it },
-        label = { Text(stringResource(R.string.enter_userID),modifier = Modifier.testTag("add_memberUID_text")) },
+        label = {
+          Text(
+              stringResource(R.string.enter_userID),
+              modifier = Modifier.testTag("add_memberUID_text"))
+        },
         singleLine = true,
         colors =
             TextFieldDefaults.colors(
@@ -231,9 +234,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
                 unfocusedLabelColor = Blue,
                 unfocusedIndicatorColor = Blue,
             ),
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Done
-        ),
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
         keyboardActions =
             KeyboardActions(
                 onDone = {
@@ -245,7 +246,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
                       showError = true
                       if (text == "Error") text = ""
                     } else {
-                        groupViewModel.fetchGroupData(groupUID)
+                      groupViewModel.fetchGroupData(groupUID)
                       showSucces = true
                       text = ""
                     }
@@ -256,18 +257,26 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("error_snackbar"),
         action = {
-          TextButton(modifier = Modifier.fillMaxWidth().testTag("error_button"), onClick = { showError = false }) {}
+          TextButton(
+              modifier = Modifier.fillMaxWidth().testTag("error_button"),
+              onClick = { showError = false }) {}
         }) {
-          Text(stringResource(R.string.can_t_find_a_member_with_this_uid),modifier = Modifier.testTag("error_text"))
+          Text(
+              stringResource(R.string.can_t_find_a_member_with_this_uid),
+              modifier = Modifier.testTag("error_text"))
         }
   }
   if (showSucces) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("success_snackbar"),
         action = {
-          TextButton(modifier = Modifier.fillMaxWidth().testTag("success_button"), onClick = { showSucces = false }) {}
+          TextButton(
+              modifier = Modifier.fillMaxWidth().testTag("success_button"),
+              onClick = { showSucces = false }) {}
         }) {
-          Text(stringResource(R.string.user_have_been_successfully_added_to_the_group), modifier = Modifier.testTag("success_text"))
+          Text(
+              stringResource(R.string.user_have_been_successfully_added_to_the_group),
+              modifier = Modifier.testTag("success_text"))
         }
   }
 }
@@ -289,7 +298,10 @@ fun ShareLinkButton(groupLink: String) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text(stringResource(R.string.share_link), color = Color.White,modifier = Modifier.testTag("share_link_button_text"))
+          Text(
+              stringResource(R.string.share_link),
+              color = Color.White,
+              modifier = Modifier.testTag("share_link_button_text"))
         }
   }
 

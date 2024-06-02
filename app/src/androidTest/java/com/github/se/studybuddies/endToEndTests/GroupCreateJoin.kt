@@ -99,39 +99,33 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       saveButton { performClick() }
     }
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      //click on a group
+      // click on a group
       composeTestRule.waitForIdle()
       composeTestRule
-        .onNodeWithTag("GroupsList", useUnmergedTree = true)
-        .performScrollToNode(hasTestTag("groupTest1_box"))
-      composeTestRule
-        .onNodeWithTag("groupTest1_box", useUnmergedTree = true)
-        .performClick()
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+      composeTestRule.onNodeWithTag("groupTest1_box", useUnmergedTree = true).performClick()
     }
     val groupUID = "groupTest1"
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
-      //Open the settings of the group
+      // Open the settings of the group
       composeTestRule
-        .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
-        .performClick()
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
+          .performClick()
       composeTestRule
-        .onNodeWithTag(groupUID + "_Modify group_item", useUnmergedTree = true)
-        .performClick()
+          .onNodeWithTag(groupUID + "_Modify group_item", useUnmergedTree = true)
+          .performClick()
     }
     ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
-      //Get the link of the group to share it with friends
+      // Get the link of the group to share it with friends
       composeTestRule
-        .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
-        .performScrollToNode(hasTestTag("share_link_column"))
-      shareLinkButton {
-        performClick()
-      }
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("share_link_column"))
+      shareLinkButton { performClick() }
       composeTestRule
-        .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
-        .performScrollToNode(hasTestTag("share_link_text"))
-      shareLinkTextField {
-        assertTextContains("studybuddiesJoinGroup=${groupUID}/${groupUID}")
-      }
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("share_link_text"))
+      shareLinkTextField { assertTextContains("studybuddiesJoinGroup=TestGroup1/${groupUID}") }
       goBackButton {
         // arrange: verify pre-conditions
         assertIsDisplayed()
@@ -145,13 +139,13 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
         performClick()
       }
     }
-      ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      //Open the drawer menu and click on the account button
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      // Open the drawer menu and click on the account button
       drawerMenuButton { performClick() }
       accountButton { performClick() }
     }
     ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
-      //Sign out
+      // Sign out
       signOutButton {
         assertIsEnabled()
         assertHasClickAction()

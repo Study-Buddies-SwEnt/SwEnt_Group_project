@@ -30,16 +30,17 @@ class GroupSettingScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val addMemberButton: KNode = addMemberColumn.child { hasTestTag("add_member_button") }
   val addMemberText: KNode = addMemberButton.child { hasTestTag("add_member_button_text") }
 
-  val shareLinkColumn : KNode = settingLazyColumn.child { hasTestTag("share_link_column") }
+  val shareLinkColumn: KNode = settingLazyColumn.child { hasTestTag("share_link_column") }
   val shareLinkButton: KNode = shareLinkColumn.child { hasTestTag("share_link_button") }
-  val shareLinkTextField : KNode = settingLazyColumn.child { hasTestTag("share_link_text") }
+  val shareLinkTextField: KNode = settingLazyColumn.child { hasTestTag("share_link_text") }
 
-  val addMemberUIDTextField : KNode = settingLazyColumn.child { hasTestTag("add_memberUID_text_field") }
-  val addMemberUIDText : KNode = settingLazyColumn.child { hasTestTag("add_memberUID_text") }
-  val errorSnackbar : KNode = settingLazyColumn.child { hasTestTag("error_snackbar") }
-  val successSnackbar : KNode = settingLazyColumn.child { hasTestTag("success_snackbar") }
+  val addMemberUIDTextField: KNode =
+      settingLazyColumn.child { hasTestTag("add_memberUID_text_field") }
+  val addMemberUIDText: KNode = settingLazyColumn.child { hasTestTag("add_memberUID_text") }
+  val errorSnackbar: KNode = settingLazyColumn.child { hasTestTag("error_snackbar") }
+  val successSnackbar: KNode = settingLazyColumn.child { hasTestTag("success_snackbar") }
 
-  val saveButton : KNode = settingLazyColumn.child { hasTestTag("save_button") }
+  val saveButton: KNode = settingLazyColumn.child { hasTestTag("save_button") }
 
   val contactColumn: KNode = onNode { hasTestTag("contact_box") }
   val contactLazyColumn: KNode = onNode { hasTestTag("contact_lazy_column") }
