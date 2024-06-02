@@ -25,6 +25,16 @@ import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.permissions.checkPermission
 import com.github.se.studybuddies.ui.shared_elements.SetPicture
 
+/**
+ * Composable function to display a customizable AlertDialog.
+ *
+ * @param modifier Modifier for styling and layout of the AlertDialog.
+ * @param showDialog State controlling the visibility of the AlertDialog.
+ * @param onDismiss Function to execute when the dialog is dismissed.
+ * @param title Composable function that provides the title content of the AlertDialog.
+ * @param content Composable function that provides the body content of the AlertDialog.
+ * @param button Composable function that provides the button content of the AlertDialog.
+ */
 @Composable
 fun ShowAlertDialog(
     modifier: Modifier = Modifier,
@@ -44,6 +54,15 @@ fun ShowAlertDialog(
   }
 }
 
+/**
+ * Sets up a ManagedActivityResultLauncher for content picking, updating state with the selected
+ * file's URI and name.
+ *
+ * @param fileState Mutable state for storing the file's URI.
+ * @param fileName Mutable state for storing the file's name.
+ * @param context Android context.
+ * @return ManagedActivityResultLauncher for file content.
+ */
 @Composable
 fun setupGetContentFile(
     fileState: MutableState<Uri>,
@@ -63,6 +82,13 @@ fun setupGetContentFile(
   }
 }
 
+/**
+ * Sets up a ManagedActivityResultLauncher to request permissions and handle its result.
+ *
+ * @param getContent Launcher used to retrieve content if permission is granted.
+ * @param fileInput The MIME type of files to retrieve.
+ * @return ManagedActivityResultLauncher for permission requests.
+ */
 @Composable
 fun setupRequestPermissionLauncher(
     getContent: ManagedActivityResultLauncher<String, Uri?>,
@@ -76,6 +102,15 @@ fun setupRequestPermissionLauncher(
   }
 }
 
+/**
+ * Composable that displays a clickable box for file selection, requesting permission if needed.
+ *
+ * @param fileState Mutable state holding the selected file's URI.
+ * @param fileName Mutable state holding the selected file's name.
+ * @param permission The required permission to access files.
+ * @param getContent Launcher to pick a file.
+ * @param requestPermissionLauncher Launcher to request permissions.
+ */
 @Composable
 fun FilePickerBox(
     fileState: MutableState<Uri>,
@@ -106,6 +141,12 @@ fun FilePickerBox(
       }
 }
 
+/**
+ * Sets up a ManagedActivityResultLauncher for picking photo content.
+ *
+ * @param uriState Mutable state for storing the photo's URI.
+ * @return ManagedActivityResultLauncher for photo content.
+ */
 @Composable
 fun setupGetContentLauncherPhoto(
     uriState: MutableState<Uri>,
@@ -115,6 +156,14 @@ fun setupGetContentLauncherPhoto(
   }
 }
 
+/**
+ * Composable that displays a clickable box for photo selection, requesting permission if needed.
+ *
+ * @param photoState Mutable state holding the selected photo's URI.
+ * @param permission The required permission to access photos.
+ * @param getContent Launcher to pick a photo.
+ * @param requestPermissionLauncher Launcher to request permissions.
+ */
 @Composable
 fun ImagePickerBox(
     photoState: MutableState<Uri>,
@@ -134,6 +183,12 @@ fun ImagePickerBox(
       }
 }
 
+/**
+ * Validates if the provided URL string is a well-formed URL with HTTP or HTTPS scheme.
+ *
+ * @param url The URL string to validate.
+ * @return True if the URL is valid, otherwise false.
+ */
 fun isValidUrl(url: String): Boolean {
   return try {
     val uri = Uri.parse(url)

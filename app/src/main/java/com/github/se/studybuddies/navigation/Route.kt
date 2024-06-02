@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.navigation
 
 object Route {
+
   const val START = "Start"
   const val LOGIN = "LoginScreen"
   const val GROUPSHOME = "GroupsHome"
@@ -36,4 +37,6 @@ object Route {
   const val CALLLOBBY = "CallLobby"
   const val MAP = "Map"
   const val PLACEHOLDER = "Placeholder"
+  const val GROUPDAILYPLANNER = "GroupDailyPlanner"
+  const val GROUPCALENDAR = " GroupCalendar"
 }

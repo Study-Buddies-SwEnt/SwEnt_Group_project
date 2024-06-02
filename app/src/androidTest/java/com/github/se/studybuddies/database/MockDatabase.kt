@@ -588,6 +588,11 @@ class MockDatabase : DbRepository {
     }
   }
 
+  override fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit) {}
+
+  override suspend fun getTopicFileImages(fileID: String): List<Uri> {
+    return emptyList()
+  }
 
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()

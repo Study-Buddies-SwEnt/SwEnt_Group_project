@@ -21,9 +21,9 @@ import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.chat.MessageBubble
 import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
+import com.github.se.studybuddies.ui.chat.utility.PickPicture
 import com.github.se.studybuddies.ui.chat.utility.SendFileMessage
 import com.github.se.studybuddies.ui.chat.utility.SendLinkMessage
-import com.github.se.studybuddies.ui.chat.utility.SendPhotoMessage
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -609,7 +609,7 @@ class ChatTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppor
               picture = Uri.EMPTY)
       val vm = MessageViewModel(chat)
       val showAddImage = remember { mutableStateOf(true) }
-      SendPhotoMessage(vm, showAddImage)
+      PickPicture(showAddImage) { vm.sendPhotoMessage(it) }
     }
     onComposeScreen<ChatScreen>(composeTestRule) {
       sendPhotoMessageDialog { assertIsDisplayed() }

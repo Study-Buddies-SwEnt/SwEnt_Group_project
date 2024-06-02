@@ -50,6 +50,14 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
+/**
+ * Composable function to create a text input field with additional functionalities for sending
+ * messages.
+ *
+ * @param onSend Function to call when the message is sent.
+ * @param defaultText Initial text to display in the text field.
+ * @param showIconsOptions Mutable state to control the visibility of icon options.
+ */
 @Composable
 fun MessageTextFields(
     onSend: (String) -> Unit,
@@ -107,6 +115,13 @@ fun MessageTextFields(
       placeholder = { Text(stringResource(R.string.type_a_message)) })
 }
 
+/**
+ * Composable function to send a poll message. It includes input fields for the question and
+ * options.
+ *
+ * @param messageViewModel ViewModel that handles sending messages.
+ * @param showAddPoll Mutable state to control the visibility of the poll creation interface.
+ */
 @Composable
 fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableState<Boolean>) {
   val question = remember { mutableStateOf("") }
@@ -186,6 +201,13 @@ fun SendPollMessage(messageViewModel: MessageViewModel, showAddPoll: MutableStat
       })
 }
 
+/**
+ * Composable function to send a file message. It facilitates file selection and sends the message
+ * through the ViewModel.
+ *
+ * @param messageViewModel ViewModel that handles sending messages.
+ * @param showAddFile Mutable state to control the dialog for adding a file.
+ */
 @Composable
 fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableState<Boolean>) {
   val fileState = remember { mutableStateOf(Uri.EMPTY) }
@@ -220,6 +242,13 @@ fun SendFileMessage(messageViewModel: MessageViewModel, showAddFile: MutableStat
       })
 }
 
+/**
+ * Composable function to send a link message. Allows the user to enter a URL and send it as a
+ * message.
+ *
+ * @param messageViewModel ViewModel that handles sending messages.
+ * @param showAddLink Mutable state to control the dialog for adding a link.
+ */
 @Composable
 fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableState<Boolean>) {
   val linkState = remember { mutableStateOf("") }
@@ -260,8 +289,15 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
       })
 }
 
+/**
+ * Composable function to send a photo message. Facilitates selecting a photo and sending it through
+ * the ViewModel.
+ *
+ * @param messageViewModel ViewModel that handles sending messages.
+ * @param showAddImage Mutable state to control the dialog for adding an image.
+ */
 @Composable
-fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableState<Boolean>) {
+fun PickPicture(showAddImage: MutableState<Boolean>, onSave: (Uri) -> Unit) {
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
   val imageInput = "image/*"
   val permission = imagePermissionVersion()
@@ -284,7 +320,7 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
       },
       button = {
         SaveButton(photoState.value.toString().isNotBlank()) {
-          messageViewModel.sendPhotoMessage(photoState.value)
+          onSave(photoState.value)
           showAddImage.value = false
           photoState.value = Uri.EMPTY
         }

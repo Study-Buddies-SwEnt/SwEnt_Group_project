@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.viewModels
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.TopicFile
@@ -17,6 +18,9 @@ class TopicFileViewModel(
   private val _topicFile = MutableStateFlow<TopicFile>(TopicFile.empty())
   val topicFile: StateFlow<TopicFile> = _topicFile
 
+  private val _images = MutableStateFlow<List<Uri>>(emptyList())
+  val images: StateFlow<List<Uri>> = _images
+
   init {
     fetchTopicFile(fileID)
   }
@@ -25,6 +29,8 @@ class TopicFileViewModel(
     viewModelScope.launch {
       val task = db.getTopicFile(id)
       _topicFile.value = task
+      val imagesTasks = db.getTopicFileImages(id)
+      _images.value = imagesTasks
     }
   }
 
@@ -37,5 +43,9 @@ class TopicFileViewModel(
       }
       callBack(users)
     }
+  }
+
+  fun addImage(image: Uri) {
+    db.fileAddImage(fileID, image) { fetchTopicFile(fileID) }
   }
 }
