@@ -259,3 +259,34 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
         }
       })
 }
+
+@Composable
+fun PickPicture(showAddImage: MutableState<Boolean>, onSave: (Uri) -> Unit) {
+    val photoState = remember { mutableStateOf(Uri.EMPTY) }
+    val imageInput = "image/*"
+    val permission = imagePermissionVersion()
+
+    val getContent = setupGetContentLauncherPhoto(photoState)
+
+    val requestPermissionLauncher = setupRequestPermissionLauncher(getContent, imageInput)
+
+    ShowAlertDialog(
+        modifier = Modifier.testTag("add_image_dialog"),
+        showDialog = showAddImage,
+        onDismiss = { showAddImage.value = false },
+        title = {},
+        content = {
+            ImagePickerBox(
+                photoState = photoState,
+                permission = permission,
+                getContent = getContent,
+                requestPermissionLauncher = requestPermissionLauncher)
+        },
+        button = {
+            SaveButton(photoState.value.toString().isNotBlank()) {
+                onSave(photoState.value)
+                showAddImage.value = false
+                photoState.value = Uri.EMPTY
+            }
+        })
+}
