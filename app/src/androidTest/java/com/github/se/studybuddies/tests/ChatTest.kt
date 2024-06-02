@@ -21,7 +21,6 @@ import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.chat.MessageBubble
 import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
-import com.github.se.studybuddies.ui.chat.utility.PickPicture
 import com.github.se.studybuddies.ui.chat.utility.SendFileMessage
 import com.github.se.studybuddies.ui.chat.utility.SendLinkMessage
 import com.github.se.studybuddies.ui.chat.utility.SendPhotoMessage
