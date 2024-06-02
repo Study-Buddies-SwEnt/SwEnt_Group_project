@@ -78,6 +78,13 @@ import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
+/**
+ * Primary screen for chat interactions, allowing users to send messages, search through them, and
+ * access various messaging options.
+ *
+ * @param viewModel The ViewModel associated with managing message data and operations.
+ * @param navigationActions Provides navigation actions for navigating back or to other screens.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
@@ -168,6 +175,13 @@ fun ChatScreen(
       }
 }
 
+/**
+ * Displays a search bar for filtering messages within the chat.
+ *
+ * @param searchText The current text in the search field.
+ * @param onSearchTextChanged Function to call when the text changes.
+ * @param onClearSearch Function to call when the search should be cleared.
+ */
 @Composable
 fun SearchBar(
     searchText: String,
@@ -198,6 +212,11 @@ fun SearchBar(
   }
 }
 
+/**
+ * Provides a UI element for filtering messages by type (e.g., text, photo, link).
+ *
+ * @param viewModel The ViewModel that handles message filtering.
+ */
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
   val filterType = viewModel.filterType.collectAsState().value
@@ -217,6 +236,12 @@ fun MessageTypeFilter(viewModel: MessageViewModel) {
       }
 }
 
+/**
+ * Enumeration of message filter types, with display names and corresponding message classes.
+ *
+ * @param displayNameRes Resource ID for the filter's display name.
+ * @param messageType The class type of the message to filter by, or null for all messages.
+ */
 enum class MessageFilterType(
     @StringRes val displayNameRes: Int,
     val messageType: Class<out Message>?
@@ -229,6 +254,13 @@ enum class MessageFilterType(
   POLL(R.string.poll_message_type, Message.PollMessage::class.java)
 }
 
+/**
+ * Displays a single message bubble in the chat, handling different message types appropriately.
+ *
+ * @param message The message to display.
+ * @param displayName Boolean indicating whether the sender's name should be displayed.
+ * @param viewModel The ViewModel for handling message-related actions.
+ */
 @Composable
 fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: MessageViewModel) {
   val browserLauncher =
@@ -358,6 +390,15 @@ fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: Mes
   }
 }
 
+/**
+ * Displays a button for a poll option, allowing users to select or view the selection.
+ *
+ * @param text The text of the poll option.
+ * @param isSelected Boolean indicating whether this option is selected.
+ * @param voteNumber The number of votes for this option.
+ * @param singleChoice Boolean indicating if the poll allows single choice only.
+ * @param onItemSelected Function to call when the option is selected.
+ */
 @Composable
 fun PollButton(
     text: String,
@@ -384,6 +425,13 @@ fun PollButton(
       }
 }
 
+/**
+ * Dialog for editing the content of a message. Can handle different message types.
+ *
+ * @param viewModel The ViewModel for handling message updates.
+ * @param selectedMessage The message selected for editing.
+ * @param showEditDialog Mutable state controlling the visibility of the edit dialog.
+ */
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun EditDialog(
@@ -416,6 +464,11 @@ fun EditDialog(
       button = {})
 }
 
+/**
+ * Displays the title for a group chat, including the group's picture and name.
+ *
+ * @param chat The group chat information.
+ */
 @Composable
 fun ChatGroupTitle(chat: Chat) {
   Image(
@@ -440,6 +493,11 @@ fun ChatGroupTitle(chat: Chat) {
   }
 }
 
+/**
+ * Displays the title for a private chat, showing the other user's profile picture and name.
+ *
+ * @param chat The private chat information.
+ */
 @Composable
 fun PrivateChatTitle(chat: Chat) {
   Image(
