@@ -95,6 +95,7 @@ class DatabaseConnection : DbRepository {
     }
 
     val document = dailyPlannerDataCollection.document(uid).get().await()
+
     return if (document.exists()) {
       val dailyPlanners =
           document.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
@@ -115,11 +116,11 @@ class DatabaseConnection : DbRepository {
       return emptyList()
     }
 
-    val document = dailyPlannerGroupConnection.document(uid).get().await()
-    return if (document.exists()) {
-      val dailyPlanners =
-          document.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
-      dailyPlanners.values.map { plannerMap ->
+    val document_group = dailyPlannerGroupConnection.document(uid).get().await()
+    return if (document_group.exists()) {
+      val dailyPlannersforgroup =
+          document_group.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
+      dailyPlannersforgroup.values.map { plannerMap ->
         DailyPlanner(
             date = plannerMap["date"] as String,
             goals = plannerMap["goals"] as? List<String> ?: emptyList(),
@@ -160,11 +161,11 @@ class DatabaseConnection : DbRepository {
       return DailyPlanner(date)
     }
 
-    val document = dailyPlannerGroupConnection.document(uid).get().await()
-    return if (document.exists()) {
-      val dailyPlanners =
-          document.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
-      val plannerMap = dailyPlanners[date]
+    val document_group = dailyPlannerGroupConnection.document(uid).get().await()
+    return if (document_group.exists()) {
+      val dailyPlanners_Group =
+          document_group.get("dailyPlanners") as? Map<String, Map<String, Any>> ?: emptyMap()
+      val plannerMap = dailyPlanners_Group[date]
       if (plannerMap != null) {
         DailyPlanner(
             date = plannerMap["date"] as String,
@@ -182,8 +183,8 @@ class DatabaseConnection : DbRepository {
   override fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>) {
     if (uid.isEmpty()) return
 
-    val plannersMap = dailyPlanners.associateBy { it.date }
-    val data = mapOf("dailyPlanners" to plannersMap)
+    val planners_Map = dailyPlanners.associateBy { it.date }
+    val data = mapOf("dailyPlanners" to planners_Map)
 
     dailyPlannerDataCollection
         .document(uid)
