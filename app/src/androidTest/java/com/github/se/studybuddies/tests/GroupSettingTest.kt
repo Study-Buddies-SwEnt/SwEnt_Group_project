@@ -10,7 +10,6 @@ import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.GroupSettingScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.viewModels.ChatViewModel
@@ -49,7 +48,7 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
   }
 
   @Test
-  fun topAppBarTest() = run {
+  fun topAppBarTest() {
     ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
       topAppBox {
         // arrange: verify pre-conditions
@@ -71,7 +70,7 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 
