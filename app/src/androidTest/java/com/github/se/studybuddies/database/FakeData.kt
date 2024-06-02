@@ -19,8 +19,16 @@ var fakeUser1 =
 var fakeUser2 =
     User(
         uid = "userTest2",
-        email = "test@gmail.com",
+        email = "test2@gmail.com",
         username = "testUser2",
+        photoUrl = Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+        location = "47.5955829,7.7689383")
+
+var fakeUser3 =
+    User(
+        uid = "userTest3",
+        email = "test3@gmail.com",
+        username = "testUser3",
         photoUrl = Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
         location = "47.5955829,7.7689383")
 
@@ -76,20 +84,35 @@ val fakeGroup1 =
         timerState = TimerState(0L, false),
     )
 
+val fakeGroup2 =
+    Group(
+        uid = "groupTest2",
+        name = "TestGroup2",
+        picture = Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
+        members = mutableListOf(fakeUser3.uid),
+        topics = mutableListOf(fakeTopic1.uid),
+        timerState = TimerState(0L, false),
+    )
+
 val fakeUserDataCollection =
     mutableMapOf<String, User>().apply {
       put(fakeUser1.uid, fakeUser1)
       put(fakeUser2.uid, fakeUser2)
+      put(fakeUser3.uid, fakeUser3)
     }
 
 val fakeUserMembershipsCollection =
     mutableMapOf<String, MutableList<String>>().apply {
       put(fakeUser1.uid, mutableListOf(fakeGroup1.uid))
       put(fakeUser2.uid, mutableListOf<String>())
+      put(fakeUser3.uid, mutableListOf(fakeGroup2.uid))
     }
 
 val fakeGroupDataCollection =
-    mutableMapOf<String, Group>().apply { put(fakeGroup1.uid, fakeGroup1) }
+    mutableMapOf<String, Group>().apply {
+      put(fakeGroup1.uid, fakeGroup1)
+      put(fakeGroup2.uid, fakeGroup2)
+    }
 
 val fakeTopicDataCollection =
     mutableMapOf<String, Topic>().apply { put(fakeTopic1.uid, fakeTopic1) }

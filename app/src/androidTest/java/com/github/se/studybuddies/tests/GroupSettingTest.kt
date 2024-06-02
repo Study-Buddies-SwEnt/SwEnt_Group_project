@@ -221,6 +221,7 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
         Espresso.closeSoftKeyboard()
         composeTestRule.waitForIdle()
         val group = groupVM.group.value // get the group from the ViewModel
+        composeTestRule.waitForIdle()
         if (group != null) {
           val members = group.members // get the members of the group
           assert(!members.contains(invalidUser)) // check if the members list contains "testUser2"
@@ -255,9 +256,10 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
           .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
           .assertExists()
           .performScrollToNode(hasTestTag("share_link_text"))
+      val link = "studybuddiesJoinGroup=TestGroup1/groupTest1"
       shareLinkTextField {
         assertIsDisplayed()
-        assertTextContains("studybuddiesJoinGroup=TestGroup1/groupTest1")
+        assertTextContains(link)
       }
     }
   }
