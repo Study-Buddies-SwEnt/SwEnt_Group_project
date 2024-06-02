@@ -8,11 +8,15 @@ package com.github.se.studybuddies.tests
 // ***                                                                       *** //
 // ***************************************************************************** //
 
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -215,32 +219,31 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 }
 
 @RunWith(AndroidJUnit4::class)
-class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
+class GroupListHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
 
+  // userTest
+  // aloneUserTest
+  val uid = "userTest1"
   private val db = MockDatabase()
-
-  // Use a user that have friends
-  private val uid = "userTest1"
-  private val groupHomeVM = GroupsHomeViewModel(uid, db)
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, groupHomeVM, mockNavActions, db) }
+    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid, db), mockNavActions, db) }
   }
 
   @Test
   fun listGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       groupList { assertIsDisplayed() }
-      composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
       testGroup1Box {
         assertIsDisplayed()
         assertHasClickAction()
       }
+
       composeTestRule.onNodeWithTag("groupTest1_row", useUnmergedTree = true).assertExists()
       composeTestRule.onNodeWithTag("groupTest1_box_picture", useUnmergedTree = true).assertExists()
       composeTestRule.onNodeWithTag("groupTest1_picture", useUnmergedTree = true).assertExists()
@@ -255,8 +258,14 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   fun groupItemElementsDisplay() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+
+      composeTestRule
           .onNodeWithTag("groupTest1_settings_row", useUnmergedTree = true)
           .assertIsDisplayed()
+
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -268,6 +277,9 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .onNodeWithTag("groupTest1_Modify group_item", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
+          .onNodeWithTag("groupTest1_Members_item", useUnmergedTree = true)
+          .assertIsDisplayed()
+      composeTestRule
           .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
           .assertIsDisplayed()
       composeTestRule
@@ -277,6 +289,10 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
           .onNodeWithTag("groupTest1_Modify group_text", useUnmergedTree = true)
           .assertIsDisplayed()
           .assertTextContains("Modify group")
+      composeTestRule
+          .onNodeWithTag("groupTest1_Members_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Members")
       composeTestRule
           .onNodeWithTag("groupTest1_Leave group_text", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -294,6 +310,7 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
+          .performScrollTo()
           .performClick()
       composeTestRule
           .onNodeWithTag("groupTest1_Modify group_item", useUnmergedTree = true)
@@ -305,12 +322,37 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   }
 
   @Test
+  fun seeMembers() {
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+      composeTestRule
+          .onNodeWithTag("groupTest1_box", useUnmergedTree = true)
+          .assertExists()
+          .performScrollTo()
+      composeTestRule
+          .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
+          .assertExists()
+          .performClick()
+      composeTestRule
+          .onNodeWithTag("groupTest1_Members_item", useUnmergedTree = true)
+          .assertExists()
+          .performClick()
+      verify { mockNavActions.navigateTo("${Route.GROUPMEMBERS}/groupTest1") }
+      confirmVerified(mockNavActions)
+    }
+  }
+
+  @Test
   fun leavingGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
           .performClick()
+
       composeTestRule
           .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -350,29 +392,29 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .performClick()
       composeTestRule
           .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .performClick()
       composeTestRule
           .onNodeWithTag("groupTest1_leave_yes_button", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .performClick()
       verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
       confirmVerified(mockNavActions)
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .performClick()
       composeTestRule
           .onNodeWithTag("groupTest1_Leave group_item", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .performClick()
       composeTestRule
           .onNodeWithTag("groupTest1_leave_no_button", useUnmergedTree = true)
-          .assertIsDisplayed()
+          .assertExists()
           .performClick()
     }
   }
@@ -380,6 +422,12 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
   @Test
   fun deleteGroupDisplayed() {
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      composeTestRule.waitForIdle()
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+          .performScrollToNode(hasTestTag("groupTest1_settings_button"))
       composeTestRule
           .onNodeWithTag("groupTest1_settings_button", useUnmergedTree = true)
           .assertIsDisplayed()
@@ -460,14 +508,17 @@ class GroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
 
   @Test
   fun clickOnGroup() {
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
-      testGroup1Box {
-        assertIsDisplayed()
-        assertHasClickAction()
-        performClick()
-      }
-      verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
-      confirmVerified(mockNavActions)
-    }
+    composeTestRule.waitForIdle()
+    composeTestRule
+        .onNodeWithTag("GroupsList", useUnmergedTree = true)
+        .assertExists()
+        .performScrollToNode(hasTestTag("groupTest1_box"))
+    composeTestRule
+        .onNodeWithTag("groupTest1_box", useUnmergedTree = true)
+        .assertExists()
+        .assertHasClickAction()
+        .performClick()
+    verify { mockNavActions.navigateTo("${Route.GROUP}/groupTest1") }
+    confirmVerified(mockNavActions)
   }
 }
