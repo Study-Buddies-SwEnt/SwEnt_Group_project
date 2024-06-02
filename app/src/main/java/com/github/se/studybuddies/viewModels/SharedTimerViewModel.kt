@@ -63,7 +63,7 @@ class SharedTimerViewModel(
   }
 
   fun startTimer() {
-    if (isRunning.value) return // Timer is already running
+    if (_running_local.value) return // Timer is already running
 
     _running_local.value = true
 
@@ -95,7 +95,7 @@ class SharedTimerViewModel(
   }
 
   fun pauseTimer() {
-    if (!isRunning.value) return // Timer is already paused
+    if (!_running_local.value) return // Timer is already paused
 
     viewModelScope.launch(ioDispatcher) {
       _isRunning.value = false
