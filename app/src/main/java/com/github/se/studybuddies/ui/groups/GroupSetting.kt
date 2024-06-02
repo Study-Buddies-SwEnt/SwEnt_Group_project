@@ -47,7 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.navigation.NavigationActions
@@ -73,6 +73,8 @@ fun GroupSetting(
   if (groupUID.isEmpty()) return
   groupViewModel.fetchGroupData(groupUID)
   val groupData by groupViewModel.group.observeAsState()
+
+  val isBoxVisible = remember { mutableStateOf(false) }
 
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val photoState = remember { mutableStateOf(groupData?.picture ?: Uri.EMPTY) }
@@ -139,7 +141,7 @@ fun GroupSetting(
                         }
                       }
                       item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer3")) }
-                      item { AddMemberButtonUID(groupUID, groupViewModel) }
+                      item { AddMemberButton(groupUID, groupViewModel) }
                       item { AddMemberButtonList(isBoxVisible) }
                       item { ShareLinkButton(groupLink.value) }
                       item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer4")) }
@@ -176,7 +178,7 @@ fun ModifyName(nameState: MutableState<String>) {
 @Composable
 fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
-      painter = rememberImagePainter(photoState.value),
+      painter = rememberAsyncImagePainter(photoState.value),
       contentDescription = "Profile Picture",
       modifier =
           Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)).testTag("image_pp"),
@@ -232,20 +234,33 @@ fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
                 onDone = {
                   // add the user to the database
                   isTextFieldVisible = false
-                  groupViewModel.addUserToGroup(groupUID, text) {}
+                  if (text == "") text = "Error"
+                  groupViewModel.addUserToGroup(groupUID, text) { isError ->
+                    if (isError) {
+                      showError = true
+                      if (text == "Error") text = ""
+                    } else {
+                      showSucces = true
+                      text = ""
+                    }
+                  }
                 }))
   }
   if (showError) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        action = { TextButton(onClick = { showError = false }) {} }) {
+        action = {
+          TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showError = false }) {}
+        }) {
           Text(stringResource(R.string.can_t_find_a_member_with_this_uid))
         }
   }
   if (showSucces) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        action = { TextButton(onClick = { showSucces = false }) {} }) {
+        action = {
+          TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showSucces = false }) {}
+        }) {
           Text(stringResource(R.string.user_have_been_successfully_added_to_the_group))
         }
   }
