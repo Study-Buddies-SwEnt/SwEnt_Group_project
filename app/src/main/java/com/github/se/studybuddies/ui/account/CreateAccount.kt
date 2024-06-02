@@ -109,7 +109,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
             },
             rightButton = {})
       }) {
-      Column(
+        Column(
             modifier = Modifier.fillMaxSize().testTag("create_account_column"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {

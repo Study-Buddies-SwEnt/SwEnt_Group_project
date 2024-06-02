@@ -35,8 +35,6 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -516,7 +514,7 @@ class DatabaseConnection : DbRepository {
   override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
     if (groupUID == "") {
-        callBack(true)
+      callBack(true)
       Log.d("MyPrint", "Group UID is empty")
       return
     }
@@ -530,14 +528,14 @@ class DatabaseConnection : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
-        callBack(true)
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
 
     val document = groupDataCollection.document(groupUID).get().await()
     if (!document.exists()) {
-        callBack(true)
+      callBack(true)
       Log.d("MyPrint", "Group with uid $groupUID does not exist")
       return
     }
@@ -546,8 +544,8 @@ class DatabaseConnection : DbRepository {
         .document(groupUID)
         .update("members", FieldValue.arrayUnion(userToAdd))
         .addOnSuccessListener {
-            Log.d("MyPrint", "User successfully added to group")
-            callBack(false)
+          Log.d("MyPrint", "User successfully added to group")
+          callBack(false)
         }
         .addOnFailureListener { e ->
           Log.d("MyPrint", "Failed to add user to group with error: ", e)
@@ -559,8 +557,8 @@ class DatabaseConnection : DbRepository {
         .update("groups", FieldValue.arrayUnion(groupUID))
         .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
         .addOnSuccessListener {
-            Log.d("MyPrint", "Group successfully added to user")
-            callBack(false)
+          Log.d("MyPrint", "Group successfully added to user")
+          callBack(false)
         }
   }
 
@@ -858,7 +856,7 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun removeTopic(uid: String) {
-      getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
+    getTopic(uid) { topic -> rtDb.getReference(topic.toString()).removeValue() }
   }
 
   override fun editMessage(
@@ -1149,9 +1147,9 @@ class DatabaseConnection : DbRepository {
   }
 
   // using the topicData and topicItemData collections
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val document = topicDataCollection.document(uid).get().await()
-    return if (document.exists()) {
+    if (document.exists()) {
       val name = document.getString(topic_name) ?: ""
       val exercisesList = document.get(topic_exercises) as List<String>
       val theoryList = document.get(topic_theory) as List<String>
@@ -1167,10 +1165,11 @@ class DatabaseConnection : DbRepository {
           } else {
             emptyList()
           }
-      Topic(uid, name, exercises, theory)
+      val topic = Topic(uid, name, exercises, theory)
+      callBack(topic)
     } else {
       Log.d("MyPrint", "topic document not found for id $uid")
-      Topic.empty()
+      callBack(Topic.empty())
     }
   }
 
@@ -1291,26 +1290,26 @@ class DatabaseConnection : DbRepository {
   }
 
   override suspend fun deleteTopic(topicId: String, groupUID: String, callBack: () -> Unit) {
-    val topic = getTopic(topicId)
-    val items: List<TopicItem> = topic.exercises + topic.theory
-    iterateTopicItemDeletion(items) {
-      topicDataCollection
-          .document(topic.uid)
-          .delete()
-          .addOnSuccessListener {
-            groupDataCollection
-                .document(groupUID)
-                .update("topics", FieldValue.arrayRemove(topicId))
-                .addOnSuccessListener {
-                  callBack()
-                  Log.d("MyPrint", "Topic successfully removed from group")
-                }
-                .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
-            Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
-          }
-          .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
+    getTopic(topicId) { topic ->
+      val items: List<TopicItem> = topic.exercises + topic.theory
+      iterateTopicItemDeletion(items) {
+        topicDataCollection
+            .document(topic.uid)
+            .delete()
+            .addOnSuccessListener {
+              groupDataCollection
+                  .document(groupUID)
+                  .update("topics", FieldValue.arrayRemove(topicId))
+                  .addOnSuccessListener {
+                    callBack()
+                    Log.d("MyPrint", "Topic successfully removed from group")
+                  }
+                  .addOnFailureListener { Log.d("MyPrint", "Failed to remove topic from group") }
+              Log.d("MyPrint", "Topic ${topic.uid} successfully deleted")
+            }
+            .addOnFailureListener { Log.d("MyPrint", "Failed to delete topic ${topic.uid}") }
+      }
     }
-    callBack()
   }
 
   private fun iterateTopicItemDeletion(items: List<TopicItem>, callBack: () -> Unit) {
@@ -1470,10 +1469,7 @@ class DatabaseConnection : DbRepository {
           val items = mutableListOf<Topic>()
           val topicUIDs = snapshot.data?.get("topics") as? List<String> ?: emptyList()
           if (topicUIDs.isNotEmpty()) {
-            topicUIDs
-                .map { topicUid -> async { getTopic(topicUid) } }
-                .awaitAll()
-                .forEach { topic -> items.add(topic) }
+            topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
           } else {
             Log.d("MyPrint", "List of topics is empty for this group")
           }

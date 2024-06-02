@@ -55,7 +55,7 @@ fun TopicSettings(
 ) {
 
   if (topicUID.isEmpty()) return
-  topicViewModel.fetchTopicData(topicUID)
+  topicViewModel.fetchTopicData(topicUID) {}
   val topicData by topicViewModel.topic.collectAsState()
 
   val nameState = remember { mutableStateOf(topicData.name) }

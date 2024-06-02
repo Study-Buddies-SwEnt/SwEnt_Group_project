@@ -62,7 +62,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.Chat
@@ -437,8 +436,6 @@ fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
       }
 }
 
-
-
 @Composable
 fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
@@ -480,31 +477,30 @@ fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
       }
 }
 
-//TODO reimplement this correctly
+// TODO reimplement this correctly
 @Composable
-fun SearchButton(viewModel: MessageViewModel){
-    var showSearchBar by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
-    Spacer(Modifier)
-    Icon(
-        Icons.Default.Search,
-        contentDescription = "Search",
-        modifier =
-        Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
-    if (showSearchBar) {
-        Column {
-            SearchBar(
-                searchText,
-                onSearchTextChanged = {
-                    searchText = it
-                    viewModel.setSearchQuery(it)
-                    Log.d("MyPrint", "Search query: $it")
-                },
-                onClearSearch = {
-                    searchText = ""
-                    viewModel.setSearchQuery("")
-                })
-            MessageTypeFilter(viewModel = viewModel)
-        }
+fun SearchButton(viewModel: MessageViewModel) {
+  var showSearchBar by remember { mutableStateOf(false) }
+  var searchText by remember { mutableStateOf("") }
+  Spacer(Modifier)
+  Icon(
+      Icons.Default.Search,
+      contentDescription = "Search",
+      modifier = Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
+  if (showSearchBar) {
+    Column {
+      SearchBar(
+          searchText,
+          onSearchTextChanged = {
+            searchText = it
+            viewModel.setSearchQuery(it)
+            Log.d("MyPrint", "Search query: $it")
+          },
+          onClearSearch = {
+            searchText = ""
+            viewModel.setSearchQuery("")
+          })
+      MessageTypeFilter(viewModel = viewModel)
     }
+  }
 }

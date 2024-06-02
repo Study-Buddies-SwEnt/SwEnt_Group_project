@@ -23,8 +23,8 @@ class TopicFileViewModel(
 
   fun fetchTopicFile(id: String) {
     viewModelScope.launch {
-      // val task = db.getTopicFile(id)
-      // _topicFile.value = task
+      val task = db.getTopicFile(id)
+      _topicFile.value = task
     }
   }
 
