@@ -176,6 +176,8 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
         Espresso.closeSoftKeyboard()
         composeTestRule.waitForIdle()
         val group = groupVM.group.value // get the group from the ViewModel
+        composeTestRule.waitForIdle()
+
         if (group != null) {
           val members = group.members // get the members of the group
           assert(members.contains(validUser)) // check if the members list contains "testUser2"
@@ -242,6 +244,108 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
   }
 
   @Test
+  fun addMemberUID1() {
+    ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("add_member_column"))
+      addMemberButton {
+        assertIsDisplayed()
+        performClick()
+      }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("add_memberUID_text_field"))
+      addMemberUIDTextField { assertIsDisplayed() }
+      composeTestRule
+          .onNodeWithTag("add_memberUID_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Enter UserID")
+      val validUser = "userTest2"
+      addMemberUIDTextField {
+        performTextClearance()
+        performTextInput(validUser)
+        assertTextContains(validUser)
+        performImeAction() // Simulate the Enter key press
+      }
+      composeTestRule.waitForIdle()
+      Espresso.closeSoftKeyboard()
+      composeTestRule.waitForIdle()
+      val group = groupVM.group.value // get the group from the ViewModel
+      composeTestRule.waitForIdle()
+
+      if (group != null) {
+        val members = group.members // get the members of the group
+        assert(members.contains(validUser)) // check if the members list contains "testUser2"
+      }
+      successSnackbar { assertIsDisplayed() }
+    }
+  }
+
+  @Test
+  fun addMemberUID2() {
+    ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("success_text")
+          .assertIsDisplayed()
+          .assertTextContains("User have been successfully added to the group")
+      composeTestRule
+          .onNodeWithTag("success_button")
+          .assertIsDisplayed()
+          .assertHasClickAction()
+          .performClick()
+
+      // Add an invalid user
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("add_member_column"))
+      addMemberButton {
+        assertIsDisplayed()
+        performClick()
+      }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("add_memberUID_text_field"))
+      addMemberUIDTextField { assertIsDisplayed() }
+      composeTestRule
+          .onNodeWithTag("add_memberUID_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains("Enter UserID")
+      val invalidUser = "wrongUser"
+      addMemberUIDTextField {
+        performTextClearance()
+        performTextInput(invalidUser)
+        assertTextContains(invalidUser)
+        performImeAction() // Simulate the Enter key press
+      }
+      composeTestRule.waitForIdle()
+      Espresso.closeSoftKeyboard()
+      composeTestRule.waitForIdle()
+      val group = groupVM.group.value // get the group from the ViewModel
+      composeTestRule.waitForIdle()
+      if (group != null) {
+        val members = group.members // get the members of the group
+        assert(!members.contains(invalidUser)) // check if the members list contains "testUser2"
+      }
+      errorSnackbar { assertIsDisplayed() }
+
+      composeTestRule
+          .onNodeWithTag("error_text")
+          .assertIsDisplayed()
+          .assertTextContains("Can\'t find a member with this UID")
+      composeTestRule
+          .onNodeWithTag("error_button")
+          .assertIsDisplayed()
+          .assertHasClickAction()
+          .performClick()
+    }
+  }
+
+  @Test
   fun shareLink() {
     ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
       composeTestRule
@@ -252,15 +356,42 @@ class GroupSettingTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompo
         assertIsDisplayed()
         performClick()
       }
+      composeTestRule.waitForIdle()
       composeTestRule
           .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
           .assertExists()
           .performScrollToNode(hasTestTag("share_link_text"))
+      composeTestRule.waitForIdle()
       val link = "studybuddiesJoinGroup=TestGroup1/groupTest1"
       shareLinkTextField {
         assertIsDisplayed()
         assertTextContains(link)
       }
+    }
+  }
+
+  @Test
+  fun shareLink1() {
+    ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("share_link_column"))
+      shareLinkButton {
+        assertIsDisplayed()
+        performClick()
+      }
+      composeTestRule.waitForIdle()
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .assertExists()
+          .performScrollToNode(hasTestTag("share_link_text"))
+      composeTestRule.waitForIdle()
+      val link = "studybuddiesJoinGroup=TestGroup1/groupTest1"
+      composeTestRule
+          .onNodeWithTag("share_link_text", useUnmergedTree = true)
+          .assertIsDisplayed()
+          .assertTextContains(link)
     }
   }
 
