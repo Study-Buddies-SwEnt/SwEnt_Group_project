@@ -25,9 +25,6 @@ import com.github.se.studybuddies.ui.chat.PickLink
 import com.github.se.studybuddies.ui.chat.PickPicture
 import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
-import com.github.se.studybuddies.ui.chat.utility.SendFileMessage
-import com.github.se.studybuddies.ui.chat.utility.SendLinkMessage
-import com.github.se.studybuddies.ui.chat.utility.SendPhotoMessage
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
