@@ -255,9 +255,10 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun addUserToGroup(groupUID: String, user: String) {
+  override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
     val group = groupDataCollection.getOrElse(groupUID) { Group.empty() }
     if (group == Group.empty()) {
+      callBack(true)
       Log.d("MockDatabase : addUserToGroup", "Group with uid $groupUID does not exist")
       return
     }
@@ -271,6 +272,7 @@ class MockDatabase : DbRepository {
         }
 
     if (getUser(userToAdd) == User.empty()) {
+      callBack(true)
       Log.d("MyPrint", "User with uid $userToAdd does not exist")
       return
     }
@@ -283,6 +285,7 @@ class MockDatabase : DbRepository {
       val updatedList = it + groupUID
       userMembershipsCollection[userToAdd] = updatedList.toMutableList()
     }
+    callBack(false)
   }
 
   /*
@@ -563,14 +566,17 @@ class MockDatabase : DbRepository {
     return contactID
   }
 
-  override suspend fun getTopic(uid: String): Topic {
+  override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
     val topic = topicDataCollection[uid]
     if (topic != null) {
-      return topic
-    } else return Topic("", "", emptyList(), emptyList())
+      callBack(topic)
+    } else {
+      Log.d("MyPrint", "topic document not found for id $uid")
+      callBack(Topic.empty())
+    }
   }
 
-  /*
+
   override suspend fun getTopicFile(id: String): TopicFile {
     val document = topicItemCollection[id]
     return if (document != null && document is TopicFile) {
@@ -583,7 +589,6 @@ class MockDatabase : DbRepository {
     }
   }
 
-   */
 
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
@@ -698,9 +703,6 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] = item
   }
 
-  override suspend fun getTopicFile(id: String): TopicFile {
-    return TopicFile("", "", emptyList(), "")
-  }
 
   override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
     val document = topicItemCollection[fileID]
@@ -754,10 +756,7 @@ class MockDatabase : DbRepository {
         val items = mutableListOf<Topic>()
         val topicUIDs = group.topics
         if (topicUIDs.isNotEmpty()) {
-          topicUIDs.map { topicUID ->
-            val topic = getTopic(topicUID)
-            items.add(topic)
-          }
+          topicUIDs.map { topicUID -> getTopic(topicUID) { topic -> items.add(topic) } }
         } else {
           Log.d("MyPrint", "List of topics is empty for this group")
         }
