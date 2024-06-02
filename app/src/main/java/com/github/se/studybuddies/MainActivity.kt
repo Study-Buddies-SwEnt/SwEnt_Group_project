@@ -65,7 +65,7 @@ import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
-import com.github.se.studybuddies.viewModels.SharedTimerViewModel
+import com.github.se.studybuddies.viewModels.SharedTimerViewModelFactory
 import com.github.se.studybuddies.viewModels.TimerViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
@@ -75,6 +75,7 @@ import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
+import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
   @SuppressLint("StateFlowValueCalledInComposition")
@@ -391,8 +392,10 @@ class MainActivity : ComponentActivity() {
                     backStackEntry ->
                   val groupUID = backStackEntry.arguments?.getString("groupUID")
                   ifNotNull(groupUID) { groupUid ->
-                    val viewModel2 = remember { SharedTimerViewModel(groupUid, db) }
-                    SharedTimerScreen(navigationActions, viewModel2, groupUid)
+                    val viewModel =
+                        SharedTimerViewModelFactory.getSharedTimerViewModel(
+                            groupUid, Dispatchers.IO, Dispatchers.Main)
+                    SharedTimerScreen(navigationActions, viewModel, groupUid)
                     Log.d("MyPrint", "Successfully navigated to SharedTimer")
                   }
                 }

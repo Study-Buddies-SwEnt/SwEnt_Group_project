@@ -173,13 +173,9 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun updateGroupTimer(
-      groupUID: String,
-      newEndTime: Long,
-      newIsRunning: Boolean
-  ): Int {
+  override suspend fun updateGroupTimer(groupUID: String, timerState: TimerState): Int {
     if (groupUID.isEmpty()) {
-      Log.d("MockDatabase : updateGroupTimer", "Group UID is empty")
+      Log.d("MyPrint", "Group UID is empty")
       return -1
     }
 
@@ -188,9 +184,12 @@ class MockDatabase : DbRepository {
       Log.d("MockDatabase: updateGroupTimer", "Group with UID $groupUID does not exist")
       return -1
     }
+
+    // Create a map for the new timer state
+
     // Update the timerState field in the group document
     try {
-      groupDataCollection[groupUID] = group.copy(timerState = TimerState(newEndTime, newIsRunning))
+      groupDataCollection[groupUID] = group.copy(timerState = timerState)
     } catch (e: Exception) {
       Log.e("MyPrint", "Exception when updating timer: ", e)
       return -1
@@ -730,16 +729,23 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
+  override fun subscribeToGroupTimerUpdates(
+      groupUID: String,
+      _timerValue: MutableStateFlow<Long>,
+      _isRunning: MutableStateFlow<Boolean>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onTimerStateChanged: suspend (TimerState) -> Unit
+  ) {
     var isRunning = false
     groupUID?.let { uid ->
       val timerState = rtDb["timer/$uid"] as? TimerState
       timerState?.let {
-        _timerValue.value = it.endTime - System.currentTimeMillis()
+        _timerValue.value = it.endTime
         isRunning = it.isRunning
       }
     } ?: error("Group UID is not set. Call setup() with valid Group UID.")
-    return isRunning
+    return
   }
 
   override fun getAllTopics(

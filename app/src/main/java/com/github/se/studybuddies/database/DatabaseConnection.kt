@@ -344,41 +344,29 @@ class DatabaseConnection : DbRepository {
     return GroupList(emptyList())
   }
 
-  override suspend fun updateGroupTimer(
-      groupUID: String,
-      newEndTime: Long,
-      newIsRunning: Boolean
-  ): Int {
+  override suspend fun updateGroupTimer(groupUID: String, timerState: TimerState): Int {
     if (groupUID.isEmpty()) {
-      Log.d("MyPrint", "Group UID is empty")
+      Log.d("DatabaseConnection", "Group UID is empty")
       return -1
     }
 
-    val document = groupDataCollection.document(groupUID).get().await()
-    if (!document.exists()) {
-      Log.d("MyPrint", "Group with UID $groupUID does not exist")
-      return -1
-    }
-
-    // Create a map for the new timer state
-    val newTimerState = mapOf("endTime" to newEndTime, "isRunning" to newIsRunning)
-
-    // Update the timerState field in the group document
     try {
       groupDataCollection
           .document(groupUID)
-          .update("timerState", newTimerState)
+          .update("timerState", timerState)
           .addOnSuccessListener {
-            Log.d("MyPrint", "Timer parameter updated successfully for group with UID $groupUID")
+            Log.d(
+                "DatabaseConnection",
+                "Timer parameter updated successfully for group with UID $groupUID")
           }
           .addOnFailureListener { e ->
             Log.d(
-                "MyPrint",
+                "DatabaseConnection",
                 "Failed to update timer parameter for group with UID $groupUID with error: ",
                 e)
           }
     } catch (e: Exception) {
-      Log.e("MyPrint", "Exception when updating timer: ", e)
+      Log.e("DatabaseConnection", "Exception when updating timer: ", e)
       return -1
     }
 
@@ -1185,27 +1173,6 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
-    val document = topicItemCollection.document(fileID).get().await()
-    if (document.exists()) {
-      val strongUsers = document.get(item_strongUsers) as List<String>
-      val currentUser = getCurrentUserUID()
-      callBack(strongUsers.contains(currentUser))
-    }
-  }
-
-  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
-    val currentUser = getCurrentUserUID()
-    if (newValue) {
-      topicItemCollection
-          .document(fileID)
-          .update(item_strongUsers, FieldValue.arrayUnion(currentUser))
-    } else {
-      topicItemCollection
-          .document(fileID)
-          .update(item_strongUsers, FieldValue.arrayRemove(currentUser))
-    }
-  }
 
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
@@ -1428,25 +1395,60 @@ class DatabaseConnection : DbRepository {
         }
   }
 
-  override fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean {
-    var isRunning = false
-    groupUID?.let { uid ->
-      val timerRef = rtDb.getReference("timer/$uid")
-      timerRef.addValueEventListener(
-          object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-              snapshot.getValue(TimerState::class.java)?.let { timerState ->
-                _timerValue.value = timerState.endTime - System.currentTimeMillis()
-                isRunning = timerState.isRunning
-              }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-              Log.e("TimerViewModel", "Failed to read timer", error.toException())
-            }
-          })
-    } ?: error("Group UID is not set. Call setup() with valid Group UID.")
-    return isRunning
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection.document(fileID).get().await()
+    if (document.exists()) {
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    }
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    if (newValue) {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayUnion(currentUser))
+    } else {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayRemove(currentUser))
+    }
+  }
+
+  override fun subscribeToGroupTimerUpdates(
+      groupUID: String,
+      _timerValue: MutableStateFlow<Long>,
+      _isRunning: MutableStateFlow<Boolean>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onTimerStateChanged: suspend (TimerState) -> Unit
+  ) {
+    groupDataCollection.document(groupUID).addSnapshotListener { snapshot, e ->
+      if (e != null) {
+        Log.w("DatabaseConnection", "Listen failed.", e)
+        return@addSnapshotListener
+      }
+
+      if (snapshot != null && snapshot.exists()) {
+        val timerStateMap = snapshot.get("timerState") as? Map<String, Any>
+        val endTime = timerStateMap?.get("endTime") as? Long ?: 0L
+        val isRunning = timerStateMap?.get("running") as? Boolean ?: false
+        val timerState = TimerState(endTime, isRunning)
+        CoroutineScope(ioDispatcher).launch {
+          val remainingTime = endTime
+          withContext(mainDispatcher) {
+            _timerValue.value = remainingTime
+            _isRunning.value = isRunning
+            onTimerStateChanged(timerState)
+          }
+        }
+      } else {
+        Log.d("DatabaseConnection", "Current data: null")
+      }
+    }
   }
 
   override fun getAllTopics(
