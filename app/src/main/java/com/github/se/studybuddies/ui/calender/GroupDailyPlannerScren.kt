@@ -71,7 +71,7 @@ fun GroupDailyPlannerScreen(
       }) { padding ->
         Column(modifier = Modifier.padding(10.dp).padding(padding)) {
           Spacer(modifier = Modifier.height(5.dp))
-
+          //
           Row {
             Row(modifier = Modifier.weight(1f).padding(end = 3.dp)) {
               AppointmentsSection(
