@@ -125,6 +125,7 @@ fun GroupScreen(
                         icon = R.drawable.timer,
                         textId = stringResource(R.string.timer)),
                     Destination(
+                        //
                         route = "${Route.GROUPCALENDAR}/$groupUID",
                         icon = R.drawable.calendar,
                         textId = "Calendar")),
