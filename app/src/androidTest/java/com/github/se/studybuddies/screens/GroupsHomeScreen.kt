@@ -7,8 +7,7 @@ import io.github.kakaocup.compose.node.element.KNode
 
 class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
     ComposeScreen<GroupsHomeScreen>(
-        semanticsProvider = semanticsProvider,
-        viewBuilderAction = { hasTestTag("GroupsHomeScreen") }) {
+        semanticsProvider = semanticsProvider, viewBuilderAction = { hasTestTag("Groups_menu") }) {
 
   val drawerScaffold: KNode = onNode { hasTestTag("Groups_drawer_scaffold") }
   val groupScreenEmpty: KNode = drawerScaffold.child { hasTestTag("GroupEmpty") }
