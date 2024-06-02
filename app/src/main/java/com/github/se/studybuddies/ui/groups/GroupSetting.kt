@@ -299,6 +299,7 @@ fun ShareLinkButton(groupLink: String) {
             ))
   }
 }
+
 @Composable
 fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
 
