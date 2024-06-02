@@ -127,17 +127,13 @@ fun GroupScreen(
                     Destination(
                         route = "${Route.SHAREDTIMER}/$groupUID",
                         icon = R.drawable.timer,
-
                         textId = stringResource(R.string.timer)),
                     Destination(
                         //
                         route = "${Route.GROUPCALENDAR}/$groupUID",
                         icon = R.drawable.calendar,
                         textId = "Calendar")),
-
-                        textId = stringResource(R.string.timer))),
             currentRoute = Route.GROUP,
-
             iconSize = 32)
       }) { innerPadding ->
         Column(
