@@ -11,20 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel responsible for managing direct message interactions, handling chat retrieval and
- * updates.
- *
- * @param userUid The user identifier for whom the chats are relevant. Defaults to an empty string
- *   if not specified.
- * @param db An instance of DbRepository for database operations, defaulting to a provided database
- *   instance.
- */
-class DirectMessageViewModel(
+class DirectMessagesViewModel(
     private val userUid: String = "",
     private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
-  // Private MutableStateFlow for user UID
+
   private val _userUid = MutableStateFlow(userUid)
   // Private MutableStateFlow to handle updates in the list of direct messages
   private val _directMessages = MutableStateFlow<List<Chat>>(emptyList())
@@ -63,7 +54,13 @@ class DirectMessageViewModel(
    *
    * @param messageUserUID The UID of the user with whom to start a direct message.
    */
-  fun startDirectMessage(messageUserUID: String) {
-    db.startDirectMessage(messageUserUID)
+  fun deletePrivateChat(chatID: String) {
+    db.deletePrivateChat(chatID)
+  }
+
+  fun startDirectMessage(messageUserUID: String): String {
+    var contactID = ""
+    viewModelScope.launch { contactID = db.startDirectMessage(messageUserUID) }
+    return contactID
   }
 }

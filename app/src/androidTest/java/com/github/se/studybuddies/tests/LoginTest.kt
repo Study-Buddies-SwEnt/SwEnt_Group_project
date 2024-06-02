@@ -38,6 +38,7 @@ class LoginTest : TestCase() {
         assertIsDisplayed()
         assertTextEquals("Study Buddies")
       }
+
       loginButton {
         assertIsDisplayed()
         assertHasClickAction()

@@ -20,6 +20,7 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -620,7 +621,7 @@ class DatabaseConnection : DbRepository {
    * Add the user given in the parameter to the group given in the parameter
    * If no user is given add the user actually logged in
    *
-   * return nothing but use callBack to now if the add was a succes or a failure
+   * return nothing but use callBack to know if the add was a succes or a failure
    */
   override suspend fun addUserToGroup(groupUID: String, user: String, callBack: (Boolean) -> Unit) {
 
@@ -659,7 +660,6 @@ class DatabaseConnection : DbRepository {
           callBack(false)
         }
         .addOnFailureListener { e ->
-          callBack(true)
           Log.d("MyPrint", "Failed to add user to group with error: ", e)
         }
 
@@ -667,13 +667,10 @@ class DatabaseConnection : DbRepository {
     userMembershipsCollection
         .document(userToAdd)
         .update("groups", FieldValue.arrayUnion(groupUID))
+        .addOnSuccessListener { Log.d("MyPrint", "Group successfully added to user") }
         .addOnSuccessListener {
           Log.d("MyPrint", "Group successfully added to user")
           callBack(false)
-        }
-        .addOnFailureListener { e ->
-          callBack(true)
-          Log.d("MyPrint", "Failed to add group to user with error: ", e)
         }
   }
 
@@ -1184,14 +1181,21 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-  override fun startDirectMessage(otherUID: String) {
+  override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
+    val contactsViewModel = ContactsViewModel()
+    var contactID = ""
+    Log.d("MyPrint", "startDirectMessage called in db")
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
+        if (chatId != null) {
+          contactID = chatId
+        }
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
         val newChatId = UUID.randomUUID().toString()
+        contactID = newChatId
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb
@@ -1199,12 +1203,24 @@ class DatabaseConnection : DbRepository {
             .updateChildren(members)
             .addOnSuccessListener {
               Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
+              contactsViewModel.createContact(otherUID, contactID)
             }
             .addOnFailureListener {
               Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
             }
       }
     }
+    return contactID
+  }
+
+  override fun updateContact(contactID: String, showOnMap: Boolean) {
+    contactDataCollection
+        .document(contactID)
+        .update("showOnMap", showOnMap)
+        .addOnSuccessListener { Log.d("UpdateContact", "contact successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateContact", "Failed modify contact with error: ", e)
+        }
   }
 
   override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
@@ -1622,56 +1638,62 @@ class DatabaseConnection : DbRepository {
         val contactsUIDs = snapshot.data?.get("contacts") as? List<String>
         contactsUIDs?.let { contactsIDs ->
           contactsIDs.forEach { contactID ->
-            val document = contactDataCollection.document(contactID).get().await()
-            val members = document.get("members") as? List<String> ?: emptyList()
-            val showOnMap = document.get("showOnMap") as Boolean
-            items.add(Contact(contactID, members, showOnMap))
+            try {
+              val document = contactDataCollection.document(contactID).get().await()
+              val members = document.get("members") as? List<String> ?: emptyList()
+              val showOnMap = document.get("showOnMap") as Boolean ?: false
+              items.add(Contact(contactID, members, showOnMap))
+            } catch (e: Exception) {
+              Log.e("contacts", "Error fetching contact with ID $contactID: $e")
+            }
           }
         }
+        Log.d("contacts", "fetched all contacts for user $uid")
         return ContactList(items)
       } else {
-        Log.d("MyPrint", "User with uid $uid does not exist")
+        Log.d("contacts", "User with uid $uid does not exist")
         return ContactList(emptyList())
       }
     } catch (e: Exception) {
-      Log.d("MyPrint", "In ViewModel, could not fetch groups with error: $e")
+      Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
     }
     return ContactList(emptyList())
   }
 
-  override suspend fun getContact(contactUID: String): Contact {
-    val document = contactDataCollection.document(contactUID).get().await()
+  override suspend fun getContact(contactID: String): Contact {
+
+    Log.d("contact", "getContact before $contactID")
+    val document = contactDataCollection.document(contactID).get().await()
+    Log.d("contact", "getContact after $contactID")
+
     return if (document.exists()) {
+      Log.d("contact", "contact document found for contact id $contactID")
       val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
-      Contact(contactUID, members, showOnMap)
+      Contact(contactID, members, showOnMap)
     } else {
-      Log.d("MyPrint", "contact document not found for contact id $contactUID")
+      Log.d("contact", "contact document not found for contact id $contactID")
       Contact.empty()
     }
   }
 
-  override suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String, contactID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
-
+    Log.d("MyPrint", "Creating new contact with with ID $contactID")
     // check if contact already exists
     val contactList = getAllContacts(uid)
-
-    if (!contactList.getAllTasks().isNotEmpty()) {
-      (Log.d("contacttest", "problem"))
-    }
-
-    if (contactList.getFilteredContacts(otherUID).isNotEmpty()) {
+    val filteredList = contactList.getFilteredContacts(otherUID)
+    if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
     } else {
       val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
       // updating contacts collection
-      contactDataCollection
-          .add(contact)
-          .addOnSuccessListener { document ->
-            val contactID = document.id
+      val contactRef = contactDataCollection.document(contactID)
+      contactRef
+          .set(contact)
+          .addOnSuccessListener { _ ->
             Log.d("MyPrint", "Contact successfully created")
 
             // updating current user's list of contacts
@@ -1682,7 +1704,7 @@ class DatabaseConnection : DbRepository {
                   Log.d("MyPrint", "Contact successfully added to userContacts")
                 }
                 .addOnFailureListener { e ->
-                  Log.d("MyPrfixint", "Failed to add new contact to userContacts with error: ", e)
+                  Log.d("MyPrint", "Failed to add new contact to userContacts with error: ", e)
                 }
 
             // updating other user's list of contacts
@@ -1702,15 +1724,28 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  suspend fun deleteContact(contactUID: String, userUID: String = "") {
+  override fun deletePrivateChat(chatID: String) {
 
-    val document = contactDataCollection.document(contactUID).get().await()
+    val memberPath = getPrivateChatMembersPath(chatID)
+    rtDb.getReference(memberPath).removeValue()
+  }
+
+  override fun deleteContact(contactID: String) {
+
+    val uid = getCurrentUserUID()
+    val contactsViewModel = ContactsViewModel()
+    val otherUID = contactsViewModel.getOtherUser(contactID, uid)
+
+    userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
+    userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))
 
     contactDataCollection
-        .document(contactUID)
+        .document(contactID)
         .delete()
         .addOnSuccessListener { Log.d("MyPrint", "Contact successfully deleted") }
         .addOnFailureListener { e -> Log.d("MyPrint", "Failed to delete contact with error: ", e) }
+
+    Log.d("contact", "called deletecontact in db")
   }
 
   companion object {

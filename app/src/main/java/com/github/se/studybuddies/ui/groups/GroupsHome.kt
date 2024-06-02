@@ -335,7 +335,7 @@ fun GroupsSettingsButton(
                             onClick = { isDeleteGroupDialogVisible = false },
                             modifier =
                                 Modifier.clip(RoundedCornerShape(4.dp))
-                                    .width(80.dp)
+                                    .width(100.dp)
                                     .height(40.dp)
                                     .testTag(groupUID + "_delete_no_button"),
                             colors =

@@ -53,7 +53,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.nextStatus
@@ -106,10 +105,10 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "To do") },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
             },
-            actions = {
+            rightButton = {
               CustomSearchBar(
                   searchQuery = searchQuery,
                   onSearchQueryChange = setSearchQuery,

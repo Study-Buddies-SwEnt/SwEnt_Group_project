@@ -61,10 +61,10 @@ fun GroupStudyCalendarApp(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Group Study Calendar") },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/${groupUid}")
             },
-            actions = {})
+            rightButton = {})
       },
   ) { padding ->
     Surface(modifier = Modifier.fillMaxSize().padding(padding)) {

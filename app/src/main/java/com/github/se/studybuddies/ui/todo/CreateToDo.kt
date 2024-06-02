@@ -46,10 +46,10 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.add_a_new_task)) },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
             },
-            actions = {})
+            rightButton = {})
       }) {
         Column(
             modifier =

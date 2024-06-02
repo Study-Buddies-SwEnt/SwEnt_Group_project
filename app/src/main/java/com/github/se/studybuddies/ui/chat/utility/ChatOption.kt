@@ -40,7 +40,7 @@ import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -361,7 +361,7 @@ fun NonUserMessageOptions(
       onClick = {
         showOptionsDialog.value = false
         viewModel.currentUser.value
-            ?.let { DirectMessageViewModel(it.uid) }
+            ?.let { DirectMessagesViewModel(it.uid) }
             ?.startDirectMessage(selectedMessage.sender.uid)
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {

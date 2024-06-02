@@ -14,13 +14,7 @@ data class Chat(
   companion object {
     fun empty(): Chat {
       return Chat(
-          uid = "",
-          name = "",
-          picture = Uri.EMPTY,
-          type = ChatType.GROUP,
-          members = emptyList(),
-          //          messages = emptyList()
-      )
+          uid = "", name = "", picture = Uri.EMPTY, type = ChatType.GROUP, members = emptyList())
     }
   }
 }

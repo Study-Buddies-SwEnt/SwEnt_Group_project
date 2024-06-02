@@ -259,7 +259,7 @@ interface DbRepository {
       onResult: (Boolean, String?) -> Unit
   )
 
-  fun startDirectMessage(otherUID: String)
+  suspend fun startDirectMessage(otherUID: String): String
 
   // using the topicData and topicItemData collections
   /**
@@ -324,6 +324,14 @@ interface DbRepository {
   )
 
   /** Add image resource to a topic file */
+  suspend fun createContact(otherUID: String, contactID: String)
+
+  fun deleteContact(contactID: String)
+
+  fun deletePrivateChat(chatID: String)
+
+  fun updateContact(contactID: String, showOnMap: Boolean)
+
   fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
 
   /** Get all image resources for given topic */

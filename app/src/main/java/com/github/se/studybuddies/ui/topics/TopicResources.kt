@@ -110,14 +110,14 @@ fun TopicResources(
         topBar = {
           TopNavigationBar(
               title = { Sub_title(nameState.value) },
-              navigationIcon = {
+              leftButton = {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Go back",
                     modifier =
                         Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
               },
-              actions = {})
+              rightButton = {})
         },
         floatingActionButton = {
           Button(
