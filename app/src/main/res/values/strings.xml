@@ -150,4 +150,6 @@
     <string name="poll_options">Options</string>
     <string name="enter_poll_options">Enter poll option</string>
     <string name="single_choice">Single answer</string>
+    <string name="group_profile_picture">Group profile picture</string>
+    <string name="search_groups">Search groups</string>
 </resources>

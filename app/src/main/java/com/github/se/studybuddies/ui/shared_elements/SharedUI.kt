@@ -242,14 +242,19 @@ fun DrawerMenuIcon(
   IconButton(
       onClick = { scope.launch { drawerState.open() } },
       modifier = Modifier.testTag("drawer_menu_icon")) {
-        Icon(imageVector = Icons.Default.Menu, contentDescription = "Go back")
+        Icon(
+            imageVector = Icons.Default.Menu,
+            contentDescription = stringResource(id = R.string.go_back))
       }
 }
 
 @Composable
 fun SearchIcon() {
   IconButton(onClick = { /*TODO*/}) {
-    Icon(imageVector = Icons.Default.Search, tint = Blue, contentDescription = "Search groups")
+    Icon(
+        imageVector = Icons.Default.Search,
+        tint = Blue,
+        contentDescription = stringResource(R.string.search_groups))
   }
 }
 
@@ -260,7 +265,7 @@ fun GoBackRouteButton(
 ) {
   Icon(
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-      contentDescription = "Go back",
+      contentDescription = stringResource(id = R.string.go_back),
       modifier =
           Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
 }
@@ -271,7 +276,7 @@ fun GoBackRouteToLastPageButton(
 ) {
   Icon(
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-      contentDescription = "Go back",
+      contentDescription = stringResource(id = R.string.go_back),
       modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
@@ -281,7 +286,9 @@ fun GroupsSettingsButton(navigationActions: NavigationActions) {
   IconButton(
       onClick = { expandedState.value = true },
   ) {
-    Icon(painter = painterResource(R.drawable.dots_menu), contentDescription = "Dots Menu")
+    Icon(
+        painter = painterResource(R.drawable.dots_menu),
+        contentDescription = stringResource(id = R.string.dots_menu))
   }
   DropdownMenu(expanded = expandedState.value, onDismissRequest = { expandedState.value = false }) {
     GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
@@ -313,7 +320,7 @@ fun GroupItem(group: Group, navigationActions: NavigationActions) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Image(
               painter = rememberAsyncImagePainter(group.picture),
-              contentDescription = "Group profile picture",
+              contentDescription = stringResource(R.string.group_profile_picture),
               modifier = Modifier.size(32.dp),
               contentScale = ContentScale.Crop)
           Text(text = group.name, style = TextStyle(fontSize = 16.sp), lineHeight = 28.sp)
@@ -347,7 +354,7 @@ private fun MenuButton(onClick: () -> Unit) {
       }) {
         Icon(
             painterResource(R.drawable.menu),
-            contentDescription = "Settings",
+            contentDescription = stringResource(id = R.string.settings),
             modifier = Modifier.size(28.dp),
             tint = Blue)
       }
