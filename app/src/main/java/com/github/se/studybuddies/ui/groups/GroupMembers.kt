@@ -66,6 +66,17 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
+/**
+ * GroupMembers is a composable function that displays the members of a group.
+ * It allows the user to add members to the group, remove members from the group, and view the
+ * profile of each member.
+ *
+ * @param groupUID The unique identifier of the group.
+ * @param groupViewModel The view model that contains the data of the group.
+ * @param navigationActions The navigation actions that allow the user to navigate to different
+ * destinations.
+ * @param db The database repository that contains the data of the group.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun GroupMembers(
@@ -87,7 +98,10 @@ fun GroupMembers(
   val userData by groupViewModel.members.observeAsState()
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("members_scaffold"),
+      modifier = Modifier
+          .fillMaxSize()
+          .background(White)
+          .testTag("members_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.members)) },
@@ -103,7 +117,10 @@ fun GroupMembers(
           } else {
             LazyColumn(
                 modifier =
-                    Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .testTag("draw_member_column"),
                 verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   item { Name(nameState) }
@@ -130,6 +147,9 @@ fun GroupMembers(
       }
 }
 
+/**
+ * Function to display the name
+ */
 @Composable
 fun Name(nameState: MutableState<String>) {
   Spacer(Modifier.height(20.dp))
@@ -139,6 +159,9 @@ fun Name(nameState: MutableState<String>) {
       modifier = Modifier.testTag("ShowGroupNameInGroupMember"))
 }
 
+/**
+ * Function to display a member
+ */
 @Composable
 fun MemberItem(
     groupUID: String,
@@ -149,16 +172,22 @@ fun MemberItem(
 ) {
   Box(
       modifier =
-          Modifier.fillMaxWidth()
-              .background(Color.White)
-              .drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }
-              .testTag(userData.username + "_box")) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+      Modifier
+          .fillMaxWidth()
+          .background(Color.White)
+          .drawBehind {
+              val strokeWidth = 1f
+              val y = size.height - strokeWidth / 2
+              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+          }
+          .testTag(userData.username + "_box")) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
+          Box(modifier = Modifier
+              .size(52.dp)
+              .clip(CircleShape)
+              .background(Color.Transparent)) {
             Image(
                 painter = rememberAsyncImagePainter(userData.photoUrl),
                 contentDescription = stringResource(id = R.string.user_picture),
@@ -178,6 +207,9 @@ fun MemberItem(
       }
 }
 
+/**
+ * Function to access options for each member
+ */
 @Composable
 fun MemberOptionButton(
     groupUID: String,
@@ -222,16 +254,20 @@ fun MemberOptionButton(
     Dialog(onDismissRequest = { isRemoveUserDialogVisible = false }) {
       Box(
           modifier =
-              Modifier.width(280.dp)
-                  .height(140.dp)
-                  .clip(RoundedCornerShape(10.dp))
-                  .background(Color.White)) {
+          Modifier
+              .width(280.dp)
+              .height(140.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(Color.White)) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
-                      text = "Are you sure you want to remove $username from the group ?",
+                      text = stringResource(
+                          R.string.are_you_sure_you_want_to_remove_from_the_group,
+                          username
+                      ),
                       color = Blue)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(
@@ -249,7 +285,10 @@ fun MemberOptionButton(
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -259,7 +298,10 @@ fun MemberOptionButton(
                         Button(
                             onClick = { isRemoveUserDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .width(80.dp)
+                                .height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
@@ -304,7 +346,9 @@ fun ShowContact(
           Box(modifier = Modifier.fillMaxSize()) {
             IconButton(
                 onClick = { isBoxVisible.value = false },
-                modifier = Modifier.align(Alignment.TopEnd).testTag("close_contact_list")) {
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .testTag("close_contact_list")) {
                   Icon(
                       imageVector = Icons.Default.Close,
                       modifier = Modifier.size(40.dp),
@@ -317,7 +361,9 @@ fun ShowContact(
           item {
             Text(
                 text = stringResource(R.string.loadingP),
-                modifier = Modifier.fillMaxWidth().padding(16.dp))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp))
           }
         }
         item { Spacer(modifier = Modifier.height(4.dp)) }
@@ -336,19 +382,25 @@ fun ShowOneUser(
 ) {
   Box(
       modifier =
-          Modifier.clickable {
-                groupViewModel.addUserToGroup(groupUID, user.uid) {}
-                isBoxVisible.value = false
-              }
-              .fillMaxWidth()
-              .background(Color.White)
-              .drawBehind {
-                val strokeWidth = 4f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+      Modifier
+          .clickable {
+              groupViewModel.addUserToGroup(groupUID, user.uid) {}
+              isBoxVisible.value = false
+          }
+          .fillMaxWidth()
+          .background(Color.White)
+          .drawBehind {
+              val strokeWidth = 4f
+              val y = size.height - strokeWidth / 2
+              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+          }) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
+          Box(modifier = Modifier
+              .size(52.dp)
+              .clip(CircleShape)
+              .background(Color.Transparent)) {
             Image(
                 painter = rememberAsyncImagePainter(user.photoUrl),
                 contentDescription = stringResource(id = R.string.user_picture),

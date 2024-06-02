@@ -15,9 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -40,7 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
 import com.github.se.studybuddies.data.User
@@ -50,6 +51,13 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
 
+/**
+ * Composable that displays the resources and strong users for a topic
+ *
+ * @param fileID The ID of the file to display.
+ * @param topicFileViewModel The ViewModel that provides the data for the file.
+ * @param navigationActions The actions to navigate to other screens.
+ */
 @Composable
 fun TopicResources(
     fileID: String,
@@ -80,15 +88,19 @@ fun TopicResources(
             title = { Sub_title(nameState.value) },
             navigationIcon = {
               Icon(
-                  imageVector = Icons.Default.ArrowBack,
-                  contentDescription = "Go back",
+                  imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                  contentDescription = stringResource(R.string.go_back),
                   modifier =
-                      Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
+                  Modifier
+                      .clickable { navigationActions.goBack() }
+                      .testTag("go_back_button"))
             },
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(it),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
               Column(modifier = Modifier.fillMaxWidth()) {
@@ -96,30 +108,34 @@ fun TopicResources(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
                       Text(
-                          text = "Resources",
+                          text = stringResource(R.string.resources),
                           modifier =
-                              Modifier.weight(1f)
-                                  .clickable { areaState.value = FileArea.RESOURCES }
-                                  .padding(horizontal = 16.dp, vertical = 16.dp)
-                                  .align(Alignment.CenterVertically),
+                          Modifier
+                              .weight(1f)
+                              .clickable { areaState.value = FileArea.RESOURCES }
+                              .padding(horizontal = 16.dp, vertical = 16.dp)
+                              .align(Alignment.CenterVertically),
                           style = TextStyle(fontSize = 20.sp),
                           textAlign = TextAlign.Center)
                       Text(
-                          text = "Strong Users",
+                          text = stringResource(R.string.strong_users),
                           modifier =
-                              Modifier.weight(1f)
-                                  .clickable { areaState.value = FileArea.STRONG_USERS }
-                                  .padding(horizontal = 16.dp, vertical = 16.dp)
-                                  .align(Alignment.CenterVertically),
+                          Modifier
+                              .weight(1f)
+                              .clickable { areaState.value = FileArea.STRONG_USERS }
+                              .padding(horizontal = 16.dp, vertical = 16.dp)
+                              .align(Alignment.CenterVertically),
                           style = TextStyle(fontSize = 20.sp),
                           textAlign = TextAlign.Center)
                     }
                 HorizontalDivider(
                     modifier =
-                        Modifier.align(
-                                if (areaState.value == FileArea.RESOURCES) Alignment.Start
-                                else Alignment.End)
-                            .fillMaxWidth(0.5f),
+                    Modifier
+                        .align(
+                            if (areaState.value == FileArea.RESOURCES) Alignment.Start
+                            else Alignment.End
+                        )
+                        .fillMaxWidth(0.5f),
                     color = Blue,
                     thickness = 4.dp)
               }
@@ -130,7 +146,7 @@ fun TopicResources(
                   content = {
                     if (areaState.value == FileArea.RESOURCES) {
                       item {
-                        Column(modifier = Modifier.fillMaxSize()) { Text("Resources go here") }
+                        Column(modifier = Modifier.fillMaxSize()) { Text(stringResource(R.string.resources_go_here)) }
                       }
                     } else {
                       items(strongUsers.value) { user -> UserBox(user) }
@@ -145,20 +161,28 @@ private fun UserBox(user: User) {
   Column {
     Box(
         modifier =
-            Modifier.fillMaxWidth().background(Color.White).drawBehind {
-              val strokeWidth = 1f
-              val y = size.height - strokeWidth / 2
-              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+        Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .drawBehind {
+                val strokeWidth = 1f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
             }) {
           Row(
-              modifier = Modifier.fillMaxWidth().padding(6.dp),
+              modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(6.dp),
               verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.size(10.dp))
                 Box(
                     modifier =
-                        Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+                    Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(Color.Transparent)) {
                       Image(
-                          painter = rememberImagePainter(user.photoUrl),
+                          painter = rememberAsyncImagePainter(user.photoUrl),
                           contentDescription = stringResource(R.string.user_profile_picture),
                           modifier = Modifier.fillMaxSize(),
                           contentScale = ContentScale.Crop)

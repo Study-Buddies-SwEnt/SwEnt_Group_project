@@ -19,6 +19,11 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 
+/**
+ * This composable is used to display a placeholder for features not yet implemented
+ *
+ * @param navigationActions The navigation actions.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Placeholder(navigationActions: NavigationActions) {
@@ -39,7 +44,7 @@ fun Placeholder(navigationActions: NavigationActions) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           Spacer(modifier = Modifier.height(120.dp))
-          Text(stringResource(R.string.feature_not_implemented_yet), textAlign = TextAlign.Center)
+          Text(stringResource(R.string.feature_not_yet_implemented), textAlign = TextAlign.Center)
         }
   }
 }

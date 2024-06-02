@@ -27,7 +27,7 @@ object StreamVideoInitHelper {
   private var isInitialising = false
   private lateinit var context: Context
   private val _initState = MutableStateFlow(InitializedState.NOT_STARTED)
-  private val TAG: String = "StreamVideoInitHelper"
+  private const val TAG: String = "StreamVideoInitHelper"
 
   fun init(appContext: Context) {
     context = appContext.applicationContext

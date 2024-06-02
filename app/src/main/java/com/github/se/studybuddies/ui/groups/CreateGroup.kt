@@ -2,7 +2,6 @@ package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -37,6 +36,12 @@ import com.github.se.studybuddies.viewModels.GroupViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * The screen to create a group.
+ *
+ * @param groupViewModel The view model to use.
+ * @param navigationActions The navigation actions to use.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationActions) {
@@ -62,12 +67,8 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
           getContent.launch(imageInput)
         }
       }
-  var permission = imagePermissionVersion()
-  // Check if the Android version is lower than TIRAMISU API 33
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    // For older Android versions, use READ_EXTERNAL_STORAGE permission
-    permission = "android.permission.READ_EXTERNAL_STORAGE"
-  }
+  val permission = imagePermissionVersion()
+
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("create_group_scaffold"),
       topBar = {

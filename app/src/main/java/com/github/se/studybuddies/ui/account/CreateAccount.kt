@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,6 +44,12 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
+/**
+ * Display the Create Account screen.
+ *
+ * @param userViewModel The [UserViewModel] that contains the user data.
+ * @param navigationActions The [NavigationActions] that handles navigation.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationActions) {
@@ -87,30 +93,38 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
   val permission = imagePermissionVersion()
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().background(White).testTag("create_account"),
+      modifier = Modifier
+          .fillMaxSize()
+          .background(White)
+          .testTag("create_account"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.create_account)) },
             navigationIcon = {
               Icon(
-                  imageVector = Icons.Default.ArrowBack,
-                  contentDescription = "Go back",
+                  imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                  contentDescription = stringResource(id = R.string.go_back) ,
                   modifier =
-                      Modifier.clickable {
-                            if (userViewModel.isFakeDatabase()) {
+                  Modifier
+                      .clickable {
+                          if (userViewModel.isFakeDatabase()) {
                               userViewModel.signOut()
                               navigationActions.navigateTo(Route.LOGIN)
-                            } else {
-                              FirebaseAuth.getInstance().signOut()
+                          } else {
+                              FirebaseAuth
+                                  .getInstance()
+                                  .signOut()
                               navigationActions.navigateTo(Route.LOGIN)
-                            }
                           }
-                          .testTag("go_back_button"))
+                      }
+                      .testTag("go_back_button"))
             },
             actions = {})
       }) {
         Column(
-            modifier = Modifier.fillMaxSize().testTag("create_account_column"),
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("create_account_column"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
               Spacer(modifier = Modifier.size(20.dp))
