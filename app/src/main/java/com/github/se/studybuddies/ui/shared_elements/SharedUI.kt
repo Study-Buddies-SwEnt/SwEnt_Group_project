@@ -270,7 +270,7 @@ fun GoBackRouteToLastPageButton(
     navigationActions: NavigationActions,
 ) {
   Icon(
-      imageVector = Icons.Default.ArrowBack,
+      imageVector = Icons.AutoMirrored.Filled.ArrowBack,
       contentDescription = "Go back",
       modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
