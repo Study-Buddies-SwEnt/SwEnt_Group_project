@@ -123,8 +123,6 @@ interface DbRepository {
 
   fun votePollMessage(chat: Chat, message: Message.PollMessage)
 
-  fun updateGroupPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
-
   fun checkForExistingChat(
       currentUserUID: String,
       otherUID: String,

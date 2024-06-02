@@ -196,7 +196,7 @@ class DatabaseConnection : DbRepository {
         }
   }
 
-  override fun updateGroupPlanners(groupId: String, dailyPlanners: List<DailyPlanner>) {
+  fun updateGroupPlanners(groupId: String, dailyPlanners: List<DailyPlanner>) {
     if (groupId.isEmpty()) return
 
     val plannersMap = dailyPlanners.associateBy { it.date }
