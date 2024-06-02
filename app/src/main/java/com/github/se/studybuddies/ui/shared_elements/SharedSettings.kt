@@ -29,9 +29,7 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
-/**
- * Shared name setting element.
- */
+/** Shared name setting element. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountFields(usernameState: MutableState<String>) {
@@ -41,11 +39,7 @@ fun AccountFields(usernameState: MutableState<String>) {
       label = { Text(stringResource(R.string.username)) },
       placeholder = { Text(stringResource(R.string.enter_a_username)) },
       singleLine = true,
-      modifier = Modifier
-          .padding(0.dp)
-          .width(300.dp)
-          .height(65.dp)
-          .testTag("username_field"),
+      modifier = Modifier.padding(0.dp).width(300.dp).height(65.dp).testTag("username_field"),
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
               focusedBorderColor = Blue, unfocusedBorderColor = Blue, cursorColor = Blue))
@@ -53,9 +47,7 @@ fun AccountFields(usernameState: MutableState<String>) {
   Text(stringResource(R.string.msg_usename_user_will_see), modifier = Modifier.width(300.dp))
 }
 
-/**
- * Shared profile picture setting element.
- */
+/** Shared profile picture setting element. */
 @Composable
 fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
@@ -66,14 +58,10 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Spacer(Modifier.height(10.dp))
   Text(
       text = stringResource(R.string.select_a_profile_picture),
-      modifier = Modifier
-          .clickable { onClick() }
-          .testTag("set_picture_button"))
+      modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
-/**
- * Shared save button element.
- */
+/** Shared save button element. */
 @Composable
 fun SaveButton(
     usernameState: MutableState<String>,
@@ -85,12 +73,11 @@ fun SaveButton(
       onClick = save,
       enabled = enabled,
       modifier =
-      Modifier
-          .padding(10.dp)
-          .width(300.dp)
-          .height(50.dp)
-          .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
-          .testTag(testTag),
+          Modifier.padding(10.dp)
+              .width(300.dp)
+              .height(50.dp)
+              .background(color = Color.Transparent, shape = RoundedCornerShape(size = 10.dp))
+              .testTag(testTag),
       colors =
           ButtonDefaults.buttonColors(
               containerColor = Blue,

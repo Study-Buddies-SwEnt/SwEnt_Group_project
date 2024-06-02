@@ -37,6 +37,7 @@ import com.github.se.studybuddies.viewModels.TopicViewModel
 
 /**
  * Composable function to create a new topic.
+ *
  * @param groupUID: The UID of the group the topic is being created in.
  * @param topicViewModel: The view model for the topic.
  * @param navigationActions: The navigation actions for the app.
@@ -52,10 +53,7 @@ fun TopicCreation(
   val nameState = remember { mutableStateOf("") }
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(Color.White)
-          .testTag("create_topic_scaffold"),
+      modifier = Modifier.fillMaxSize().background(Color.White).testTag("create_topic_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.create_topic)) },
@@ -63,10 +61,7 @@ fun TopicCreation(
             actions = {})
       }) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
-                .testTag("create_topic_column"),
+            modifier = Modifier.fillMaxSize().padding(20.dp).testTag("create_topic_column"),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Text(stringResource(R.string.enter_topic_name))
@@ -79,12 +74,11 @@ fun TopicCreation(
                   placeholder = { Text(stringResource(R.string.enter_topic_name), color = Blue) },
                   singleLine = true,
                   modifier =
-                  Modifier
-                      .padding(0.dp)
-                      .width(300.dp)
-                      .height(65.dp)
-                      .clip(MaterialTheme.shapes.small)
-                      .testTag("topic_name"),
+                      Modifier.padding(0.dp)
+                          .width(300.dp)
+                          .height(65.dp)
+                          .clip(MaterialTheme.shapes.small)
+                          .testTag("topic_name"),
                   colors =
                       TextFieldDefaults.outlinedTextFieldColors(
                           focusedBorderColor = Blue,

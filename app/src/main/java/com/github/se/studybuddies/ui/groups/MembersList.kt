@@ -49,7 +49,7 @@ fun MembersList(
             navigationIcon = { GoBackRouteToLastPageButton(navigationActions = navigationActions) },
             actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) {
-      Column(
+        Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
         ) {

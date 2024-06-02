@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.ui.shared_elements
 
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -17,9 +19,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.IconButton
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -73,9 +73,7 @@ import com.github.se.studybuddies.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * Main screen scaffold element.
- */
+/** Main screen scaffold element. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreenScaffold(
@@ -144,9 +142,7 @@ fun MainScreenScaffold(
       }
 }
 
-/**
- * Top Navigation bar present throughout almost the entirety of the app.
- */
+/** Top Navigation bar present throughout almost the entirety of the app. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopNavigationBar(
@@ -169,9 +165,7 @@ fun TopNavigationBar(
   }
 }
 
-/**
- * Bottom navigation bar, allows also to chose icon size.
- */
+/** Bottom navigation bar, allows also to chose icon size. */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BottomNavigationBar(
@@ -215,9 +209,7 @@ fun BottomNavigationBar(
   }
 }
 
-/**
- * Main title element.
- */
+/** Main title element. */
 @Composable
 fun Main_title(title: String) {
   Text(
@@ -227,9 +219,7 @@ fun Main_title(title: String) {
       modifier = Modifier.testTag("main_title"))
 }
 
-/**
- * Sub title element.
- */
+/** Sub title element. */
 @Composable
 fun Sub_title(title: String) {
   Text(
@@ -239,9 +229,7 @@ fun Sub_title(title: String) {
       modifier = Modifier.testTag("sub_title"))
 }
 
-/**
- * Drawer menu icon element.
- */
+/** Drawer menu icon element. */
 @Composable
 fun DrawerMenuIcon(
     scope: CoroutineScope,
@@ -256,9 +244,7 @@ fun DrawerMenuIcon(
       }
 }
 
-/**
- * Search icon element.
- */
+/** Search icon element. */
 @Composable
 fun SearchIcon() {
   IconButton(onClick = { /*TODO*/}) {
@@ -269,9 +255,7 @@ fun SearchIcon() {
   }
 }
 
-/**
- * Go back button element.
- */
+/** Go back button element. */
 @Composable
 fun GoBackRouteButton(
     navigationActions: NavigationActions,
@@ -284,9 +268,7 @@ fun GoBackRouteButton(
           Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
 }
 
-/**
- * Alternative go back button element.
- */
+/** Alternative go back button element. */
 @Composable
 fun GoBackRouteToLastPageButton(
     navigationActions: NavigationActions,
@@ -297,9 +279,7 @@ fun GoBackRouteToLastPageButton(
       modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
-/**
- * Secondary top bar element.
- */
+/** Secondary top bar element. */
 @Composable
 fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
   TopAppBar(
@@ -317,9 +297,7 @@ fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Uni
       }
 }
 
-/**
- * Save button element.
- */
+/** Save button element. */
 @Composable
 fun SaveButton(enabled: Boolean, save: () -> Unit) {
   Button(
@@ -342,9 +320,7 @@ fun SaveButton(enabled: Boolean, save: () -> Unit) {
       }
 }
 
-/**
- * Shared profile picture setting element.
- */
+/** Shared profile picture setting element. */
 @Composable
 fun SetPicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Box(

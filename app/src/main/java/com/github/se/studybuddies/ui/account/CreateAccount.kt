@@ -93,38 +93,30 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
   val permission = imagePermissionVersion()
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(White)
-          .testTag("create_account"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("create_account"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.create_account)) },
             navigationIcon = {
               Icon(
                   imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                  contentDescription = stringResource(id = R.string.go_back) ,
+                  contentDescription = stringResource(id = R.string.go_back),
                   modifier =
-                  Modifier
-                      .clickable {
-                          if (userViewModel.isFakeDatabase()) {
+                      Modifier.clickable {
+                            if (userViewModel.isFakeDatabase()) {
                               userViewModel.signOut()
                               navigationActions.navigateTo(Route.LOGIN)
-                          } else {
-                              FirebaseAuth
-                                  .getInstance()
-                                  .signOut()
+                            } else {
+                              FirebaseAuth.getInstance().signOut()
                               navigationActions.navigateTo(Route.LOGIN)
+                            }
                           }
-                      }
-                      .testTag("go_back_button"))
+                          .testTag("go_back_button"))
             },
             actions = {})
       }) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("create_account_column"),
+            modifier = Modifier.fillMaxSize().testTag("create_account_column"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
               Spacer(modifier = Modifier.size(20.dp))

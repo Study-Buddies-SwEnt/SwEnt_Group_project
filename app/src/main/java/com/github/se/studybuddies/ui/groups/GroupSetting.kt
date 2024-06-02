@@ -61,8 +61,9 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
 /**
- * GroupSetting is a composable function that displays the group settings page.
- * It allows the user to modify the group name, profile picture, add members to the group and share the group link.
+ * GroupSetting is a composable function that displays the group settings page. It allows the user
+ * to modify the group name, profile picture, add members to the group and share the group link.
+ *
  * @param groupUID The group UID
  * @param groupViewModel The group view model
  * @param navigationActions The navigation actions
@@ -109,10 +110,7 @@ fun GroupSetting(
   val permission = imagePermissionVersion()
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(White)
-          .testTag("groupSettingScaffold"),
+      modifier = Modifier.fillMaxSize().background(White).testTag("groupSettingScaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.group_settings)) },
@@ -123,26 +121,19 @@ fun GroupSetting(
           ShowContact(groupUID, groupViewModel, isBoxVisible)
         } else {
           Column(
-              modifier = Modifier
-                  .fillMaxSize()
-                  .testTag("setting_column"),
+              modifier = Modifier.fillMaxSize().testTag("setting_column"),
               horizontalAlignment = Alignment.CenterHorizontally,
               verticalArrangement = Arrangement.Top) {
                 LazyColumn(
                     modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .testTag("setting_lazy_column"),
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues)
+                            .testTag("setting_lazy_column"),
                     verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                      item { Spacer(modifier = Modifier
-                          .padding(10.dp)
-                          .testTag("setting_spacer1")) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer1")) }
                       item { ModifyName(nameState) }
-                      item { Spacer(modifier = Modifier
-                          .padding(10.dp)
-                          .testTag("setting_spacer2")) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer2")) }
                       item {
                         ModifyProfilePicture(photoState) {
                           checkPermission(context, permission, requestPermissionLauncher) {
@@ -150,15 +141,11 @@ fun GroupSetting(
                           }
                         }
                       }
-                      item { Spacer(modifier = Modifier
-                          .padding(10.dp)
-                          .testTag("setting_spacer3")) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer3")) }
                       item { AddMemberButtonUID(groupUID, groupViewModel) }
                       item { AddMemberButtonList(isBoxVisible) }
                       item { ShareLinkButton(groupLink.value) }
-                      item { Spacer(modifier = Modifier
-                          .padding(10.dp)
-                          .testTag("setting_spacer4")) }
+                      item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer4")) }
                       item {
                         SaveButton(nameState) {
                           groupViewModel.updateGroup(groupUID, nameState.value, photoState.value)
@@ -171,9 +158,7 @@ fun GroupSetting(
       }
 }
 
-/**
- * Allows to modify the name input in the field
- */
+/** Allows to modify the name input in the field */
 @Composable
 fun ModifyName(nameState: MutableState<String>) {
   Spacer(Modifier.height(20.dp))
@@ -182,10 +167,7 @@ fun ModifyName(nameState: MutableState<String>) {
       onValueChange = { nameState.value = it },
       singleLine = true,
       modifier =
-      Modifier
-          .padding(0.dp)
-          .clip(MaterialTheme.shapes.small)
-          .testTag("group_name_field"),
+          Modifier.padding(0.dp).clip(MaterialTheme.shapes.small).testTag("group_name_field"),
       colors =
           OutlinedTextFieldDefaults.colors(
               cursorColor = Blue,
@@ -194,34 +176,22 @@ fun ModifyName(nameState: MutableState<String>) {
           ))
 }
 
-/**
- * Allows to change the profile picture input in the field
- */
+/** Allows to change the profile picture input in the field */
 @Composable
 fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberAsyncImagePainter(photoState.value),
       contentDescription = stringResource(id = R.string.profile_picture),
       modifier =
-      Modifier
-          .size(200.dp)
-          .border(1.dp, Blue, RoundedCornerShape(5.dp))
-          .testTag("image_pp"),
+          Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)).testTag("image_pp"),
       contentScale = ContentScale.Crop)
-  Spacer(
-      Modifier
-          .height(20.dp)
-          .testTag("spacer_pp"))
+  Spacer(Modifier.height(20.dp).testTag("spacer_pp"))
   Text(
       text = stringResource(R.string.modify_the_profile_picture),
-      modifier = Modifier
-          .clickable { onClick() }
-          .testTag("set_picture_button"))
+      modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
-/**
- * Allows to add a member to the group with the user's UID
- */
+/** Allows to add a member to the group with the user's UID */
 @Composable
 fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
@@ -281,9 +251,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   }
   if (showError) {
     Snackbar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = {
           TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showError = false }) {}
         }) {
@@ -292,9 +260,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   }
   if (showSucces) {
     Snackbar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         action = {
           TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showSucces = false }) {}
         }) {
@@ -303,9 +269,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   }
 }
 
-/**
- * Displays the button to allow the sharing of the group link
- */
+/** Displays the button to allow the sharing of the group link */
 @Composable
 fun ShareLinkButton(groupLink: String) {
   var isTextVisible by remember { mutableStateOf(false) }

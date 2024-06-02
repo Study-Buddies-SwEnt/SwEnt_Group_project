@@ -7,9 +7,7 @@ import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.core.content.ContextCompat
 
-/**
- * Determine the storage permission version depending on the Android version.
- */
+/** Determine the storage permission version depending on the Android version. */
 fun imagePermissionVersion(): String {
   return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
     // For older Android versions, use READ_EXTERNAL_STORAGE permission
@@ -19,9 +17,7 @@ fun imagePermissionVersion(): String {
   }
 }
 
-/**
- * Function to check and request a single permission.
- */
+/** Function to check and request a single permission. */
 fun checkPermission(
     context: Context,
     permission: String,
@@ -35,9 +31,7 @@ fun checkPermission(
   }
 }
 
-/**
- * Function to check the location permissions
- */
+/** Function to check the location permissions */
 fun Context.hasLocationPermission(): Boolean {
   return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
       PackageManager.PERMISSION_GRANTED &&

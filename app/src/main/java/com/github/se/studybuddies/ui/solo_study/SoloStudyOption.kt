@@ -23,6 +23,7 @@ import com.github.se.studybuddies.ui.theme.White
 
 /**
  * Data class to represent the options available for solo study.
+ *
  * @param name: The name of the option.
  * @param iconId: The id of the icon for the option.
  * @param route: The route to navigate to when the option is selected.
@@ -35,9 +36,7 @@ val TIMER = SoloStudyOption("Timer", R.drawable.timer, Route.TIMER)
 
 val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.CALENDAR)
 
-/**
- * Composable function to display the buttons for the solo study options.
- */
+/** Composable function to display the buttons for the solo study options. */
 @Composable
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(

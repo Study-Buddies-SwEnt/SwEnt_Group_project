@@ -30,15 +30,11 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
       Route.SOLOSTUDYHOME,
       content = {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("solo_study_home"),
+            modifier = Modifier.fillMaxSize().testTag("solo_study_home"),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(
-                  modifier = Modifier
-                      .fillMaxWidth()
-                      .testTag("solo_study_row1"),
+                  modifier = Modifier.fillMaxWidth().testTag("solo_study_row1"),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
                     Solo_study_buttons(navigationActions, option = FLASH_CARD)
                     Solo_study_buttons(navigationActions, option = TODO_LIST)
@@ -46,9 +42,7 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
 
               Spacer(modifier = Modifier.height(100.dp))
               Row(
-                  modifier = Modifier
-                      .fillMaxWidth()
-                      .testTag("solo_study_row2"),
+                  modifier = Modifier.fillMaxWidth().testTag("solo_study_row2"),
                   horizontalArrangement = Arrangement.SpaceEvenly) {
                     Solo_study_buttons(navigationActions, option = CALENDAR)
                     Solo_study_buttons(navigationActions, option = TIMER)
