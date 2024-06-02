@@ -124,7 +124,7 @@ fun ContactScreen(
               IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
                 Icon(
                     modifier = Modifier.size(20.dp),
-                    painter = painterResource(R.drawable.video_call),
+                    painter = painterResource(R.drawable.active_call),
                     contentDescription = "",
                     tint = Blue)
               }
