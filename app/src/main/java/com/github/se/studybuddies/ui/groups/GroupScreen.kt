@@ -122,16 +122,16 @@ fun GroupScreen(
                 listOf(
                     Destination(
                         route = "${Route.CALLLOBBY}/$groupUID",
-                        icon = R.drawable.video_call,
-                        textId = "Video Call"),
+                        icon = R.drawable.active_call,
+                        textId = stringResource(R.string.video_call)),
                     Destination(
                         route = "${Route.SHAREDTIMER}/$groupUID",
-                        icon = R.drawable.messages,
-                        textId = "Timer")),
-            currentRoute = Route.GROUP)
-      }) {
+                        icon = R.drawable.timer,
+                        textId = stringResource(R.string.timer))),
+            iconSize = 32)
+      }) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(it).testTag("GroupScreenColumn"),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("GroupScreenColumn"),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
         ) {

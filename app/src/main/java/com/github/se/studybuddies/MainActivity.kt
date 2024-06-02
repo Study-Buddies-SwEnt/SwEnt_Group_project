@@ -36,6 +36,7 @@ import com.github.se.studybuddies.ui.groups.GroupMembers
 import com.github.se.studybuddies.ui.groups.GroupScreen
 import com.github.se.studybuddies.ui.groups.GroupSetting
 import com.github.se.studybuddies.ui.groups.GroupsHome
+import com.github.se.studybuddies.ui.groups.MembersList
 import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.ui.settings.Settings
 import com.github.se.studybuddies.ui.shared_elements.Placeholder
@@ -249,6 +250,17 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to GroupMembers")
                   }
                 }
+            composable(
+                route = "${Route.GROUPMEMBERADD}/{groupUID}",
+                arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val groupUID = backStackEntry.arguments?.getString("groupUID")
+                  ifNotNull(groupUID) { groupUid ->
+                    val groupViewModel = remember { GroupViewModel(groupUID, db) }
+                    MembersList(groupUid, groupViewModel, navigationActions, db)
+                    Log.d("MyPrint", "Successfully navigated to MembersList")
+                  }
+                }
             composable(Route.CHAT) {
               val chat = remember { chatViewModel.getChat() ?: Chat.empty() }
               val messageViewModel = remember { MessageViewModel(chat) }
@@ -321,11 +333,9 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(key1 = state.isConnected) {
                       if (state.isConnected ||
                           StreamVideo.instance().state.activeCall.value?.id == groupUID) {
-                        Log.d("MyPrint", "Joined same call")
                         navigationActions.navigateTo("${Route.VIDEOCALL}/$groupUID")
                       }
                     }
-                    Log.d("MyPrint", "Join VideoCall lobby")
                     CallLobbyScreen(state, viewModel, viewModel::onAction, navigationActions)
                   } else {
                     Log.d("MyPrint", "Failed bc video call client isn't installed")
@@ -348,7 +358,6 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(key1 = state.callState) {
                       if (state.callState == CallState.ENDED) {
                         navController.popBackStack("${Route.GROUP}/$groupUID", false)
-                        Log.d("MyPrint", "Successfully left the call")
                       }
                     }
                     VideoCallScreen(callId, state, videoVM::onAction, navigationActions)
@@ -423,20 +432,17 @@ class MainActivity : ComponentActivity() {
     }
   }
 
+  /** Start a call if there is no active call or the active call is not the same as the new call */
   private fun startCall(activeCall: Call?, groupUID: String, callType: String) =
       if (activeCall != null) {
         if (activeCall.id != groupUID) {
-          Log.w("CallActivity", "A call with id: $groupUID existed. Leaving.")
           activeCall.leave()
-          // Return a new call
-          StreamVideo.instance().call(callType, groupUID)
+          StreamVideo.instance().call(callType, groupUID) // Return a new call
         } else {
-          // Call ID is the same, use the active call
-          activeCall
+          activeCall // Call ID is the same, use the active call
         }
       } else {
-        // There is no active call, create new call
-        StreamVideo.instance().call(callType, groupUID)
+        StreamVideo.instance().call(callType, groupUID) // There is no active call, create new call
       }
 
   private inline fun <T> ifNotNull(value: T?, action: (T) -> Unit) {
