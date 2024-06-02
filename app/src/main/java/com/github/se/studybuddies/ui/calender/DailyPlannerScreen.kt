@@ -59,7 +59,6 @@ fun DailyPlannerScreen(
     viewModel: CalendarViewModel,
     navigationActions: NavigationActions
 ) {
-
   LaunchedEffect(date) { viewModel.refreshDailyPlanners() }
 
   val planner by viewModel.getDailyPlanner(date).collectAsState()
@@ -67,6 +66,7 @@ fun DailyPlannerScreen(
   var goals by remember { mutableStateOf(listOf<String>()) }
   var appointments by remember { mutableStateOf(mapOf<String, String>().toSortedMap()) }
   var notes by remember { mutableStateOf(listOf<String>()) }
+  var deleteMode by remember { mutableStateOf(false) }
 
   LaunchedEffect(planner) {
     goals = planner.goals
@@ -74,89 +74,39 @@ fun DailyPlannerScreen(
     notes = planner.notes
   }
 
-  var dialogState by remember { mutableStateOf<DialogState?>(null) }
-  var deleteMode by remember { mutableStateOf(false) }
-
-  Scaffold(
-      modifier = Modifier.fillMaxSize(),
-      topBar = {
-        TopNavigationBar(
-            title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
-            navigationIcon = { GoBackRouteButton(navigationActions, Route.CALENDAR) },
-            actions = {
-              IconButton(onClick = { deleteMode = !deleteMode }) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
-              }
-            })
-      }) { padding ->
-        Column(modifier = Modifier.padding(10.dp).padding(padding)) {
-          Spacer(modifier = Modifier.height(5.dp))
-
-          Row {
-            Column(modifier = Modifier.weight(1f).padding(end = 3.dp)) {
-              PlannerSection(
-                  title = stringResource(id = R.string.todays_goals),
-                  items = goals,
-                  onAddItemClick = { dialogState = DialogState.AddGoal },
-                  onDeleteItemClick = { goal ->
-                    viewModel.deleteGoal(date, goal)
-                    goals = goals.filter { it != goal }
-                  },
-                  deleteMode = deleteMode)
-              Spacer(modifier = Modifier.height(16.dp))
-              PlannerSection(
-                  title = stringResource(id = R.string.notes),
-                  items = notes,
-                  onAddItemClick = { dialogState = DialogState.AddNote },
-                  onDeleteItemClick = { note ->
-                    viewModel.deleteNote(date, note)
-                    notes = notes.filter { it != note }
-                  },
-                  deleteMode = deleteMode)
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-              AppointmentsSection(
-                  appointments = appointments,
-                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment },
-                  onDeleteAppointmentClick = { time ->
-                    viewModel.deleteAppointment(date, time)
-                    appointments = appointments.filterKeys { it != time }.toSortedMap()
-                  },
-                  deleteMode = deleteMode)
-            }
-          }
-        }
-      }
-
-  when (dialogState) {
-    DialogState.AddGoal ->
-        AddItemDialog(
-            title = stringResource(id = R.string.add_goal),
-            label = stringResource(id = R.string.goal),
-            onAddItem = { newItem ->
-              goals = goals + newItem
-              viewModel.updateDailyPlanner(date, planner.copy(goals = goals))
-            },
-            onDismiss = { dialogState = null })
-    DialogState.AddNote ->
-        AddItemDialog(
-            title = stringResource(id = R.string.add_note),
-            label = stringResource(id = R.string.note),
-            onAddItem = { newItem ->
-              notes = notes + newItem
-              viewModel.updateDailyPlanner(date, planner.copy(notes = notes))
-            },
-            onDismiss = { dialogState = null })
-    DialogState.AddAppointment ->
-        AddAppointmentDialog(
-            onAddAppointment = { time, text ->
-              appointments = (appointments + (time to text)).toSortedMap()
-              viewModel.updateDailyPlanner(date, planner.copy(appointments = appointments))
-            },
-            onDismiss = { dialogState = null })
-    null -> {}
-  }
+  PlannerScreen(
+      date = date,
+      title = stringResource(id = R.string.daily_planner_title),
+      navigationIcon = { GoBackRouteButton(navigationActions, Route.CALENDAR) },
+      onDeleteModeToggle = { deleteMode = !deleteMode },
+      isDeleteMode = deleteMode,
+      goals = goals,
+      notes = notes,
+      appointments = appointments,
+      onGoalAdd = { newItem ->
+        goals = goals + newItem
+        viewModel.updateDailyPlanner(date, planner.copy(goals = goals))
+      },
+      onNoteAdd = { newItem ->
+        notes = notes + newItem
+        viewModel.updateDailyPlanner(date, planner.copy(notes = notes))
+      },
+      onAppointmentAdd = { time, text ->
+        appointments = (appointments + (time to text)).toSortedMap()
+        viewModel.updateDailyPlanner(date, planner.copy(appointments = appointments))
+      },
+      onGoalDelete = { goal ->
+        viewModel.deleteGoal(date, goal)
+        goals = goals.filter { it != goal }
+      },
+      onNoteDelete = { note ->
+        viewModel.deleteNote(date, note)
+        notes = notes.filter { it != note }
+      },
+      onAppointmentDelete = { time ->
+        viewModel.deleteAppointment(date, time)
+        appointments = appointments.filterKeys { it != time }.toSortedMap()
+      })
 }
 
 @Composable
@@ -379,6 +329,88 @@ fun AddAppointmentDialog(onAddAppointment: (String, String) -> Unit, onDismiss: 
           Text(stringResource(id = R.string.cancel), color = White)
         }
       })
+}
+
+@Composable
+fun PlannerScreen(
+    date: String,
+    title: String,
+    navigationIcon: @Composable () -> Unit,
+    onDeleteModeToggle: () -> Unit,
+    isDeleteMode: Boolean,
+    goals: List<String>,
+    notes: List<String>,
+    appointments: Map<String, String>,
+    onGoalAdd: (String) -> Unit,
+    onNoteAdd: (String) -> Unit,
+    onAppointmentAdd: (String, String) -> Unit,
+    onGoalDelete: (String) -> Unit,
+    onNoteDelete: (String) -> Unit,
+    onAppointmentDelete: (String) -> Unit
+) {
+  var dialogState by remember { mutableStateOf<DialogState?>(null) }
+
+  Scaffold(
+      modifier = Modifier.fillMaxSize(),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(title) },
+            navigationIcon = navigationIcon,
+            actions = {
+              IconButton(onClick = onDeleteModeToggle) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
+              }
+            })
+      }) { padding ->
+        Column(modifier = Modifier.padding(10.dp).padding(padding)) {
+          Spacer(modifier = Modifier.height(5.dp))
+
+          Row {
+            Column(modifier = Modifier.weight(1f).padding(end = 3.dp)) {
+              PlannerSection(
+                  title = stringResource(id = R.string.todays_goals),
+                  items = goals,
+                  onAddItemClick = { dialogState = DialogState.AddGoal },
+                  onDeleteItemClick = onGoalDelete,
+                  deleteMode = isDeleteMode)
+              Spacer(modifier = Modifier.height(16.dp))
+              PlannerSection(
+                  title = stringResource(id = R.string.notes),
+                  items = notes,
+                  onAddItemClick = { dialogState = DialogState.AddNote },
+                  onDeleteItemClick = onNoteDelete,
+                  deleteMode = isDeleteMode)
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+              AppointmentsSection(
+                  appointments = appointments,
+                  onAddAppointmentClick = { dialogState = DialogState.AddAppointment },
+                  onDeleteAppointmentClick = onAppointmentDelete,
+                  deleteMode = isDeleteMode)
+            }
+          }
+        }
+      }
+
+  when (dialogState) {
+    DialogState.AddGoal ->
+        AddItemDialog(
+            title = stringResource(id = R.string.add_goal),
+            label = stringResource(id = R.string.goal),
+            onAddItem = onGoalAdd,
+            onDismiss = { dialogState = null })
+    DialogState.AddNote ->
+        AddItemDialog(
+            title = stringResource(id = R.string.add_note),
+            label = stringResource(id = R.string.note),
+            onAddItem = onNoteAdd,
+            onDismiss = { dialogState = null })
+    DialogState.AddAppointment ->
+        AddAppointmentDialog(
+            onAddAppointment = onAppointmentAdd, onDismiss = { dialogState = null })
+    null -> {}
+  }
 }
 
 enum class DialogState {

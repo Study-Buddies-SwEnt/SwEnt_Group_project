@@ -196,7 +196,7 @@ class DatabaseConnection : DbRepository {
         }
   }
 
-  override fun updateGroupPlanners(groupId: String, dailyPlanners: List<DailyPlanner>) {
+  fun updateGroupPlanners(groupId: String, dailyPlanners: List<DailyPlanner>) {
     if (groupId.isEmpty()) return
 
     val plannersMap = dailyPlanners.associateBy { it.date }
@@ -915,6 +915,7 @@ class DatabaseConnection : DbRepository {
       }
       is Message.LinkMessage -> {
         messageData[MessageVal.LINK] = message.linkUri.toString()
+        messageData[MessageVal.LINK_NAME] = message.linkName
         messageData[MessageVal.TYPE] = MessageVal.LINK
         saveMessage(messagePath, messageData)
       }
