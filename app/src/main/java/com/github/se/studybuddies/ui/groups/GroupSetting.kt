@@ -70,7 +70,6 @@ fun GroupSetting(
     navigationActions: NavigationActions,
     db: DbRepository
 ) {
-
   if (groupUID.isEmpty()) return
   groupViewModel.fetchGroupData(groupUID)
   val groupData by groupViewModel.group.observeAsState()

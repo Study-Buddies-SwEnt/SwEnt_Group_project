@@ -1167,6 +1167,40 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+  override suspend fun getTopicFile(id: String): TopicFile {
+    val document = topicItemCollection.document(id).get().await()
+    return if (document.exists()) {
+      val name = document.getString(topic_name) ?: ""
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val parentUID = document.getString(item_parent) ?: ""
+      TopicFile(id, name, strongUsers, parentUID)
+    } else {
+      TopicFile.empty()
+    }
+  }
+
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+    val document = topicItemCollection.document(fileID).get().await()
+    if (document.exists()) {
+      val strongUsers = document.get(item_strongUsers) as List<String>
+      val currentUser = getCurrentUserUID()
+      callBack(strongUsers.contains(currentUser))
+    }
+  }
+
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+    val currentUser = getCurrentUserUID()
+    if (newValue) {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayUnion(currentUser))
+    } else {
+      topicItemCollection
+          .document(fileID)
+          .update(item_strongUsers, FieldValue.arrayRemove(currentUser))
+    }
+  }
+
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
     for (itemUID in listUID) {

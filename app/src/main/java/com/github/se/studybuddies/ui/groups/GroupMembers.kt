@@ -83,6 +83,14 @@ fun GroupMembers(
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val members = remember { groupData?.let { mutableStateOf(it.members) } }
 
+  /*
+  val isBoxVisible = remember { mutableStateOf(false) }
+  groupData?.let { nameState.value = it.name }
+
+  groupViewModel.fetchUsers()
+  val userData by groupViewModel.members.observeAsState()
+     */
+
   val currUser = groupViewModel.getCurrentUser()
 
   var nbMember = 0
@@ -122,6 +130,34 @@ fun GroupMembers(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
         ) {
+          /*
+             if (isBoxVisible.value) {
+                 ShowContact(groupUID, groupViewModel, isBoxVisible)
+             } else {
+                 LazyColumn(
+                     modifier =
+                     Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
+                     verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
+                     horizontalAlignment = Alignment.CenterHorizontally) {
+                     item { Name(nameState) }
+                     item { Spacer(modifier = Modifier.padding(5.dp)) }
+                     item { AddMemberButtonUID(groupUID, groupViewModel) }
+                     item { AddMemberButtonList(isBoxVisible) }
+                     item { Spacer(modifier = Modifier.padding(5.dp)) }
+                     if (userData?.size!! > 0) {
+                         items(userData!!.size) { index ->
+                             val user = userData!![index]
+                             MemberItem(groupUID, navigationActions, db, user, currUser)
+                         }
+                     } else { // Should never happen
+                         item {
+                             Text(
+                                 stringResource(R.string.error_no_member_found_for_this_group),
+                                 textAlign = TextAlign.Center,
+                                 modifier = Modifier.testTag("EmptyGroupMemberText"))
+                         }
+
+          */
           LazyColumn(
               modifier =
                   Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),

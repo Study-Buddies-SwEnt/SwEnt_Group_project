@@ -697,7 +697,11 @@ class MockDatabase : DbRepository {
     topicItemCollection[item.uid] = item
   }
 
-  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
+  override suspend fun getTopicFile(id: String): TopicFile {
+    return TopicFile("", "", emptyList(), "")
+  }
+
+  override suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit) {
     val document = topicItemCollection[fileID]
     if (document != null && document is TopicFile) {
       val strongUsers = document.strongUsers
@@ -708,7 +712,7 @@ class MockDatabase : DbRepository {
     }
   }
 
-  suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
+  override suspend fun updateStrongUser(fileID: String, newValue: Boolean) {
     val currentUser = getCurrentUserUID()
     val document = topicItemCollection[fileID]
     if (document != null && document is TopicFile) {

@@ -152,6 +152,12 @@ interface DbRepository {
 
   fun updateTopicItem(item: TopicItem)
 
+  suspend fun getTopicFile(id: String): TopicFile
+
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
+
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean)
+
   fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
