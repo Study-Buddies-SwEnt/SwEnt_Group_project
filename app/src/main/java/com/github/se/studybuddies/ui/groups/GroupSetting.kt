@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
@@ -197,14 +199,14 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
-  var showSucces by remember { mutableStateOf(false) }
+  var showSuccess by remember { mutableStateOf(false) }
 
   Column(modifier = Modifier.testTag("add_member_column")) {
     Button(
         modifier = Modifier.testTag("add_member_button"),
         onClick = {
           isTextFieldVisible = !isTextFieldVisible
-          showSucces = false
+          showSuccess = false
           showError = false
         },
         shape = MaterialTheme.shapes.medium,
@@ -221,9 +223,14 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
 
   if (isTextFieldVisible) {
     OutlinedTextField(
+        modifier = Modifier.testTag("add_memberUID_text_field"),
         value = text,
         onValueChange = { text = it },
-        label = { Text(stringResource(R.string.enter_userID)) },
+        label = {
+          Text(
+              stringResource(R.string.enter_userID),
+              modifier = Modifier.testTag("add_memberUID_text"))
+        },
         singleLine = true,
         colors =
             TextFieldDefaults.colors(
@@ -232,6 +239,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
                 unfocusedLabelColor = Blue,
                 unfocusedIndicatorColor = Blue,
             ),
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
         keyboardActions =
             KeyboardActions(
                 onDone = {
@@ -243,7 +251,8 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
                       showError = true
                       if (text == "Error") text = ""
                     } else {
-                      showSucces = true
+                      groupViewModel.fetchGroupData(groupUID)
+                      showSuccess = true
                       text = ""
                     }
                   }
@@ -251,20 +260,28 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   }
   if (showError) {
     Snackbar(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("error_snackbar"),
         action = {
-          TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showError = false }) {}
+          TextButton(
+              modifier = Modifier.fillMaxWidth().testTag("error_button"),
+              onClick = { showError = false }) {}
         }) {
-          Text(stringResource(R.string.can_t_find_a_member_with_this_uid))
+          Text(
+              stringResource(R.string.can_t_find_a_member_with_this_uid),
+              modifier = Modifier.testTag("error_text"))
         }
   }
-  if (showSucces) {
+  if (showSuccess) {
     Snackbar(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("success_snackbar"),
         action = {
-          TextButton(modifier = Modifier.fillMaxWidth(), onClick = { showSucces = false }) {}
+          TextButton(
+              modifier = Modifier.fillMaxWidth().testTag("success_button"),
+              onClick = { showSuccess = false }) {}
         }) {
-          Text(stringResource(R.string.user_have_been_successfully_added_to_the_group))
+          Text(
+              stringResource(R.string.user_have_been_successfully_added_to_the_group),
+              modifier = Modifier.testTag("success_text"))
         }
   }
 }
@@ -275,8 +292,9 @@ fun ShareLinkButton(groupLink: String) {
   var isTextVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
 
-  Column {
+  Column(modifier = Modifier.testTag("share_link_column")) {
     Button(
+        modifier = Modifier.testTag("share_link_button"),
         onClick = {
           text = groupLink
           isTextVisible = !isTextVisible
@@ -286,7 +304,10 @@ fun ShareLinkButton(groupLink: String) {
             ButtonDefaults.buttonColors(
                 containerColor = Blue,
             )) {
-          Text(stringResource(R.string.share_link), color = Color.White)
+          Text(
+              stringResource(R.string.share_link),
+              color = Color.White,
+              modifier = Modifier.testTag("share_link_button_text"))
         }
   }
 
@@ -295,7 +316,7 @@ fun ShareLinkButton(groupLink: String) {
         value = text,
         onValueChange = {},
         readOnly = true,
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(16.dp).testTag("share_link_text"),
         colors =
             TextFieldDefaults.colors(
                 focusedContainerColor = White,

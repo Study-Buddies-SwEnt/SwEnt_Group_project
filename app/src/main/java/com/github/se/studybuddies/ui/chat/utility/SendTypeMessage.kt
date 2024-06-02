@@ -261,7 +261,7 @@ fun SendLinkMessage(messageViewModel: MessageViewModel, showAddLink: MutableStat
 }
 
 @Composable
-fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableState<Boolean>) {
+fun PickPicture(showAddImage: MutableState<Boolean>, onSave: (Uri) -> Unit) {
   val photoState = remember { mutableStateOf(Uri.EMPTY) }
   val imageInput = "image/*"
   val permission = imagePermissionVersion()
@@ -284,7 +284,7 @@ fun SendPhotoMessage(messageViewModel: MessageViewModel, showAddImage: MutableSt
       },
       button = {
         SaveButton(photoState.value.toString().isNotBlank()) {
-          messageViewModel.sendPhotoMessage(photoState.value)
+          onSave(photoState.value)
           showAddImage.value = false
           photoState.value = Uri.EMPTY
         }
