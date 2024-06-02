@@ -141,7 +141,7 @@ fun GroupSetting(
                         }
                       }
                       item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer3")) }
-                      item { AddMemberButton(groupUID, groupViewModel) }
+                      item { AddMemberButtonUID(groupUID, groupViewModel) }
                       item { AddMemberButtonList(isBoxVisible) }
                       item { ShareLinkButton(groupLink.value) }
                       item { Spacer(modifier = Modifier.padding(10.dp).testTag("setting_spacer4")) }
@@ -190,7 +190,7 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
+fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
