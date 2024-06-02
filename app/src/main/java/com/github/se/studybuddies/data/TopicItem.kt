@@ -8,11 +8,11 @@ data class TopicFile(
     var strongUsers: List<String>,
     override val parentUID: String
 ) : TopicItem(uid, fileName, parentUID) {
-    companion object {
-        fun empty(): TopicFile {
-            return TopicFile("", "", emptyList(), "")
-        }
+  companion object {
+    fun empty(): TopicFile {
+      return TopicFile("", "", emptyList(), "")
     }
+  }
 }
 
 data class TopicFolder(
@@ -33,6 +33,6 @@ enum class ItemArea {
 }
 
 enum class FileArea {
-    RESOURCES,
-    STRONG_USERS
+  RESOURCES,
+  STRONG_USERS
 }

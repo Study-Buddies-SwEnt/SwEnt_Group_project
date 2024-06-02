@@ -218,7 +218,7 @@ fun AddMemberButton(groupUID: String, groupViewModel: GroupViewModel) {
                 onDone = {
                   // add the user to the database
                   isTextFieldVisible = false
-                  groupViewModel.addUserToGroup(groupUID, text){}
+                  groupViewModel.addUserToGroup(groupUID, text) {}
                 }))
   }
   if (showError) {

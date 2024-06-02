@@ -14,8 +14,8 @@ class TopicFileViewModel(
     private val fileID: String,
     private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
-   private val _topicFile = MutableStateFlow<TopicFile>(TopicFile.empty())
-   val topicFile: StateFlow<TopicFile> = _topicFile
+  private val _topicFile = MutableStateFlow<TopicFile>(TopicFile.empty())
+  val topicFile: StateFlow<TopicFile> = _topicFile
 
   init {
     fetchTopicFile(fileID)

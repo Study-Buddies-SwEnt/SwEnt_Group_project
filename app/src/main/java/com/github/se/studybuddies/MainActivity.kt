@@ -436,18 +436,16 @@ class MainActivity : ComponentActivity() {
                 }
 
             composable(
-             route = "${Route.TOPICRESOURCES}/{topicFileID}",
-             arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
-                 backStackEntry ->
-               val topicFileID = backStackEntry.arguments?.getString("topicFileID")
-               if (topicFileID != null) {
-                 val topicFileViewModel = remember { TopicFileViewModel(topicFileID, db) }
-                 TopicResources(topicFileID, topicFileViewModel, navigationActions)
-                 Log.d("MyPrint", "Successfully navigated to TopicResources")
-               }
-             }
-
-
+                route = "${Route.TOPICRESOURCES}/{topicFileID}",
+                arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val topicFileID = backStackEntry.arguments?.getString("topicFileID")
+                  if (topicFileID != null) {
+                    val topicFileViewModel = remember { TopicFileViewModel(topicFileID, db) }
+                    TopicResources(topicFileID, topicFileViewModel, navigationActions)
+                    Log.d("MyPrint", "Successfully navigated to TopicResources")
+                  }
+                }
 
             composable(Route.PLACEHOLDER) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->

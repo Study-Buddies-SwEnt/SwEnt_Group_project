@@ -56,120 +56,120 @@ fun TopicResources(
     topicFileViewModel: TopicFileViewModel,
     navigationActions: NavigationActions
 ) {
-    topicFileViewModel.fetchTopicFile(fileID)
-    val fileData by topicFileViewModel.topicFile.collectAsState()
+  topicFileViewModel.fetchTopicFile(fileID)
+  val fileData by topicFileViewModel.topicFile.collectAsState()
 
-    val nameState = remember { mutableStateOf(fileData.fileName) }
-    val strongUserIDs = remember { mutableStateOf(fileData.strongUsers) }
-    val strongUsers = remember { mutableStateOf(emptyList<User>()) }
+  val nameState = remember { mutableStateOf(fileData.fileName) }
+  val strongUserIDs = remember { mutableStateOf(fileData.strongUsers) }
+  val strongUsers = remember { mutableStateOf(emptyList<User>()) }
 
+  topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
+
+  val areaState = remember { mutableStateOf(FileArea.RESOURCES) }
+
+  LaunchedEffect(fileData.fileName) {
+    nameState.value = fileData.fileName
+    strongUserIDs.value = fileData.strongUsers
     topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
+  }
 
-    val areaState = remember { mutableStateOf(FileArea.RESOURCES) }
-
-    LaunchedEffect(fileData.fileName) {
-        nameState.value = fileData.fileName
-        strongUserIDs.value = fileData.strongUsers
-        topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
-    }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopNavigationBar(
-                title = { Sub_title(nameState.value) },
-                leftButton = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Go back",
-                        modifier =
-                        Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
-                },
-                rightButton = {})
-        }) {
+  Scaffold(
+      modifier = Modifier.fillMaxSize(),
+      topBar = {
+        TopNavigationBar(
+            title = { Sub_title(nameState.value) },
+            leftButton = {
+              Icon(
+                  imageVector = Icons.Default.ArrowBack,
+                  contentDescription = "Go back",
+                  modifier =
+                      Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
+            },
+            rightButton = {})
+      }) {
         Column(
             modifier = Modifier.fillMaxSize().padding(it),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
-            Column(modifier = Modifier.fillMaxWidth()) {
+              Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Resources",
-                        modifier =
-                        Modifier.weight(1f)
-                            .clickable { areaState.value = FileArea.RESOURCES }
-                            .padding(horizontal = 16.dp, vertical = 16.dp)
-                            .align(Alignment.CenterVertically),
-                        style = TextStyle(fontSize = 20.sp),
-                        textAlign = TextAlign.Center)
-                    Text(
-                        text = "Strong Users",
-                        modifier =
-                        Modifier.weight(1f)
-                            .clickable { areaState.value = FileArea.STRONG_USERS }
-                            .padding(horizontal = 16.dp, vertical = 16.dp)
-                            .align(Alignment.CenterVertically),
-                        style = TextStyle(fontSize = 20.sp),
-                        textAlign = TextAlign.Center)
-                }
+                      Text(
+                          text = "Resources",
+                          modifier =
+                              Modifier.weight(1f)
+                                  .clickable { areaState.value = FileArea.RESOURCES }
+                                  .padding(horizontal = 16.dp, vertical = 16.dp)
+                                  .align(Alignment.CenterVertically),
+                          style = TextStyle(fontSize = 20.sp),
+                          textAlign = TextAlign.Center)
+                      Text(
+                          text = "Strong Users",
+                          modifier =
+                              Modifier.weight(1f)
+                                  .clickable { areaState.value = FileArea.STRONG_USERS }
+                                  .padding(horizontal = 16.dp, vertical = 16.dp)
+                                  .align(Alignment.CenterVertically),
+                          style = TextStyle(fontSize = 20.sp),
+                          textAlign = TextAlign.Center)
+                    }
                 HorizontalDivider(
                     modifier =
-                    Modifier.align(
-                        if (areaState.value == FileArea.RESOURCES) Alignment.Start
-                        else Alignment.End)
-                        .fillMaxWidth(0.5f),
+                        Modifier.align(
+                                if (areaState.value == FileArea.RESOURCES) Alignment.Start
+                                else Alignment.End)
+                            .fillMaxWidth(0.5f),
                     color = Blue,
                     thickness = 4.dp)
-            }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                horizontalAlignment = Alignment.Start,
-                content = {
+              }
+              LazyColumn(
+                  modifier = Modifier.fillMaxSize(),
+                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                  horizontalAlignment = Alignment.Start,
+                  content = {
                     if (areaState.value == FileArea.RESOURCES) {
-                        item {
-                            Column(modifier = Modifier.fillMaxSize()) { Text("Resources go here") }
-                        }
+                      item {
+                        Column(modifier = Modifier.fillMaxSize()) { Text("Resources go here") }
+                      }
                     } else {
-                        items(strongUsers.value) { user -> UserBox(user) }
+                      items(strongUsers.value) { user -> UserBox(user) }
                     }
-                })
-        }
-    }
+                  })
+            }
+      }
 }
 
 @Composable
 private fun UserBox(user: User) {
-    Column {
-        Box(
-            modifier =
+  Column {
+    Box(
+        modifier =
             Modifier.fillMaxWidth().background(Color.White).drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              val strokeWidth = 1f
+              val y = size.height - strokeWidth / 2
+              drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
             }) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(6.dp),
-                verticalAlignment = Alignment.CenterVertically) {
+          Row(
+              modifier = Modifier.fillMaxWidth().padding(6.dp),
+              verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.size(10.dp))
                 Box(
                     modifier =
-                    Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
-                    Image(
-                        painter = rememberImagePainter(user.photoUrl),
-                        contentDescription = stringResource(R.string.user_profile_picture),
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop)
-                }
+                        Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+                      Image(
+                          painter = rememberImagePainter(user.photoUrl),
+                          contentDescription = stringResource(R.string.user_profile_picture),
+                          modifier = Modifier.fillMaxSize(),
+                          contentScale = ContentScale.Crop)
+                    }
                 Spacer(modifier = Modifier.size(20.dp))
                 Text(
                     text = user.username,
                     modifier = Modifier.align(Alignment.CenterVertically),
                     style = TextStyle(fontSize = 20.sp),
                     lineHeight = 28.sp)
-            }
+              }
         }
-    }
+  }
 }
