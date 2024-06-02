@@ -180,6 +180,10 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
+  fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
+
+  suspend fun getTopicFileImages(fileID: String): List<Uri>
+
   companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"

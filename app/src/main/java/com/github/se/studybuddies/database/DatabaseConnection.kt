@@ -1157,6 +1157,28 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+  override fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit) {
+    val imageRef = storage.child("topicResources/$fileID/${image.lastPathSegment}.jpg")
+    imageRef.putFile(image).addOnSuccessListener { callBack() }
+  }
+
+  override suspend fun getTopicFileImages(fileID: String): List<Uri> {
+    val path = storage.child("topicResources/$fileID")
+
+    return try {
+      val result = path.listAll().await()
+      if (result.items.isEmpty()) {
+        emptyList()
+      } else {
+        result.items
+            .filter { item -> item.name.endsWith(".jpg", true) }
+            .map { image -> image.downloadUrl.await() }
+      }
+    } catch (e: Exception) {
+      emptyList()
+    }
+  }
+
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
     val items = mutableListOf<TopicItem>()
     for (itemUID in listUID) {

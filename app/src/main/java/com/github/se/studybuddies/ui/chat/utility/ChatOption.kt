@@ -53,7 +53,7 @@ fun IconsOptionsList(viewModel: MessageViewModel, showIconsOptions: MutableState
   val showAddFile = remember { mutableStateOf(false) }
   val showAddPoll = remember { mutableStateOf(false) }
 
-  SendPhotoMessage(viewModel, showAddImage)
+  PickPicture(showAddImage) { viewModel.sendPhotoMessage(it) }
   SendLinkMessage(viewModel, showAddLink)
   SendFileMessage(viewModel, showAddFile)
   SendPollMessage(viewModel, showAddPoll)
