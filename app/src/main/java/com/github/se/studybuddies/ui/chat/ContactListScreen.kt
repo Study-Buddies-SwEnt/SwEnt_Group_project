@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Divider
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import coil.compose.rememberAsyncImagePainter
 import com.firebase.ui.auth.data.model.User.getUser
 import com.github.se.studybuddies.R
@@ -52,6 +55,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.Blue
+import com.github.se.studybuddies.ui.theme.Green
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
@@ -113,6 +117,19 @@ fun ContactListScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                     ) {
+                        LazyColumn (
+                            modifier =
+                            Modifier
+                                .padding(vertical = 65.dp)
+                                .fillMaxSize()
+                                .background(LightBlue)
+                                .testTag("request_list")){
+                            items(1){
+                                val friendtest = userVM.getUser(currentUID)
+                                RequestItem(friendtest)
+                                RequestItem(friendtest)}
+                        }
+                        Divider()
                         LazyColumn(
                             modifier =
                             Modifier
@@ -124,8 +141,7 @@ fun ContactListScreen(
 
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
-                                val friendtest = userVM.getUser(currentUID)
-                                ContactItem(friendtest) {
+                                ContactItem(friend) {
                                     navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
                                 }
                             }
@@ -192,8 +208,10 @@ fun ContactItem(friend: User, onClick: () -> Unit = {}) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RequestItem(request: User) {
+    Column() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
         modifier =
         Modifier
             .fillMaxWidth()
@@ -213,27 +231,55 @@ fun RequestItem(request: User) {
                 .align(Alignment.CenterVertically)
                 .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
-        Text(text = "${request.username} sent you a friend request", modifier = Modifier.testTag("chat_name"))
-        Spacer(modifier = Modifier.size(50.dp))
-        Button(onClick = { /*TODO*/ } ,
+        Text(text = "${request.username} sent you a friend request",
             modifier = Modifier
-                .width(100.dp)
-                .height(40.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .background(color = Color.Green)
-                .testTag("add_private_message_button")){
-            Text(text = "Accept")
+                .fillMaxWidth(0.6f)
+                .testTag("chat_name"),
+            maxLines = 1)
+    }
+        Row (
+            modifier =
+            Modifier
+            .fillMaxWidth()
+            .background(color = White)
+            .border(color = LightBlue, width = Dp.Hairline)
+            .padding(8.dp)
+            .testTag("chat_item"),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            Button(onClick = { /*TODO*/ },
+                colors = ButtonColors(
+                    Color.Transparent,
+                    Color.Transparent,
+                    Color.Transparent,
+                    Color.Transparent
+                ),
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(color = Green)
+                    .width(60.dp)
+                    .height(30.dp)
+                    .testTag("add_private_message_button")) {
+                Text(text = "Accept", color = White)
+            }
+            Button(onClick = { /*TODO*/ },
+                colors = ButtonColors(
+                    Color.Transparent,
+                    Color.Transparent,
+                    Color.Transparent,
+                    Color.Transparent
+                ),
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(color = Color.Red)
+                    .width(60.dp)
+                    .height(30.dp)
+                    .testTag("add_private_message_button")) {
+                Text(text = "Deny", color = White)
+            }
         }
-        Spacer(modifier = Modifier.size(20.dp))
-        Button(onClick = { /*TODO*/ } ,
-            modifier = Modifier
-                .width(100.dp)
-                .height(40.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .background(color = Color.Red)
-                .testTag("add_private_message_button")){
-            Text(text = "Deny")
-        }
+
     }
 }
 
