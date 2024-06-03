@@ -253,7 +253,6 @@ class MainActivity : ComponentActivity() {
                 DirectMessageScreen(
                     directMessageViewModel,
                     chatViewModel,
-                    userViewModel,
                     navigationActions,
                     ContactsViewModel(currentUser))
               }
@@ -355,6 +354,7 @@ class MainActivity : ComponentActivity() {
                 MapScreen(
                     currentUser,
                     userViewModel,
+                    contactsViewModel,
                     navigationActions,
                     applicationContext)
               }
