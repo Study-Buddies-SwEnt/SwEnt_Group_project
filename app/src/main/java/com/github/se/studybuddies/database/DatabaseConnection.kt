@@ -1173,8 +1173,8 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-    override suspend fun sendContactRequest(otherUID: String){
-
+    //TODO() add to dbrep and mockdb
+    suspend fun sendContactRequest(otherUID: String){
     }
 
   override suspend fun startDirectMessage(otherUID: String): String {
@@ -1625,8 +1625,8 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    //TODO add to mockdb and repo
-  suspend fun getAllRequests(uid: String): RequestList {
+    //TODO add to mockdb
+  override suspend fun getAllRequests(uid: String): RequestList {
         try {
             val snapshot = userContactsCollection.document(uid).get().await()
             val items = mutableListOf<User>()
@@ -1637,24 +1637,27 @@ class DatabaseConnection : DbRepository {
                     requestsIDs.forEach { requestID ->
                         try {
                             val document = userDataCollection.document(requestID).get().await()
-                            val members = document.get("members") as? List<String> ?: emptyList()
-                            val showOnMap = document.get("showOnMap") as Boolean ?: false
-                            items.add(Contact(contactID, members, showOnMap))
+                            val email = document.getString("email") ?: ""
+                            val username = document.getString("username") ?: ""
+                            val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
+                            val location = document.getString("location") ?: "offline"
+                            val request = User(uid, email, username, photoUrl, location)
+                            items.add(request)
                         } catch (e: Exception) {
-                            Log.e("contacts", "Error fetching pending Request with ID $contactID: $e")
+                            Log.e("contacts", "Error fetching pending Request with ID $requestID: $e")
                         }
                     }
                 }
                 Log.d("contacts", "fetched all pending Requests for user $uid")
-                return ContactList(items)
+                return RequestList(items)
             } else {
                 Log.d("contacts", "User with uid $uid does not exist")
-                return ContactList(emptyList())
+                return RequestList(emptyList())
             }
         } catch (e: Exception) {
             Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
         }
-        return ContactList(emptyList())
+        return RequestList(emptyList())
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {

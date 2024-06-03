@@ -9,6 +9,7 @@ import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -189,8 +190,9 @@ interface DbRepository {
   fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
 
   suspend fun getTopicFileImages(fileID: String): List<Uri>
+    suspend fun getAllRequests(uid: String): RequestList
 
-  companion object {
+    companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"
