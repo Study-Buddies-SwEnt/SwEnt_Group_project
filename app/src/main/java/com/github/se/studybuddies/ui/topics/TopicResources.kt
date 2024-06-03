@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.ui.topics
 
 //noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -101,6 +103,7 @@ fun TopicResources(
     topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
   }
   LaunchedEffect(imagesData.size) { images.value = imagesData }
+
   val showOptions = remember { mutableStateOf(false) }
   val showUploadImage = remember { mutableStateOf(false) }
   val showUploadLink = remember { mutableStateOf(false) }
@@ -109,7 +112,7 @@ fun TopicResources(
   val expandImage = remember { mutableStateOf(false) }
   val expandedImage = remember { mutableStateOf(Uri.EMPTY) }
 
-  Box() {
+  Box {
     AddResources(topicFileViewModel, showOptions, showUploadImage, showUploadLink, showUploadFile)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -118,8 +121,8 @@ fun TopicResources(
               title = { Sub_title(nameState.value) },
               leftButton = {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Go back",
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(id = R.string.go_back),
                     modifier =
                         Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
               },
@@ -134,128 +137,58 @@ fun TopicResources(
                     contentDescription = stringResource(R.string.create_a_topic_item),
                     tint = White)
               }
-              LazyColumn(
-                  modifier = Modifier.fillMaxSize(),
-                  verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                  horizontalAlignment = Alignment.Start,
-                  content = {
-                    if (areaState.value == FileArea.RESOURCES) {
-                      item {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                          Text(stringResource(R.string.resources_go_here))
-                        }
-                        val showOptions = remember { mutableStateOf(false) }
-                        val showUploadImage = remember { mutableStateOf(false) }
-                        val showUploadLink = remember { mutableStateOf(false) }
-                        val showUploadFile = remember { mutableStateOf(false) }
-
-                        val expandImage = remember { mutableStateOf(false) }
-                        val expandedImage = remember { mutableStateOf(Uri.EMPTY) }
-
-                        Box {
-                          AddResources(
-                              topicFileViewModel,
-                              showOptions,
-                              showUploadImage,
-                              showUploadLink,
-                              showUploadFile)
-                          Scaffold(
-                              modifier = Modifier.fillMaxSize(),
-                              topBar = {
-                                TopNavigationBar(
-                                    title = { Sub_title(nameState.value) },
-                                    navigationIcon = {
-                                      Icon(
-                                          imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                          contentDescription =
-                                              stringResource(id = R.string.go_back),
-                                          modifier =
-                                              Modifier.clickable { navigationActions.goBack() }
-                                                  .testTag("go_back_button"))
-                                    },
-                                    actions = {})
-                              },
-                              floatingActionButton = {
-                                Button(
-                                    onClick = { showOptions.value = !showOptions.value },
-                                    modifier =
-                                        Modifier.width(64.dp)
-                                            .height(64.dp)
-                                            .clip(MaterialTheme.shapes.medium)) {
-                                      Icon(
-                                          imageVector = Icons.Default.Add,
-                                          contentDescription =
-                                              stringResource(R.string.create_a_topic_item),
-                                          tint = White)
-                                    }
-                              }) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize().padding(it),
-                                    horizontalAlignment = Alignment.Start,
-                                    verticalArrangement =
-                                        Arrangement.spacedBy(0.dp, Alignment.Top)) {
-                                      Column(modifier = Modifier.fillMaxWidth()) {
-                                        Row(
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically) {
-                                              Text(
-                                                  text = stringResource(R.string.resources),
-                                                  modifier =
-                                                      Modifier.weight(1f)
-                                                          .clickable {
-                                                            areaState.value = FileArea.RESOURCES
-                                                          }
-                                                          .padding(
-                                                              horizontal = 16.dp, vertical = 16.dp)
-                                                          .align(Alignment.CenterVertically),
-                                                  style = TextStyle(fontSize = 20.sp),
-                                                  textAlign = TextAlign.Center)
-                                              Text(
-                                                  text = stringResource(R.string.strong_users),
-                                                  modifier =
-                                                      Modifier.weight(1f)
-                                                          .clickable {
-                                                            areaState.value = FileArea.STRONG_USERS
-                                                          }
-                                                          .padding(
-                                                              horizontal = 16.dp, vertical = 16.dp)
-                                                          .align(Alignment.CenterVertically),
-                                                  style = TextStyle(fontSize = 20.sp),
-                                                  textAlign = TextAlign.Center)
-                                            }
-                                        HorizontalDivider(
-                                            modifier =
-                                                Modifier.align(
-                                                        if (areaState.value == FileArea.RESOURCES)
-                                                            Alignment.Start
-                                                        else Alignment.End)
-                                                    .fillMaxWidth(0.5f),
-                                            color = Blue,
-                                            thickness = 4.dp)
-                                      }
-                                      LazyColumn(
-                                          modifier = Modifier.fillMaxSize(),
-                                          verticalArrangement =
-                                              Arrangement.spacedBy(0.dp, Alignment.Top),
-                                          horizontalAlignment = Alignment.Start,
-                                          content = {
-                                            if (areaState.value == FileArea.RESOURCES) {
-                                              item {
-                                                ShowResources(images, expandedImage, expandImage)
-                                              }
-                                            } else {
-                                              items(strongUsers.value) { user -> UserBox(user) }
-                                            }
-                                          })
-                                    }
-                              }
-                          FullImage(expandImage, expandedImage.value) { expandImage.value = false }
-                        }
+        }) {
+          Column(
+              modifier = Modifier.fillMaxSize().padding(it),
+              horizontalAlignment = Alignment.Start,
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                  Row(
+                      horizontalArrangement = Arrangement.SpaceBetween,
+                      verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.resources),
+                            modifier =
+                                Modifier.weight(1f)
+                                    .clickable { areaState.value = FileArea.RESOURCES }
+                                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                                    .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = 20.sp),
+                            textAlign = TextAlign.Center)
+                        Text(
+                            text = stringResource(R.string.strong_users),
+                            modifier =
+                                Modifier.weight(1f)
+                                    .clickable { areaState.value = FileArea.STRONG_USERS }
+                                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                                    .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = 20.sp),
+                            textAlign = TextAlign.Center)
                       }
-                    }
-                  })
-            }
-      }
+                  HorizontalDivider(
+                      modifier =
+                          Modifier.align(
+                                  if (areaState.value == FileArea.RESOURCES) Alignment.Start
+                                  else Alignment.End)
+                              .fillMaxWidth(0.5f),
+                      color = Blue,
+                      thickness = 4.dp)
+                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+                    horizontalAlignment = Alignment.Start,
+                    content = {
+                      if (areaState.value == FileArea.RESOURCES) {
+                        item { ShowResources(images, expandedImage, expandImage) }
+                      } else {
+                        items(strongUsers.value) { user -> UserBox(user) }
+                      }
+                    })
+              }
+        }
+    FullImage(expandImage, expandedImage.value) { expandImage.value = false }
+  }
 }
 
 @Composable
@@ -376,9 +309,9 @@ fun AddResources(
 
 @Composable
 fun FullImage(show: MutableState<Boolean>, image: Uri, onDismiss: () -> Unit) {
-  val scale = remember { mutableStateOf(1f) }
-  val offsetX = remember { mutableStateOf(0f) }
-  val offsetY = remember { mutableStateOf(0f) }
+  val scale = remember { mutableFloatStateOf(1f) }
+  val offsetX = remember { mutableFloatStateOf(0f) }
+  val offsetY = remember { mutableFloatStateOf(0f) }
 
   if (show.value) {
     Column(
