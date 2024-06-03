@@ -58,6 +58,7 @@ import com.github.se.studybuddies.viewModels.UserViewModel
 
 @Composable
 fun ContactListScreen(
+    currentUID : String,
     navigationActions: NavigationActions,
     contactsViewModel: ContactsViewModel,
     directMessagesViewModel: DirectMessagesViewModel
@@ -68,7 +69,6 @@ fun ContactListScreen(
     val contactList = contacts.getAllTasks()
 
     val userVM = UserViewModel()
-    val currentUID = userVM.getCurrentUserUID()
 
     val requests by contactsViewModel.requests.collectAsState()
     val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }
@@ -137,8 +137,8 @@ fun ContactListScreen(
              */
         },
         title =
-        if (showAddPrivateMessageList.value) stringResource(R.string.contact_list)
-        else stringResource(R.string.direct_messages_title),
+        if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
+        else stringResource(R.string.contact_list),
         iconOptions = {})
 }
 
@@ -187,6 +187,7 @@ fun GoToMessages(navigationActions: NavigationActions) {
             Modifier
                 .width(64.dp)
                 .height(64.dp)
+                .background(color = Color.Blue)
                 .clip(MaterialTheme.shapes.medium)
                 .testTag("add_private_message_button")) {
             Icon(

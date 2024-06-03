@@ -146,7 +146,7 @@ fun DirectMessageScreen(
 
           /*TODO
         Box(
-            contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
+            contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom start (left)
             modifier =
                 Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
@@ -174,6 +174,7 @@ fun GoToContactList(navigationActions: NavigationActions) {
                 Modifier
                     .width(64.dp)
                     .height(64.dp)
+                    .background(color = Blue)
                     .clip(MaterialTheme.shapes.medium)
                     .testTag("add_private_message_button")) {
                     Icon(
@@ -222,7 +223,7 @@ fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
           .fillMaxWidth()
           .padding(16.dp),
       verticalAlignment = Alignment.Bottom,
-      horizontalArrangement = Arrangement.End) {
+      horizontalArrangement = Arrangement.Start) {
         Button(
             onClick = { showAddPrivateMessageList.value = !showAddPrivateMessageList.value },
             modifier =

@@ -257,6 +257,7 @@ class MainActivity : ComponentActivity() {
                     chatViewModel,
                     navigationActions,
                     ContactsViewModel(currentUser))
+                  Log.d("MyPrint", "Successfully navigated to DirectMessageScreen")
               }
             }
             composable(
@@ -334,9 +335,11 @@ class MainActivity : ComponentActivity() {
                 }
 
               composable(Route.CONTACTLIST) {
-                      ContactListScreen(navigationActions, contactsViewModel, directMessageViewModel)
+                  ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
+                      ContactListScreen(currentUser, navigationActions, contactsViewModel, directMessageViewModel)
                       Log.d("MyPrint", "Successfully navigated to ContactListScreen")
                   }
+              }
 
             composable(
                 route = "${Route.CONTACT_SETTINGS}/{contactID}",
