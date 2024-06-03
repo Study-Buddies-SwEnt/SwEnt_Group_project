@@ -139,6 +139,29 @@ fun DirectMessageScreen(
       iconOptions = {})
 }
 
+
+/*TODO
+
+MERGE WITH friends and usersVM
+
+add list in userContactCollection : "pending requests"
+add request list screen and fetch request and display
+also display existing contacts
+add icon towards requestlists screen
+change startDM calls to sendContactRequest calls
+check in sendContactRequest that the user is not already in contacts
+upon accepting, call createcontact and remove from pending requests
+change startDm so it uses an existing contactID, not the opposite
+clicking on a contact will call startDM(contactID) if no chat exists, else it will route to the chat
+search bar on DMscreen and chat screens
+search bar for adding contacts, also change this UI in general
+show on map toggle button?
+generalize search bar?
+ */
+
+
+
+
 /**
  * Displays an interactive row for adding new private messages. The button toggles its icon based on
  * the state.

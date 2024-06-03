@@ -13,6 +13,7 @@ import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
+import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -74,16 +75,7 @@ class DatabaseConnection : DbRepository {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
-      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
-      val plannerList =
-          dailyPlanners.map { plannerMap ->
-            DailyPlanner(
-                date = plannerMap["date"] as String,
-                goals = plannerMap["goals"] as List<String>,
-                appointments = plannerMap["appointments"] as Map<String, String>,
-                notes = plannerMap["notes"] as List<String>)
-          }
-      User(uid, email, username, photoUrl, location, plannerList)
+      User(uid, email, username, photoUrl, location)
     } else {
       Log.d("MyPrint", "user document not found for id $uid")
       User.empty()
@@ -344,7 +336,7 @@ class DatabaseConnection : DbRepository {
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
         }
 
-    val contactList = hashMapOf("contacts" to emptyList<String>())
+    val contactList = hashMapOf("pendingRequests" to emptyList<String>(), "contacts" to emptyList<String>())
     userContactsCollection
         .document(uid)
         .set(contactList)
@@ -1181,6 +1173,10 @@ class DatabaseConnection : DbRepository {
         })
   }
 
+    override suspend fun sendContactRequest(otherUID: String){
+
+    }
+
   override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
     val contactsViewModel = ContactsViewModel()
@@ -1627,6 +1623,38 @@ class DatabaseConnection : DbRepository {
         onUpdate(TopicList(emptyList()))
       }
     }
+  }
+
+    //TODO add to mockdb and repo
+  suspend fun getAllRequests(uid: String): RequestList {
+        try {
+            val snapshot = userContactsCollection.document(uid).get().await()
+            val items = mutableListOf<User>()
+
+            if (snapshot.exists()) {
+                val requestsUIDs = snapshot.data?.get("pendingRequests") as? List<String>
+                requestsUIDs?.let { requestsIDs ->
+                    requestsIDs.forEach { requestID ->
+                        try {
+                            val document = userDataCollection.document(requestID).get().await()
+                            val members = document.get("members") as? List<String> ?: emptyList()
+                            val showOnMap = document.get("showOnMap") as Boolean ?: false
+                            items.add(Contact(contactID, members, showOnMap))
+                        } catch (e: Exception) {
+                            Log.e("contacts", "Error fetching pending Request with ID $contactID: $e")
+                        }
+                    }
+                }
+                Log.d("contacts", "fetched all pending Requests for user $uid")
+                return ContactList(items)
+            } else {
+                Log.d("contacts", "User with uid $uid does not exist")
+                return ContactList(emptyList())
+            }
+        } catch (e: Exception) {
+            Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
+        }
+        return ContactList(emptyList())
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {

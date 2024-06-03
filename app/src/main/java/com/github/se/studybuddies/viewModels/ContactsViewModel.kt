@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
+import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,10 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
 
   private val _contact = MutableLiveData(Contact.empty())
   val contact: LiveData<Contact> = _contact
+
+  private val _requests =  MutableStateFlow<RequestList>(RequestList(emptyList()))
+  val requests: StateFlow<RequestList> = _requests
+
 
   init {
     if (uid != null) {
@@ -53,7 +58,7 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun fetchAllContacts(uid: String) {
+  private fun fetchAllContacts(uid: String) {
     viewModelScope.launch {
       try {
         val contacts = db.getAllContacts(uid)
@@ -62,6 +67,21 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
         Log.d("MyPrint", "In ViewModel, could not fetch contacts with error $e")
       }
     }
+  }
+
+  private fun fetchAllRequests(uid: String) {
+    viewModelScope.launch {
+      try {
+        val requests = db.getAllRequests(uid)
+        _requests.value = requests
+      } catch (e: Exception) {
+        Log.d("MyPrint", "In ViewModel, could not fetch contact requests with error $e")
+      }
+    }
+  }
+
+  fun sendContactRequest(userID : String){
+
   }
 
   fun updateContact(contactID: String, showOnMap: Boolean) {
