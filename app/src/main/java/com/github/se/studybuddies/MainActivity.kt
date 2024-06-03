@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.data.Chat
+import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.mapService.LocationApp
@@ -32,6 +33,7 @@ import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.calender.GroupDailyPlannerScreen
 import com.github.se.studybuddies.ui.calender.GroupStudyCalendarApp
 import com.github.se.studybuddies.ui.chat.ChatScreen
+import com.github.se.studybuddies.ui.chat.ContactListScreen
 import com.github.se.studybuddies.ui.chat.ContactScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
@@ -331,6 +333,11 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
+              composable(Route.CONTACTLIST) {
+                      ContactListScreen(navigationActions, contactsViewModel)
+                      Log.d("MyPrint", "Successfully navigated to ContactListScreen")
+                  }
+
             composable(
                 route = "${Route.CONTACT_SETTINGS}/{contactID}",
                 arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
@@ -368,6 +375,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
+
             composable(Route.CALENDAR) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
                 val calendarViewModel = remember {

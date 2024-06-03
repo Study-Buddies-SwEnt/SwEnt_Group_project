@@ -124,17 +124,57 @@ fun DirectMessageScreen(
             }
           }
         }
+
+          Box(
+              contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
+              modifier =
+              Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              GoToContactList(navigationActions)
+          }
+
+          /*TODO
         Box(
-            contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
+            contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
             modifier =
                 Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
             }
+
+           */
       },
       title =
           if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
           else stringResource(R.string.direct_messages_title),
       iconOptions = {})
+}
+
+@Composable
+fun GoToContactList(navigationActions: NavigationActions) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.End) {
+            Button(
+                onClick = { navigationActions.navigateTo(Route.CONTACTLIST) },
+                modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .testTag("add_private_message_button")) {
+                if (showAddPrivateMessageList.value) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.create_a_task),
+                        tint = White)
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.create_a_task),
+                        tint = White)
+                }
+            }
+        }
+    }
 }
 
 
