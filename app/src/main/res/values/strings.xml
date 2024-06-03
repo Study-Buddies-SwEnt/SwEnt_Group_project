@@ -164,4 +164,6 @@
     <string name="contentDescription_icon_contacts">icon contacts</string>
     <string name="contentDescription_icon_messages">icon direct messages</string>
     <string name="contact_list">Contact list</string>
+    <string name="deny">Deny</string>
+    <string name="accept">Accept</string>
 </resources>

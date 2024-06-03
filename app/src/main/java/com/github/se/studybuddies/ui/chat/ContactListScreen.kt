@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -208,7 +209,11 @@ fun ContactItem(friend: User, onClick: () -> Unit = {}) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RequestItem(request: User) {
-    Column() {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(color = White)
+            .border(color = LightBlue, width = Dp.Hairline)) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
@@ -216,8 +221,6 @@ fun RequestItem(request: User) {
         Modifier
             .fillMaxWidth()
             .background(color = White)
-            .border(color = LightBlue, width = Dp.Hairline)
-            .padding(8.dp)
             .testTag("chat_item")) {
         Image(
             painter = rememberAsyncImagePainter(request.photoUrl),
@@ -240,13 +243,12 @@ fun RequestItem(request: User) {
         Row (
             modifier =
             Modifier
-            .fillMaxWidth()
-            .background(color = White)
-            .border(color = LightBlue, width = Dp.Hairline)
-            .padding(8.dp)
-            .testTag("chat_item"),
+                .fillMaxWidth()
+                .background(color = White)
+                .padding(bottom = 8.dp)
+                .testTag("chat_item"),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
         ) {
             Button(onClick = { /*TODO*/ },
                 colors = ButtonColors(
@@ -258,11 +260,12 @@ fun RequestItem(request: User) {
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .background(color = Green)
-                    .width(60.dp)
-                    .height(30.dp)
+                    .width(100.dp)
+                    .height(32.dp)
                     .testTag("add_private_message_button")) {
-                Text(text = "Accept", color = White)
+                Text("Accept", color = White)
             }
+            Spacer(modifier = Modifier.size(30.dp))
             Button(onClick = { /*TODO*/ },
                 colors = ButtonColors(
                     Color.Transparent,
@@ -273,13 +276,12 @@ fun RequestItem(request: User) {
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .background(color = Color.Red)
-                    .width(60.dp)
-                    .height(30.dp)
+                    .width(100.dp)
+                    .height(32.dp)
                     .testTag("add_private_message_button")) {
-                Text(text = "Deny", color = White)
+                Text("Deny", color = White, modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
             }
         }
-
     }
 }
 
