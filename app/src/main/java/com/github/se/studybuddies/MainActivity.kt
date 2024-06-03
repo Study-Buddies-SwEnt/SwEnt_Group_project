@@ -75,7 +75,6 @@ import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
-import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
@@ -87,9 +86,8 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     val db: DbRepository = ServiceLocator.provideDatabase()
     val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
-    val usersViewModel = UsersViewModel(userUid = "", db = db)
+    val userViewModel = UserViewModel("",db)
     val chatViewModel = ChatViewModel()
-    val userViewModel = UserViewModel()
     val contactsViewModel = ContactsViewModel()
     val studyBuddies = application as LocationApp
     setContent {
@@ -111,7 +109,7 @@ class MainActivity : ComponentActivity() {
                     onSuccess = { userExists ->
                       if (userExists) {
                         directMessageViewModel.setUserUID(currentUser)
-                        usersViewModel.setUserUID(currentUser)
+                        userViewModel.setUserUID(currentUser)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -251,11 +249,11 @@ class MainActivity : ComponentActivity() {
             composable(Route.DIRECT_MESSAGE) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
                 directMessageViewModel.setUserUID(currentUser)
-                usersViewModel.setUserUID(currentUser)
+                userViewModel.setUserUID(currentUser)
                 DirectMessageScreen(
                     directMessageViewModel,
                     chatViewModel,
-                    usersViewModel,
+                    userViewModel,
                     navigationActions,
                     ContactsViewModel(currentUser))
               }
@@ -357,7 +355,6 @@ class MainActivity : ComponentActivity() {
                 MapScreen(
                     currentUser,
                     userViewModel,
-                    usersViewModel,
                     navigationActions,
                     applicationContext)
               }

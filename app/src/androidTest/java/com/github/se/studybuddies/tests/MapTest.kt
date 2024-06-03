@@ -12,7 +12,6 @@ import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
 import com.github.se.studybuddies.ui.map.MapScreen
 import com.github.se.studybuddies.viewModels.UserViewModel
-import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
@@ -94,7 +93,7 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   fun getUserFriends() {
     onComposeScreen<MapScreen>(composeTestRule) {
       usersVM.fetchAllFriends(uid)
-      val friends = usersVM.friends_old.value
+      val friends = usersVM.friendsOld.value
       // After the delay, the friends list should be finally retrieved
       assert(friends.isNotEmpty())
     }

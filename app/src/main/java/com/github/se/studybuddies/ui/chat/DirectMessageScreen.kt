@@ -58,7 +58,6 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
-import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -76,7 +75,6 @@ import kotlinx.coroutines.launch
 fun DirectMessageScreen(
     viewModel: DirectMessagesViewModel,
     chatViewModel: ChatViewModel,
-    usersViewModel: UsersViewModel,
     navigationActions: NavigationActions,
     contactsViewModel: ContactsViewModel
 ) {
@@ -94,7 +92,7 @@ fun DirectMessageScreen(
               modifier =
                   Modifier.fillMaxSize().padding(innerPadding).testTag("add_private_message")) {
                 ListAllUsers(
-                    showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
+                    showAddPrivateMessageList, viewModel, contactsViewModel)
               }
         } else {
           if (chats.isEmpty()) {
@@ -157,6 +155,7 @@ search bar on DMscreen and chat screens
 search bar for adding contacts, also change this UI in general
 show on map toggle button?
 generalize search bar?
+showonmap feature
  */
 
 
@@ -244,10 +243,9 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
     viewModel: DirectMessagesViewModel,
-    usersViewModel: UsersViewModel,
     contactsViewModel: ContactsViewModel
 ) {
-  val friends = usersViewModel.friends.collectAsState(initial = emptyList()).value
+  val friends = contactsViewModel.friends.collectAsState(initial = emptyList()).value
   var isLoading by remember { mutableStateOf(true) }
 
   LaunchedEffect(friends) {

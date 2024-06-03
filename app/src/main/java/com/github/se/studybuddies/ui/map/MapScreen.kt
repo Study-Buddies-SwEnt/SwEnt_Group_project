@@ -49,8 +49,8 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.hasLocationPermission
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 import com.github.se.studybuddies.ui.theme.Red
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
-import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -67,7 +67,7 @@ import kotlinx.coroutines.delay
 fun MapScreen(
     uid: String, // This will be useful for later versions when we'll store the user location in the
     userViewModel: UserViewModel,
-    usersViewModel: UsersViewModel,
+    contactsViewModel: ContactsViewModel,
     navigationActions: NavigationActions,
     context: Context,
 ) {
@@ -96,7 +96,7 @@ fun MapScreen(
     // This coroutine will run indefinitely until the composable is disposed
     while (!isTrackingOn.value) {
       // Fetch friends data from Firebase
-      usersViewModel.fetchAllFriends(uid)
+      contactsViewModel.fetchAllFriends(uid)
       // Delay for 10 seconds
       delay(10001)
     }
@@ -120,7 +120,7 @@ fun MapScreen(
           // 10 sec
           // We remove the Launched effect (conflict btw Disposal + Launched) and thus the update of
           // the friends location must have to be done here now
-          usersViewModel.fetchAllFriends(uid)
+          contactsViewModel.fetchAllFriends(uid)
         }
       }
   // Use DisposableEffect to "clean up" the current state of the screen when the Location tracking
@@ -167,7 +167,7 @@ fun MapScreen(
       title = "Map",
       iconOptions = {
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.padding(8.dp)) {
-          FriendsLocationButton(context, isTrackingOn, usersViewModel, friendsData)
+          FriendsLocationButton(context, isTrackingOn, contactsViewModel, friendsData)
           UserLocationButton(uid, context, userViewModel, locationManager, isTrackingOn, isZooming)
         }
       })
@@ -238,10 +238,10 @@ fun UserLocationButton(
 fun FriendsLocationButton(
     context: Context,
     isTrackingOn: MutableState<Boolean>,
-    usersViewModel: UsersViewModel,
+    contactsViewModel: ContactsViewModel,
     friendsData: MutableState<List<User>>,
 ) {
-  val friends by usersViewModel.friends_old.collectAsState()
+  val friends by contactsViewModel.friends.collectAsState()
   friendsData.value = friends
 
   val isLoading = remember { mutableStateOf(true) }

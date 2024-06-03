@@ -222,22 +222,26 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+
   override suspend fun getAllFriends(uid: String): List<User> {
     return try {
-      val snapshot = userDataCollection.document(uid).get().await()
-      val snapshotQuery = userDataCollection.get().await()
-      val items = mutableListOf<User>()
+        val snapshot = userContactsCollection.document(uid).get().await()
+         val items = mutableListOf<User>()
 
-      if (snapshot.exists()) {
-        // val userUIDs = snapshot.data?.get("friends") as? List<String>
-        for (item in snapshotQuery.documents) {
-          val id = item.id
-          items.add(getUser(id))
-        }
+        val contactVM = ContactsViewModel()
+
+        if (snapshot.exists()) {
+            val contactsUID = snapshot.data?.get("contacts") as? List<String>
+            contactsUID?.let { contactsID ->
+                contactsID.forEach { contactID ->
+                        val friendID = contactVM.getOtherUser(contactID, uid)
+                        items.add(getUser(friendID))
+                }
+            }
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
       }
-      items
+        items
     } catch (e: Exception) {
       Log.d("MyPrint", "Could not fetch friends with error: $e")
       emptyList()
@@ -1636,12 +1640,7 @@ class DatabaseConnection : DbRepository {
                 requestsUIDs?.let { requestsIDs ->
                     requestsIDs.forEach { requestID ->
                         try {
-                            val document = userDataCollection.document(requestID).get().await()
-                            val email = document.getString("email") ?: ""
-                            val username = document.getString("username") ?: ""
-                            val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
-                            val location = document.getString("location") ?: "offline"
-                            val request = User(uid, email, username, photoUrl, location)
+                            val request = getUser(requestID)
                             items.add(request)
                         } catch (e: Exception) {
                             Log.e("contacts", "Error fetching pending Request with ID $requestID: $e")

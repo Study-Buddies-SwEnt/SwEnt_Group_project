@@ -11,6 +11,7 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -20,6 +21,7 @@ class UserViewModel(
 ) : ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
+  private val _userUid = MutableStateFlow(uid)
 
   init {
     if (uid != null) {
@@ -27,6 +29,12 @@ class UserViewModel(
       Log.d("UserVM", "UserViewModel initialized with uid $uid")
     } else {
       Log.d("UserVM", "UserViewModel initialized without uid")
+    }
+  }
+
+  fun setUserUID(userUID: String) {
+    if (_userUid.value != userUID) {
+      _userUid.value = userUID
     }
   }
 

@@ -8,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.RequestList
+import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ContactsViewModel(private val uid: String? = null) : ViewModel() {
@@ -23,6 +26,9 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
 
   private val _requests =  MutableStateFlow<RequestList>(RequestList(emptyList()))
   val requests: StateFlow<RequestList> = _requests
+
+  private val _friends = MutableStateFlow<List<User>>(emptyList())
+  val friends : StateFlow<List<User>> = _friends
 
 
   init {
@@ -65,6 +71,17 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
         _contacts.value = contacts
       } catch (e: Exception) {
         Log.d("MyPrint", "In ViewModel, could not fetch contacts with error $e")
+      }
+    }
+  }
+
+  fun fetchAllFriends(uid: String) {
+    viewModelScope.launch {
+      try {
+        val users = db.getAllFriends(uid)
+        _friends.value = users
+      } catch (e: Exception) {
+        Log.d("MyPrint", "In ViewModel, could not fetch friends with error $e")
       }
     }
   }
