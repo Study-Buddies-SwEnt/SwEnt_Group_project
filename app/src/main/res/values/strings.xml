@@ -161,4 +161,7 @@
     <string name="dismiss_button">dismiss button</string>
     <string name="group_profile_picture">Group profile picture</string>
     <string name="search_groups">Search groups</string>
+    <string name="contentDescription_icon_contacts">icon contacts</string>
+    <string name="contentDescription_icon_messages">icon direct messages</string>
+    <string name="contact_list">Contact list</string>
 </resources>

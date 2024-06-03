@@ -80,4 +80,10 @@ class UserViewModel(
   fun isFakeDatabase(): Boolean {
     return db.isFakeDatabase()
   }
+
+  fun getUser(userID: String): User {
+    var user = User.empty()
+    viewModelScope.launch{user = db.getUser(userID)!! }
+    return user
+  }
 }

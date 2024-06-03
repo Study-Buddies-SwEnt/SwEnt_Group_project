@@ -334,7 +334,7 @@ class MainActivity : ComponentActivity() {
                 }
 
               composable(Route.CONTACTLIST) {
-                      ContactListScreen(navigationActions, contactsViewModel)
+                      ContactListScreen(navigationActions, contactsViewModel, directMessageViewModel)
                       Log.d("MyPrint", "Successfully navigated to ContactListScreen")
                   }
 
