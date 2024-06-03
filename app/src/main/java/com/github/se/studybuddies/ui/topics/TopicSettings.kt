@@ -76,11 +76,11 @@ fun TopicSettings(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.topic_settings)) },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(
                   navigationActions = navigationActions, "${Route.TOPIC}/$topicUID/$groupUID")
             },
-            actions = {})
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(it),
@@ -186,7 +186,7 @@ fun TopicSettings(
       }
 }
 
-
+*/
 
 /*
 @Composable
@@ -200,5 +200,5 @@ fun TopicItemRow(item: TopicItem, onDelete: () -> Unit) {
         }
       }
 }
-*/
+
 */

@@ -97,7 +97,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.create_account)) },
-            navigationIcon = {
+            leftButton = {
               Icon(
                   imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                   contentDescription = stringResource(id = R.string.go_back),
@@ -113,7 +113,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                           }
                           .testTag("go_back_button"))
             },
-            actions = {})
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxSize().testTag("create_account_column"),

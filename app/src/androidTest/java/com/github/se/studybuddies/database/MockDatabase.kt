@@ -35,6 +35,8 @@ class MockDatabase : DbRepository {
   private val groupDataCollection = fakeGroupDataCollection
   private val topicDataCollection = fakeTopicDataCollection
   private val topicItemCollection = fakeTopicItemCollection
+  private val contactDataCollection = fakeContactDataCollection
+  private val userContactcollection = fakeUserContactCollection
   private val rtDb = mutableMapOf<String, Map<String, Any>>()
   private val storage = mutableMapOf<String, Uri>()
 
@@ -50,15 +52,27 @@ class MockDatabase : DbRepository {
     return getUser(getCurrentUserUID())
   }
 
-  override suspend fun getContact(contactUID: String): Contact {
+  override suspend fun getContact(contactID: String): Contact {
     TODO("Not yet implemented")
   }
 
-  override suspend fun createContact(otherUID: String) {
+  override suspend fun createContact(otherUID: String, contactID: String) {
     TODO("Not yet implemented")
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {
+    TODO("Not yet implemented")
+  }
+
+  override fun deleteContact(contactID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun deletePrivateChat(chatID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun updateContact(contactID: String, showOnMap: Boolean) {
     TODO("Not yet implemented")
   }
 
@@ -533,19 +547,22 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override fun startDirectMessage(otherUID: String) {
+  override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
+    var contactID = ""
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
         val newChatId = UUID.randomUUID().toString()
+        contactID = newChatId
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb[memberPath] = members
       }
     }
+    return contactID
   }
 
   override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {

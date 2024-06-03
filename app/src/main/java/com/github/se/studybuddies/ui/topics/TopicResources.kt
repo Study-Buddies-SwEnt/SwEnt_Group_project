@@ -101,56 +101,38 @@ fun TopicResources(
     topicFileViewModel.getStrongUsers(strongUserIDs.value) { strongUsers.value = it }
   }
   LaunchedEffect(imagesData.size) { images.value = imagesData }
+  val showOptions = remember { mutableStateOf(false) }
+  val showUploadImage = remember { mutableStateOf(false) }
+  val showUploadLink = remember { mutableStateOf(false) }
+  val showUploadFile = remember { mutableStateOf(false) }
 
-  Scaffold(
-      modifier = Modifier.fillMaxSize(),
-      topBar = {
-        TopNavigationBar(
-            title = { Sub_title(nameState.value) },
-            navigationIcon = {
-              Icon(
-                  imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                  contentDescription = stringResource(R.string.go_back),
-                  modifier =
-                      Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
-            },
-            actions = {})
-      }) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(it),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top)) {
-              Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                      Text(
-                          text = stringResource(R.string.resources),
-                          modifier =
-                              Modifier.weight(1f)
-                                  .clickable { areaState.value = FileArea.RESOURCES }
-                                  .padding(horizontal = 16.dp, vertical = 16.dp)
-                                  .align(Alignment.CenterVertically),
-                          style = TextStyle(fontSize = 20.sp),
-                          textAlign = TextAlign.Center)
-                      Text(
-                          text = stringResource(R.string.strong_users),
-                          modifier =
-                              Modifier.weight(1f)
-                                  .clickable { areaState.value = FileArea.STRONG_USERS }
-                                  .padding(horizontal = 16.dp, vertical = 16.dp)
-                                  .align(Alignment.CenterVertically),
-                          style = TextStyle(fontSize = 20.sp),
-                          textAlign = TextAlign.Center)
-                    }
-                HorizontalDivider(
+  val expandImage = remember { mutableStateOf(false) }
+  val expandedImage = remember { mutableStateOf(Uri.EMPTY) }
+
+  Box() {
+    AddResources(topicFileViewModel, showOptions, showUploadImage, showUploadLink, showUploadFile)
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+          TopNavigationBar(
+              title = { Sub_title(nameState.value) },
+              leftButton = {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Go back",
                     modifier =
-                        Modifier.align(
-                                if (areaState.value == FileArea.RESOURCES) Alignment.Start
-                                else Alignment.End)
-                            .fillMaxWidth(0.5f),
-                    color = Blue,
-                    thickness = 4.dp)
+                        Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
+              },
+              rightButton = {})
+        },
+        floatingActionButton = {
+          Button(
+              onClick = { showOptions.value = !showOptions.value },
+              modifier = Modifier.width(64.dp).height(64.dp).clip(MaterialTheme.shapes.medium)) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.create_a_topic_item),
+                    tint = White)
               }
               LazyColumn(
                   modifier = Modifier.fillMaxSize(),

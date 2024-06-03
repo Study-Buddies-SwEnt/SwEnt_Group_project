@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -68,16 +69,25 @@ import com.github.se.studybuddies.data.ChatType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
 import com.github.se.studybuddies.navigation.NavigationActions
+import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.chat.utility.IconsOptionsList
 import com.github.se.studybuddies.ui.chat.utility.MessageTextFields
 import com.github.se.studybuddies.ui.chat.utility.OptionsDialog
 import com.github.se.studybuddies.ui.chat.utility.ShowAlertDialog
-import com.github.se.studybuddies.ui.shared_elements.SecondaryTopBar
+import com.github.se.studybuddies.ui.shared_elements.ChatTopBar
+import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.DarkBlue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.viewModels.MessageViewModel
 
+/**
+ * Primary screen for chat interactions, allowing users to send messages, search through them, and
+ * access various messaging options.
+ *
+ * @param viewModel The ViewModel associated with managing message data and operations.
+ * @param navigationActions Provides navigation actions for navigating back or to other screens.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
@@ -87,8 +97,6 @@ fun ChatScreen(
   val messages by viewModel.messages.collectAsState(initial = emptyList())
   val showOptionsDialog = remember { mutableStateOf(false) }
   val showIconsOptions = remember { mutableStateOf(false) }
-  var showSearchBar by remember { mutableStateOf(false) }
-  var searchText by remember { mutableStateOf("") }
 
   var selectedMessage by remember { mutableStateOf<Message?>(null) }
   val listState = rememberLazyListState()
@@ -109,34 +117,10 @@ fun ChatScreen(
               .background(LightBlue)
               .navigationBarsPadding()
               .testTag("chat_screen")) {
-        SecondaryTopBar(onClick = { navigationActions.goBack() }) {
-          when (viewModel.chat.type) {
-            ChatType.GROUP,
-            ChatType.TOPIC, -> ChatGroupTitle(viewModel.chat)
-            ChatType.PRIVATE -> PrivateChatTitle(viewModel.chat)
-          }
-          Spacer(Modifier.weight(1f, true))
-          Icon(
-              Icons.Default.Search,
-              contentDescription = "Search",
-              modifier =
-                  Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
-        }
-        if (showSearchBar) {
-          Column {
-            SearchBar(
-                searchText,
-                onSearchTextChanged = {
-                  searchText = it
-                  viewModel.setSearchQuery(it)
-                  Log.d("MyPrint", "Search query: $it")
-                },
-                onClearSearch = {
-                  searchText = ""
-                  viewModel.setSearchQuery("")
-                })
-            MessageTypeFilter(viewModel = viewModel)
-          }
+        when (viewModel.chat.type) {
+          ChatType.GROUP,
+          ChatType.TOPIC, -> GroupChatTopBar(viewModel.chat, navigationActions)
+          ChatType.PRIVATE -> PrivateChatTopBar(viewModel.chat, navigationActions)
         }
         LazyColumn(state = listState, modifier = Modifier.weight(1f).padding(8.dp)) {
           items(messages) { message ->
@@ -168,6 +152,13 @@ fun ChatScreen(
       }
 }
 
+/**
+ * Displays a search bar for filtering messages within the chat.
+ *
+ * @param searchText The current text in the search field.
+ * @param onSearchTextChanged Function to call when the text changes.
+ * @param onClearSearch Function to call when the search should be cleared.
+ */
 @Composable
 fun SearchBar(
     searchText: String,
@@ -198,6 +189,11 @@ fun SearchBar(
   }
 }
 
+/**
+ * Provides a UI element for filtering messages by type (e.g., text, photo, link).
+ *
+ * @param viewModel The ViewModel that handles message filtering.
+ */
 @Composable
 fun MessageTypeFilter(viewModel: MessageViewModel) {
   val filterType = viewModel.filterType.collectAsState().value
@@ -217,6 +213,12 @@ fun MessageTypeFilter(viewModel: MessageViewModel) {
       }
 }
 
+/**
+ * Enumeration of message filter types, with display names and corresponding message classes.
+ *
+ * @param displayNameRes Resource ID for the filter's display name.
+ * @param messageType The class type of the message to filter by, or null for all messages.
+ */
 enum class MessageFilterType(
     @StringRes val displayNameRes: Int,
     val messageType: Class<out Message>?
@@ -229,6 +231,13 @@ enum class MessageFilterType(
   POLL(R.string.poll_message_type, Message.PollMessage::class.java)
 }
 
+/**
+ * Displays a single message bubble in the chat, handling different message types appropriately.
+ *
+ * @param message The message to display.
+ * @param displayName Boolean indicating whether the sender's name should be displayed.
+ * @param viewModel The ViewModel for handling message-related actions.
+ */
 @Composable
 fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: MessageViewModel) {
   val browserLauncher =
@@ -358,6 +367,15 @@ fun MessageBubble(message: Message, displayName: Boolean = false, viewModel: Mes
   }
 }
 
+/**
+ * Displays a button for a poll option, allowing users to select or view the selection.
+ *
+ * @param text The text of the poll option.
+ * @param isSelected Boolean indicating whether this option is selected.
+ * @param voteNumber The number of votes for this option.
+ * @param singleChoice Boolean indicating if the poll allows single choice only.
+ * @param onItemSelected Function to call when the option is selected.
+ */
 @Composable
 fun PollButton(
     text: String,
@@ -384,6 +402,13 @@ fun PollButton(
       }
 }
 
+/**
+ * Dialog for editing the content of a message. Can handle different message types.
+ *
+ * @param viewModel The ViewModel for handling message updates.
+ * @param selectedMessage The message selected for editing.
+ * @param showEditDialog Mutable state controlling the visibility of the edit dialog.
+ */
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun EditDialog(
@@ -416,38 +441,124 @@ fun EditDialog(
       button = {})
 }
 
+/**
+ * Displays the title for a group chat, including the group's picture and name.
+ *
+ * @param chat The group chat information.
+ */
 @Composable
-fun ChatGroupTitle(chat: Chat) {
-  Image(
-      painter = rememberAsyncImagePainter(chat.picture),
-      contentDescription = stringResource(R.string.contentDescription_group_profile_picture),
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
-      contentScale = ContentScale.Crop)
+fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
+  ChatTopBar(
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME) },
+      rightButton = {
+        IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
+          Icon(
+              modifier = Modifier.size(20.dp),
+              painter = painterResource(R.drawable.active_call),
+              contentDescription = "",
+              tint = Blue)
+        }
+      }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp)) {
+              Image(
+                  painter = rememberAsyncImagePainter(chat.picture),
+                  contentDescription =
+                      stringResource(R.string.contentDescription_group_profile_picture),
+                  modifier =
+                      Modifier.size(40.dp).clip(CircleShape).testTag("group_title_profile_picture"),
+                  contentScale = ContentScale.Crop)
 
-  Spacer(modifier = Modifier.width(8.dp))
-  Column {
-    Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
-    Spacer(modifier = Modifier.width(8.dp))
-    LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
-      items(chat.members) { member ->
-        Text(
-            text = member.username,
-            modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
-            style = TextStyle(color = Gray),
-            maxLines = 1)
+              Spacer(modifier = Modifier.width(8.dp))
+              Column {
+                Text(
+                    text = chat.name, maxLines = 1, modifier = Modifier.testTag("group_title_name"))
+                Spacer(modifier = Modifier.width(8.dp))
+                LazyRow(modifier = Modifier.testTag("group_title_members_row")) {
+                  items(chat.members) { member ->
+                    Text(
+                        text = member.username,
+                        modifier = Modifier.padding(end = 8.dp).testTag("group_title_member_name"),
+                        style = TextStyle(color = Gray),
+                        maxLines = 1)
+                  }
+                }
+              }
+            }
       }
-    }
-  }
 }
 
+/**
+ * Displays the title for a private chat, showing the other user's profile picture and name.
+ *
+ * @param chat The private chat information.
+ */
 @Composable
-fun PrivateChatTitle(chat: Chat) {
-  Image(
-      painter = rememberAsyncImagePainter(chat.picture),
-      contentDescription = "User profile picture",
-      modifier = Modifier.size(40.dp).clip(CircleShape).testTag("private_title_profile_picture"),
-      contentScale = ContentScale.Crop)
+fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
-  Spacer(modifier = Modifier.width(8.dp))
-  Column { Text(text = chat.name, maxLines = 1, modifier = Modifier.testTag("private_title_name")) }
+  ChatTopBar(
+      leftButton = {
+        GoBackRouteButton(navigationActions = navigationActions, Route.DIRECT_MESSAGE)
+      },
+      rightButton = {
+        IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
+          Icon(
+              modifier = Modifier.size(20.dp),
+              painter = painterResource(R.drawable.active_call),
+              contentDescription = "",
+              tint = Blue)
+        }
+      }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.fillMaxWidth(0.85F).fillMaxHeight().padding(4.dp).clickable {
+                  navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${chat.uid}")
+                }) {
+              Image(
+                  painter = rememberAsyncImagePainter(chat.picture),
+                  contentDescription = "User profile picture",
+                  modifier =
+                      Modifier.size(40.dp)
+                          .clip(CircleShape)
+                          .testTag("private_title_profile_picture"),
+                  contentScale = ContentScale.Crop)
+              Spacer(modifier = Modifier.width(8.dp))
+              Column() {
+                Text(
+                    text = chat.name,
+                    maxLines = 1,
+                    modifier = Modifier.testTag("private_title_name"))
+              }
+            }
+      }
+}
+
+// TODO reimplement this correctly
+@Composable
+fun SearchButton(viewModel: MessageViewModel) {
+  var showSearchBar by remember { mutableStateOf(false) }
+  var searchText by remember { mutableStateOf("") }
+  Spacer(Modifier)
+  Icon(
+      Icons.Default.Search,
+      contentDescription = "Search",
+      modifier = Modifier.clickable { showSearchBar = !showSearchBar }.testTag("search_button"))
+  if (showSearchBar) {
+    Column {
+      SearchBar(
+          searchText,
+          onSearchTextChanged = {
+            searchText = it
+            viewModel.setSearchQuery(it)
+            Log.d("MyPrint", "Search query: $it")
+          },
+          onClearSearch = {
+            searchText = ""
+            viewModel.setSearchQuery("")
+          })
+      MessageTypeFilter(viewModel = viewModel)
+    }
+  }
 }

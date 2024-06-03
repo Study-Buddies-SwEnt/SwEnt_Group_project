@@ -72,10 +72,10 @@ fun TimerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Timer") },
-            navigationIcon = {
+            rightButton = {
               GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
             },
-            actions = {})
+            leftButton = {})
       },
   ) {
     Column(

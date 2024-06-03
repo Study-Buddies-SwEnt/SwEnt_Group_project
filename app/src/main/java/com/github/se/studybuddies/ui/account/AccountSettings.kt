@@ -100,10 +100,8 @@ fun AccountSettings(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.profile_setting)) },
-            navigationIcon = {
-              GoBackRouteButton(navigationActions = navigationActions, backRoute)
-            },
-            actions = {})
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions, backRoute) },
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxSize().testTag("account_settings_column"),
