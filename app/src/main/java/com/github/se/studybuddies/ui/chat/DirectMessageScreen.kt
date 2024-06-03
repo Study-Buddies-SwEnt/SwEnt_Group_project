@@ -3,6 +3,7 @@ package com.github.se.studybuddies.ui.chat
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
@@ -50,16 +53,28 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
+import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+/**
+ * Displays the main screen for direct messaging, providing interfaces to initiate new messages and
+ * manage existing ones.
+ *
+ * @param viewModel ViewModel that handles direct messaging operations.
+ * @param chatViewModel ViewModel for chat-specific data and functions.
+ * @param usersViewModel ViewModel for user data and interactions.
+ * @param navigationActions Provides navigation functionality within the application.
+ * @param contactsViewModel ViewModel that manages contact interactions.
+ */
 @Composable
 fun DirectMessageScreen(
-    viewModel: DirectMessageViewModel,
+    viewModel: DirectMessagesViewModel,
     chatViewModel: ChatViewModel,
     usersViewModel: UsersViewModel,
     navigationActions: NavigationActions,
@@ -67,6 +82,8 @@ fun DirectMessageScreen(
 ) {
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
+  val contacts by contactsViewModel.contacts.collectAsState()
+  val contactList = remember { mutableStateOf(contacts.getAllTasks() ?: emptyList()) }
 
   MainScreenScaffold(
       navigationActions = navigationActions,
@@ -95,8 +112,9 @@ fun DirectMessageScreen(
             ) {
               LazyColumn(
                   modifier =
-                      Modifier.fillMaxSize()
-                          .padding(innerPadding)
+                      Modifier.padding(vertical = 65.dp)
+                          .fillMaxSize()
+                          .background(LightBlue)
                           .testTag("direct_messages_list")) {
                     items(chats) { chat ->
                       DirectMessageItem(chat) {
@@ -121,6 +139,13 @@ fun DirectMessageScreen(
       iconOptions = {})
 }
 
+/**
+ * Displays an interactive row for adding new private messages. The button toggles its icon based on
+ * the state.
+ *
+ * @param showAddPrivateMessageList State that controls the visibility of the user listing for new
+ *   messages.
+ */
 @Composable
 fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
   Row(
@@ -149,6 +174,12 @@ fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
       }
 }
 
+/**
+ * Represents a single chat item in the list of direct messages.
+ *
+ * @param chat The chat data to display.
+ * @param onClick Action to perform when the chat item is clicked.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
@@ -156,6 +187,8 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.fillMaxWidth()
+              .background(color = White)
+              .border(color = LightBlue, width = Dp.Hairline)
               .padding(8.dp)
               .combinedClickable(onClick = { onClick() })
               .testTag("chat_item")) {
@@ -175,10 +208,19 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
       }
 }
 
+/**
+ * Displays a list of all users, allowing the initiation of new direct messages or managing existing
+ * contacts.
+ *
+ * @param showAddPrivateMessageList Mutable state controlling the display of the user list.
+ * @param viewModel ViewModel for direct messaging functionalities.
+ * @param usersViewModel ViewModel managing user data.
+ * @param contactsViewModel ViewModel for contact operations.
+ */
 @Composable
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
-    viewModel: DirectMessageViewModel,
+    viewModel: DirectMessagesViewModel,
     usersViewModel: UsersViewModel,
     contactsViewModel: ContactsViewModel
 ) {
@@ -217,14 +259,26 @@ fun ListAllUsers(
   }
 }
 
+/**
+ * Creates an individual user item for the user list, which can be clicked to start a direct message
+ * or manage contacts.
+ *
+ * @param user The user data to display.
+ * @param viewModel ViewModel for handling direct message initiation.
+ * @param showAddPrivateMessageList State controlling the list display for adding new messages.
+ * @param contactsViewModel ViewModel for managing contacts.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserItem(
     user: User,
-    viewModel: DirectMessageViewModel,
+    viewModel: DirectMessagesViewModel,
     showAddPrivateMessageList: MutableState<Boolean>,
     contactsViewModel: ContactsViewModel
 ) {
+
+  val coroutineScope = rememberCoroutineScope()
+
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
@@ -232,9 +286,12 @@ fun UserItem(
               .padding(8.dp)
               .combinedClickable(
                   onClick = {
-                    viewModel.startDirectMessage(user.uid)
-                    showAddPrivateMessageList.value = false
-                    contactsViewModel.createContact(user.uid)
+                    coroutineScope.launch {
+                      showAddPrivateMessageList.value = false
+                      val contactID = viewModel.startDirectMessage(user.uid)
+                      Log.d("MyPrint", "DMscreen contactID is $contactID")
+                      // contactsViewModel.createContact(user.uid, contactID)
+                    }
                   })
               .testTag("user_item")) {
         Image(

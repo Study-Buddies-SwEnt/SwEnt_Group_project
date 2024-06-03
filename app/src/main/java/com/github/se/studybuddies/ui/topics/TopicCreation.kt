@@ -56,9 +56,9 @@ fun TopicCreation(
       modifier = Modifier.fillMaxSize().background(Color.White).testTag("create_topic_scaffold"),
       topBar = {
         TopNavigationBar(
-            title = { Sub_title(stringResource(R.string.create_topic)) },
-            navigationIcon = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
-            actions = {})
+            title = { Sub_title("Create Topic") },
+            leftButton = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxSize().padding(20.dp).testTag("create_topic_column"),

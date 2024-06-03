@@ -32,6 +32,7 @@ import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.calender.GroupDailyPlannerScreen
 import com.github.se.studybuddies.ui.calender.GroupStudyCalendarApp
 import com.github.se.studybuddies.ui.chat.ChatScreen
+import com.github.se.studybuddies.ui.chat.ContactScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.ui.groups.GroupMembers
@@ -47,7 +48,7 @@ import com.github.se.studybuddies.ui.theme.StudyBuddiesTheme
 import com.github.se.studybuddies.ui.timer.SharedTimerScreen
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.ui.todo.CreateToDo
-import com.github.se.studybuddies.ui.todo.EditToDoScreen
+import com.github.se.studybuddies.ui.todo.EditToDo
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
 import com.github.se.studybuddies.ui.topics.TopicCreation
 import com.github.se.studybuddies.ui.topics.TopicResources
@@ -64,7 +65,7 @@ import com.github.se.studybuddies.viewModels.CalendarViewModelFactory
 import com.github.se.studybuddies.viewModels.CallLobbyViewModel
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
-import com.github.se.studybuddies.viewModels.DirectMessageViewModel
+import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
@@ -85,9 +86,11 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val db: DbRepository = ServiceLocator.provideDatabase()
-    val directMessageViewModel = DirectMessageViewModel(userUid = "", db = db)
+    val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
     val usersViewModel = UsersViewModel(userUid = "", db = db)
     val chatViewModel = ChatViewModel()
+    val userViewModel = UserViewModel()
+    val contactsViewModel = ContactsViewModel()
     val studyBuddies = application as LocationApp
     setContent {
       StudyBuddiesTheme {
@@ -268,6 +271,7 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to GroupSetting")
                   }
                 }
+
             composable(
                 route = "${Route.GROUPMEMBERS}/{groupUID}",
                 arguments = listOf(navArgument("groupUID") { type = NavType.StringType })) {
@@ -295,6 +299,7 @@ class MainActivity : ComponentActivity() {
               val messageViewModel = remember { MessageViewModel(chat) }
               ChatScreen(messageViewModel, navigationActions)
             }
+
             composable(Route.SOLOSTUDYHOME) {
               ifNotNull(ServiceLocator.getCurrentUserUID()) { _ ->
                 Log.d("MyPrint", "Successfully navigated to SoloStudyHome")
@@ -322,10 +327,27 @@ class MainActivity : ComponentActivity() {
                 arguments = listOf(navArgument("todoUID") { type = NavType.StringType })) {
                     backStackEntry ->
                   val todoUID = backStackEntry.arguments?.getString("todoUID")
-                  ifNotNull(todoUID) { todoUID ->
+                  ifNotNull(todoUID) { todoID ->
                     val toDoListViewModel = remember { ToDoListViewModel(studyBuddies) }
-                    EditToDoScreen(todoUID, toDoListViewModel, navigationActions)
+                    EditToDo(todoID, toDoListViewModel, navigationActions)
                     Log.d("MyPrint", "Successfully navigated to EditToDoScreen")
+                  }
+                }
+
+            composable(
+                route = "${Route.CONTACT_SETTINGS}/{contactID}",
+                arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
+                    backStackEntry ->
+                  val contactID = backStackEntry.arguments?.getString("contactID")
+                  val uid = db.getCurrentUserUID()
+                  ifNotNull(contactID) { contactUID ->
+                    val contactsVM = remember { ContactsViewModel(uid) }
+                    val userVM = remember { UserViewModel(uid, db) }
+                    val directMessageVM = remember { DirectMessagesViewModel(uid, db) }
+                    ContactScreen(
+                        contactUID, contactsVM, navigationActions, userVM, directMessageVM)
+                    Log.d(
+                        "MyPrint", "Successfully navigated to Contact Settings with ID $contactUID")
                   }
                 }
 
@@ -451,6 +473,7 @@ class MainActivity : ComponentActivity() {
                     Log.d("MyPrint", "Successfully navigated to TopicSettings")
                   }
                 }
+
             composable(
                 route = "${Route.TOPICRESOURCES}/{topicFileID}",
                 arguments = listOf(navArgument("topicFileID") { type = NavType.StringType })) {

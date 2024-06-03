@@ -355,8 +355,8 @@ fun PlannerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title) },
-            navigationIcon = navigationIcon,
-            actions = {
+            leftButton = navigationIcon,
+            rightButton = {
               IconButton(onClick = onDeleteModeToggle) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
               }

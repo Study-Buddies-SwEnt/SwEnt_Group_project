@@ -33,10 +33,10 @@ fun Placeholder(navigationActions: NavigationActions) {
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "") },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
             },
-            actions = {})
+            rightButton = {})
       },
   ) {
     Column(

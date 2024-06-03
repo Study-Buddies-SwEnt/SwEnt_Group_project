@@ -46,9 +46,9 @@ fun MembersList(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.add_member)) },
-            navigationIcon = { GoBackRouteToLastPageButton(navigationActions = navigationActions) },
-            actions = { GroupsSettingsButton(groupUID, navigationActions, db) })
-      }) {
+            leftButton = { GoBackRouteToLastPageButton(navigationActions = navigationActions) },
+            rightButton = { GroupsSettingsButton(groupUID, navigationActions, db) })
+      }) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,

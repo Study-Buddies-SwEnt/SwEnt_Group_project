@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -147,16 +149,16 @@ fun MainScreenScaffold(
 @Composable
 fun TopNavigationBar(
     title: @Composable () -> Unit,
-    navigationIcon: @Composable () -> Unit,
-    actions: @Composable () -> Unit,
+    leftButton: @Composable () -> Unit,
+    rightButton: @Composable () -> Unit,
 ) {
   Box(
       modifier = Modifier.testTag("top_app_box"),
   ) {
     CenterAlignedTopAppBar(
         title = { title() },
-        navigationIcon = { navigationIcon() },
-        actions = { actions() },
+        navigationIcon = { leftButton() },
+        actions = { rightButton() },
         modifier = Modifier.testTag("top_app_bar"))
     HorizontalDivider(
         modifier = Modifier.align(Alignment.BottomStart).testTag("divider"),
@@ -281,20 +283,26 @@ fun GoBackRouteToLastPageButton(
 
 /** Secondary top bar element. */
 @Composable
-fun SecondaryTopBar(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+fun ChatTopBar(
+    leftButton: @Composable () -> Unit,
+    rightButton: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit
+) {
   TopAppBar(
-      modifier = Modifier.fillMaxWidth().padding(4.dp),
-      contentColor = Color.Transparent,
-      backgroundColor = Color.Transparent,
-      elevation = 0.dp) {
-        IconButton(onClick = { onClick() }) {
-          Icon(
-              painterResource(R.drawable.arrow_back),
-              contentDescription = stringResource(R.string.ContentDescription_go_back_button),
-              modifier = Modifier.size(28.dp))
-        }
+      modifier = Modifier.fillMaxWidth(),
+      contentColor = Color.White,
+      backgroundColor = Color.White,
+      elevation = 0.dp,
+      contentPadding = PaddingValues(4.dp)) {
+        leftButton()
         content()
+        rightButton()
       }
+  Divider(
+      color = Blue,
+      thickness = 4.dp,
+      // modifier = Modifier.align(Alignment.BottomStart).testTag("divider")
+  )
 }
 
 /** Save button element. */
@@ -321,6 +329,27 @@ fun SaveButton(enabled: Boolean, save: () -> Unit) {
 }
 
 /** Shared profile picture setting element. */
+@Composable
+fun DeleteButton(onClick: () -> Unit) {
+  Button(
+      onClick = { onClick() },
+      modifier =
+          Modifier.padding(0.dp)
+              .width(300.dp)
+              .height(45.dp)
+              .background(Color.Transparent, shape = RoundedCornerShape(10.dp))
+              .testTag("todo_delete"),
+      colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
+        Icon(
+            painter = painterResource(R.drawable.delete),
+            contentDescription = null,
+            tint = Color.Red,
+            modifier = Modifier.size(36.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Delete", color = Color.Red)
+      }
+}
+
 @Composable
 fun SetPicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Box(

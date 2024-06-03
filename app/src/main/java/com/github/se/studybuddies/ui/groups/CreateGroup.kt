@@ -74,10 +74,10 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.create_group)) },
-            navigationIcon = {
+            leftButton = {
               GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
             },
-            actions = {})
+            rightButton = {})
       }) {
         Column(
             modifier = Modifier.fillMaxSize().background(White).testTag("create_group_column"),

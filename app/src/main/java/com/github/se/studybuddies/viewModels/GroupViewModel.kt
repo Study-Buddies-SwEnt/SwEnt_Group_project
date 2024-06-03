@@ -24,9 +24,9 @@ class GroupViewModel(
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
   private val _membersGroup = MutableLiveData<List<User>>(emptyList())
+  val membersGroup: LiveData<List<User>> = _membersGroup
   private val _member = MutableLiveData(User.empty())
   val members: LiveData<List<User>> = _members
-  val membersGroup: LiveData<List<User>> = _membersGroup
   val member: LiveData<User> = _member
   val group: LiveData<Group> = _group
   private val _topics = MutableStateFlow(TopicList(emptyList()))
