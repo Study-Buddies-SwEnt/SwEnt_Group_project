@@ -55,6 +55,7 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
@@ -174,12 +175,13 @@ fun GoToContactList(navigationActions: NavigationActions) {
                 Modifier
                     .width(64.dp)
                     .height(64.dp)
-                    .background(color = Blue)
                     .clip(MaterialTheme.shapes.medium)
+                    .background(color = Blue)
                     .testTag("add_private_message_button")) {
                     Icon(
                         painterResource(id = R.drawable.user),
                         contentDescription = stringResource(R.string.contentDescription_icon_contacts),
+                        modifier = Modifier.size(40.dp),
                         tint = White)
                 }
             }
