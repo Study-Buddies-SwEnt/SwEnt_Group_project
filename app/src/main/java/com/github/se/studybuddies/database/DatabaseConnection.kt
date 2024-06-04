@@ -1201,21 +1201,17 @@ class DatabaseConnection : DbRepository {
 
 
 
-  override suspend fun startDirectMessage(otherUID: String): String {
+  override suspend fun startDirectMessage(otherUID: String, contactID: String) {
     val currentUserUID = getCurrentUserUID()
     val contactsViewModel = ContactsViewModel()
-    var contactID = ""
     Log.d("MyPrint", "startDirectMessage called in db")
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
-        if (chatId != null) {
-          contactID = chatId
-        }
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
-        val newChatId = UUID.randomUUID().toString()
-        contactID = newChatId
+        val newChatId = contactID
+          //val newChatId = UUID.randomUUID().toString()
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb
@@ -1223,15 +1219,13 @@ class DatabaseConnection : DbRepository {
             .updateChildren(members)
             .addOnSuccessListener {
               Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
-              contactsViewModel.createContact(otherUID, contactID)
-                //TODO() solve sync issue
+              //contactsViewModel.createContact(otherUID, contactID)
             }
             .addOnFailureListener {
               Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
             }
       }
     }
-    return contactID
   }
 
   override fun updateContact(contactID: String, showOnMap: Boolean) {
@@ -1691,8 +1685,8 @@ class DatabaseConnection : DbRepository {
         val uid = getCurrentUserUID()
         userContactsCollection.document(uid).update("pendingRequests", FieldValue.arrayRemove(requestID))
         val testID = "AAAAAAAAAAAAAAA"
-        startDirectMessage(requestID)
-        //createContact(requestID, testID)
+        createContact(requestID)
+
     }
 
     //TODO() add to  mockdb
@@ -1753,11 +1747,11 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override suspend fun createContact(otherUID: String, contactID: String) {
+  override suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
-    Log.d("MyPrint", "Creating new contact with with ID $contactID")
+    //Log.d("MyPrint", "Creating new contact with with ID $contactID")
     // check if contact already exists
     val contactList = getAllContacts(uid)
     val filteredList = contactList.getFilteredContacts(otherUID)
@@ -1769,12 +1763,17 @@ class DatabaseConnection : DbRepository {
           "showOnMap" to false,
           "hasStartedDM" to false)
       // updating contacts collection
-      val contactRef = contactDataCollection.document(contactID)
+      /*val contactRef = contactDataCollection.document(contactID)
       contactRef
           .set(contact)
-          .addOnSuccessListener { _ ->
+
+       */
+          contactDataCollection.add(contact)
+          .addOnSuccessListener { doc ->
             Log.d("MyPrint", "Contact $contact successfully created")
 
+
+              val contactID = doc.id
             // updating current user's list of contacts
             userContactsCollection
                 .document(uid)

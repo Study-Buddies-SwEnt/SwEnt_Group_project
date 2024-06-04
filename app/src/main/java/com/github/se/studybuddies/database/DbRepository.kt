@@ -138,7 +138,7 @@ interface DbRepository {
       onResult: (Boolean, String?) -> Unit
   )
 
-  suspend fun startDirectMessage(otherUID: String): String
+  suspend fun startDirectMessage(otherUID: String, contactID: String)
 
   // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
@@ -179,7 +179,7 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-  suspend fun createContact(otherUID: String, contactID: String)
+  suspend fun createContact(otherUID: String)
 
   fun deleteContact(contactID: String)
 

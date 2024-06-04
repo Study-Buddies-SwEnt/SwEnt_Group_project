@@ -138,9 +138,9 @@ fun ContactListScreen(
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
                                 //val hasDM = contact.hasStartedDM
-                                val hasDM = true
+                                val hasDM = false
                                 ContactItem(friend)
-                                { if (hasDM) {directMessagesViewModel.startDirectMessage(friendID) }
+                                { if (!hasDM) {directMessagesViewModel.startDirectMessage(friendID, contact.id ) }
                                     navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}") }
                             }
                             }

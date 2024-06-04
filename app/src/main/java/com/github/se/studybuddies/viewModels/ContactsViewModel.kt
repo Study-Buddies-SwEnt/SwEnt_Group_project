@@ -42,9 +42,10 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  fun createContact(otherUID: String, contactID: String) {
-    viewModelScope.launch { db.createContact(otherUID, contactID) }
+  fun createContact(otherUID: String) {
+    viewModelScope.launch { db.createContact(otherUID) }
   }
+
   fun fetchContactData(contactID: String) {
     Log.d("contact", "A fetch contact called with ID $contactID")
     viewModelScope.launch {
