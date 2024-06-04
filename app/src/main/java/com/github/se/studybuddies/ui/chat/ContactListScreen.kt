@@ -233,7 +233,7 @@ fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
             contentScale = ContentScale.Crop)
         Text(text = "${request.username} sent you a friend request",
             modifier = Modifier
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth()
                 .testTag("chat_name"),
             maxLines = 1)
     }
