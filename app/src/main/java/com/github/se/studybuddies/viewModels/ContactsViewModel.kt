@@ -30,12 +30,9 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   private val _friends = MutableStateFlow<List<User>>(emptyList())
   val friends : StateFlow<List<User>> = _friends
 
+  private val _allUsers = MutableStateFlow<List<User>>(emptyList())
+  val allUsers : StateFlow<List<User>> = _allUsers
 
-  init {
-    if (uid != null) {
-      fetchAllContacts(uid)
-    }
-  }
 
   fun createContact(otherUID: String, contactID: String) {
     viewModelScope.launch { db.createContact(otherUID, contactID) }
@@ -63,7 +60,18 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  private fun fetchAllContacts(uid: String) {
+  fun fetchAllUsers() {
+    viewModelScope.launch {
+      try {
+        val allUsers = db.getAllUsers()
+        _allUsers.value = allUsers
+      } catch (e: Exception) {
+        Log.d("MyPrint", "In ViewModel, could not fetch all users with error $e")
+      }
+    }
+  }
+
+  fun fetchAllContacts(uid: String) {
     viewModelScope.launch {
       try {
         val contacts = db.getAllContacts(uid)
@@ -85,7 +93,7 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-  private fun fetchAllRequests(uid: String) {
+  fun fetchAllRequests(uid: String) {
     viewModelScope.launch {
       try {
         val requests = db.getAllRequests(uid)

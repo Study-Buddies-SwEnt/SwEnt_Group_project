@@ -73,6 +73,8 @@ fun ContactListScreen(
 ) {
     val showAddPrivateMessageList = remember { mutableStateOf(false) }
 
+    contactsViewModel.fetchAllContacts(currentUID)
+    contactsViewModel.fetchAllRequests(currentUID)
     val contacts = contactsViewModel.contacts.collectAsState().value
     val contactList = contacts.getAllTasks()
 

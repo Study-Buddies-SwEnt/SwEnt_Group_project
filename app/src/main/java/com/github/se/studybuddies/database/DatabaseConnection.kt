@@ -222,6 +222,28 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+    override suspend fun getAllUsers(): List<User> {
+        val uid = getCurrentUserUID()
+        return try {
+            val snapshot = userDataCollection.document(uid).get().await()
+            val snapshotQuery = userDataCollection.get().await()
+            val items = mutableListOf<User>()
+
+            if (snapshot.exists()) {
+                // val userUIDs = snapshot.data?.get("friends") as? List<String>
+                for (item in snapshotQuery.documents) {
+                    val id = item.id
+                    items.add(getUser(id))
+                }
+            } else {
+                Log.d("MyPrint", "User with uid $uid does not exist")
+            }
+            items
+        } catch (e: Exception) {
+            Log.d("MyPrint", "Could not fetch all users with error: $e")
+            emptyList()
+        }
+    }
 
   override suspend fun getAllFriends(uid: String): List<User> {
     return try {

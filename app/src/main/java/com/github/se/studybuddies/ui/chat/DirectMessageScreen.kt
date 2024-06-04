@@ -84,7 +84,6 @@ fun DirectMessageScreen(
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
 
-
   MainScreenScaffold(
       navigationActions = navigationActions,
       backRoute = Route.DIRECT_MESSAGE,
@@ -148,7 +147,9 @@ fun DirectMessageScreen(
         Box(
             contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom start (left)
             modifier =
-                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
             }
 
@@ -294,16 +295,20 @@ fun ListAllUsers(
     viewModel: DirectMessagesViewModel,
     contactsViewModel: ContactsViewModel
 ) {
-  val friends = contactsViewModel.friends.collectAsState(initial = emptyList()).value
+
+    contactsViewModel.fetchAllUsers()
+  val allUsers = contactsViewModel.allUsers.collectAsState().value
+      //contactsViewModel.friends.collectAsState(initial = emptyList()).value
+
   var isLoading by remember { mutableStateOf(true) }
 
-  LaunchedEffect(friends) {
-    if (friends.isNotEmpty()) {
+  LaunchedEffect(allUsers) {
+    if (allUsers.isNotEmpty()) {
       isLoading = false
     } else {
       repeat(10) {
         delay(500)
-        if (friends.isNotEmpty()) {
+        if (allUsers.isNotEmpty()) {
           isLoading = false
           return@repeat
         }
@@ -317,13 +322,13 @@ fun ListAllUsers(
       CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }
   } else {
-    if (friends.isEmpty()) {
+    if (allUsers.isEmpty()) {
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier
           .fillMaxWidth()
           .testTag("all_users_list")) {
-        items(friends) { friend ->
+        items(allUsers) { friend ->
           UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
         }
       }

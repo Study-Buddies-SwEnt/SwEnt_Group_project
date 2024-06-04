@@ -192,7 +192,7 @@ interface DbRepository {
   suspend fun getTopicFileImages(fileID: String): List<Uri>
     suspend fun getAllRequests(uid: String): RequestList
     suspend fun deleteRequest(requestID: String)
-
+    suspend fun getAllUsers(): List<User>
     suspend fun acceptRequest(requestID: String)
 
     companion object {
