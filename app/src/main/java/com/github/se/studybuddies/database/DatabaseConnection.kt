@@ -1663,8 +1663,6 @@ class DatabaseConnection : DbRepository {
       }
     }
   }
-
-  // TODO add to mockdb
   override suspend fun getAllRequests(uid: String): RequestList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
@@ -1694,7 +1692,6 @@ class DatabaseConnection : DbRepository {
     return RequestList(emptyList())
   }
 
-  // TODO() add mockdb
   override suspend fun deleteRequest(requestID: String) {
     val uid = getCurrentUserUID()
     userContactsCollection
@@ -1702,7 +1699,6 @@ class DatabaseConnection : DbRepository {
         .update("pendingRequests", FieldValue.arrayRemove(requestID))
   }
 
-  // TODO() add mockdb
   override suspend fun acceptRequest(requestID: String) {
     val uid = getCurrentUserUID()
     userContactsCollection
@@ -1711,7 +1707,6 @@ class DatabaseConnection : DbRepository {
     createContact(requestID)
   }
 
-  // TODO() add to  mockdb
   override suspend fun sendContactRequest(targetID: String) {
     val uid = getCurrentUserUID()
     userContactsCollection.document(targetID).update("pendingRequests", FieldValue.arrayUnion(uid))
