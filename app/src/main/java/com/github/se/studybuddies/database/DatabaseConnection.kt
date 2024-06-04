@@ -1199,9 +1199,7 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-    //TODO() add to dbrep and mockdb
-    suspend fun sendContactRequest(otherUID: String){
-    }
+
 
   override suspend fun startDirectMessage(otherUID: String): String {
     val currentUserUID = getCurrentUserUID()
@@ -1697,7 +1695,11 @@ class DatabaseConnection : DbRepository {
         //createContact(requestID, testID)
     }
 
-
+    //TODO() add to  mockdb
+    override suspend fun sendContactRequest(targetID: String){
+        val uid = getCurrentUserUID()
+        userContactsCollection.document(targetID).update("pendingRequests", FieldValue.arrayUnion(uid))
+    }
 
     override suspend fun getAllContacts(uid: String): ContactList {
     try {

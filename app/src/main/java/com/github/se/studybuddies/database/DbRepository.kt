@@ -194,6 +194,7 @@ interface DbRepository {
     suspend fun deleteRequest(requestID: String)
     suspend fun getAllUsers(): List<User>
     suspend fun acceptRequest(requestID: String)
+    suspend fun sendContactRequest(targetID: String)
 
     companion object {
     const val topic_name = "name"

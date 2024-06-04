@@ -196,6 +196,8 @@ clicking on a contact will call startDM(contactID) if no chat exists
 change startDM calls to sendContactRequest calls
 check in sendContactRequest that the user is not already in contacts
 
+check for getAllfriends use (like in add member from list) problems
+
 search bar on DMscreen and chat screens
 search bar for adding contacts, also change this UI in general
 show on map toggle button?
