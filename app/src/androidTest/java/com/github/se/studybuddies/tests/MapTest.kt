@@ -11,6 +11,7 @@ import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.MapScreen
 import com.github.se.studybuddies.ui.map.MapScreen
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -45,13 +46,13 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           location = "offline")
   private val db = DatabaseConnection()
   private val userVM = UserViewModel(uid, db)
-  private val usersVM = UsersViewModel(uid, db)
+  private val contactsViewModel= ContactsViewModel()
 
   @Before
   fun setup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     composeTestRule.setContent {
-      MapScreen(uid = uid, userVM, usersVM, navigationActions = mockNavActions, context = context)
+      MapScreen(uid = uid, userVM, contactsViewModel, navigationActions = mockNavActions, context = context)
     }
   }
 
@@ -78,13 +79,13 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   private val uid = "userTest1"
   private val db = MockDatabase()
   private val userVM = UserViewModel(uid, db)
-  private val usersVM = UsersViewModel(uid, db)
+  private val contactsViewModel= ContactsViewModel()
 
   @Before
   fun setup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     composeTestRule.setContent {
-      MapScreen(uid = uid, userVM, usersVM, navigationActions = mockNavActions, context = context)
+      MapScreen(uid = uid, userVM, contactsViewModel, navigationActions = mockNavActions, context = context)
     }
   }
 
@@ -92,10 +93,10 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   @Test
   fun getUserFriends() {
     onComposeScreen<MapScreen>(composeTestRule) {
-      usersVM.fetchAllFriends(uid)
-      val friends = usersVM.friendsOld.value
+      contactsViewModel.fetchAllFriends(uid)
+      val friends = contactsViewModel.friends.value
       // After the delay, the friends list should be finally retrieved
-      assert(friends.isNotEmpty())
+      assert(friends.getAllTasks().isNotEmpty())
     }
   }
 

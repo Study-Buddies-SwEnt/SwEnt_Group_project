@@ -31,14 +31,12 @@ class DirectMessageTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComp
   fun testDirectMessageScreen() {
     val directMessageViewModel = DirectMessagesViewModel()
     val chatViewModel = ChatViewModel()
-    val usersViewModel = UsersViewModel()
     val navigationActions = mockNavActions
     val contactsViewModel = ContactsViewModel()
     composeTestRule.setContent {
       DirectMessageScreen(
           viewModel = directMessageViewModel,
           chatViewModel = chatViewModel,
-          usersViewModel = usersViewModel,
           navigationActions = navigationActions,
           contactsViewModel = contactsViewModel)
     }
