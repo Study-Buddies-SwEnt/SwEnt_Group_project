@@ -68,28 +68,25 @@ fun ContactScreen(
 
   contactsViewModel.fetchContactData(contactID)
 
-
   val currentUserID = userViewModel.getCurrentUserUID()
-  //val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
+  // val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
 
   val contactData by contactsViewModel.contact.observeAsState()
-    val otherUID = contactData?.getOtherUser(currentUserID) ?: ""
-        Log.d("contact", "otheruserID is $otherUID")
+  val otherUID = contactData?.getOtherUser(currentUserID) ?: ""
+  Log.d("contact", "otheruserID is $otherUID")
 
-
-    userViewModel.fetchUserData(otherUID)
+  userViewModel.fetchUserData(otherUID)
   val otherUserData by userViewModel.userData.observeAsState()
 
-    Log.d("contact", "otheruserdata is $otherUserData")
-    Log.d("contact", "contactdata is $contactData")
+  Log.d("contact", "otheruserdata is $otherUserData")
+  Log.d("contact", "contactdata is $contactData")
 
   val nameState = remember { mutableStateOf(otherUserData?.username ?: "username_error") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
 
   val showOnMapState = remember { mutableStateOf(contactData?.showOnMap ?: false) }
 
-    var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
-
+  var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
 
   otherUserData?.let {
     nameState.value = it.username

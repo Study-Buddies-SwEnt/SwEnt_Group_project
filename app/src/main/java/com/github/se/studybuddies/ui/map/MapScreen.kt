@@ -242,7 +242,7 @@ fun FriendsLocationButton(
     friendsData: MutableState<List<User>>,
 ) {
   val friends by contactsViewModel.friends.collectAsState()
-   val friendList = friends.getAllTasks()
+  val friendList = friends.getAllTasks()
   friendsData.value = friendList
 
   val isLoading = remember { mutableStateOf(true) }

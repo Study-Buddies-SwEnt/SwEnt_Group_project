@@ -11,7 +11,6 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,8 +22,8 @@ class UserViewModel(
 ) : ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
-  private val _userUid = MutableStateFlow<String>(uid?:"")
-  val userID : StateFlow<String> = _userUid
+  private val _userUid = MutableStateFlow<String>(uid ?: "")
+  val userID: StateFlow<String> = _userUid
 
   init {
     if (uid != null) {

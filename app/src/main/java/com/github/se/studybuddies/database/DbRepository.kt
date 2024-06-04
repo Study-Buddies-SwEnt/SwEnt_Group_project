@@ -181,9 +181,9 @@ interface DbRepository {
 
   suspend fun createContact(otherUID: String)
 
-    suspend fun contactGetOtherUser(contactID : String, uid: String): String
+  suspend fun contactGetOtherUser(contactID: String, uid: String): String
 
-    suspend fun  deleteContact(contactID: String)
+  suspend fun deleteContact(contactID: String)
 
   fun deletePrivateChat(chatID: String)
 
@@ -200,10 +200,12 @@ interface DbRepository {
   suspend fun acceptRequest(requestID: String)
 
   suspend fun sendContactRequest(targetID: String)
-     fun updateContactShowOnMap(contactID: String, showOnMap: Boolean)
-     fun updateContactHasDM(contactID: String, hasDM: Boolean)
 
-    companion object {
+  fun updateContactShowOnMap(contactID: String, showOnMap: Boolean)
+
+  fun updateContactHasDM(contactID: String, hasDM: Boolean)
+
+  companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

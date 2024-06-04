@@ -21,7 +21,6 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -74,7 +73,7 @@ class DatabaseConnection : DbRepository {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
-        Log.d("getUser", "found user document for id $uid")
+      Log.d("getUser", "found user document for id $uid")
       User(uid, email, username, photoUrl, location)
     } else {
       Log.d("getUser", "user document not found for id $uid")
@@ -245,19 +244,19 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-   override  suspend fun contactGetOtherUser(contactID : String, uid: String): String {
-         val contact = getContact(contactID)
-         if (contact == Contact.empty()) {
-             return ""
-         }
-         return if ((contact.members.get(0)) == uid) {
-             Log.d("contact", "getOtherUser 1")
-             contact.members.get(1)
-         } else {
-             Log.d("contact", "getOtherUser 0")
-             contact.members.get(0)
-         }
+  override suspend fun contactGetOtherUser(contactID: String, uid: String): String {
+    val contact = getContact(contactID)
+    if (contact == Contact.empty()) {
+      return ""
     }
+    return if ((contact.members.get(0)) == uid) {
+      Log.d("contact", "getOtherUser 1")
+      contact.members.get(1)
+    } else {
+      Log.d("contact", "getOtherUser 0")
+      contact.members.get(0)
+    }
+  }
 
   override suspend fun getAllFriends(uid: String): List<User> {
     return try {
@@ -1248,14 +1247,15 @@ class DatabaseConnection : DbRepository {
           Log.d("UpdateContact", "Failed modify contact with error: ", e)
         }
   }
-  override  fun updateContactHasDM(contactID: String, hasDM: Boolean){
-      contactDataCollection
-          .document(contactID)
-          .update("hasStartedDM", hasDM)
-          .addOnSuccessListener { Log.d("UpdateContact", "contact hasDM successfully updated") }
-          .addOnFailureListener { e ->
-              Log.d("UpdateContact", "Failed modify contact with error: ", e)
-          }
+
+  override fun updateContactHasDM(contactID: String, hasDM: Boolean) {
+    contactDataCollection
+        .document(contactID)
+        .update("hasStartedDM", hasDM)
+        .addOnSuccessListener { Log.d("UpdateContact", "contact hasDM successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateContact", "Failed modify contact with error: ", e)
+        }
   }
 
   override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
