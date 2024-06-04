@@ -185,8 +185,6 @@ interface DbRepository {
 
   fun deletePrivateChat(chatID: String)
 
-  fun updateContact(contactID: String, showOnMap: Boolean)
-
   fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
 
   suspend fun getTopicFileImages(fileID: String): List<Uri>
