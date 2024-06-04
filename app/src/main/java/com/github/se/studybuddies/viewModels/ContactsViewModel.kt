@@ -85,8 +85,9 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     viewModelScope.launch {
       try {
         val users = db.getAllFriends(uid)
+        Log.d("ContactsVM", "friendlist is ${users}")
         _friends.value = FriendList(users)
-        Log.d("ContactListScreen", "friendlist is ${friends.value}")
+        Log.d("ContactsVM", "friendlist is ${friends.value.getAllTasks()}")
       } catch (e: Exception) {
         Log.d("MyPrint", "In ViewModel, could not fetch friends with error $e")
       }

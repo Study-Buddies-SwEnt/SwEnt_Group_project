@@ -70,7 +70,7 @@ fun ContactListScreen(
     contactsViewModel: ContactsViewModel,
     directMessagesViewModel: DirectMessagesViewModel
 ) {
-  Log.d("what", "what")
+
   contactsViewModel.fetchAllContacts(currentUID)
   contactsViewModel.fetchAllRequests(currentUID)
   contactsViewModel.fetchAllFriends(currentUID)
@@ -137,7 +137,9 @@ fun ContactListScreen(
                     items(contactList) { contact ->
                       val friendID = contact.getOtherUser(currentUID)
                         Log.d("ContactListScreen", "otheruser id is $friendID")
-                      val friend = friends.getFilteredFriends(friendID)[0]
+                      val filteredFriend = friends.getFilteredFriends(friendID)
+                        var friend = User.empty()
+                        if(filteredFriend.isNotEmpty()){friend = filteredFriend.get(0)}
                       val hasDM = contact.hasStartedDM
                             ContactItem(friend, hasDM) {
                                 if (!hasDM) {
