@@ -1685,13 +1685,13 @@ class DatabaseConnection : DbRepository {
     //TODO() add mockdb
     override suspend fun deleteRequest(requestID: String){
         val uid = getCurrentUserUID()
-        userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(requestID))
+        userContactsCollection.document(uid).update("pendingRequests", FieldValue.arrayRemove(requestID))
     }
 
     //TODO() add mockdb
     override suspend fun acceptRequest(requestID: String){
         val uid = getCurrentUserUID()
-        userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(requestID))
+        userContactsCollection.document(uid).update("pendingRequests", FieldValue.arrayRemove(requestID))
         val testID = "AAAAAAAAAAAAAAA"
         startDirectMessage(requestID)
         //createContact(requestID, testID)

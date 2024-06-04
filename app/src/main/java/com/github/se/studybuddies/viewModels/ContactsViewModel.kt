@@ -118,7 +118,7 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun acceptRequest(requestID : String){
-    viewModelScope.launch { db.deleteRequest(requestID)}
+    viewModelScope.launch { db.acceptRequest(requestID)}
   }
 
   fun sendContactRequest(userID : String){

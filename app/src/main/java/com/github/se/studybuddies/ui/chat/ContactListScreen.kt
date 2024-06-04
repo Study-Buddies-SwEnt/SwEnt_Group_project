@@ -133,6 +133,7 @@ fun ContactListScreen(
                             items(requestList.value) { request ->
                                 RequestItem(request,contactsViewModel)
                             }
+                            items(1){Divider(thickness = 2.dp, color = Blue)}
                             items(contactList) { contact ->
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
@@ -158,7 +159,9 @@ fun ContactListScreen(
           Box(
               contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
               modifier =
-                  Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              Modifier
+                  .fillMaxSize()
+                  .padding(bottom = innerPadding.calculateBottomPadding())) {
                 AddNewPrivateMessage(showAddPrivateMessageList)
               }
 
