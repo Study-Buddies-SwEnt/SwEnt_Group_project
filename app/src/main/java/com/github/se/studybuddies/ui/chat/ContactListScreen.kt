@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -115,6 +116,8 @@ fun ContactListScreen(
                     Log.d("MyPrint", "Contact list is not empty")
                     Column(
                         modifier = Modifier
+                            .padding(top = 63.dp)
+                            .padding(bottom = 100.dp)
                             .fillMaxSize()
                             .testTag("direct_messages_not_empty"),
                         horizontalAlignment = Alignment.Start,
@@ -123,25 +126,33 @@ fun ContactListScreen(
                         LazyColumn (
                             modifier =
                             Modifier
-                                .padding(vertical = 65.dp)
-                                .fillMaxSize()
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.452f)
                                 .background(LightBlue)
                                 .testTag("request_list")){
                             items(1){
                                 val friendtest = userVM.getUser(currentUID)
                                 RequestItem(friendtest, contactsViewModel)
+                                RequestItem(friendtest, contactsViewModel)
+                                RequestItem(friendtest, contactsViewModel)
+                                RequestItem(friendtest, contactsViewModel)
+                                RequestItem(friendtest, contactsViewModel)
                                 RequestItem(friendtest, contactsViewModel)}
                         }
-                        Divider()
+                        Divider(color = Blue, thickness = 2.dp)
                         LazyColumn(
                             modifier =
                             Modifier
-                                .padding(vertical = 65.dp)
-                                .fillMaxSize()
+                                .fillMaxWidth()
+                                .fillMaxHeight()
                                 .background(LightBlue)
                                 .testTag("direct_messages_list")) {
                             items(1){
                                 val friendtest = userVM.getUser(currentUID)
+                                ContactItem(friendtest){}
+                                ContactItem(friendtest){}
+                                ContactItem(friendtest){}
+                                ContactItem(friendtest){}
                                 ContactItem(friendtest){}
                                 ContactItem(friendtest){}
                             }

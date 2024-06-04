@@ -286,7 +286,6 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
  *
  * @param showAddPrivateMessageList Mutable state controlling the display of the user list.
  * @param viewModel ViewModel for direct messaging functionalities.
- * @param usersViewModel ViewModel managing user data.
  * @param contactsViewModel ViewModel for contact operations.
  */
 @Composable
