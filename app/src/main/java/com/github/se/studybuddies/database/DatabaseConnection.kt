@@ -74,9 +74,10 @@ class DatabaseConnection : DbRepository {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
+        Log.d("getUser", "found user document for id $uid")
       User(uid, email, username, photoUrl, location)
     } else {
-      Log.d("MyPrint", "user document not found for id $uid")
+      Log.d("getUser", "user document not found for id $uid")
       User.empty()
     }
   }

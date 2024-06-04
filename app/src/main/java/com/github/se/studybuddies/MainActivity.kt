@@ -349,7 +349,7 @@ class MainActivity : ComponentActivity() {
                   val uid = db.getCurrentUserUID()
                   ifNotNull(contactID) { contactUID ->
                     val contactsVM = remember { ContactsViewModel(uid) }
-                    val userVM = remember { UserViewModel(uid, db) }
+                    val userVM = remember { UserViewModel() }
                     val directMessageVM = remember { DirectMessagesViewModel(uid, db) }
                     ContactScreen(
                         contactUID, contactsVM, navigationActions, userVM, directMessageVM)

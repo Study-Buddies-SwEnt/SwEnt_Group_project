@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class UserViewModel(
-    val uid: String? = "",
+    val uid: String? = null,
     private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
   private val _userData = MutableLiveData<User>()
@@ -48,7 +48,9 @@ class UserViewModel(
   }
 
   fun fetchUserData(uid: String) {
+    Log.d("UserVM", "fetched user data for id $uid")
     viewModelScope.launch { _userData.value = db.getUser(uid) }
+    Log.d("UserVM", "userData.value is ${_userData.value}")
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -84,7 +86,7 @@ class UserViewModel(
     return db.isFakeDatabase()
   }
 
-  suspend fun getUser(userID: String): User {
+  fun getUser(userID: String): User {
     var user = User.empty()
     viewModelScope.launch { user = db.getUser(userID)!! }
     return user

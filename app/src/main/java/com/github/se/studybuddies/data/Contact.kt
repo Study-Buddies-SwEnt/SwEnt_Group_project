@@ -8,20 +8,24 @@ data class Contact(
     val showOnMap: Boolean,
     val hasStartedDM: Boolean
 ) {
-  companion object {
-    fun empty(): Contact {
-      return Contact(id = "", members = emptyList(), false, false)
+    companion object {
+        fun empty(): Contact {
+            return Contact(id = "", members = emptyList(), false, false)
+        }
     }
-  }
-    fun getOtherUser(uid : String) : String{
-        return if ((members.get(0)) == uid) {
-            members.get(1)
+
+    fun getOtherUser(uid: String): String {
+        if (members.isEmpty()) {
+            return ""
         } else {
-            members.get(0)
+            return if ((members.get(0)) == uid) {
+                members.get(1)
+            } else {
+                members.get(0)
+            }
         }
     }
 }
-
 
 class RequestList(private val requests: List<User>) {
   fun getAllTasks(): List<User> {
