@@ -181,7 +181,9 @@ interface DbRepository {
 
   suspend fun createContact(otherUID: String)
 
-  fun deleteContact(contactID: String)
+    suspend fun contactGetOtherUser(contactID : String, uid: String): String
+
+    suspend fun  deleteContact(contactID: String)
 
   fun deletePrivateChat(chatID: String)
 

@@ -244,6 +244,20 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+   override  suspend fun contactGetOtherUser(contactID : String, uid: String): String {
+         val contact = getContact(contactID)
+         if (contact == Contact.empty()) {
+             return ""
+         }
+         return if ((contact.members.get(0)) == uid) {
+             Log.d("contact", "getOtherUser 1")
+             contact.members.get(1)
+         } else {
+             Log.d("contact", "getOtherUser 0")
+             contact.members.get(0)
+         }
+    }
+
   override suspend fun getAllFriends(uid: String): List<User> {
     return try {
       val snapshot = userContactsCollection.document(uid).get().await()
@@ -255,7 +269,7 @@ class DatabaseConnection : DbRepository {
         val contactsUID = snapshot.data?.get("contacts") as? List<String>
         contactsUID?.let { contactsID ->
           contactsID.forEach { contactID ->
-            val friendID = contactVM.getOtherUser(contactID, uid)
+            val friendID = contactGetOtherUser(contactID, uid)
             items.add(getUser(friendID))
           }
         }
@@ -1814,11 +1828,10 @@ class DatabaseConnection : DbRepository {
     rtDb.getReference(memberPath).removeValue()
   }
 
-  override fun deleteContact(contactID: String) {
+  override suspend fun deleteContact(contactID: String) {
 
     val uid = getCurrentUserUID()
-    val contactsViewModel = ContactsViewModel()
-    val otherUID = contactsViewModel.getOtherUser(contactID, uid)
+    val otherUID = contactGetOtherUser(contactID, uid)
 
     userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
     userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))

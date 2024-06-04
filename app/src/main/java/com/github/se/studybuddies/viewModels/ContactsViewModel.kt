@@ -54,17 +54,9 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   }
 
   fun getOtherUser(contactID: String, uid: String): String {
-    fetchContactData(contactID)
-    if (_contact.value == Contact.empty()) {
-      return ""
-    }
-    return if ((contact.value?.members?.get(0) ?: "") == uid) {
-      Log.d("contact", "getOtherUser 1")
-      contact.value?.members?.get(1) ?: ""
-    } else {
-      Log.d("contact", "getOtherUser 0")
-      contact.value?.members?.get(0) ?: ""
-    }
+    var id = ""
+    viewModelScope.launch { id = db.contactGetOtherUser(contactID, uid) }
+    return id
   }
 
   fun fetchAllUsers() {
@@ -131,7 +123,6 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     db.updateContactHasDM(contactID, hasDM)
   }
   fun deleteContact(contactID: String) {
-    Log.d("contact", "called delete contact in VM")
-    db.deleteContact(contactID)
+    viewModelScope.launch{db.deleteContact(contactID)}
   }
 }

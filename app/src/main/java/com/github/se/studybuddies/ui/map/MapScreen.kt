@@ -242,7 +242,8 @@ fun FriendsLocationButton(
     friendsData: MutableState<List<User>>,
 ) {
   val friends by contactsViewModel.friends.collectAsState()
-  friendsData.value = friends
+   val friendList = friends.getAllTasks()
+  friendsData.value = friendList
 
   val isLoading = remember { mutableStateOf(true) }
 
@@ -251,7 +252,7 @@ fun FriendsLocationButton(
     val runnable =
         object : Runnable {
           override fun run() {
-            if (friends.isNotEmpty()) {
+            if (friendList.isNotEmpty()) {
               isLoading.value = false // Stop loading as chats are not empty
             } else {
               handler.postDelayed(this, 1000) // Continue checking every second
@@ -269,7 +270,7 @@ fun FriendsLocationButton(
   if (isLoading.value) {
     CircularProgressIndicator(modifier = Modifier.padding(24.dp).size(30.dp).testTag("loading"))
   } else {
-    if (friends.isEmpty()) {
+    if (friendList.isEmpty()) {
       Text(
           text = stringResource(id = R.string.no_friends_found),
           modifier = Modifier.width(250.dp).height(80.dp).padding(25.dp).size(20.dp),
