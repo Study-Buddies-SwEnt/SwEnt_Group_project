@@ -1663,6 +1663,7 @@ class DatabaseConnection : DbRepository {
       }
     }
   }
+
   override suspend fun getAllRequests(uid: String): RequestList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()

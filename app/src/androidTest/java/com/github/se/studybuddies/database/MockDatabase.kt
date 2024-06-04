@@ -23,7 +23,6 @@ import com.github.se.studybuddies.data.User
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,10 +73,6 @@ class MockDatabase : DbRepository {
   }
 
   override fun deletePrivateChat(chatID: String) {
-    TODO("Not yet implemented")
-  }
-
-  override fun updateContact(contactID: String, showOnMap: Boolean) {
     TODO("Not yet implemented")
   }
 
