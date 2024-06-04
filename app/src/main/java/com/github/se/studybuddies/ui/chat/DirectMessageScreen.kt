@@ -366,10 +366,8 @@ fun UserItem(
           .combinedClickable(
               onClick = {
                   coroutineScope.launch {
+                      contactsViewModel.sendContactRequest(user.uid)
                       showAddPrivateMessageList.value = false
-                      val contactID = viewModel.startDirectMessage(user.uid)
-                      Log.d("MyPrint", "DMscreen contactID is $contactID")
-                      // contactsViewModel.createContact(user.uid, contactID)
                   }
               })
           .testTag("user_item")) {
