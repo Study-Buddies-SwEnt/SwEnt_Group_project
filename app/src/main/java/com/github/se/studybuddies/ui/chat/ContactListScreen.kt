@@ -111,8 +111,8 @@ fun ContactListScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                     ) {
-                        if (requestList.value.isEmpty()) {
-                            Log.d("MyPrint", "Request list is empty")
+                        if (requestList.value.isEmpty() && contactList.isEmpty()) {
+                            Log.d("MyPrint", "Contact and Request list is empty")
                             Text(
                                 modifier =
                                 Modifier
@@ -122,7 +122,7 @@ fun ContactListScreen(
                                 text = stringResource(R.string.direct_messages_empty)
                             )
                         } else {
-                            Log.d("MyPrint", "Request list is not empty")
+                            Log.d("MyPrint", "Request or contact list is not empty")
                         LazyColumn (
                             modifier =
                             Modifier
@@ -133,41 +133,19 @@ fun ContactListScreen(
                             items(requestList.value) { request ->
                                 RequestItem(request,contactsViewModel)
                             }
-                            }
-                        }
-                        Divider(color = Blue, thickness = 2.dp)
-                        if (contactList.isEmpty()) {
-                            Log.d("MyPrint", "Contact list is empty")
-                            Text(
-                                modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding)
-                                    .testTag("direct_messages_empty"),
-                                text = stringResource(R.string.direct_messages_empty)
-                            )
-                        } else {
-                            Log.d("MyPrint", "Contact list is not empty")
-                        LazyColumn(
-                            modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .background(LightBlue)
-                                .testTag("direct_messages_list")) {
                             items(contactList) { contact ->
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
                                 //val hasDM = contact.hasStartedDM
                                 val hasDM = true
                                 ContactItem(friend)
-                                    { if (hasDM) {directMessagesViewModel.startDirectMessage(friendID) }
+                                { if (hasDM) {directMessagesViewModel.startDirectMessage(friendID) }
                                     navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}") }
-                                }
+                            }
                             }
                         }
+                        }
                     }
-            }
 
             Box(
                 contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
