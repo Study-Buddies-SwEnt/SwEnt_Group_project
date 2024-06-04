@@ -73,8 +73,8 @@ fun ContactListScreen(
     directMessagesViewModel: DirectMessagesViewModel
 ) {
     Log.d("what","what")
-    //contactsViewModel.fetchAllContacts(currentUID)
-    //contactsViewModel.fetchAllRequests(currentUID)
+    contactsViewModel.fetchAllContacts(currentUID)
+    contactsViewModel.fetchAllRequests(currentUID)
 
     val showAddPrivateMessageList = remember { mutableStateOf(false) }
 
@@ -111,6 +111,31 @@ fun ContactListScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                     ) {
+                        if (requestList.value.isEmpty()) {
+                            Log.d("MyPrint", "Request list is empty")
+                            Text(
+                                modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                                    .testTag("direct_messages_empty"),
+                                text = stringResource(R.string.direct_messages_empty)
+                            )
+                        } else {
+                            Log.d("MyPrint", "Request list is not empty")
+                        LazyColumn (
+                            modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.452f)
+                                .background(LightBlue)
+                                .testTag("request_list")){
+                            items(requestList.value) { request ->
+                                RequestItem(request,contactsViewModel)
+                            }
+                            }
+                        }
+                        Divider(color = Blue, thickness = 2.dp)
                         if (contactList.isEmpty()) {
                             Log.d("MyPrint", "Contact list is empty")
                             Text(
@@ -123,36 +148,6 @@ fun ContactListScreen(
                             )
                         } else {
                             Log.d("MyPrint", "Contact list is not empty")
-                        LazyColumn (
-                            modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.452f)
-                                .background(LightBlue)
-                                .testTag("request_list")){
-                            items(1){
-                                val friendtest = userVM.getUser(currentUID)
-                                RequestItem(friendtest, contactsViewModel)
-                                RequestItem(friendtest, contactsViewModel)
-                                RequestItem(friendtest, contactsViewModel)
-                                RequestItem(friendtest, contactsViewModel)
-                                RequestItem(friendtest, contactsViewModel)
-                                RequestItem(friendtest, contactsViewModel)}
-                            }
-                        }
-                        Divider(color = Blue, thickness = 2.dp)
-                            if (requestList.value.isEmpty()) {
-                                Log.d("MyPrint", "Request list is empty")
-                                Text(
-                                    modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding)
-                                        .testTag("direct_messages_empty"),
-                                    text = stringResource(R.string.direct_messages_empty)
-                                )
-                            } else {
-                                Log.d("MyPrint", "Request list is not empty")
                         LazyColumn(
                             modifier =
                             Modifier

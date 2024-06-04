@@ -1712,7 +1712,8 @@ class DatabaseConnection : DbRepository {
               val document = contactDataCollection.document(contactID).get().await()
               val members = document.get("members") as? List<String> ?: emptyList()
               val showOnMap = document.get("showOnMap") as Boolean ?: false
-                val hasDM = document.get("hasStartedDM") as Boolean ?: false
+               // val hasDM = document.get("hasStartedDM") as Boolean ?: false
+                val hasDM = false
               items.add(Contact(contactID, members, showOnMap, hasDM))
             } catch (e: Exception) {
               Log.e("contacts", "Error fetching contact with ID $contactID: $e")
@@ -1741,7 +1742,8 @@ class DatabaseConnection : DbRepository {
       Log.d("contact", "contact document found for contact id $contactID")
       val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
-        val hasDM = document.get("showOnMap") as Boolean
+        //val hasDM = document.get("hasStartedDM") as Boolean
+        val hasDM = false
       Contact(contactID, members, showOnMap, hasDM)
     } else {
       Log.d("contact", "contact document not found for contact id $contactID")
@@ -1760,13 +1762,16 @@ class DatabaseConnection : DbRepository {
     if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
     } else {
-      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false, "hasStartedDM" to false)
+      val contact = hashMapOf(
+          "members" to listOf(uid, otherUID),
+          "showOnMap" to false,
+          "hasStartedDM" to false)
       // updating contacts collection
       val contactRef = contactDataCollection.document(contactID)
       contactRef
           .set(contact)
           .addOnSuccessListener { _ ->
-            Log.d("MyPrint", "Contact successfully created")
+            Log.d("MyPrint", "Contact $contact successfully created")
 
             // updating current user's list of contacts
             userContactsCollection
