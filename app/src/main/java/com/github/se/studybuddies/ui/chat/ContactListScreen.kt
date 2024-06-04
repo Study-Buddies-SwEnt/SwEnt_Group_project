@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.chat
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -72,18 +73,16 @@ fun ContactListScreen(
   Log.d("what", "what")
   contactsViewModel.fetchAllContacts(currentUID)
   contactsViewModel.fetchAllRequests(currentUID)
+  contactsViewModel.fetchAllFriends(currentUID)
 
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
 
   val contacts = contactsViewModel.contacts.collectAsState().value
   val contactList = contacts.getAllTasks()
 
-  val userVM = UserViewModel()
+    val friends = contactsViewModel.friends.collectAsState().value
 
-    val _friendData by userVM.userData.observeAsState()
-    val _friendUID by userVM.userID.collectAsState()
-
-  val requests by contactsViewModel.requests.collectAsState()
+    val requests by contactsViewModel.requests.collectAsState()
   val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }
 
   MainScreenScaffold(
@@ -134,13 +133,9 @@ fun ContactListScreen(
                     items(1) { Divider(thickness = 2.dp, color = Blue) }
                     items(contactList) { contact ->
                       val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
-                      //val friend = userVM.getUser(friendID)
-                        userVM.setUserUID(friendID)
-                        userVM.fetchUserData(_friendUID)
+                      val friend = friends.getFilteredFriends(friendID)[0]
                       val hasDM = contact.hasStartedDM
-                        Log.d("friend", "${_friendData}")
-                        _friendData?.let {
-                            ContactItem(it, hasDM) {
+                            ContactItem(friend, hasDM) {
                                 if (!hasDM) {
                                     directMessagesViewModel.startDirectMessage(friendID, contact.id)
                                     navigationActions.navigateTo(Route.DIRECT_MESSAGE)
@@ -149,7 +144,7 @@ fun ContactListScreen(
                                     navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
                                 }
                             }
-                        }
+
                     }
                   }
             }
@@ -182,6 +177,20 @@ fun ContactListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactItem(friend: User,  hasDM : Boolean, onClick: () -> Unit = {}) {
+
+    /*
+    val userVM = UserViewModel()
+    val friendData by userVM.userData.observeAsState()
+    userVM.fetchUserData(friendID)
+    val nameState = remember { mutableStateOf(friendData?.username ?: "") }
+    val photoState = remember { mutableStateOf(friendData?.photoUrl ?: Uri.EMPTY) }
+
+    friendData?.let {
+        nameState.value = it.username
+        photoState.value = it.photoUrl
+    }
+
+     */
 
   Row(
       verticalAlignment = Alignment.CenterVertically,

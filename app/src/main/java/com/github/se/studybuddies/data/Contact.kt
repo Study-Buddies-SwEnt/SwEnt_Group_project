@@ -42,3 +42,18 @@ class ContactList(private val contacts: List<Contact>) {
     return filteredContacts
   }
 }
+
+class FriendList(private val friends: List<User>) {
+    fun getAllTasks(): List<User> {
+        return friends
+    }
+
+    fun getFilteredFriends(searchQuery: String): List<User> {
+        val filteredFriends =
+            friends.filter { friend ->
+                friend.uid.contains(searchQuery, ignoreCase = true) or
+                        friend.username.contains(searchQuery, ignoreCase = true)
+            }
+        return filteredFriends
+    }
+}

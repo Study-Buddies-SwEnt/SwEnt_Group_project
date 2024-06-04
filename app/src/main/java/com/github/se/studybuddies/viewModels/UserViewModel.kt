@@ -23,7 +23,7 @@ class UserViewModel(
 ) : ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
-  private val _userUid = MutableStateFlow<String>("")
+  private val _userUid = MutableStateFlow<String>(uid?:"")
   val userID : StateFlow<String> = _userUid
 
   init {
