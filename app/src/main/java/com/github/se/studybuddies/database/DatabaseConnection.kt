@@ -1204,6 +1204,7 @@ class DatabaseConnection : DbRepository {
             .addOnSuccessListener {
               Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
               contactsViewModel.createContact(otherUID, contactID)
+                //TODO() solve sync issue
             }
             .addOnFailureListener {
               Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
@@ -1670,7 +1671,8 @@ class DatabaseConnection : DbRepository {
         val uid = getCurrentUserUID()
         userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(requestID))
         val testID = "AAAAAAAAAAAAAAA"
-        createContact(requestID, testID)
+        startDirectMessage(requestID)
+        //createContact(requestID, testID)
     }
 
 
@@ -1688,7 +1690,8 @@ class DatabaseConnection : DbRepository {
               val document = contactDataCollection.document(contactID).get().await()
               val members = document.get("members") as? List<String> ?: emptyList()
               val showOnMap = document.get("showOnMap") as Boolean ?: false
-              items.add(Contact(contactID, members, showOnMap))
+                val hasDM = document.get("hasStartedDM") as Boolean ?: false
+              items.add(Contact(contactID, members, showOnMap, hasDM))
             } catch (e: Exception) {
               Log.e("contacts", "Error fetching contact with ID $contactID: $e")
             }
@@ -1716,7 +1719,8 @@ class DatabaseConnection : DbRepository {
       Log.d("contact", "contact document found for contact id $contactID")
       val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
-      Contact(contactID, members, showOnMap)
+        val hasDM = document.get("showOnMap") as Boolean
+      Contact(contactID, members, showOnMap, hasDM)
     } else {
       Log.d("contact", "contact document not found for contact id $contactID")
       Contact.empty()

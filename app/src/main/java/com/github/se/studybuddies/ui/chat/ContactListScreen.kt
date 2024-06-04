@@ -138,16 +138,22 @@ fun ContactListScreen(
                                 .fillMaxSize()
                                 .background(LightBlue)
                                 .testTag("direct_messages_list")) {
+                            items(1){
+                                val friendtest = userVM.getUser(currentUID)
+                                ContactItem(friendtest){}
+                                ContactItem(friendtest){}
+                            }
+                            /*
                             items(contactList) { contact ->
 
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
                                 val hasDM = contact.hasStartedDM
-                                ContactItem(
-                                    friend)
+                                ContactItem(friend)
                                     { if (hasDM) {directMessagesViewModel.startDirectMessage(friendID) }
                                     navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}") }
                                 }
+                            */
                             }
                         }
                     }
