@@ -1760,7 +1760,7 @@ class DatabaseConnection : DbRepository {
     if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
     } else {
-      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false, "hasStartedDM" to false)
       // updating contacts collection
       val contactRef = contactDataCollection.document(contactID)
       contactRef

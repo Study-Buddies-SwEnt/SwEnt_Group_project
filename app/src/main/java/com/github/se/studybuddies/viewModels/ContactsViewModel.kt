@@ -34,6 +34,14 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   val allUsers : StateFlow<List<User>> = _allUsers
 
 
+  init {
+    if (uid != null) {
+      fetchAllContacts(uid)
+    fetchAllRequests(uid)
+    fetchAllFriends(uid)
+    }
+  }
+
   fun createContact(otherUID: String, contactID: String) {
     viewModelScope.launch { db.createContact(otherUID, contactID) }
   }

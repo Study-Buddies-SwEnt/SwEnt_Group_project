@@ -72,10 +72,12 @@ fun ContactListScreen(
     contactsViewModel: ContactsViewModel,
     directMessagesViewModel: DirectMessagesViewModel
 ) {
+    Log.d("what","what")
+    //contactsViewModel.fetchAllContacts(currentUID)
+    //contactsViewModel.fetchAllRequests(currentUID)
+
     val showAddPrivateMessageList = remember { mutableStateOf(false) }
 
-    contactsViewModel.fetchAllContacts(currentUID)
-    contactsViewModel.fetchAllRequests(currentUID)
     val contacts = contactsViewModel.contacts.collectAsState().value
     val contactList = contacts.getAllTasks()
 
@@ -100,20 +102,6 @@ fun ContactListScreen(
                         showAddPrivateMessageList, directMessagesViewModel, contactsViewModel)
                 }
             } else {
-                /*if (contactList.isEmpty()) {
-                    Log.d("MyPrint", "Contact list is empty")
-                    Text(
-                        modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                            .testTag("direct_messages_empty"),
-                        text = stringResource(R.string.direct_messages_empty)
-                    )
-                } else {
-
-                 */
-                    Log.d("MyPrint", "Contact list is not empty")
                     Column(
                         modifier = Modifier
                             .padding(top = 63.dp)
@@ -123,6 +111,18 @@ fun ContactListScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
                     ) {
+                        if (contactList.isEmpty()) {
+                            Log.d("MyPrint", "Contact list is empty")
+                            Text(
+                                modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                                    .testTag("direct_messages_empty"),
+                                text = stringResource(R.string.direct_messages_empty)
+                            )
+                        } else {
+                            Log.d("MyPrint", "Contact list is not empty")
                         LazyColumn (
                             modifier =
                             Modifier
@@ -138,8 +138,21 @@ fun ContactListScreen(
                                 RequestItem(friendtest, contactsViewModel)
                                 RequestItem(friendtest, contactsViewModel)
                                 RequestItem(friendtest, contactsViewModel)}
+                            }
                         }
                         Divider(color = Blue, thickness = 2.dp)
+                            if (requestList.value.isEmpty()) {
+                                Log.d("MyPrint", "Request list is empty")
+                                Text(
+                                    modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding)
+                                        .testTag("direct_messages_empty"),
+                                    text = stringResource(R.string.direct_messages_empty)
+                                )
+                            } else {
+                                Log.d("MyPrint", "Request list is not empty")
                         LazyColumn(
                             modifier =
                             Modifier
@@ -147,30 +160,19 @@ fun ContactListScreen(
                                 .fillMaxHeight()
                                 .background(LightBlue)
                                 .testTag("direct_messages_list")) {
-                            items(1){
-                                val friendtest = userVM.getUser(currentUID)
-                                ContactItem(friendtest){}
-                                ContactItem(friendtest){}
-                                ContactItem(friendtest){}
-                                ContactItem(friendtest){}
-                                ContactItem(friendtest){}
-                                ContactItem(friendtest){}
-                            }
-                            /*
                             items(contactList) { contact ->
-
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
-                                val hasDM = contact.hasStartedDM
+                                //val hasDM = contact.hasStartedDM
+                                val hasDM = true
                                 ContactItem(friend)
                                     { if (hasDM) {directMessagesViewModel.startDirectMessage(friendID) }
                                     navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}") }
                                 }
-                            */
                             }
                         }
                     }
-            //}
+            }
 
             Box(
                 contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
@@ -180,8 +182,6 @@ fun ContactListScreen(
                     .padding(bottom = innerPadding.calculateBottomPadding())) {
                 GoToMessages(navigationActions)
             }
-
-            /*TODO
           Box(
               contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
               modifier =
@@ -189,7 +189,6 @@ fun ContactListScreen(
                 AddNewPrivateMessage(showAddPrivateMessageList)
               }
 
-             */
         },
         title =
         if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
@@ -263,13 +262,13 @@ fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
             maxLines = 1)
     }
         Row (
+            verticalAlignment = Alignment.Top,
             modifier =
             Modifier
                 .fillMaxWidth()
                 .background(color = White)
-                .padding(bottom = 8.dp)
+                .padding(bottom = 12.dp)
                 .testTag("chat_item"),
-            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
             Button(onClick = {contactsViewModel.acceptRequest(request.uid)},
