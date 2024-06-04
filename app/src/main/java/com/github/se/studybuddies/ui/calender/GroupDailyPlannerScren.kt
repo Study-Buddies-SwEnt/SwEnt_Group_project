@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
@@ -61,7 +60,7 @@ fun GroupDailyPlannerScreen(
         TopNavigationBar(
             title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
             leftButton = {
-              GoBackRouteButton(navigationActions, "${Route.GROUPCALENDAR}/$groupUID")
+              GoBackRouteButton(navigationActions)
             },
             rightButton = {
               IconButton(onClick = { deleteMode = !deleteMode }) {

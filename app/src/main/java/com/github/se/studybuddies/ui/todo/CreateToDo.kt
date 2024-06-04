@@ -21,7 +21,6 @@ import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.todo.ToDo
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
@@ -47,7 +46,7 @@ fun CreateToDo(todoListViewModel: ToDoListViewModel, navigationActions: Navigati
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.add_a_new_task)) },
             leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.TODOLIST)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             rightButton = {})
       }) {

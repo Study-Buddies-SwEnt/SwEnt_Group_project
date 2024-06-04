@@ -91,7 +91,7 @@ fun GroupScreen(
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
             leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
+              GoBackRouteButton(navigationActions = navigationActions)
             },
             rightButton = { GroupsSettingsButton(groupUID, navigationActions, db) })
       },
