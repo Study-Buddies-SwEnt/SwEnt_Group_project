@@ -12,8 +12,6 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ContactsViewModel(private val uid: String? = null) : ViewModel() {
@@ -24,21 +22,20 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   private val _contact = MutableLiveData(Contact.empty())
   val contact: LiveData<Contact> = _contact
 
-  private val _requests =  MutableStateFlow<RequestList>(RequestList(emptyList()))
+  private val _requests = MutableStateFlow<RequestList>(RequestList(emptyList()))
   val requests: StateFlow<RequestList> = _requests
 
   private val _friends = MutableStateFlow<List<User>>(emptyList())
-  val friends : StateFlow<List<User>> = _friends
+  val friends: StateFlow<List<User>> = _friends
 
   private val _allUsers = MutableStateFlow<List<User>>(emptyList())
-  val allUsers : StateFlow<List<User>> = _allUsers
-
+  val allUsers: StateFlow<List<User>> = _allUsers
 
   init {
     if (uid != null) {
       fetchAllContacts(uid)
-    fetchAllRequests(uid)
-    fetchAllFriends(uid)
+      fetchAllRequests(uid)
+      fetchAllFriends(uid)
     }
   }
 
@@ -113,17 +110,16 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     }
   }
 
-
-  fun dismissRequest(requestID : String){
-    viewModelScope.launch { db.deleteRequest(requestID)}
+  fun dismissRequest(requestID: String) {
+    viewModelScope.launch { db.deleteRequest(requestID) }
   }
 
-  fun acceptRequest(requestID : String){
-    viewModelScope.launch { db.acceptRequest(requestID)}
+  fun acceptRequest(requestID: String) {
+    viewModelScope.launch { db.acceptRequest(requestID) }
   }
 
-  fun sendContactRequest(targetID : String){
-    viewModelScope.launch { db.sendContactRequest(targetID)}
+  fun sendContactRequest(targetID: String) {
+    viewModelScope.launch { db.sendContactRequest(targetID) }
   }
 
   fun updateContact(contactID: String, showOnMap: Boolean) {

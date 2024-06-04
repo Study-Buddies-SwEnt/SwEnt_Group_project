@@ -66,7 +66,7 @@ fun ContactScreen(
     directMessagesViewModel: DirectMessagesViewModel
 ) {
 
-    contactsViewModel.fetchContactData(contactID)
+  contactsViewModel.fetchContactData(contactID)
   var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
 
   val currentUserID = userViewModel.getCurrentUserUID()

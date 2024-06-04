@@ -33,7 +33,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -222,48 +221,48 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    override suspend fun getAllUsers(): List<User> {
-        val uid = getCurrentUserUID()
-        return try {
-            val snapshot = userDataCollection.document(uid).get().await()
-            val snapshotQuery = userDataCollection.get().await()
-            val items = mutableListOf<User>()
-
-            if (snapshot.exists()) {
-                // val userUIDs = snapshot.data?.get("friends") as? List<String>
-                for (item in snapshotQuery.documents) {
-                    val id = item.id
-                    items.add(getUser(id))
-                }
-            } else {
-                Log.d("MyPrint", "User with uid $uid does not exist")
-            }
-            items
-        } catch (e: Exception) {
-            Log.d("MyPrint", "Could not fetch all users with error: $e")
-            emptyList()
-        }
-    }
-
-  override suspend fun getAllFriends(uid: String): List<User> {
+  override suspend fun getAllUsers(): List<User> {
+    val uid = getCurrentUserUID()
     return try {
-        val snapshot = userContactsCollection.document(uid).get().await()
-         val items = mutableListOf<User>()
+      val snapshot = userDataCollection.document(uid).get().await()
+      val snapshotQuery = userDataCollection.get().await()
+      val items = mutableListOf<User>()
 
-        val contactVM = ContactsViewModel()
-
-        if (snapshot.exists()) {
-            val contactsUID = snapshot.data?.get("contacts") as? List<String>
-            contactsUID?.let { contactsID ->
-                contactsID.forEach { contactID ->
-                        val friendID = contactVM.getOtherUser(contactID, uid)
-                        items.add(getUser(friendID))
-                }
-            }
+      if (snapshot.exists()) {
+        // val userUIDs = snapshot.data?.get("friends") as? List<String>
+        for (item in snapshotQuery.documents) {
+          val id = item.id
+          items.add(getUser(id))
+        }
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
       }
-        items
+      items
+    } catch (e: Exception) {
+      Log.d("MyPrint", "Could not fetch all users with error: $e")
+      emptyList()
+    }
+  }
+
+  override suspend fun getAllFriends(uid: String): List<User> {
+    return try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<User>()
+
+      val contactVM = ContactsViewModel()
+
+      if (snapshot.exists()) {
+        val contactsUID = snapshot.data?.get("contacts") as? List<String>
+        contactsUID?.let { contactsID ->
+          contactsID.forEach { contactID ->
+            val friendID = contactVM.getOtherUser(contactID, uid)
+            items.add(getUser(friendID))
+          }
+        }
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+      }
+      items
     } catch (e: Exception) {
       Log.d("MyPrint", "Could not fetch friends with error: $e")
       emptyList()
@@ -362,7 +361,8 @@ class DatabaseConnection : DbRepository {
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
         }
 
-    val contactList = hashMapOf("pendingRequests" to emptyList<String>(), "contacts" to emptyList<String>())
+    val contactList =
+        hashMapOf("pendingRequests" to emptyList<String>(), "contacts" to emptyList<String>())
     userContactsCollection
         .document(uid)
         .set(contactList)
@@ -1199,8 +1199,6 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-
-
   override suspend fun startDirectMessage(otherUID: String, contactID: String) {
     val currentUserUID = getCurrentUserUID()
     val contactsViewModel = ContactsViewModel()
@@ -1211,7 +1209,7 @@ class DatabaseConnection : DbRepository {
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
         val newChatId = contactID
-          //val newChatId = UUID.randomUUID().toString()
+        // val newChatId = UUID.randomUUID().toString()
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb
@@ -1219,7 +1217,7 @@ class DatabaseConnection : DbRepository {
             .updateChildren(members)
             .addOnSuccessListener {
               Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
-              //contactsViewModel.createContact(otherUID, contactID)
+              // contactsViewModel.createContact(otherUID, contactID)
             }
             .addOnFailureListener {
               Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
@@ -1644,58 +1642,61 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-    //TODO add to mockdb
+  // TODO add to mockdb
   override suspend fun getAllRequests(uid: String): RequestList {
-        try {
-            val snapshot = userContactsCollection.document(uid).get().await()
-            val items = mutableListOf<User>()
+    try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<User>()
 
-            if (snapshot.exists()) {
-                val requestsUIDs = snapshot.data?.get("pendingRequests") as? List<String>
-                requestsUIDs?.let { requestsIDs ->
-                    requestsIDs.forEach { requestID ->
-                        try {
-                            val request = getUser(requestID)
-                            items.add(request)
-                        } catch (e: Exception) {
-                            Log.e("contacts", "Error fetching pending Request with ID $requestID: $e")
-                        }
-                    }
-                }
-                Log.d("contacts", "fetched all pending Requests for user $uid")
-                return RequestList(items)
-            } else {
-                Log.d("contacts", "User with uid $uid does not exist")
-                return RequestList(emptyList())
+      if (snapshot.exists()) {
+        val requestsUIDs = snapshot.data?.get("pendingRequests") as? List<String>
+        requestsUIDs?.let { requestsIDs ->
+          requestsIDs.forEach { requestID ->
+            try {
+              val request = getUser(requestID)
+              items.add(request)
+            } catch (e: Exception) {
+              Log.e("contacts", "Error fetching pending Request with ID $requestID: $e")
             }
-        } catch (e: Exception) {
-            Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
+          }
         }
+        Log.d("contacts", "fetched all pending Requests for user $uid")
+        return RequestList(items)
+      } else {
+        Log.d("contacts", "User with uid $uid does not exist")
         return RequestList(emptyList())
+      }
+    } catch (e: Exception) {
+      Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
+    }
+    return RequestList(emptyList())
   }
 
-    //TODO() add mockdb
-    override suspend fun deleteRequest(requestID: String){
-        val uid = getCurrentUserUID()
-        userContactsCollection.document(uid).update("pendingRequests", FieldValue.arrayRemove(requestID))
-    }
+  // TODO() add mockdb
+  override suspend fun deleteRequest(requestID: String) {
+    val uid = getCurrentUserUID()
+    userContactsCollection
+        .document(uid)
+        .update("pendingRequests", FieldValue.arrayRemove(requestID))
+  }
 
-    //TODO() add mockdb
-    override suspend fun acceptRequest(requestID: String){
-        val uid = getCurrentUserUID()
-        userContactsCollection.document(uid).update("pendingRequests", FieldValue.arrayRemove(requestID))
-        val testID = "AAAAAAAAAAAAAAA"
-        createContact(requestID)
+  // TODO() add mockdb
+  override suspend fun acceptRequest(requestID: String) {
+    val uid = getCurrentUserUID()
+    userContactsCollection
+        .document(uid)
+        .update("pendingRequests", FieldValue.arrayRemove(requestID))
+    val testID = "AAAAAAAAAAAAAAA"
+    createContact(requestID)
+  }
 
-    }
+  // TODO() add to  mockdb
+  override suspend fun sendContactRequest(targetID: String) {
+    val uid = getCurrentUserUID()
+    userContactsCollection.document(targetID).update("pendingRequests", FieldValue.arrayUnion(uid))
+  }
 
-    //TODO() add to  mockdb
-    override suspend fun sendContactRequest(targetID: String){
-        val uid = getCurrentUserUID()
-        userContactsCollection.document(targetID).update("pendingRequests", FieldValue.arrayUnion(uid))
-    }
-
-    override suspend fun getAllContacts(uid: String): ContactList {
+  override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()
@@ -1708,8 +1709,8 @@ class DatabaseConnection : DbRepository {
               val document = contactDataCollection.document(contactID).get().await()
               val members = document.get("members") as? List<String> ?: emptyList()
               val showOnMap = document.get("showOnMap") as Boolean ?: false
-               // val hasDM = document.get("hasStartedDM") as Boolean ?: false
-                val hasDM = false
+              // val hasDM = document.get("hasStartedDM") as Boolean ?: false
+              val hasDM = false
               items.add(Contact(contactID, members, showOnMap, hasDM))
             } catch (e: Exception) {
               Log.e("contacts", "Error fetching contact with ID $contactID: $e")
@@ -1738,8 +1739,8 @@ class DatabaseConnection : DbRepository {
       Log.d("contact", "contact document found for contact id $contactID")
       val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
-        //val hasDM = document.get("hasStartedDM") as Boolean
-        val hasDM = false
+      // val hasDM = document.get("hasStartedDM") as Boolean
+      val hasDM = false
       Contact(contactID, members, showOnMap, hasDM)
     } else {
       Log.d("contact", "contact document not found for contact id $contactID")
@@ -1751,29 +1752,28 @@ class DatabaseConnection : DbRepository {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
-    //Log.d("MyPrint", "Creating new contact with with ID $contactID")
+    // Log.d("MyPrint", "Creating new contact with with ID $contactID")
     // check if contact already exists
     val contactList = getAllContacts(uid)
     val filteredList = contactList.getFilteredContacts(otherUID)
     if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
     } else {
-      val contact = hashMapOf(
-          "members" to listOf(uid, otherUID),
-          "showOnMap" to false,
-          "hasStartedDM" to false)
+      val contact =
+          hashMapOf(
+              "members" to listOf(uid, otherUID), "showOnMap" to false, "hasStartedDM" to false)
       // updating contacts collection
       /*val contactRef = contactDataCollection.document(contactID)
       contactRef
           .set(contact)
 
        */
-          contactDataCollection.add(contact)
+      contactDataCollection
+          .add(contact)
           .addOnSuccessListener { doc ->
             Log.d("MyPrint", "Contact $contact successfully created")
 
-
-              val contactID = doc.id
+            val contactID = doc.id
             // updating current user's list of contacts
             userContactsCollection
                 .document(uid)

@@ -58,7 +58,7 @@ class DirectMessagesViewModel(
     db.deletePrivateChat(chatID)
   }
 
-  fun startDirectMessage(messageUserUID: String, contactID : String) {
-    viewModelScope.launch {db.startDirectMessage(messageUserUID, contactID) }
+  fun startDirectMessage(messageUserUID: String, contactID: String) {
+    viewModelScope.launch { db.startDirectMessage(messageUserUID, contactID) }
   }
 }

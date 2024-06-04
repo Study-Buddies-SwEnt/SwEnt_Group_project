@@ -357,16 +357,15 @@ fun NonUserMessageOptions(
     navigationActions: NavigationActions,
 ) {
 
-    val contactsViewModel = ContactsViewModel()
+  val contactsViewModel = ContactsViewModel()
 
   Spacer(modifier = Modifier.height(8.dp))
   Button(
       modifier = Modifier.testTag("option_dialog_start_direct_message"),
       onClick = {
         showOptionsDialog.value = false
-        viewModel.currentUser.value
-            ?.let { DirectMessagesViewModel(it.uid) }
-          contactsViewModel.sendContactRequest(selectedMessage.sender.uid)
+        viewModel.currentUser.value?.let { DirectMessagesViewModel(it.uid) }
+        contactsViewModel.sendContactRequest(selectedMessage.sender.uid)
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {
         Text(

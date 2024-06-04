@@ -83,7 +83,7 @@ class UserViewModel(
 
   fun getUser(userID: String): User {
     var user = User.empty()
-    viewModelScope.launch{user = db.getUser(userID)!! }
+    viewModelScope.launch { user = db.getUser(userID)!! }
     return user
   }
 }

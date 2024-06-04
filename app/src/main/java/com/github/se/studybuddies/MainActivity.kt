@@ -19,7 +19,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.mapService.LocationApp
@@ -88,7 +87,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     val db: DbRepository = ServiceLocator.provideDatabase()
     val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
-    val userViewModel = UserViewModel("",db)
+    val userViewModel = UserViewModel("", db)
     val chatViewModel = ChatViewModel()
     val contactsViewModel = ContactsViewModel()
     val studyBuddies = application as LocationApp
@@ -257,7 +256,7 @@ class MainActivity : ComponentActivity() {
                     chatViewModel,
                     navigationActions,
                     ContactsViewModel(currentUser))
-                  Log.d("MyPrint", "Successfully navigated to DirectMessageScreen")
+                Log.d("MyPrint", "Successfully navigated to DirectMessageScreen")
               }
             }
             composable(
@@ -334,12 +333,13 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-              composable(Route.CONTACTLIST) {
-                  ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
-                      ContactListScreen(currentUser, navigationActions, contactsViewModel, directMessageViewModel)
-                      Log.d("MyPrint", "Successfully navigated to ContactListScreen")
-                  }
+            composable(Route.CONTACTLIST) {
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
+                ContactListScreen(
+                    currentUser, navigationActions, contactsViewModel, directMessageViewModel)
+                Log.d("MyPrint", "Successfully navigated to ContactListScreen")
               }
+            }
 
             composable(
                 route = "${Route.CONTACT_SETTINGS}/{contactID}",

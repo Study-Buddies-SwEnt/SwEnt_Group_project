@@ -72,9 +72,7 @@ fun CreateGroup(groupViewModel: GroupViewModel, navigationActions: NavigationAct
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.create_group)) },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       }) {
         Column(

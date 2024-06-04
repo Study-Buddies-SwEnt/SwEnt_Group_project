@@ -41,9 +41,7 @@ fun SharedTimerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Shared Timer") },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       },
   ) {

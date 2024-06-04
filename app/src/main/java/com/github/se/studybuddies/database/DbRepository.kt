@@ -190,13 +190,18 @@ interface DbRepository {
   fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
 
   suspend fun getTopicFileImages(fileID: String): List<Uri>
-    suspend fun getAllRequests(uid: String): RequestList
-    suspend fun deleteRequest(requestID: String)
-    suspend fun getAllUsers(): List<User>
-    suspend fun acceptRequest(requestID: String)
-    suspend fun sendContactRequest(targetID: String)
 
-    companion object {
+  suspend fun getAllRequests(uid: String): RequestList
+
+  suspend fun deleteRequest(requestID: String)
+
+  suspend fun getAllUsers(): List<User>
+
+  suspend fun acceptRequest(requestID: String)
+
+  suspend fun sendContactRequest(targetID: String)
+
+  companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

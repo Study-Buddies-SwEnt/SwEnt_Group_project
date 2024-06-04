@@ -105,9 +105,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "To do") },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {
               CustomSearchBar(
                   searchQuery = searchQuery,

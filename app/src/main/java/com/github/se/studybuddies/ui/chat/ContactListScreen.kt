@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -45,13 +44,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import coil.compose.rememberAsyncImagePainter
 import com.firebase.ui.auth.data.model.User.getUser
 import com.github.se.studybuddies.R
-import com.github.se.studybuddies.data.Chat
-import com.github.se.studybuddies.data.Contact
-import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
@@ -60,253 +55,223 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.Green
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
-import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
 
 @Composable
 fun ContactListScreen(
-    currentUID : String,
+    currentUID: String,
     navigationActions: NavigationActions,
     contactsViewModel: ContactsViewModel,
     directMessagesViewModel: DirectMessagesViewModel
 ) {
-    Log.d("what","what")
-    contactsViewModel.fetchAllContacts(currentUID)
-    contactsViewModel.fetchAllRequests(currentUID)
+  Log.d("what", "what")
+  contactsViewModel.fetchAllContacts(currentUID)
+  contactsViewModel.fetchAllRequests(currentUID)
 
-    val showAddPrivateMessageList = remember { mutableStateOf(false) }
+  val showAddPrivateMessageList = remember { mutableStateOf(false) }
 
-    val contacts = contactsViewModel.contacts.collectAsState().value
-    val contactList = contacts.getAllTasks()
+  val contacts = contactsViewModel.contacts.collectAsState().value
+  val contactList = contacts.getAllTasks()
 
-    val userVM = UserViewModel()
+  val userVM = UserViewModel()
 
-    val requests by contactsViewModel.requests.collectAsState()
-    val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }
+  val requests by contactsViewModel.requests.collectAsState()
+  val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }
 
-
-    MainScreenScaffold(
-        navigationActions = navigationActions,
-        backRoute = Route.DIRECT_MESSAGE,
-        content = { innerPadding ->
-            if (showAddPrivateMessageList.value) {
-                Box(
-                    modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .testTag("add_private_message")) {
-                    ListAllUsers(
-                        showAddPrivateMessageList, directMessagesViewModel, contactsViewModel)
-                }
-            } else {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 63.dp)
-                            .padding(bottom = 100.dp)
-                            .fillMaxSize()
-                            .testTag("direct_messages_not_empty"),
-                        horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
-                    ) {
-                        if (requestList.value.isEmpty() && contactList.isEmpty()) {
-                            Log.d("MyPrint", "Contact and Request list is empty")
-                            Text(
-                                modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(innerPadding)
-                                    .testTag("direct_messages_empty"),
-                                text = stringResource(R.string.direct_messages_empty)
-                            )
-                        } else {
-                            Log.d("MyPrint", "Request or contact list is not empty")
-                        LazyColumn (
-                            modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.452f)
-                                .background(LightBlue)
-                                .testTag("request_list")){
-                            items(requestList.value) { request ->
-                                RequestItem(request,contactsViewModel)
-                            }
-                            items(1){Divider(thickness = 2.dp, color = Blue)}
-                            items(contactList) { contact ->
-                                val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
-                                val friend = userVM.getUser(friendID)
-                                //val hasDM = contact.hasStartedDM
-                                val hasDM = false
-                                ContactItem(friend)
-                                { if (!hasDM) {directMessagesViewModel.startDirectMessage(friendID, contact.id ) }
-                                    navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}") }
-                            }
-                            }
-                        }
-                        }
-                    }
-
-            Box(
-                contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
-                modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(bottom = innerPadding.calculateBottomPadding())) {
-                GoToMessages(navigationActions)
-            }
+  MainScreenScaffold(
+      navigationActions = navigationActions,
+      backRoute = Route.DIRECT_MESSAGE,
+      content = { innerPadding ->
+        if (showAddPrivateMessageList.value) {
           Box(
-              contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
               modifier =
-              Modifier
-                  .fillMaxSize()
-                  .padding(bottom = innerPadding.calculateBottomPadding())) {
-                AddNewPrivateMessage(showAddPrivateMessageList)
+                  Modifier.fillMaxSize().padding(innerPadding).testTag("add_private_message")) {
+                ListAllUsers(showAddPrivateMessageList, directMessagesViewModel, contactsViewModel)
               }
+        } else {
+          Column(
+              modifier =
+                  Modifier.padding(top = 63.dp)
+                      .padding(bottom = 100.dp)
+                      .fillMaxSize()
+                      .testTag("direct_messages_not_empty"),
+              horizontalAlignment = Alignment.Start,
+              verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+          ) {
+            if (requestList.value.isEmpty() && contactList.isEmpty()) {
+              Log.d("MyPrint", "Contact and Request list is empty")
+              Text(
+                  modifier =
+                      Modifier.fillMaxSize().padding(innerPadding).testTag("direct_messages_empty"),
+                  text = stringResource(R.string.direct_messages_empty))
+            } else {
+              Log.d("MyPrint", "Request or contact list is not empty")
+              LazyColumn(
+                  modifier =
+                      Modifier.fillMaxWidth()
+                          .fillMaxHeight(0.452f)
+                          .background(LightBlue)
+                          .testTag("request_list")) {
+                    items(requestList.value) { request -> RequestItem(request, contactsViewModel) }
+                    items(1) { Divider(thickness = 2.dp, color = Blue) }
+                    items(contactList) { contact ->
+                      val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
+                      val friend = userVM.getUser(friendID)
+                      // val hasDM = contact.hasStartedDM
+                      val hasDM = false
+                      ContactItem(friend) {
+                        if (!hasDM) {
+                          directMessagesViewModel.startDirectMessage(friendID, contact.id)
+                        }
+                        navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
+                      }
+                    }
+                  }
+            }
+          }
+        }
 
-        },
-        title =
-        if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
-        else stringResource(R.string.contact_list),
-        iconOptions = {})
+        Box(
+            contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              GoToMessages(navigationActions)
+            }
+        Box(
+            contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              AddNewPrivateMessage(showAddPrivateMessageList)
+            }
+      },
+      title =
+          if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
+          else stringResource(R.string.contact_list),
+      iconOptions = {})
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactItem(friend: User, onClick: () -> Unit = {}) {
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier =
+          Modifier.fillMaxWidth()
+              .background(color = White)
+              .border(color = LightBlue, width = Dp.Hairline)
+              .padding(8.dp)
+              .combinedClickable(onClick = onClick)
+              .testTag("chat_item")) {
+        Image(
+            painter = rememberAsyncImagePainter(friend.photoUrl),
+            contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(color = White)
-                .border(color = LightBlue, width = Dp.Hairline)
-                .padding(8.dp)
-                .combinedClickable(onClick = onClick)
-                .testTag("chat_item")) {
-            Image(
-                painter = rememberAsyncImagePainter(friend.photoUrl),
-                contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
-                modifier =
-                Modifier
-                    .padding(8.dp)
+                Modifier.padding(8.dp)
                     .size(40.dp)
                     .clip(CircleShape)
                     .border(2.dp, Color.Gray, CircleShape)
                     .align(Alignment.CenterVertically)
                     .testTag("chat_user_profile_picture"),
-                contentScale = ContentScale.Crop)
-            Text(text = friend.username, modifier = Modifier.testTag("chat_name"))
-            Spacer(modifier = Modifier.weight(1f))
-        }
-    }
+            contentScale = ContentScale.Crop)
+        Text(text = friend.username, modifier = Modifier.testTag("chat_name"))
+        Spacer(modifier = Modifier.weight(1f))
+      }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(color = White)
-            .border(color = LightBlue, width = Dp.Hairline)) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier =
-        Modifier
-            .fillMaxWidth()
-            .background(color = White)
-            .testTag("chat_item")) {
-        Image(
-            painter = rememberAsyncImagePainter(request.photoUrl),
-            contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
-            modifier =
-            Modifier
-                .padding(8.dp)
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color.Gray, CircleShape)
-                .align(Alignment.CenterVertically)
-                .testTag("chat_user_profile_picture"),
-            contentScale = ContentScale.Crop)
-        Text(text = "${request.username} sent you a friend request",
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("chat_name"),
-            maxLines = 1)
-    }
-        Row (
+  Column(
+      Modifier.fillMaxWidth()
+          .background(color = White)
+          .border(color = LightBlue, width = Dp.Hairline)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth().background(color = White).testTag("chat_item")) {
+              Image(
+                  painter = rememberAsyncImagePainter(request.photoUrl),
+                  contentDescription =
+                      stringResource(R.string.contentDescription_user_profile_picture),
+                  modifier =
+                      Modifier.padding(8.dp)
+                          .size(40.dp)
+                          .clip(CircleShape)
+                          .border(2.dp, Color.Gray, CircleShape)
+                          .align(Alignment.CenterVertically)
+                          .testTag("chat_user_profile_picture"),
+                  contentScale = ContentScale.Crop)
+              Text(
+                  text = "${request.username} sent you a friend request",
+                  modifier = Modifier.fillMaxWidth().testTag("chat_name"),
+                  maxLines = 1)
+            }
+        Row(
             verticalAlignment = Alignment.Top,
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(color = White)
-                .padding(bottom = 12.dp)
-                .testTag("chat_item"),
+                Modifier.fillMaxWidth()
+                    .background(color = White)
+                    .padding(bottom = 12.dp)
+                    .testTag("chat_item"),
             horizontalArrangement = Arrangement.Center,
         ) {
-            Button(onClick = {contactsViewModel.acceptRequest(request.uid)},
-                colors = ButtonColors(
-                    Color.Transparent,
-                    Color.Transparent,
-                    Color.Transparent,
-                    Color.Transparent
-                ),
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(color = Green)
-                    .width(100.dp)
-                    .height(32.dp)
-                    .testTag("add_private_message_button")) {
+          Button(
+              onClick = { contactsViewModel.acceptRequest(request.uid) },
+              colors =
+                  ButtonColors(
+                      Color.Transparent, Color.Transparent, Color.Transparent, Color.Transparent),
+              modifier =
+                  Modifier.clip(MaterialTheme.shapes.medium)
+                      .background(color = Green)
+                      .width(100.dp)
+                      .height(32.dp)
+                      .testTag("add_private_message_button")) {
                 Text("Accept", color = White)
-            }
-            Spacer(modifier = Modifier.size(30.dp))
-            Button(onClick = {contactsViewModel.dismissRequest(request.uid)},
-                colors = ButtonColors(
-                    Color.Transparent,
-                    Color.Transparent,
-                    Color.Transparent,
-                    Color.Transparent
-                ),
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(color = Color.Red)
-                    .width(100.dp)
-                    .height(32.dp)
-                    .testTag("add_private_message_button")) {
-                Text("Deny", color = White, modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
-            }
+              }
+          Spacer(modifier = Modifier.size(30.dp))
+          Button(
+              onClick = { contactsViewModel.dismissRequest(request.uid) },
+              colors =
+                  ButtonColors(
+                      Color.Transparent, Color.Transparent, Color.Transparent, Color.Transparent),
+              modifier =
+                  Modifier.clip(MaterialTheme.shapes.medium)
+                      .background(color = Color.Red)
+                      .width(100.dp)
+                      .height(32.dp)
+                      .testTag("add_private_message_button")) {
+                Text(
+                    "Deny",
+                    color = White,
+                    modifier = Modifier.fillMaxSize(),
+                    textAlign = TextAlign.Center)
+              }
         }
-    }
+      }
 }
-
 
 @Composable
 fun GoToMessages(navigationActions: NavigationActions) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.End) {
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      verticalAlignment = Alignment.Bottom,
+      horizontalArrangement = Arrangement.End) {
         IconButton(
             onClick = { navigationActions.navigateTo(Route.DIRECT_MESSAGE) },
             modifier =
-            Modifier
-                .width(64.dp)
-                .height(64.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .background(color = Blue)
-                .testTag("add_private_message_button")) {
-            Icon(
-                painterResource(id = R.drawable.messages),
-                contentDescription = stringResource(R.string.contentDescription_icon_messages),
-                modifier = Modifier.size(40.dp),
-                tint = White
-            )
-        }
-    }
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(color = Blue)
+                    .testTag("add_private_message_button")) {
+              Icon(
+                  painterResource(id = R.drawable.messages),
+                  contentDescription = stringResource(R.string.contentDescription_icon_messages),
+                  modifier = Modifier.size(40.dp),
+                  tint = White)
+            }
+      }
 }
-

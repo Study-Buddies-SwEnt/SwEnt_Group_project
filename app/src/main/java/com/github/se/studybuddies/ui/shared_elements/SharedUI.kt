@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -267,8 +266,7 @@ fun GoBackRouteButton(
   Icon(
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
       contentDescription = stringResource(id = R.string.go_back),
-      modifier =
-          Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
+      modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
 @Composable

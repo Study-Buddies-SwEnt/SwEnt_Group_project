@@ -1,6 +1,11 @@
 package com.github.se.studybuddies.data
 
-data class Contact(val id: String, val members: List<String>, val showOnMap: Boolean, val hasStartedDM: Boolean) {
+data class Contact(
+    val id: String,
+    val members: List<String>,
+    val showOnMap: Boolean,
+    val hasStartedDM: Boolean
+) {
   companion object {
     fun empty(): Contact {
       return Contact(id = "", members = emptyList(), false, false)
@@ -8,21 +13,20 @@ data class Contact(val id: String, val members: List<String>, val showOnMap: Boo
   }
 }
 
-class RequestList(private val requests : List<User>) {
+class RequestList(private val requests: List<User>) {
   fun getAllTasks(): List<User> {
     return requests
   }
 
   fun getFilteredContacts(searchQuery: String): List<User> {
     val filteredRequests =
-      requests.filter { request ->
-        request.uid.contains(searchQuery, ignoreCase = true) or
-                request.username.contains(searchQuery, ignoreCase = true)
-      }
+        requests.filter { request ->
+          request.uid.contains(searchQuery, ignoreCase = true) or
+              request.username.contains(searchQuery, ignoreCase = true)
+        }
     return filteredRequests
   }
 }
-
 
 class ContactList(private val contacts: List<Contact>) {
   fun getAllTasks(): List<Contact> {

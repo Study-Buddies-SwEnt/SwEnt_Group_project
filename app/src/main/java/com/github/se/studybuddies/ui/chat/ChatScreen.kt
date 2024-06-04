@@ -498,9 +498,7 @@ fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
   ChatTopBar(
-      leftButton = {
-        GoBackRouteButton(navigationActions = navigationActions)
-      },
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
       rightButton = {
         IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
           Icon(

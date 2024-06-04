@@ -71,9 +71,7 @@ fun TimerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Timer") },
-            rightButton = {
-              GoBackRouteButton(navigationActions = navigationActions)
-            },
+            rightButton = { GoBackRouteButton(navigationActions = navigationActions) },
             leftButton = {})
       },
   ) {

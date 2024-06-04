@@ -59,9 +59,7 @@ fun GroupDailyPlannerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(id = R.string.daily_planner_title)) },
-            leftButton = {
-              GoBackRouteButton(navigationActions)
-            },
+            leftButton = { GoBackRouteButton(navigationActions) },
             rightButton = {
               IconButton(onClick = { deleteMode = !deleteMode }) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete Mode", tint = Blue)
