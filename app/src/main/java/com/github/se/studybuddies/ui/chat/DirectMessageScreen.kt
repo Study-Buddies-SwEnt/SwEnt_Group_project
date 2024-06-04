@@ -169,20 +169,6 @@ fun GoToContactList(navigationActions: NavigationActions) {
       }
 }
 
-/*TODO
-
-change startDM calls to sendContactRequest calls
-check in sendContactRequest that the user is not already in contacts
-
-check for getAllfriends use (like in add member from list) problems
-
-search bar on DMscreen and chat screens
-search bar for adding contacts, also change this UI in general
-show on map toggle button?
-generalize search bar?
-showonmap feature
- */
-
 /**
  * Displays an interactive row for adding new private messages. The button toggles its icon based on
  * the state.

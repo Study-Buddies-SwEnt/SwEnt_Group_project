@@ -89,7 +89,8 @@ val fakeContact1 =
     Contact(
         id = "contactTest1",
         members = mutableListOf(fakeUser1.uid, fakeUser2.uid),
-        showOnMap = true)
+        showOnMap = true,
+        hasStartedDM = false)
 val fakeGroup2 =
     Group(
         uid = "groupTest2",

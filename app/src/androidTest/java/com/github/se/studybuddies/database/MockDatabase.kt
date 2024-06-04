@@ -12,6 +12,7 @@ import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
+import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -56,7 +57,11 @@ class MockDatabase : DbRepository {
     TODO("Not yet implemented")
   }
 
-  override suspend fun createContact(otherUID: String, contactID: String) {
+  override suspend fun createContact(otherUID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun contactGetOtherUser(contactID: String, uid: String): String {
     TODO("Not yet implemented")
   }
 
@@ -64,7 +69,7 @@ class MockDatabase : DbRepository {
     TODO("Not yet implemented")
   }
 
-  override fun deleteContact(contactID: String) {
+  override suspend fun deleteContact(contactID: String) {
     TODO("Not yet implemented")
   }
 
@@ -547,22 +552,19 @@ class MockDatabase : DbRepository {
     }
   }
 
-  override suspend fun startDirectMessage(otherUID: String): String {
+  override suspend fun startDirectMessage(otherUID: String, contactID: String) {
     val currentUserUID = getCurrentUserUID()
-    var contactID = ""
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
-        val newChatId = UUID.randomUUID().toString()
-        contactID = newChatId
+        val newChatId = contactID
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb[memberPath] = members
       }
     }
-    return contactID
   }
 
   override suspend fun getTopic(uid: String, callBack: (Topic) -> Unit) {
@@ -591,6 +593,34 @@ class MockDatabase : DbRepository {
 
   override suspend fun getTopicFileImages(fileID: String): List<Uri> {
     return emptyList()
+  }
+
+  override suspend fun getAllRequests(uid: String): RequestList {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun deleteRequest(requestID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun getAllUsers(): List<User> {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun acceptRequest(requestID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun sendContactRequest(targetID: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun updateContactShowOnMap(contactID: String, showOnMap: Boolean) {
+    TODO("Not yet implemented")
+  }
+
+  override fun updateContactHasDM(contactID: String, hasDM: Boolean) {
+    TODO("Not yet implemented")
   }
 
   override suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem> {
@@ -785,7 +815,7 @@ class MockDatabase : DbRepository {
       return
     }
     userDataCollection[uid] =
-        User(user.uid, user.email, user.username, user.photoUrl, user.location, dailyPlanners)
+        User(user.uid, user.email, user.username, user.photoUrl, user.location)
   }
 
   companion object {
