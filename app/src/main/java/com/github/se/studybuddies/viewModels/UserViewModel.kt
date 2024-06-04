@@ -11,17 +11,20 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class UserViewModel(
-    val uid: String? = null,
+    val uid: String? = "",
     private val db: DbRepository = ServiceLocator.provideDatabase()
 ) : ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
-  private val _userUid = MutableStateFlow(uid)
+  private val _userUid = MutableStateFlow<String>("")
+  val userID : StateFlow<String> = _userUid
 
   init {
     if (uid != null) {
@@ -81,7 +84,7 @@ class UserViewModel(
     return db.isFakeDatabase()
   }
 
-  fun getUser(userID: String): User {
+  suspend fun getUser(userID: String): User {
     var user = User.empty()
     viewModelScope.launch { user = db.getUser(userID)!! }
     return user

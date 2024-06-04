@@ -31,8 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +60,7 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ContactListScreen(
@@ -77,6 +80,9 @@ fun ContactListScreen(
 
   val userVM = UserViewModel()
 
+    val _friendData by userVM.userData.observeAsState()
+    val _friendUID by userVM.userID.collectAsState()
+
   val requests by contactsViewModel.requests.collectAsState()
   val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }
 
@@ -84,7 +90,9 @@ fun ContactListScreen(
       navigationActions = navigationActions,
       backRoute = Route.DIRECT_MESSAGE,
       content = { innerPadding ->
-        if (showAddPrivateMessageList.value) {
+          val coroutineScope = rememberCoroutineScope()
+
+          if (showAddPrivateMessageList.value) {
           Box(
               modifier =
               Modifier
@@ -126,18 +134,22 @@ fun ContactListScreen(
                     items(1) { Divider(thickness = 2.dp, color = Blue) }
                     items(contactList) { contact ->
                       val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
-                      val friend = userVM.getUser(friendID)
+                      //val friend = userVM.getUser(friendID)
+                        userVM.setUserUID(friendID)
+                        userVM.fetchUserData(_friendUID)
                       val hasDM = contact.hasStartedDM
-                      ContactItem(friend, hasDM) {
-                        if (!hasDM) {
-                          directMessagesViewModel.startDirectMessage(friendID, contact.id)
-                            navigationActions.navigateTo(Route.DIRECT_MESSAGE)
-                            contactsViewModel.updateContactHasDM(contact.id, true)
+                        Log.d("friend", "${_friendData}")
+                        _friendData?.let {
+                            ContactItem(it, hasDM) {
+                                if (!hasDM) {
+                                    directMessagesViewModel.startDirectMessage(friendID, contact.id)
+                                    navigationActions.navigateTo(Route.DIRECT_MESSAGE)
+                                    contactsViewModel.updateContactHasDM(contact.id, true)
+                                } else {
+                                    navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
+                                }
+                            }
                         }
-                        else {
-                            navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
-                        }
-                      }
                     }
                   }
             }

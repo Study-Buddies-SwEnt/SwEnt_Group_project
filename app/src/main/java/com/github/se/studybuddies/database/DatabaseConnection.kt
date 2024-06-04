@@ -1201,7 +1201,7 @@ class DatabaseConnection : DbRepository {
 
   override suspend fun startDirectMessage(otherUID: String, contactID: String) {
     val currentUserUID = getCurrentUserUID()
-    val contactsViewModel = ContactsViewModel()
+
     Log.d("MyPrint", "startDirectMessage called in db")
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
@@ -1695,7 +1695,6 @@ class DatabaseConnection : DbRepository {
     userContactsCollection
         .document(uid)
         .update("pendingRequests", FieldValue.arrayRemove(requestID))
-    val testID = "AAAAAAAAAAAAAAA"
     createContact(requestID)
   }
 
