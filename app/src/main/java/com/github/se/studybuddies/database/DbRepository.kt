@@ -200,8 +200,10 @@ interface DbRepository {
   suspend fun acceptRequest(requestID: String)
 
   suspend fun sendContactRequest(targetID: String)
+     fun updateContactShowOnMap(contactID: String, showOnMap: Boolean)
+     fun updateContactHasDM(contactID: String, hasDM: Boolean)
 
-  companion object {
+    companion object {
     const val topic_name = "name"
     const val topic_exercises = "exercises"
     const val topic_theory = "theory"

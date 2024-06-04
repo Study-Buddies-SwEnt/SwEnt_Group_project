@@ -122,10 +122,13 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
     viewModelScope.launch { db.sendContactRequest(targetID) }
   }
 
-  fun updateContact(contactID: String, showOnMap: Boolean) {
-    db.updateContact(contactID, showOnMap)
+  fun updateContactShowOnMap(contactID: String, showOnMap: Boolean) {
+    db.updateContactShowOnMap(contactID, showOnMap)
   }
 
+  fun updateContactHasDM(contactID: String, hasDM: Boolean) {
+    db.updateContactHasDM(contactID, hasDM)
+  }
   fun deleteContact(contactID: String) {
     Log.d("contact", "called delete contact in VM")
     db.deleteContact(contactID)

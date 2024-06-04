@@ -1226,14 +1226,23 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override fun updateContact(contactID: String, showOnMap: Boolean) {
+  override fun updateContactShowOnMap(contactID: String, showOnMap: Boolean) {
     contactDataCollection
         .document(contactID)
         .update("showOnMap", showOnMap)
-        .addOnSuccessListener { Log.d("UpdateContact", "contact successfully updated") }
+        .addOnSuccessListener { Log.d("UpdateContact", "contact showOnMap successfully updated") }
         .addOnFailureListener { e ->
           Log.d("UpdateContact", "Failed modify contact with error: ", e)
         }
+  }
+  override  fun updateContactHasDM(contactID: String, hasDM: Boolean){
+      contactDataCollection
+          .document(contactID)
+          .update("hasStartedDM", hasDM)
+          .addOnSuccessListener { Log.d("UpdateContact", "contact hasDM successfully updated") }
+          .addOnFailureListener { e ->
+              Log.d("UpdateContact", "Failed modify contact with error: ", e)
+          }
   }
 
   override fun votePollMessage(chat: Chat, message: Message.PollMessage) {
@@ -1709,8 +1718,7 @@ class DatabaseConnection : DbRepository {
               val document = contactDataCollection.document(contactID).get().await()
               val members = document.get("members") as? List<String> ?: emptyList()
               val showOnMap = document.get("showOnMap") as Boolean ?: false
-              // val hasDM = document.get("hasStartedDM") as Boolean ?: false
-              val hasDM = false
+              val hasDM = document.get("hasStartedDM") as Boolean ?: false
               items.add(Contact(contactID, members, showOnMap, hasDM))
             } catch (e: Exception) {
               Log.e("contacts", "Error fetching contact with ID $contactID: $e")
@@ -1739,8 +1747,7 @@ class DatabaseConnection : DbRepository {
       Log.d("contact", "contact document found for contact id $contactID")
       val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
-      // val hasDM = document.get("hasStartedDM") as Boolean
-      val hasDM = false
+      val hasDM = document.get("hasStartedDM") as Boolean
       Contact(contactID, members, showOnMap, hasDM)
     } else {
       Log.d("contact", "contact document not found for contact id $contactID")

@@ -87,16 +87,20 @@ fun ContactListScreen(
         if (showAddPrivateMessageList.value) {
           Box(
               modifier =
-                  Modifier.fillMaxSize().padding(innerPadding).testTag("add_private_message")) {
+              Modifier
+                  .fillMaxSize()
+                  .padding(innerPadding)
+                  .testTag("add_private_message")) {
                 ListAllUsers(showAddPrivateMessageList, directMessagesViewModel, contactsViewModel)
               }
         } else {
           Column(
               modifier =
-                  Modifier.padding(top = 63.dp)
-                      .padding(bottom = 100.dp)
-                      .fillMaxSize()
-                      .testTag("direct_messages_not_empty"),
+              Modifier
+                  .padding(top = 63.dp)
+                  .padding(bottom = 100.dp)
+                  .fillMaxSize()
+                  .testTag("direct_messages_not_empty"),
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
           ) {
@@ -104,28 +108,35 @@ fun ContactListScreen(
               Log.d("MyPrint", "Contact and Request list is empty")
               Text(
                   modifier =
-                      Modifier.fillMaxSize().padding(innerPadding).testTag("direct_messages_empty"),
+                  Modifier
+                      .fillMaxSize()
+                      .padding(innerPadding)
+                      .testTag("direct_messages_empty"),
                   text = stringResource(R.string.direct_messages_empty))
             } else {
               Log.d("MyPrint", "Request or contact list is not empty")
               LazyColumn(
                   modifier =
-                      Modifier.fillMaxWidth()
-                          .fillMaxHeight(0.452f)
-                          .background(LightBlue)
-                          .testTag("request_list")) {
+                  Modifier
+                      .fillMaxWidth()
+                      .fillMaxHeight(0.452f)
+                      .background(LightBlue)
+                      .testTag("request_list")) {
                     items(requestList.value) { request -> RequestItem(request, contactsViewModel) }
                     items(1) { Divider(thickness = 2.dp, color = Blue) }
                     items(contactList) { contact ->
                       val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                       val friend = userVM.getUser(friendID)
-                      // val hasDM = contact.hasStartedDM
-                      val hasDM = false
-                      ContactItem(friend) {
+                      val hasDM = contact.hasStartedDM
+                      ContactItem(friend, hasDM) {
                         if (!hasDM) {
                           directMessagesViewModel.startDirectMessage(friendID, contact.id)
+                            navigationActions.navigateTo(Route.DIRECT_MESSAGE)
+                            contactsViewModel.updateContactHasDM(contact.id, true)
                         }
-                        navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
+                        else {
+                            navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
+                        }
                       }
                     }
                   }
@@ -136,13 +147,17 @@ fun ContactListScreen(
         Box(
             contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
             modifier =
-                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = innerPadding.calculateBottomPadding())) {
               GoToMessages(navigationActions)
             }
         Box(
             contentAlignment = Alignment.BottomStart, // Aligns the button to the bottom end (right)
             modifier =
-                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
             }
       },
@@ -154,68 +169,81 @@ fun ContactListScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ContactItem(friend: User, onClick: () -> Unit = {}) {
+fun ContactItem(friend: User,  hasDM : Boolean, onClick: () -> Unit = {}) {
 
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
-          Modifier.fillMaxWidth()
-              .background(color = White)
-              .border(color = LightBlue, width = Dp.Hairline)
-              .padding(8.dp)
-              .combinedClickable(onClick = onClick)
-              .testTag("chat_item")) {
+      Modifier
+          .fillMaxWidth()
+          .background(color = White)
+          .border(color = LightBlue, width = Dp.Hairline)
+          .padding(8.dp)
+          .combinedClickable(onClick = onClick)
+          .testTag("chat_item")) {
         Image(
             painter = rememberAsyncImagePainter(friend.photoUrl),
             contentDescription = stringResource(R.string.contentDescription_user_profile_picture),
             modifier =
-                Modifier.padding(8.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .align(Alignment.CenterVertically)
-                    .testTag("chat_user_profile_picture"),
+            Modifier
+                .padding(8.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(2.dp, Color.Gray, CircleShape)
+                .align(Alignment.CenterVertically)
+                .testTag("chat_user_profile_picture"),
             contentScale = ContentScale.Crop)
         Text(text = friend.username, modifier = Modifier.testTag("chat_name"))
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.size(10.dp))
+      if (!hasDM) {
+          Text(text = "Click to start a conversation", modifier = Modifier.testTag("chat_name"), color = Blue)
       }
+  }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
   Column(
-      Modifier.fillMaxWidth()
+      Modifier
+          .fillMaxWidth()
           .background(color = White)
           .border(color = LightBlue, width = Dp.Hairline)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth().background(color = White).testTag("chat_item")) {
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = White)
+                .testTag("chat_item")) {
               Image(
                   painter = rememberAsyncImagePainter(request.photoUrl),
                   contentDescription =
                       stringResource(R.string.contentDescription_user_profile_picture),
                   modifier =
-                      Modifier.padding(8.dp)
-                          .size(40.dp)
-                          .clip(CircleShape)
-                          .border(2.dp, Color.Gray, CircleShape)
-                          .align(Alignment.CenterVertically)
-                          .testTag("chat_user_profile_picture"),
+                  Modifier
+                      .padding(8.dp)
+                      .size(40.dp)
+                      .clip(CircleShape)
+                      .border(2.dp, Color.Gray, CircleShape)
+                      .align(Alignment.CenterVertically)
+                      .testTag("chat_user_profile_picture"),
                   contentScale = ContentScale.Crop)
               Text(
                   text = "${request.username} sent you a friend request",
-                  modifier = Modifier.fillMaxWidth().testTag("chat_name"),
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .testTag("chat_name"),
                   maxLines = 1)
             }
         Row(
             verticalAlignment = Alignment.Top,
             modifier =
-                Modifier.fillMaxWidth()
-                    .background(color = White)
-                    .padding(bottom = 12.dp)
-                    .testTag("chat_item"),
+            Modifier
+                .fillMaxWidth()
+                .background(color = White)
+                .padding(bottom = 12.dp)
+                .testTag("chat_item"),
             horizontalArrangement = Arrangement.Center,
         ) {
           Button(
@@ -224,11 +252,12 @@ fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
                   ButtonColors(
                       Color.Transparent, Color.Transparent, Color.Transparent, Color.Transparent),
               modifier =
-                  Modifier.clip(MaterialTheme.shapes.medium)
-                      .background(color = Green)
-                      .width(100.dp)
-                      .height(32.dp)
-                      .testTag("add_private_message_button")) {
+              Modifier
+                  .clip(MaterialTheme.shapes.medium)
+                  .background(color = Green)
+                  .width(100.dp)
+                  .height(32.dp)
+                  .testTag("add_private_message_button")) {
                 Text("Accept", color = White)
               }
           Spacer(modifier = Modifier.size(30.dp))
@@ -238,11 +267,12 @@ fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
                   ButtonColors(
                       Color.Transparent, Color.Transparent, Color.Transparent, Color.Transparent),
               modifier =
-                  Modifier.clip(MaterialTheme.shapes.medium)
-                      .background(color = Color.Red)
-                      .width(100.dp)
-                      .height(32.dp)
-                      .testTag("add_private_message_button")) {
+              Modifier
+                  .clip(MaterialTheme.shapes.medium)
+                  .background(color = Color.Red)
+                  .width(100.dp)
+                  .height(32.dp)
+                  .testTag("add_private_message_button")) {
                 Text(
                     "Deny",
                     color = White,
@@ -256,17 +286,20 @@ fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
 @Composable
 fun GoToMessages(navigationActions: NavigationActions) {
   Row(
-      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(16.dp),
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End) {
         IconButton(
             onClick = { navigationActions.navigateTo(Route.DIRECT_MESSAGE) },
             modifier =
-                Modifier.width(64.dp)
-                    .height(64.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(color = Blue)
-                    .testTag("add_private_message_button")) {
+            Modifier
+                .width(64.dp)
+                .height(64.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .background(color = Blue)
+                .testTag("add_private_message_button")) {
               Icon(
                   painterResource(id = R.drawable.messages),
                   contentDescription = stringResource(R.string.contentDescription_icon_messages),

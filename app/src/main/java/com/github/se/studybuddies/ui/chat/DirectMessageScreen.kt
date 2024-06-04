@@ -171,10 +171,6 @@ fun GoToContactList(navigationActions: NavigationActions) {
 
 /*TODO
 
-make startDM take a contactID, update "HasDM", and make createContact generate the ID
-change startDm so it uses an existing contactID, not the opposite
-clicking on a contact will call startDM(contactID) if no chat exists
-
 change startDM calls to sendContactRequest calls
 check in sendContactRequest that the user is not already in contacts
 

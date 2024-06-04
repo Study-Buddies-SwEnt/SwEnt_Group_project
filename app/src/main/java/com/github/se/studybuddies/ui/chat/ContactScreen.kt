@@ -130,7 +130,7 @@ fun ContactScreen(
                     item { Spacer(modifier = Modifier.padding(0.dp)) }
                     item {
                       SaveButton(nameState) {
-                        contactsViewModel.updateContact(contactID, showOnMapState.value)
+                        contactsViewModel.updateContactShowOnMap(contactID, showOnMapState.value)
                         navigationActions.navigateTo(Route.CHAT)
                       }
                     }
