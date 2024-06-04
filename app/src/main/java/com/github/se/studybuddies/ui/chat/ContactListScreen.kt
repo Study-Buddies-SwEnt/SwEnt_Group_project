@@ -127,8 +127,8 @@ fun ContactListScreen(
                                 .testTag("request_list")){
                             items(1){
                                 val friendtest = userVM.getUser(currentUID)
-                                RequestItem(friendtest)
-                                RequestItem(friendtest)}
+                                RequestItem(friendtest, contactsViewModel)
+                                RequestItem(friendtest, contactsViewModel)}
                         }
                         Divider()
                         LazyColumn(
@@ -142,13 +142,15 @@ fun ContactListScreen(
 
                                 val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
                                 val friend = userVM.getUser(friendID)
-                                ContactItem(friend) {
-                                    navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}")
+                                val hasDM = contact.hasStartedDM
+                                ContactItem(
+                                    friend)
+                                    { if (hasDM) {directMessagesViewModel.startDirectMessage(friendID) }
+                                    navigationActions.navigateTo("${Route.CONTACT_SETTINGS}/${contact.id}") }
                                 }
                             }
                         }
                     }
-                }
             //}
 
             Box(
@@ -179,6 +181,7 @@ fun ContactListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactItem(friend: User, onClick: () -> Unit = {}) {
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
@@ -187,7 +190,7 @@ fun ContactItem(friend: User, onClick: () -> Unit = {}) {
                 .background(color = White)
                 .border(color = LightBlue, width = Dp.Hairline)
                 .padding(8.dp)
-                .combinedClickable(onClick = { onClick() })
+                .combinedClickable(onClick = onClick)
                 .testTag("chat_item")) {
             Image(
                 painter = rememberAsyncImagePainter(friend.photoUrl),
@@ -208,7 +211,7 @@ fun ContactItem(friend: User, onClick: () -> Unit = {}) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RequestItem(request: User) {
+fun RequestItem(request: User, contactsViewModel: ContactsViewModel) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -250,7 +253,7 @@ fun RequestItem(request: User) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            Button(onClick = { /*TODO*/ },
+            Button(onClick = {contactsViewModel.acceptRequest(request.uid)},
                 colors = ButtonColors(
                     Color.Transparent,
                     Color.Transparent,
@@ -266,7 +269,7 @@ fun RequestItem(request: User) {
                 Text("Accept", color = White)
             }
             Spacer(modifier = Modifier.size(30.dp))
-            Button(onClick = { /*TODO*/ },
+            Button(onClick = {contactsViewModel.dismissRequest(request.uid)},
                 colors = ButtonColors(
                     Color.Transparent,
                     Color.Transparent,

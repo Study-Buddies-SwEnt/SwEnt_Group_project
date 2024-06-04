@@ -40,7 +40,6 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
   fun createContact(otherUID: String, contactID: String) {
     viewModelScope.launch { db.createContact(otherUID, contactID) }
   }
-
   fun fetchContactData(contactID: String) {
     Log.d("contact", "A fetch contact called with ID $contactID")
     viewModelScope.launch {
@@ -95,6 +94,15 @@ class ContactsViewModel(private val uid: String? = null) : ViewModel() {
         Log.d("MyPrint", "In ViewModel, could not fetch contact requests with error $e")
       }
     }
+  }
+
+
+  fun dismissRequest(requestID : String){
+    viewModelScope.launch { db.deleteRequest(requestID)}
+  }
+
+  fun acceptRequest(requestID : String){
+    viewModelScope.launch { db.deleteRequest(requestID)}
   }
 
   fun sendContactRequest(userID : String){

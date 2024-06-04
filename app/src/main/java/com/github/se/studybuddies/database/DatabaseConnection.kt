@@ -1659,7 +1659,23 @@ class DatabaseConnection : DbRepository {
         return RequestList(emptyList())
   }
 
-  override suspend fun getAllContacts(uid: String): ContactList {
+    //TODO() add mockdb
+    override suspend fun deleteRequest(requestID: String){
+        val uid = getCurrentUserUID()
+        userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(requestID))
+    }
+
+    //TODO() add mockdb
+    override suspend fun acceptRequest(requestID: String){
+        val uid = getCurrentUserUID()
+        userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(requestID))
+        val testID = "AAAAAAAAAAAAAAA"
+        createContact(requestID, testID)
+    }
+
+
+
+    override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<Contact>()
