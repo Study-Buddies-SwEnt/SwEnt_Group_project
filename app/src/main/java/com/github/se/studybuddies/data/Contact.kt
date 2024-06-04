@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.data
 
+import android.util.Log
+
 data class Contact(
     val id: String,
     val members: List<String>,
@@ -11,7 +13,15 @@ data class Contact(
       return Contact(id = "", members = emptyList(), false, false)
     }
   }
+    fun getOtherUser(uid : String) : String{
+        return if ((members.get(0)) == uid) {
+            members.get(1)
+        } else {
+            members.get(0)
+        }
+    }
 }
+
 
 class RequestList(private val requests: List<User>) {
   fun getAllTasks(): List<User> {

@@ -263,8 +263,6 @@ class DatabaseConnection : DbRepository {
       val snapshot = userContactsCollection.document(uid).get().await()
       val items = mutableListOf<User>()
 
-      val contactVM = ContactsViewModel()
-
       if (snapshot.exists()) {
         val contactsUID = snapshot.data?.get("contacts") as? List<String>
         contactsUID?.let { contactsID ->

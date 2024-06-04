@@ -80,7 +80,11 @@ fun ContactListScreen(
   val contacts = contactsViewModel.contacts.collectAsState().value
   val contactList = contacts.getAllTasks()
 
+    Log.d("ContactListScreen", "contactlist is $contactList")
+
     val friends = contactsViewModel.friends.collectAsState().value
+    val friendList = friends.getAllTasks()
+    Log.d("ContactListScreen", "friendlist is ${friendList}")
 
     val requests by contactsViewModel.requests.collectAsState()
   val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }
@@ -89,7 +93,6 @@ fun ContactListScreen(
       navigationActions = navigationActions,
       backRoute = Route.DIRECT_MESSAGE,
       content = { innerPadding ->
-          val coroutineScope = rememberCoroutineScope()
 
           if (showAddPrivateMessageList.value) {
           Box(
@@ -132,7 +135,8 @@ fun ContactListScreen(
                     items(requestList.value) { request -> RequestItem(request, contactsViewModel) }
                     items(1) { Divider(thickness = 2.dp, color = Blue) }
                     items(contactList) { contact ->
-                      val friendID = contactsViewModel.getOtherUser(contact.id, currentUID)
+                      val friendID = contact.getOtherUser(currentUID)
+                        Log.d("ContactListScreen", "otheruser id is $friendID")
                       val friend = friends.getFilteredFriends(friendID)[0]
                       val hasDM = contact.hasStartedDM
                             ContactItem(friend, hasDM) {
