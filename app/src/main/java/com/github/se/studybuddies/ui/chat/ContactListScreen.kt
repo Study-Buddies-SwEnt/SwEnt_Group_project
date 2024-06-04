@@ -83,8 +83,8 @@ fun ContactListScreen(
     Log.d("ContactListScreen", "contactlist is $contactList")
 
     val friends = contactsViewModel.friends.collectAsState().value
-    val friendList = friends.getAllTasks()
-    Log.d("ContactListScreen", "friendlist is ${friendList}")
+    //val friendList = friends.getAllTasks()
+    //Log.d("ContactListScreen", "friendlist is ${friendList}")
 
     val requests by contactsViewModel.requests.collectAsState()
   val requestList = remember { mutableStateOf(requests.getAllTasks() ?: emptyList()) }

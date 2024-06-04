@@ -75,7 +75,9 @@ fun ContactScreen(
   userViewModel.fetchUserData(otherUserID)
   val otherUserData by userViewModel.userData.observeAsState()
 
-  val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
+    Log.d("contact", "userdfata is $otherUserData")
+
+  val nameState = remember { mutableStateOf(otherUserData?.username ?: "username_error") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
 
   val showOnMapState = remember { mutableStateOf(contactData?.showOnMap ?: false) }
