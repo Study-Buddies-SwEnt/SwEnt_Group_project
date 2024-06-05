@@ -139,7 +139,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
                   Modifier.padding(horizontal = 6.dp, vertical = 80.dp)
                       .fillMaxSize()
                       .background(LightBlue)
-                      .testTag("todo_column"),
+                      .testTag("todo_list_col"),
               verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
               horizontalAlignment = Alignment.CenterHorizontally,
               content = {
@@ -166,14 +166,18 @@ fun ToDoItem(
                 val todoUID = todo.uid
                 navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
               }
-              .testTag("todo_item")) {
+              .testTag("${todo.uid} + _box")) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("${todo.uid} + _row"),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
               Column(
                   modifier =
-                      Modifier.fillMaxHeight().fillMaxWidth(0.5F).padding(12.dp).clickable {
+                      Modifier.fillMaxHeight()
+                          .fillMaxWidth(0.5F)
+                          .padding(12.dp)
+                          .testTag("${todo.uid} + _column")
+                          .clickable {
                         val todoUID = todo.uid
                         navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
                       },
@@ -182,16 +186,19 @@ fun ToDoItem(
                     text = formatDate(todo.dueDate),
                     style = TextStyle(fontSize = 12.sp),
                     lineHeight = 16.sp,
-                    modifier = Modifier.align(Alignment.Start))
+                    modifier = Modifier.align(Alignment.Start)
+                        .testTag("${todo.uid} + _date"))
                 Text(
                     text = todo.name,
                     style = TextStyle(fontSize = 16.sp),
                     lineHeight = 28.sp,
-                    modifier = Modifier.align(Alignment.Start))
+                    modifier = Modifier.align(Alignment.Start)
+                        .testTag("${todo.uid} + _name"))
               }
               Text(
                   text = todo.status.name,
                   style = TextStyle(fontSize = 18.sp, color = statusColor(todo.status)),
+                  modifier = Modifier.testTag("${todo.uid} + _status_text")
               )
               Box(
                   modifier =
@@ -202,7 +209,8 @@ fun ToDoItem(
                             navigationActions.navigateTo(Route.TODOLIST)
                           }
                           .background(Color.Transparent)
-                          .padding(8.dp),
+                          .padding(8.dp)
+                          .testTag(todo.uid + "_status_box"),
                   contentAlignment = Alignment.Center) {
                     Button(
                         onClick = {},
@@ -217,7 +225,8 @@ fun ToDoItem(
                                 .height(20.dp)
                                 .background(color = Color.Transparent, shape = CircleShape)
                                 .border(BorderStroke(width = 4.dp, Blue), shape = CircleShape)
-                                .padding(40.dp)) {}
+                                .padding(40.dp)
+                                .testTag(todo.uid + "_status_button")) {}
                   }
             }
       }
@@ -278,13 +287,12 @@ fun CustomSearchBar(
       supportingText = {
         if (noResultFound) {
           Text(
-              modifier = Modifier.testTag("no_result_text"),
               text = "No result found",
               style =
                   TextStyle(
                       fontSize = 16.sp,
                   ),
-              modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp).testTag("no_result_text"),
           )
         }
       })

@@ -76,8 +76,8 @@ class EditToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSu
             }
         }
         // assert: the nav action has been called
-        //verify { mockNavActions.goBack() }
-        //confirmVerified(mockNavActions)
+        verify { mockNavActions.goBack() }
+        confirmVerified(mockNavActions)
     }
 
     @Test
