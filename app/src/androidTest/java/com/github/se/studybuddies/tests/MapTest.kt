@@ -79,7 +79,7 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   private val uid = "userTest1"
   private val db = MockDatabase()
   private val userVM = UserViewModel(uid, db)
-  private val contactsViewModel= ContactsViewModel()
+  private val contactsViewModel= ContactsViewModel(uid, db)
 
   @Before
   fun setup() {

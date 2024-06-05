@@ -83,11 +83,11 @@ class MockDatabase : DbRepository {
 
   override suspend fun getAllUsers(): List<User> {
     return try {
-      val user = userDataCollection.getOrElse(getCurrentUserUID()) { User.empty() }
+      //val user = userDataCollection.getOrElse(getCurrentUserUID()) { User.empty() }
       val snapshotQuery = userDataCollection
       val items = mutableListOf<User>()
 
-      if (user != User.empty()) {
+      if (snapshotQuery.isNotEmpty()) {
         for (item in snapshotQuery) {
           val id = item.value.uid
           items.add(getUser(id))
