@@ -89,7 +89,8 @@ val fakeContact1 =
     Contact(
         id = "contactTest1",
         members = mutableListOf(fakeUser1.uid, fakeUser2.uid),
-        showOnMap = true)
+        showOnMap = true,
+        hasStartedDM = false)
 val fakeGroup2 =
     Group(
         uid = "groupTest2",
@@ -121,6 +122,12 @@ val fakeUserContactCollection =
     mutableMapOf<String, MutableList<String>>().apply {
       put(fakeUser1.uid, mutableListOf(fakeContact1.id))
       put(fakeUser2.uid, mutableListOf(fakeContact1.id))
+    }
+
+val fakeUserRequestCollection =
+    mutableMapOf<String, MutableList<String>>().apply {
+      put(fakeUser1.uid, mutableListOf(fakeUser2.uid, fakeUser3.uid))
+      put(fakeUser2.uid, mutableListOf(fakeUser1.uid))
     }
 
 val fakeGroupDataCollection =

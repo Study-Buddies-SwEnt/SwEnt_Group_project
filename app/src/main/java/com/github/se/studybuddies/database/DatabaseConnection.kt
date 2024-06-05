@@ -13,6 +13,7 @@ import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.ItemType
 import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.data.MessageVal
+import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -20,7 +21,6 @@ import com.github.se.studybuddies.data.TopicFolder
 import com.github.se.studybuddies.data.TopicItem
 import com.github.se.studybuddies.data.TopicList
 import com.github.se.studybuddies.data.User
-import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -32,7 +32,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,18 +73,10 @@ class DatabaseConnection : DbRepository {
       val username = document.getString("username") ?: ""
       val photoUrl = Uri.parse(document.getString("photoUrl") ?: "")
       val location = document.getString("location") ?: "offline"
-      val dailyPlanners = document.get("dailyPlanners") as? List<Map<String, Any>> ?: emptyList()
-      val plannerList =
-          dailyPlanners.map { plannerMap ->
-            DailyPlanner(
-                date = plannerMap["date"] as String,
-                goals = plannerMap["goals"] as List<String>,
-                appointments = plannerMap["appointments"] as Map<String, String>,
-                notes = plannerMap["notes"] as List<String>)
-          }
-      User(uid, email, username, photoUrl, location, plannerList)
+      Log.d("getUser", "found user document for id $uid")
+      User(uid, email, username, photoUrl, location)
     } else {
-      Log.d("MyPrint", "user document not found for id $uid")
+      Log.d("getUser", "user document not found for id $uid")
       User.empty()
     }
   }
@@ -230,7 +221,8 @@ class DatabaseConnection : DbRepository {
     }
   }
 
-  override suspend fun getAllFriends(uid: String): List<User> {
+  override suspend fun getAllUsers(): List<User> {
+    val uid = getCurrentUserUID()
     return try {
       val snapshot = userDataCollection.document(uid).get().await()
       val snapshotQuery = userDataCollection.get().await()
@@ -241,6 +233,43 @@ class DatabaseConnection : DbRepository {
         for (item in snapshotQuery.documents) {
           val id = item.id
           items.add(getUser(id))
+        }
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+      }
+      items
+    } catch (e: Exception) {
+      Log.d("MyPrint", "Could not fetch all users with error: $e")
+      emptyList()
+    }
+  }
+
+  override suspend fun contactGetOtherUser(contactID: String, uid: String): String {
+    val contact = getContact(contactID)
+    if (contact == Contact.empty()) {
+      return ""
+    }
+    return if ((contact.members.get(0)) == uid) {
+      Log.d("contact", "getOtherUser 1")
+      contact.members.get(1)
+    } else {
+      Log.d("contact", "getOtherUser 0")
+      contact.members.get(0)
+    }
+  }
+
+  override suspend fun getAllFriends(uid: String): List<User> {
+    return try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<User>()
+
+      if (snapshot.exists()) {
+        val contactsUID = snapshot.data?.get("contacts") as? List<String>
+        contactsUID?.let { contactsID ->
+          contactsID.forEach { contactID ->
+            val friendID = contactGetOtherUser(contactID, uid)
+            items.add(getUser(friendID))
+          }
         }
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
@@ -344,7 +373,8 @@ class DatabaseConnection : DbRepository {
           Log.d("MyPrint", "Failed to create user memberships with error: ", e)
         }
 
-    val contactList = hashMapOf("contacts" to emptyList<String>())
+    val contactList =
+        hashMapOf("pendingRequests" to emptyList<String>(), "contacts" to emptyList<String>())
     userContactsCollection
         .document(uid)
         .set(contactList)
@@ -1181,21 +1211,17 @@ class DatabaseConnection : DbRepository {
         })
   }
 
-  override suspend fun startDirectMessage(otherUID: String): String {
+  override suspend fun startDirectMessage(otherUID: String, contactID: String) {
     val currentUserUID = getCurrentUserUID()
-    val contactsViewModel = ContactsViewModel()
-    var contactID = ""
+
     Log.d("MyPrint", "startDirectMessage called in db")
     checkForExistingChat(currentUserUID, otherUID) { chatExists, chatId ->
       if (chatExists) {
         Log.d("MyPrint", "startDirectMessage: chat already exists with ID: $chatId")
-        if (chatId != null) {
-          contactID = chatId
-        }
       } else {
         Log.d("MyPrint", "startDirectMessage: creating new chat")
-        val newChatId = UUID.randomUUID().toString()
-        contactID = newChatId
+        val newChatId = contactID
+        // val newChatId = UUID.randomUUID().toString()
         val memberPath = getPrivateChatMembersPath(newChatId)
         val members = mapOf(currentUserUID to true, otherUID to true)
         rtDb
@@ -1203,21 +1229,30 @@ class DatabaseConnection : DbRepository {
             .updateChildren(members)
             .addOnSuccessListener {
               Log.d("DatabaseConnect", "startDirectMessage : Members successfully added!")
-              contactsViewModel.createContact(otherUID, contactID)
+              // contactsViewModel.createContact(otherUID, contactID)
             }
             .addOnFailureListener {
               Log.w("DatabaseConnect", "startDirectMessage : Failed to write members.", it)
             }
       }
     }
-    return contactID
   }
 
-  override fun updateContact(contactID: String, showOnMap: Boolean) {
+  override fun updateContactShowOnMap(contactID: String, showOnMap: Boolean) {
     contactDataCollection
         .document(contactID)
         .update("showOnMap", showOnMap)
-        .addOnSuccessListener { Log.d("UpdateContact", "contact successfully updated") }
+        .addOnSuccessListener { Log.d("UpdateContact", "contact showOnMap successfully updated") }
+        .addOnFailureListener { e ->
+          Log.d("UpdateContact", "Failed modify contact with error: ", e)
+        }
+  }
+
+  override fun updateContactHasDM(contactID: String, hasDM: Boolean) {
+    contactDataCollection
+        .document(contactID)
+        .update("hasStartedDM", hasDM)
+        .addOnSuccessListener { Log.d("UpdateContact", "contact hasDM successfully updated") }
         .addOnFailureListener { e ->
           Log.d("UpdateContact", "Failed modify contact with error: ", e)
         }
@@ -1629,6 +1664,55 @@ class DatabaseConnection : DbRepository {
     }
   }
 
+  override suspend fun getAllRequests(uid: String): RequestList {
+    try {
+      val snapshot = userContactsCollection.document(uid).get().await()
+      val items = mutableListOf<User>()
+
+      if (snapshot.exists()) {
+        val requestsUIDs = snapshot.data?.get("pendingRequests") as? List<String>
+        requestsUIDs?.let { requestsIDs ->
+          requestsIDs.forEach { requestID ->
+            try {
+              val request = getUser(requestID)
+              items.add(request)
+            } catch (e: Exception) {
+              Log.e("contacts", "Error fetching pending Request with ID $requestID: $e")
+            }
+          }
+        }
+        Log.d("contacts", "fetched all pending Requests for user $uid")
+        return RequestList(items)
+      } else {
+        Log.d("contacts", "User with uid $uid does not exist")
+        return RequestList(emptyList())
+      }
+    } catch (e: Exception) {
+      Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
+    }
+    return RequestList(emptyList())
+  }
+
+  override suspend fun deleteRequest(requestID: String) {
+    val uid = getCurrentUserUID()
+    userContactsCollection
+        .document(uid)
+        .update("pendingRequests", FieldValue.arrayRemove(requestID))
+  }
+
+  override suspend fun acceptRequest(requestID: String) {
+    val uid = getCurrentUserUID()
+    userContactsCollection
+        .document(uid)
+        .update("pendingRequests", FieldValue.arrayRemove(requestID))
+    createContact(requestID)
+  }
+
+  override suspend fun sendContactRequest(targetID: String) {
+    val uid = getCurrentUserUID()
+    userContactsCollection.document(targetID).update("pendingRequests", FieldValue.arrayUnion(uid))
+  }
+
   override suspend fun getAllContacts(uid: String): ContactList {
     try {
       val snapshot = userContactsCollection.document(uid).get().await()
@@ -1642,7 +1726,8 @@ class DatabaseConnection : DbRepository {
               val document = contactDataCollection.document(contactID).get().await()
               val members = document.get("members") as? List<String> ?: emptyList()
               val showOnMap = document.get("showOnMap") as Boolean ?: false
-              items.add(Contact(contactID, members, showOnMap))
+              val hasDM = document.get("hasStartedDM") as Boolean ?: false
+              items.add(Contact(contactID, members, showOnMap, hasDM))
             } catch (e: Exception) {
               Log.e("contacts", "Error fetching contact with ID $contactID: $e")
             }
@@ -1670,32 +1755,40 @@ class DatabaseConnection : DbRepository {
       Log.d("contact", "contact document found for contact id $contactID")
       val members = document.get("members") as? List<String> ?: emptyList()
       val showOnMap = document.get("showOnMap") as Boolean
-      Contact(contactID, members, showOnMap)
+      val hasDM = document.get("hasStartedDM") as Boolean
+      Contact(contactID, members, showOnMap, hasDM)
     } else {
       Log.d("contact", "contact document not found for contact id $contactID")
       Contact.empty()
     }
   }
 
-  override suspend fun createContact(otherUID: String, contactID: String) {
+  override suspend fun createContact(otherUID: String) {
 
     val uid = getCurrentUserUID()
     Log.d("MyPrint", "Creating new contact with between $uid and $otherUID")
-    Log.d("MyPrint", "Creating new contact with with ID $contactID")
+    // Log.d("MyPrint", "Creating new contact with with ID $contactID")
     // check if contact already exists
     val contactList = getAllContacts(uid)
     val filteredList = contactList.getFilteredContacts(otherUID)
     if (filteredList.isNotEmpty()) {
       (Log.d("MyPrint", "Contact already exists"))
     } else {
-      val contact = hashMapOf("members" to listOf(uid, otherUID), "showOnMap" to false)
+      val contact =
+          hashMapOf(
+              "members" to listOf(uid, otherUID), "showOnMap" to false, "hasStartedDM" to false)
       // updating contacts collection
-      val contactRef = contactDataCollection.document(contactID)
+      /*val contactRef = contactDataCollection.document(contactID)
       contactRef
           .set(contact)
-          .addOnSuccessListener { _ ->
-            Log.d("MyPrint", "Contact successfully created")
 
+       */
+      contactDataCollection
+          .add(contact)
+          .addOnSuccessListener { doc ->
+            Log.d("MyPrint", "Contact $contact successfully created")
+
+            val contactID = doc.id
             // updating current user's list of contacts
             userContactsCollection
                 .document(uid)
@@ -1730,11 +1823,10 @@ class DatabaseConnection : DbRepository {
     rtDb.getReference(memberPath).removeValue()
   }
 
-  override fun deleteContact(contactID: String) {
+  override suspend fun deleteContact(contactID: String) {
 
     val uid = getCurrentUserUID()
-    val contactsViewModel = ContactsViewModel()
-    val otherUID = contactsViewModel.getOtherUser(contactID, uid)
+    val otherUID = contactGetOtherUser(contactID, uid)
 
     userContactsCollection.document(uid).update("contacts", FieldValue.arrayRemove(contactID))
     userContactsCollection.document(otherUID).update("contacts", FieldValue.arrayRemove(contactID))

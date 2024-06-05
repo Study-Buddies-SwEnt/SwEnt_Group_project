@@ -18,7 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
@@ -42,9 +41,7 @@ fun SharedTimerScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Shared Timer") },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/$groupUID")
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       },
   ) {

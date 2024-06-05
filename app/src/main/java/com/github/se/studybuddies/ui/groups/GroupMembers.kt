@@ -120,9 +120,7 @@ fun GroupMembers(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.members)) },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
         Column(

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,12 +55,12 @@ import com.github.se.studybuddies.data.User
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
+import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.LightBlue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
-import com.github.se.studybuddies.viewModels.UsersViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -76,14 +78,11 @@ import kotlinx.coroutines.launch
 fun DirectMessageScreen(
     viewModel: DirectMessagesViewModel,
     chatViewModel: ChatViewModel,
-    usersViewModel: UsersViewModel,
     navigationActions: NavigationActions,
     contactsViewModel: ContactsViewModel
 ) {
   val showAddPrivateMessageList = remember { mutableStateOf(false) }
   val chats = viewModel.directMessages.collectAsState(initial = emptyList()).value
-  val contacts by contactsViewModel.contacts.collectAsState()
-  val contactList = remember { mutableStateOf(contacts.getAllTasks() ?: emptyList()) }
 
   MainScreenScaffold(
       navigationActions = navigationActions,
@@ -93,8 +92,7 @@ fun DirectMessageScreen(
           Box(
               modifier =
                   Modifier.fillMaxSize().padding(innerPadding).testTag("add_private_message")) {
-                ListAllUsers(
-                    showAddPrivateMessageList, viewModel, usersViewModel, contactsViewModel)
+                ListAllUsers(showAddPrivateMessageList, viewModel, contactsViewModel)
               }
         } else {
           if (chats.isEmpty()) {
@@ -126,8 +124,17 @@ fun DirectMessageScreen(
             }
           }
         }
+
         Box(
             contentAlignment = Alignment.BottomEnd, // Aligns the button to the bottom end (right)
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
+              GoToContactList(navigationActions)
+            }
+
+        Box(
+            contentAlignment =
+                Alignment.BottomStart, // Aligns the button to the bottom start (left)
             modifier =
                 Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())) {
               AddNewPrivateMessage(showAddPrivateMessageList)
@@ -137,6 +144,29 @@ fun DirectMessageScreen(
           if (showAddPrivateMessageList.value) stringResource(R.string.start_direct_message_title)
           else stringResource(R.string.direct_messages_title),
       iconOptions = {})
+}
+
+@Composable
+fun GoToContactList(navigationActions: NavigationActions) {
+  Row(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      verticalAlignment = Alignment.Bottom,
+      horizontalArrangement = Arrangement.End) {
+        IconButton(
+            onClick = { navigationActions.navigateTo(Route.CONTACTLIST) },
+            modifier =
+                Modifier.width(64.dp)
+                    .height(64.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(color = Blue)
+                    .testTag("add_private_message_button")) {
+              Icon(
+                  painterResource(id = R.drawable.user),
+                  contentDescription = stringResource(R.string.contentDescription_icon_contacts),
+                  modifier = Modifier.size(40.dp),
+                  tint = White)
+            }
+      }
 }
 
 /**
@@ -151,7 +181,7 @@ fun AddNewPrivateMessage(showAddPrivateMessageList: MutableState<Boolean>) {
   Row(
       modifier = Modifier.fillMaxWidth().padding(16.dp),
       verticalAlignment = Alignment.Bottom,
-      horizontalArrangement = Arrangement.End) {
+      horizontalArrangement = Arrangement.Start) {
         Button(
             onClick = { showAddPrivateMessageList.value = !showAddPrivateMessageList.value },
             modifier =
@@ -214,26 +244,28 @@ fun DirectMessageItem(chat: Chat, onClick: () -> Unit = {}) {
  *
  * @param showAddPrivateMessageList Mutable state controlling the display of the user list.
  * @param viewModel ViewModel for direct messaging functionalities.
- * @param usersViewModel ViewModel managing user data.
  * @param contactsViewModel ViewModel for contact operations.
  */
 @Composable
 fun ListAllUsers(
     showAddPrivateMessageList: MutableState<Boolean>,
     viewModel: DirectMessagesViewModel,
-    usersViewModel: UsersViewModel,
     contactsViewModel: ContactsViewModel
 ) {
-  val friends = usersViewModel.friends.collectAsState(initial = emptyList()).value
+
+  contactsViewModel.fetchAllUsers()
+  val allUsers = contactsViewModel.allUsers.collectAsState().value
+  // contactsViewModel.friends.collectAsState(initial = emptyList()).value
+
   var isLoading by remember { mutableStateOf(true) }
 
-  LaunchedEffect(friends) {
-    if (friends.isNotEmpty()) {
+  LaunchedEffect(allUsers) {
+    if (allUsers.isNotEmpty()) {
       isLoading = false
     } else {
       repeat(10) {
         delay(500)
-        if (friends.isNotEmpty()) {
+        if (allUsers.isNotEmpty()) {
           isLoading = false
           return@repeat
         }
@@ -247,11 +279,11 @@ fun ListAllUsers(
       CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }
   } else {
-    if (friends.isEmpty()) {
+    if (allUsers.isEmpty()) {
       Text(text = stringResource(R.string.no_friends_found))
     } else {
       LazyColumn(modifier = Modifier.fillMaxWidth().testTag("all_users_list")) {
-        items(friends) { friend ->
+        items(allUsers) { friend ->
           UserItem(friend, viewModel, showAddPrivateMessageList, contactsViewModel)
         }
       }
@@ -287,10 +319,8 @@ fun UserItem(
               .combinedClickable(
                   onClick = {
                     coroutineScope.launch {
+                      contactsViewModel.sendContactRequest(user.uid)
                       showAddPrivateMessageList.value = false
-                      val contactID = viewModel.startDirectMessage(user.uid)
-                      Log.d("MyPrint", "DMscreen contactID is $contactID")
-                      // contactsViewModel.createContact(user.uid, contactID)
                     }
                   })
               .testTag("user_item")) {

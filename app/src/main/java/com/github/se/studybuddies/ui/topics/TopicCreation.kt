@@ -48,7 +48,7 @@ fun TopicCreation(
       topBar = {
         TopNavigationBar(
             title = { Sub_title("Create Topic") },
-            leftButton = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
+            leftButton = { GoBackRouteButton(navigationActions) },
             rightButton = {})
       }) {
         Column(

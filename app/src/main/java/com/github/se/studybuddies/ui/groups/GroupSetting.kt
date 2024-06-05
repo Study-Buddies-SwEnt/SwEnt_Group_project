@@ -113,9 +113,7 @@ fun GroupSetting(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(stringResource(R.string.group_settings)) },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = { GroupsSettingsButton(groupUID, navigationActions, db) })
       }) { paddingValues ->
         if (isBoxVisible.value) {

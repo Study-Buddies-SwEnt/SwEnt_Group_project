@@ -32,6 +32,7 @@ import com.github.se.studybuddies.ui.calender.DailyPlannerScreen
 import com.github.se.studybuddies.ui.calender.GroupDailyPlannerScreen
 import com.github.se.studybuddies.ui.calender.GroupStudyCalendarApp
 import com.github.se.studybuddies.ui.chat.ChatScreen
+import com.github.se.studybuddies.ui.chat.ContactListScreen
 import com.github.se.studybuddies.ui.chat.ContactScreen
 import com.github.se.studybuddies.ui.chat.DirectMessageScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
@@ -75,7 +76,6 @@ import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 import com.github.se.studybuddies.viewModels.UserViewModel
-import com.github.se.studybuddies.viewModels.UsersViewModel
 import com.github.se.studybuddies.viewModels.VideoCallViewModel
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.StreamVideo
@@ -87,9 +87,8 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     val db: DbRepository = ServiceLocator.provideDatabase()
     val directMessageViewModel = DirectMessagesViewModel(userUid = "", db = db)
-    val usersViewModel = UsersViewModel(userUid = "", db = db)
+    val userViewModel = UserViewModel("", db)
     val chatViewModel = ChatViewModel()
-    val userViewModel = UserViewModel()
     val contactsViewModel = ContactsViewModel()
     val studyBuddies = application as LocationApp
     setContent {
@@ -111,7 +110,7 @@ class MainActivity : ComponentActivity() {
                     onSuccess = { userExists ->
                       if (userExists) {
                         directMessageViewModel.setUserUID(currentUser)
-                        usersViewModel.setUserUID(currentUser)
+                        userViewModel.setUserUID(currentUser)
                         navController.navigate(Route.SOLOSTUDYHOME)
                       } else {
                         navController.navigate(Route.CREATEACCOUNT)
@@ -251,13 +250,13 @@ class MainActivity : ComponentActivity() {
             composable(Route.DIRECT_MESSAGE) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
                 directMessageViewModel.setUserUID(currentUser)
-                usersViewModel.setUserUID(currentUser)
+                userViewModel.setUserUID(currentUser)
                 DirectMessageScreen(
                     directMessageViewModel,
                     chatViewModel,
-                    usersViewModel,
                     navigationActions,
                     ContactsViewModel(currentUser))
+                Log.d("MyPrint", "Successfully navigated to DirectMessageScreen")
               }
             }
             composable(
@@ -334,6 +333,14 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
+            composable(Route.CONTACTLIST) {
+              ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { currentUser ->
+                ContactListScreen(
+                    currentUser, navigationActions, contactsViewModel, directMessageViewModel)
+                Log.d("MyPrint", "Successfully navigated to ContactListScreen")
+              }
+            }
+
             composable(
                 route = "${Route.CONTACT_SETTINGS}/{contactID}",
                 arguments = listOf(navArgument("contactID") { type = NavType.StringType })) {
@@ -342,7 +349,7 @@ class MainActivity : ComponentActivity() {
                   val uid = db.getCurrentUserUID()
                   ifNotNull(contactID) { contactUID ->
                     val contactsVM = remember { ContactsViewModel(uid) }
-                    val userVM = remember { UserViewModel(uid, db) }
+                    val userVM = remember { UserViewModel() }
                     val directMessageVM = remember { DirectMessagesViewModel(uid, db) }
                     ContactScreen(
                         contactUID, contactsVM, navigationActions, userVM, directMessageVM)
@@ -357,7 +364,7 @@ class MainActivity : ComponentActivity() {
                 MapScreen(
                     currentUser,
                     userViewModel,
-                    usersViewModel,
+                    contactsViewModel,
                     navigationActions,
                     applicationContext)
               }
@@ -371,6 +378,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("MyPrint", "Successfully navigated to TimerScreen")
               }
             }
+
             composable(Route.CALENDAR) {
               ifNotNull(remember { ServiceLocator.getCurrentUserUID() }) { _ ->
                 val calendarViewModel = remember {

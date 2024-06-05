@@ -61,9 +61,7 @@ fun GroupStudyCalendarApp(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "Group Study Calendar") },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, "${Route.GROUP}/${groupUid}")
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       },
   ) { padding ->

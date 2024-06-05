@@ -449,7 +449,7 @@ fun EditDialog(
 @Composable
 fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
   ChatTopBar(
-      leftButton = { GoBackRouteButton(navigationActions = navigationActions, Route.GROUPSHOME) },
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
       rightButton = {
         IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
           Icon(
@@ -498,9 +498,7 @@ fun GroupChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 fun PrivateChatTopBar(chat: Chat, navigationActions: NavigationActions) {
 
   ChatTopBar(
-      leftButton = {
-        GoBackRouteButton(navigationActions = navigationActions, Route.DIRECT_MESSAGE)
-      },
+      leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
       rightButton = {
         IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
           Icon(
