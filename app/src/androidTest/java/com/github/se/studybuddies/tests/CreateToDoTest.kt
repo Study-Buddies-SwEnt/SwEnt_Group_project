@@ -71,7 +71,7 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.TODOLIST) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 
