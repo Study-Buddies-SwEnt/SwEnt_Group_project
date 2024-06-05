@@ -63,7 +63,7 @@ class SettingsTest : TestCase() {
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 }

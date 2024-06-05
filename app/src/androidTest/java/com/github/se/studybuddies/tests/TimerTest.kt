@@ -129,7 +129,7 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 }
