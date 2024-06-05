@@ -8,7 +8,6 @@ import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
-import com.github.se.studybuddies.data.FriendList
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
@@ -28,7 +27,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class MockDatabase : DbRepository {
@@ -73,7 +71,8 @@ class MockDatabase : DbRepository {
       contact.members.get(1)
     } else {
       Log.d("contact", "getOtherUser 0")
-      contact.members.get(0)  }
+      contact.members.get(0)
+    }
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {
@@ -83,15 +82,15 @@ class MockDatabase : DbRepository {
 
       if (!snapshot.isNullOrEmpty()) {
         snapshot.forEach { contactID ->
-            try {
-              val contact = contactDataCollection.get(contactID)
-              if (contact != null) {
-                items.add(contact)
-              }
-            } catch (e: Exception) {
-              Log.e("contacts", "Error fetching contact with ID $contactID: $e")
+          try {
+            val contact = contactDataCollection.get(contactID)
+            if (contact != null) {
+              items.add(contact)
             }
+          } catch (e: Exception) {
+            Log.e("contacts", "Error fetching contact with ID $contactID: $e")
           }
+        }
         Log.d("contacts", "fetched all contacts for user $uid")
         return ContactList(items)
       } else {
@@ -118,7 +117,7 @@ class MockDatabase : DbRepository {
 
   override suspend fun getAllUsers(): List<User> {
     return try {
-      //val user = userDataCollection.getOrElse(getCurrentUserUID()) { User.empty() }
+      // val user = userDataCollection.getOrElse(getCurrentUserUID()) { User.empty() }
       val snapshotQuery = userDataCollection
       val items = mutableListOf<User>()
 
@@ -658,16 +657,16 @@ class MockDatabase : DbRepository {
     TODO("Not yet implemented")
   }
 
-  override suspend fun getAllFriends(uid : String): List<User> {
+  override suspend fun getAllFriends(uid: String): List<User> {
     return try {
       val snapshot = userContactsCollection[uid]
       val items = mutableListOf<User>()
 
       if (!snapshot.isNullOrEmpty()) {
         snapshot.forEach { contactID ->
-            val friendID = contactGetOtherUser(contactID, uid)
-            items.add(getUser(friendID))
-          }
+          val friendID = contactGetOtherUser(contactID, uid)
+          items.add(getUser(friendID))
+        }
       } else {
         Log.d("MyPrint", "User with uid $uid does not exist")
       }

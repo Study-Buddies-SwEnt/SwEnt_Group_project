@@ -46,13 +46,18 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           location = "offline")
   private val db = DatabaseConnection()
   private val userVM = UserViewModel(uid, db)
-  private val contactsViewModel= ContactsViewModel(uid, db)
+  private val contactsViewModel = ContactsViewModel(uid, db)
 
   @Before
   fun setup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     composeTestRule.setContent {
-      MapScreen(uid = uid, userVM, contactsViewModel, navigationActions = mockNavActions, context = context)
+      MapScreen(
+          uid = uid,
+          userVM,
+          contactsViewModel,
+          navigationActions = mockNavActions,
+          context = context)
     }
   }
 
@@ -79,16 +84,20 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   private val uid = "userTest1"
   private val db = MockDatabase()
   private val userVM = UserViewModel(uid, db)
-  private val contactsViewModel= ContactsViewModel(uid, db)
+  private val contactsViewModel = ContactsViewModel(uid, db)
 
   @Before
   fun setup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     composeTestRule.setContent {
-      MapScreen(uid = uid, userVM, contactsViewModel, navigationActions = mockNavActions, context = context)
+      MapScreen(
+          uid = uid,
+          userVM,
+          contactsViewModel,
+          navigationActions = mockNavActions,
+          context = context)
     }
   }
-
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
@@ -101,8 +110,7 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
     }
   }
 
-
-   /*TODO() google certificates issue
+  /*TODO() google certificates issue
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun getAllUser() {
@@ -114,7 +122,6 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
   }
 
     */
-
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test

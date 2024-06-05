@@ -126,8 +126,8 @@ val fakeUserContactCollection =
 
 val fakeUserRequestCollection =
     mutableMapOf<String, MutableList<String>>().apply {
-        put(fakeUser1.uid, mutableListOf(fakeUser2.uid, fakeUser3.uid))
-        put(fakeUser2.uid, mutableListOf(fakeUser1.uid))
+      put(fakeUser1.uid, mutableListOf(fakeUser2.uid, fakeUser3.uid))
+      put(fakeUser2.uid, mutableListOf(fakeUser1.uid))
     }
 
 val fakeGroupDataCollection =
