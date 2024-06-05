@@ -56,7 +56,7 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun getContact(contactID: String): Contact {
-    TODO("Not yet implemented")
+    return contactDataCollection[contactID] ?: Contact.empty()
   }
 
   override suspend fun createContact(otherUID: String) {
@@ -64,7 +64,16 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun contactGetOtherUser(contactID: String, uid: String): String {
-    TODO("Not yet implemented")
+    val contact = getContact(contactID)
+    if (contact == Contact.empty()) {
+      return ""
+    }
+    return if ((contact.members.get(0)) == uid) {
+      Log.d("contact", "getOtherUser 1")
+      contact.members.get(1)
+    } else {
+      Log.d("contact", "getOtherUser 0")
+      contact.members.get(0)  }
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {
