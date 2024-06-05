@@ -178,28 +178,25 @@ fun ToDoItem(
                           .padding(12.dp)
                           .testTag("${todo.uid} + _column")
                           .clickable {
-                        val todoUID = todo.uid
-                        navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
-                      },
+                            val todoUID = todo.uid
+                            navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
+                          },
               ) {
                 Text(
                     text = formatDate(todo.dueDate),
                     style = TextStyle(fontSize = 12.sp),
                     lineHeight = 16.sp,
-                    modifier = Modifier.align(Alignment.Start)
-                        .testTag("${todo.uid} + _date"))
+                    modifier = Modifier.align(Alignment.Start).testTag("${todo.uid} + _date"))
                 Text(
                     text = todo.name,
                     style = TextStyle(fontSize = 16.sp),
                     lineHeight = 28.sp,
-                    modifier = Modifier.align(Alignment.Start)
-                        .testTag("${todo.uid} + _name"))
+                    modifier = Modifier.align(Alignment.Start).testTag("${todo.uid} + _name"))
               }
               Text(
                   text = todo.status.name,
                   style = TextStyle(fontSize = 18.sp, color = statusColor(todo.status)),
-                  modifier = Modifier.testTag("${todo.uid} + _status_text")
-              )
+                  modifier = Modifier.testTag("${todo.uid} + _status_text"))
               Box(
                   modifier =
                       Modifier.size(60.dp)
@@ -265,23 +262,24 @@ fun CustomSearchBar(
                 keyboard?.hide()
               }),
       leadingIcon = {
-        IconButton(modifier = Modifier.testTag("custom_search_bar_icon"),
-            onClick = onSearchAction) {
-          Icon(
-              painterResource(R.drawable.search),
-              contentDescription = null,
-              modifier = Modifier.padding(8.dp).size(52.dp))
-        }
+        IconButton(
+            modifier = Modifier.testTag("custom_search_bar_icon"), onClick = onSearchAction) {
+              Icon(
+                  painterResource(R.drawable.search),
+                  contentDescription = null,
+                  modifier = Modifier.padding(8.dp).size(52.dp))
+            }
       },
       trailingIcon = {
         if (searchQuery.isNotEmpty()) {
-          IconButton(modifier = Modifier.testTag("custom_search_bar_clear"),
+          IconButton(
+              modifier = Modifier.testTag("custom_search_bar_clear"),
               onClick = { onClearAction() }) {
-            Icon(
-                Icons.Default.Clear,
-                contentDescription = null,
-                modifier = Modifier.padding(8.dp).size(30.dp))
-          }
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = null,
+                    modifier = Modifier.padding(8.dp).size(30.dp))
+              }
         }
       },
       supportingText = {
@@ -292,7 +290,8 @@ fun CustomSearchBar(
                   TextStyle(
                       fontSize = 16.sp,
                   ),
-              modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp).testTag("no_result_text"),
+              modifier =
+                  Modifier.padding(horizontal = 16.dp, vertical = 0.dp).testTag("no_result_text"),
           )
         }
       })
