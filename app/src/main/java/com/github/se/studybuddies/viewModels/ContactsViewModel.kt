@@ -10,13 +10,13 @@ import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.FriendList
 import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.data.User
+import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ContactsViewModel(private val uid: String? = null) : ViewModel() {
-  private val db = ServiceLocator.provideDatabase()
+class ContactsViewModel(private val uid: String? = null, val db : DbRepository = ServiceLocator.provideDatabase()) : ViewModel() {
   private val _contacts = MutableStateFlow<ContactList>(ContactList(emptyList()))
   val contacts: StateFlow<ContactList> = _contacts
 

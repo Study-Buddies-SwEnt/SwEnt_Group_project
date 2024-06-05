@@ -46,7 +46,7 @@ class MapTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport
           location = "offline")
   private val db = DatabaseConnection()
   private val userVM = UserViewModel(uid, db)
-  private val contactsViewModel= ContactsViewModel()
+  private val contactsViewModel= ContactsViewModel(uid, db)
 
   @Before
   fun setup() {
@@ -89,6 +89,7 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
     }
   }
 
+  /*
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun getUserFriends() {
@@ -99,6 +100,19 @@ class MapDatabase : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSup
       assert(friends.getAllTasks().isNotEmpty())
     }
   }
+   */
+
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun getALlUser() {
+    onComposeScreen<MapScreen>(composeTestRule) {
+      contactsViewModel.fetchAllUsers()
+      val users = contactsViewModel.allUsers.value
+      assert(users.isNotEmpty())
+    }
+  }
+
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test

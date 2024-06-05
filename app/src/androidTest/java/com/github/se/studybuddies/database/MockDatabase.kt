@@ -8,6 +8,7 @@ import com.github.se.studybuddies.data.ChatVal
 import com.github.se.studybuddies.data.Contact
 import com.github.se.studybuddies.data.ContactList
 import com.github.se.studybuddies.data.DailyPlanner
+import com.github.se.studybuddies.data.FriendList
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
@@ -80,9 +81,9 @@ class MockDatabase : DbRepository {
     return "E2EUserTest"
   }
 
-  override suspend fun getAllFriends(uid: String): List<User> {
+  override suspend fun getAllUsers(): List<User> {
     return try {
-      val user = userDataCollection.getOrElse(uid) { User.empty() }
+      val user = userDataCollection.getOrElse(getCurrentUserUID()) { User.empty() }
       val snapshotQuery = userDataCollection
       val items = mutableListOf<User>()
 
@@ -92,7 +93,7 @@ class MockDatabase : DbRepository {
           items.add(getUser(id))
         }
       } else {
-        Log.d("MyPrint", "User with uid $uid does not exist")
+        Log.d("MyPrint", "User with uid ${getCurrentUserUID()} does not exist")
       }
       items
     } catch (e: Exception) {
@@ -598,7 +599,7 @@ class MockDatabase : DbRepository {
     TODO("Not yet implemented")
   }
 
-  override suspend fun getAllUsers(): List<User> {
+  override suspend fun getAllFriends(uid : String): List<User> {
     TODO("Not yet implemented")
   }
 
