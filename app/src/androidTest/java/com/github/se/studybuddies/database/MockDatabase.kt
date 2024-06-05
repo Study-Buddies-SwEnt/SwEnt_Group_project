@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class MockDatabase : DbRepository {
@@ -37,7 +38,8 @@ class MockDatabase : DbRepository {
   private val topicDataCollection = fakeTopicDataCollection
   private val topicItemCollection = fakeTopicItemCollection
   private val contactDataCollection = fakeContactDataCollection
-  private val userContactcollection = fakeUserContactCollection
+  private val userContactsCollection = fakeUserContactCollection
+  private val userRequestCollection = fakeUserRequestCollection
   private val rtDb = mutableMapOf<String, Map<String, Any>>()
   private val storage = mutableMapOf<String, Uri>()
 
@@ -66,7 +68,31 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun getAllContacts(uid: String): ContactList {
-    TODO("Not yet implemented")
+    try {
+      val snapshot = userContactsCollection.get(uid)
+      val items = mutableListOf<Contact>()
+
+      if (!snapshot.isNullOrEmpty()) {
+        snapshot.forEach { contactID ->
+            try {
+              val contact = contactDataCollection.get(contactID)
+              if (contact != null) {
+                items.add(contact)
+              }
+            } catch (e: Exception) {
+              Log.e("contacts", "Error fetching contact with ID $contactID: $e")
+            }
+          }
+        Log.d("contacts", "fetched all contacts for user $uid")
+        return ContactList(items)
+      } else {
+        Log.d("contacts", "User with uid $uid does not exist")
+        return ContactList(emptyList())
+      }
+    } catch (e: Exception) {
+      Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
+    }
+    return ContactList(emptyList())
   }
 
   override suspend fun deleteContact(contactID: String) {
@@ -592,7 +618,31 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun getAllRequests(uid: String): RequestList {
-    TODO("Not yet implemented")
+    try {
+      val snapshot = userRequestCollection.get(uid)
+      val items = mutableListOf<User>()
+
+      if (!snapshot.isNullOrEmpty()) {
+        snapshot.forEach { requestID ->
+          try {
+            val user = userDataCollection.get(requestID)
+            if (user != null) {
+              items.add(user)
+            }
+          } catch (e: Exception) {
+            Log.e("contacts", "Error fetching contact with ID $requestID: $e")
+          }
+        }
+        Log.d("contacts", "fetched all contacts for user $uid")
+        return RequestList(items)
+      } else {
+        Log.d("contacts", "User with uid $uid does not exist")
+        return RequestList(emptyList())
+      }
+    } catch (e: Exception) {
+      Log.e("contacts", "could not fetch all contacts for user $uid with error: $e")
+    }
+    return RequestList(emptyList())
   }
 
   override suspend fun deleteRequest(requestID: String) {
@@ -600,7 +650,23 @@ class MockDatabase : DbRepository {
   }
 
   override suspend fun getAllFriends(uid : String): List<User> {
-    TODO("Not yet implemented")
+    return try {
+      val snapshot = userContactsCollection[uid]
+      val items = mutableListOf<User>()
+
+      if (!snapshot.isNullOrEmpty()) {
+        snapshot.forEach { contactID ->
+            val friendID = contactGetOtherUser(contactID, uid)
+            items.add(getUser(friendID))
+          }
+      } else {
+        Log.d("MyPrint", "User with uid $uid does not exist")
+      }
+      items
+    } catch (e: Exception) {
+      Log.d("MyPrint", "Could not fetch friends with error: $e")
+      emptyList()
+    }
   }
 
   override suspend fun acceptRequest(requestID: String) {
