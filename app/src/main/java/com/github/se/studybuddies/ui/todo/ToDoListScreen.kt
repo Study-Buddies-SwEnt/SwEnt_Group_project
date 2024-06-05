@@ -88,13 +88,13 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
   }
 
   Scaffold(
-      modifier = Modifier.fillMaxSize().testTag("overviewScreen"),
+      modifier = Modifier.fillMaxSize().testTag("todo_list_scaffold"),
       floatingActionButton = {
         FloatingActionButton(
             onClick = { navigationActions.navigateTo(Route.CREATETODO) },
             backgroundColor = Blue,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.testTag("createTodoButton")) {
+            modifier = Modifier.testTag("add_todo_button")) {
               Icon(
                   painterResource(R.drawable.edit),
                   tint = Color.White,
@@ -132,7 +132,8 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
                   Modifier.padding(innerPadding)
                       .fillMaxSize()
                       .padding(4.dp)
-                      .wrapContentHeight(Alignment.CenterVertically),
+                      .wrapContentHeight(Alignment.CenterVertically)
+                      .testTag("no_task_text"),
               textAlign = TextAlign.Center)
         } else {
           LazyColumn(
@@ -140,7 +141,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
                   Modifier.padding(horizontal = 6.dp, vertical = 80.dp)
                       .fillMaxSize()
                       .background(LightBlue)
-                      .testTag("todoList"),
+                      .testTag("todo_column"),
               verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
               horizontalAlignment = Alignment.CenterHorizontally,
               content = {
@@ -167,7 +168,7 @@ fun ToDoItem(
                 val todoUID = todo.uid
                 navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
               }
-              .testTag("todoListItem")) {
+              .testTag("todo_item")) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -244,7 +245,7 @@ fun CustomSearchBar(
           Modifier.padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
               .width(360.dp)
               .height(80.dp)
-              .testTag("searchTodo"),
+              .testTag("custom_search_bar"),
       shape = RoundedCornerShape(28.dp),
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
@@ -257,7 +258,8 @@ fun CustomSearchBar(
                 keyboard?.hide()
               }),
       leadingIcon = {
-        IconButton(onClick = onSearchAction) {
+        IconButton(modifier = Modifier.testTag("custom_search_bar_icon"),
+            onClick = onSearchAction) {
           Icon(
               painterResource(R.drawable.search),
               contentDescription = null,
@@ -266,7 +268,8 @@ fun CustomSearchBar(
       },
       trailingIcon = {
         if (searchQuery.isNotEmpty()) {
-          IconButton(onClick = { onClearAction() }) {
+          IconButton(modifier = Modifier.testTag("custom_search_bar_clear"),
+              onClick = { onClearAction() }) {
             Icon(
                 Icons.Default.Clear,
                 contentDescription = null,
@@ -277,6 +280,7 @@ fun CustomSearchBar(
       supportingText = {
         if (noResultFound) {
           Text(
+              modifier = Modifier.testTag("no_result_text"),
               text = "No result found",
               style =
                   TextStyle(

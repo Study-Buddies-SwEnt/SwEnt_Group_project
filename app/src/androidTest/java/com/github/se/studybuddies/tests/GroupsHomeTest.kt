@@ -1,12 +1,5 @@
 package com.github.se.studybuddies.tests
 
-// ***************************************************************************** //
-// ***                                                                       *** //
-// *** THIS FILE WILL BE OVERWRITTEN DURING GRADING. IT SHOULD BE LOCATED IN *** //
-// *** `app/src/androidTest/java/com/github/se/bootcamp/authentication/`.    *** //
-// *** DO **NOT** IMPLEMENT YOUR OWN TESTS IN THIS FILE                      *** //
-// ***                                                                       *** //
-// ***************************************************************************** //
 
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
