@@ -71,10 +71,7 @@ fun TopicSettings(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = stringResource(R.string.topic_settings)) },
-            leftButton = {
-              GoBackRouteButton(
-                  navigationActions = navigationActions, "${Route.TOPIC}/$topicUID/$groupUID")
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       }) {
         Column(

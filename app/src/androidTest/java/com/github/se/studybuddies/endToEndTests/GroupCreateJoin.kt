@@ -136,14 +136,12 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
     }
     ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
       // Go back to the groupHome
-      /*
+
       goBackButton {
         // arrange: verify pre-conditions
         assertIsDisplayed()
         performClick()
-        //TODO() remove comment when gobacknav is updated
       }
-       */
     }
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
       // Join a group via a link

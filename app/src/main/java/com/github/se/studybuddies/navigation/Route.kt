@@ -39,4 +39,5 @@ object Route {
   const val PLACEHOLDER = "Placeholder"
   const val GROUPDAILYPLANNER = "GroupDailyPlanner"
   const val GROUPCALENDAR = " GroupCalendar"
+  const val CONTACTLIST = "ContactList"
 }

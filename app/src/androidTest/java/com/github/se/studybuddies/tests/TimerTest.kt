@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.TimerScreen
 import com.github.se.studybuddies.ui.timer.TimerScreenContent
 import com.github.se.studybuddies.viewModels.TimerViewModel
@@ -129,7 +128,7 @@ class TimerTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSuppo
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.SOLOSTUDYHOME) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 }

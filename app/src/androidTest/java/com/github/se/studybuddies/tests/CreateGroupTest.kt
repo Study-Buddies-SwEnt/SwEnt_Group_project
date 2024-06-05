@@ -5,7 +5,6 @@ import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.database.MockDatabase
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateGroupScreen
 import com.github.se.studybuddies.ui.groups.CreateGroup
 import com.github.se.studybuddies.viewModels.GroupViewModel
@@ -137,7 +136,7 @@ class CreateGroupTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 }

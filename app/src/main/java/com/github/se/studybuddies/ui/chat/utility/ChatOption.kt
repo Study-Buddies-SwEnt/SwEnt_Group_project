@@ -40,6 +40,7 @@ import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.utils.SaveType
 import com.github.se.studybuddies.utils.saveToStorage
+import com.github.se.studybuddies.viewModels.ContactsViewModel
 import com.github.se.studybuddies.viewModels.DirectMessagesViewModel
 import com.github.se.studybuddies.viewModels.MessageViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -355,14 +356,16 @@ fun NonUserMessageOptions(
     showOptionsDialog: MutableState<Boolean>,
     navigationActions: NavigationActions,
 ) {
+
+  val contactsViewModel = ContactsViewModel()
+
   Spacer(modifier = Modifier.height(8.dp))
   Button(
       modifier = Modifier.testTag("option_dialog_start_direct_message"),
       onClick = {
         showOptionsDialog.value = false
-        viewModel.currentUser.value
-            ?.let { DirectMessagesViewModel(it.uid) }
-            ?.startDirectMessage(selectedMessage.sender.uid)
+        viewModel.currentUser.value?.let { DirectMessagesViewModel(it.uid) }
+        contactsViewModel.sendContactRequest(selectedMessage.sender.uid)
         navigationActions.navigateTo(Route.DIRECT_MESSAGE)
       }) {
         Text(
