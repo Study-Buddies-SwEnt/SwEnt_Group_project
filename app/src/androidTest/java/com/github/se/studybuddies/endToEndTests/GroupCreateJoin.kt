@@ -1,9 +1,14 @@
 package com.github.se.studybuddies.endToEndTests
 
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
@@ -17,6 +22,8 @@ import com.github.se.studybuddies.database.ServiceLocator
 import com.github.se.studybuddies.screens.AccountSettingsScreen
 import com.github.se.studybuddies.screens.CreateAccountScreen
 import com.github.se.studybuddies.screens.CreateGroupScreen
+import com.github.se.studybuddies.screens.GroupScreen
+import com.github.se.studybuddies.screens.GroupSettingScreen
 import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.screens.LoginScreen
 import com.github.se.studybuddies.screens.SoloStudyScreen
@@ -35,11 +42,12 @@ import org.junit.runner.RunWith
 class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
   @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val mockkRule = MockKRule(this)
+  private val userUID = "E2EUserTest"
 
   @Before
   fun setUp() {
     ServiceLocator.setMockDatabase(MockDatabase())
-    ServiceLocator.setCurrentUserUID("E2EUserTest")
+    ServiceLocator.setCurrentUserUID(userUID)
     ActivityScenario.launch(MainActivity::class.java)
   }
 
@@ -47,8 +55,6 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
   fun tearDown() {
     ServiceLocator.reset()
   }
-
-  @Test fun empty() {}
 
   @Test
   fun userFlow1() {
@@ -93,11 +99,93 @@ class GroupCreateJoin : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       Espresso.closeSoftKeyboard()
       saveButton { performClick() }
     }
+    val groupUID = "groupTest2"
+
     ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      // click on a group
+      composeTestRule.waitForIdle()
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("groupTest2_box"))
+      composeTestRule.onNodeWithTag("groupTest2_box", useUnmergedTree = true).performClick()
+    }
+    ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
+      // Open the settings of the group
+      composeTestRule
+          .onNodeWithTag(groupUID + "_settings_button", useUnmergedTree = true)
+          .performClick()
+      composeTestRule
+          .onNodeWithTag(groupUID + "_Modify group_item", useUnmergedTree = true)
+          .performClick()
+    }
+    ComposeScreen.onComposeScreen<GroupSettingScreen>(composeTestRule) {
+      // Get the link of the group to share it with friends
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("share_link_column"))
+      shareLinkButton { performClick() }
+      composeTestRule
+          .onNodeWithTag("setting_lazy_column", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("share_link_text"))
+      shareLinkTextField { assertTextContains("studybuddiesJoinGroup=TestGroup2/${groupUID}") }
+      goBackButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+    }
+    ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
+      // Go back to the groupHome
+      /*
+      goBackButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+        //TODO() remove comment when gobacknav is updated
+      }
+       */
+    }
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      // Join a group via a link
+      addLinkButton {
+        assertIsDisplayed()
+        assertHasClickAction()
+        performClick()
+      }
+      val link = "studybuddiesJoinGroup=TestGroup1/groupTest1"
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("AddLinkTextField"))
+      composeTestRule
+          .onNodeWithTag("AddLinkTextField", useUnmergedTree = true)
+          .performTextInput(link)
+      composeTestRule.onNodeWithTag("AddLinkTextField", useUnmergedTree = true).performImeAction()
+    }
+    ComposeScreen.onComposeScreen<GroupScreen>(composeTestRule) {
+      // Go back to the groupHome
+      goBackButton {
+        // arrange: verify pre-conditions
+        assertIsDisplayed()
+        performClick()
+      }
+    }
+    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+      // Verify that the groups are indeed there
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("groupTest2_box"))
+      composeTestRule.onNodeWithTag("groupTest2_box", useUnmergedTree = true).assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("GroupsList", useUnmergedTree = true)
+          .performScrollToNode(hasTestTag("groupTest1_box"))
+      composeTestRule.onNodeWithTag("groupTest1_box", useUnmergedTree = true).assertIsDisplayed()
+
+      // Open the drawer menu and click on the account button
       drawerMenuButton { performClick() }
       accountButton { performClick() }
     }
     ComposeScreen.onComposeScreen<AccountSettingsScreen>(composeTestRule) {
+      // Sign out
       signOutButton {
         assertIsEnabled()
         assertHasClickAction()

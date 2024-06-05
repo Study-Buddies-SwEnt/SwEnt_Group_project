@@ -92,7 +92,7 @@ fun GroupsHome(
   var isLoading by remember { mutableStateOf(true) }
   val refresh = remember { mutableStateOf(true) }
 
-  LaunchedEffect(refresh) {
+  LaunchedEffect(refresh.value) {
     groupsHomeViewModel.fetchGroups(uid)
     Log.e("GroupsHome", "fetchGroups")
     refresh.value = false
@@ -467,32 +467,41 @@ fun AddLinkButton(navigationActions: NavigationActions, db: DbRepository) {
                   isTextFieldVisible = false
                   // add user to groups
                   val groupUID = text.substringAfterLast("/")
-                  db.groupExists(
-                      groupUID = groupUID,
-                      onSuccess = {
-                        if (it) {
-                          showSucces = true
-                          val groupVM = GroupViewModel(groupUID, db)
-                          groupVM.addUserToGroup(groupUID)
-                          navigationActions.navigateTo("${Route.GROUP}/$groupUID")
-                        } else {
+                  if (groupUID != "") {
+                    db.groupExists(
+                        groupUID = groupUID,
+                        onSuccess = {
+                          if (it) {
+                            showSucces = true
+                            val groupVM = GroupViewModel(groupUID, db)
+                            groupVM.addSelfToGroup(groupUID)
+                            navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                          } else {
+                            showError = true
+                            scope.launch {
+                              delay(2000)
+                              showError = false
+                              // Reset the text field if the entry is wrong
+                              text = ""
+                            }
+                          }
+                        },
+                        onFailure = {
                           showError = true
                           scope.launch {
                             delay(2000)
                             showError = false
-                            // Reset the text field if the entry is wrong
                             text = ""
                           }
-                        }
-                      },
-                      onFailure = {
-                        showError = true
-                        scope.launch {
-                          delay(2000)
-                          showError = false
-                          text = ""
-                        }
-                      })
+                        })
+                  } else {
+                    showError = true
+                    scope.launch {
+                      delay(2000)
+                      showError = false
+                      text = ""
+                    }
+                  }
                 }),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done))
   }

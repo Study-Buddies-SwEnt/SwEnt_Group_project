@@ -23,6 +23,8 @@ class GroupViewModel(
 ) : ViewModel() {
   private val _group = MutableLiveData(Group.empty())
   private val _members = MutableLiveData<List<User>>(emptyList())
+  private val _membersGroup = MutableLiveData<List<User>>(emptyList())
+  val membersGroup: LiveData<List<User>> = _membersGroup
   private val _member = MutableLiveData(User.empty())
   val members: LiveData<List<User>> = _members
   val member: LiveData<User> = _member
@@ -56,6 +58,20 @@ class GroupViewModel(
     }
   }
 
+  fun getAllFriends(uid: String) {
+    viewModelScope.launch {
+      val friends = db.getAllFriends(uid)
+      _members.postValue(friends)
+    }
+  }
+
+  fun getAllFriendsGroup(uid: String) {
+    viewModelScope.launch {
+      val friends = db.getAllFriends(uid)
+      _membersGroup.postValue(friends)
+    }
+  }
+
   fun createGroup(name: String, photoUri: Uri) {
     viewModelScope.launch { db.createGroup(name, photoUri) }
   }
@@ -81,8 +97,29 @@ class GroupViewModel(
     viewModelScope.launch { db.deleteGroup(groupUID) }
   }
 
-  fun addUserToGroup(groupUID: String, text: String = "") {
-    viewModelScope.launch { db.addUserToGroup(groupUID, text) }
+  fun addUserToGroup(groupUID: String, text: String = "", callBack: (Boolean) -> Unit) {
+    viewModelScope.launch {
+      db.addUserToGroup(groupUID, text) { isError -> callBack(isError) }
+      val userUID: String =
+          if (text != "") {
+            text
+          } else {
+            db.getCurrentUser().toString()
+          }
+      val newUser = db.getUser(userUID)
+      if (newUser != User.empty()) {
+        var updatedMembers = _members.value?.toMutableList()
+        if (newUser != null) {
+          updatedMembers?.add(newUser)
+        }
+        updatedMembers = updatedMembers?.toSet()?.toMutableList()
+        _members.value = updatedMembers ?: emptyList()
+      }
+    }
+  }
+
+  fun addSelfToGroup(groupUID: String) {
+    viewModelScope.launch { db.addSelfToGroup(groupUID) }
   }
 
   fun updateGroup(groupUID: String, name: String, photoURI: Uri?) {

@@ -1,6 +1,7 @@
 package com.github.se.studybuddies.navigation
 
 object Route {
+
   const val START = "Start"
   const val LOGIN = "LoginScreen"
   const val GROUPSHOME = "GroupsHome"
@@ -10,6 +11,7 @@ object Route {
   const val GROUPSETTING = "GroupSetting"
   const val LEAVEGROUP = "LeaveGroup"
   const val GROUPMEMBERS = "GroupMembers"
+  const val GROUPMEMBERADD = "GroupMemberAdd"
   const val GROUP = "Group"
   const val CALENDAR = "Calendar"
   const val SETTINGS = "Settings"
@@ -27,6 +29,7 @@ object Route {
   const val EDITTODO = "EditToDo"
   const val TOPIC = "Topic"
   const val TOPIC_SETTINGS = "Topic settings"
+  const val TOPICRESOURCES = "Topic resources"
   const val CHAT = "Chat"
   const val TOPICCREATION = " TopicCreaction"
   const val DIRECT_MESSAGE = "DirectMessage"
@@ -34,4 +37,6 @@ object Route {
   const val CALLLOBBY = "CallLobby"
   const val MAP = "Map"
   const val PLACEHOLDER = "Placeholder"
+  const val GROUPDAILYPLANNER = "GroupDailyPlanner"
+  const val GROUPCALENDAR = " GroupCalendar"
 }

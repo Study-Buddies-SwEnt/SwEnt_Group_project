@@ -108,7 +108,7 @@ fun CreateAccount(userViewModel: UserViewModel, navigationActions: NavigationAct
                           .testTag("go_back_button"))
             },
             rightButton = {})
-      }) { paddingValue ->
+      }) {
         Column(
             modifier = Modifier.fillMaxSize().testTag("create_account_column"),
             horizontalAlignment = Alignment.CenterHorizontally,

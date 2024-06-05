@@ -9,6 +9,7 @@ import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
 import com.github.se.studybuddies.data.TopicFolder
@@ -62,7 +63,16 @@ interface DbRepository {
   // using the groups & userMemberships collections
   suspend fun getAllGroups(uid: String): GroupList
 
-  suspend fun updateGroupTimer(groupUID: String, newEndTime: Long, newIsRunning: Boolean): Int
+  fun subscribeToGroupTimerUpdates(
+      groupUID: String,
+      _timerValue: MutableStateFlow<Long>,
+      _isRunning: MutableStateFlow<Boolean>,
+      ioDispatcher: CoroutineDispatcher,
+      mainDispatcher: CoroutineDispatcher,
+      onTimerStateChanged: suspend (TimerState) -> Unit
+  )
+
+  suspend fun updateGroupTimer(groupUID: String, timerState: TimerState): Int
 
   suspend fun getGroup(groupUID: String): Group
 
@@ -72,7 +82,9 @@ interface DbRepository {
 
   suspend fun createGroup(name: String, photoUri: Uri)
 
-  suspend fun addUserToGroup(groupUID: String, user: String = "")
+  suspend fun addUserToGroup(groupUID: String, user: String = "", callBack: (Boolean) -> Unit)
+
+  suspend fun addSelfToGroup(groupUID: String)
 
   fun updateGroup(groupUID: String, name: String, photoUri: Uri)
 
@@ -128,7 +140,7 @@ interface DbRepository {
   suspend fun startDirectMessage(otherUID: String): String
 
   // using the topicData and topicItemData collections
-  suspend fun getTopic(uid: String): Topic
+  suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
 
   suspend fun fetchTopicItems(listUID: List<String>): List<TopicItem>
 
@@ -150,7 +162,11 @@ interface DbRepository {
 
   fun updateTopicItem(item: TopicItem)
 
-  fun getTimerUpdates(groupUID: String, _timerValue: MutableStateFlow<Long>): Boolean
+  suspend fun getTopicFile(id: String): TopicFile
+
+  suspend fun getIsUserStrong(fileID: String, callBack: (Boolean) -> Unit)
+
+  suspend fun updateStrongUser(fileID: String, newValue: Boolean)
 
   fun updateDailyPlanners(uid: String, dailyPlanners: List<DailyPlanner>)
 
@@ -169,6 +185,10 @@ interface DbRepository {
   fun deletePrivateChat(chatID: String)
 
   fun updateContact(contactID: String, showOnMap: Boolean)
+
+  fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
+
+  suspend fun getTopicFileImages(fileID: String): List<Uri>
 
   companion object {
     const val topic_name = "name"

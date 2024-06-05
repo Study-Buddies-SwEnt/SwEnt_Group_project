@@ -55,7 +55,7 @@ fun TopicSettings(
 ) {
 
   if (topicUID.isEmpty()) return
-  topicViewModel.fetchTopicData(topicUID)
+  topicViewModel.fetchTopicData(topicUID) {}
   val topicData by topicViewModel.topic.collectAsState()
 
   val nameState = remember { mutableStateOf(topicData.name) }
@@ -98,8 +98,9 @@ fun TopicSettings(
 
               Spacer(modifier = Modifier.padding(20.dp))
               SaveButton(nameState) {
-                topicViewModel.updateTopicName(nameState.value)
-                navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                topicViewModel.updateTopicName(nameState.value) {
+                  navigationActions.navigateTo("${Route.GROUP}/$groupUID")
+                }
               }
               Button(
                   onClick = { alertVisible.value = true },

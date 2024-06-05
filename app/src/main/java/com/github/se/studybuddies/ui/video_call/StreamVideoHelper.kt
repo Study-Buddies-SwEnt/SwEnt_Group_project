@@ -12,6 +12,7 @@ import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 
+/** A helper class to initialise the [StreamVideo] SDK. */
 enum class InitializedState {
   NOT_STARTED,
   RUNNING,
@@ -32,6 +33,7 @@ object StreamVideoInitHelper {
     context = appContext.applicationContext
   }
 
+  /** A helper function that will reload and initialize a new [StreamVideo] SDK. */
   suspend fun reloadSdk() {
     StreamVideo.removeClient()
     loadSdk()
@@ -63,7 +65,9 @@ object StreamVideoInitHelper {
       if (loggedInUser != null) {
         StreamVideoBuilder(
                 context = context,
-                apiKey = "x52wgjq8qyfc",
+                apiKey =
+                    "x52wgjq8qyfc", // shouldn't be in the clear but we were told not to prioritise
+                // solving this security issue so close to the last milestone
                 user =
                     User(
                         id = loggedInUser.uid,

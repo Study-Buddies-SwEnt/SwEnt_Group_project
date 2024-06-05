@@ -1,9 +1,9 @@
 package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,6 +28,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,8 +82,15 @@ fun GroupMembers(
   val nameState = remember { mutableStateOf(groupData?.name ?: "") }
   val members = remember { groupData?.let { mutableStateOf(it.members) } }
 
+  val isBoxVisible = remember { mutableStateOf(false) }
+  groupData?.let { nameState.value = it.name }
+
+  groupViewModel.fetchUsers()
+  val userData by groupViewModel.members.observeAsState()
+
   val currUser = groupViewModel.getCurrentUser()
 
+  /*
   var nbMember = 0
   groupData?.let {
     nameState.value = it.name
@@ -104,6 +113,7 @@ fun GroupMembers(
     }
   }
   userDatas.value = userDatas.value.toSet().toMutableList()
+     */
 
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("members_scaffold"),
@@ -118,7 +128,10 @@ fun GroupMembers(
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
-        ) {
+        ) {}
+        if (isBoxVisible.value) {
+          ShowContact(groupUID, groupViewModel, isBoxVisible)
+        } else {
           LazyColumn(
               modifier =
                   Modifier.fillMaxSize().padding(paddingValues).testTag("draw_member_column"),
@@ -126,9 +139,13 @@ fun GroupMembers(
               horizontalAlignment = Alignment.CenterHorizontally) {
                 item { Name(nameState) }
                 item { Spacer(modifier = Modifier.padding(5.dp)) }
-                if (members != null) {
-                  items(userDatas.value) { member ->
-                    MemberItem(groupUID, member, navigationActions, db, userDatas, currUser)
+                item { AddMemberButtonUID(groupUID, groupViewModel) }
+                item { AddMemberButtonList(isBoxVisible) }
+                item { Spacer(modifier = Modifier.padding(5.dp)) }
+                if (userData?.size!! > 0) {
+                  items(userData!!.size) { index ->
+                    val user = userData!![index]
+                    MemberItem(groupUID, navigationActions, db, user, currUser)
                   }
                 } else { // Should never happen
                   item {
@@ -138,7 +155,6 @@ fun GroupMembers(
                         modifier = Modifier.testTag("EmptyGroupMemberText"))
                   }
                 }
-                // item { add member button } will be added later
               }
         }
       }
@@ -156,10 +172,9 @@ fun Name(nameState: MutableState<String>) {
 @Composable
 fun MemberItem(
     groupUID: String,
-    user: User,
     navigationActions: NavigationActions,
     db: DbRepository,
-    userDatas: MutableState<MutableList<User>>,
+    userData: User,
     currUser: String
 ) {
   Box(
@@ -171,24 +186,24 @@ fun MemberItem(
                 val y = size.height - strokeWidth / 2
                 drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
               }
-              .testTag(user.username + "_box")) {
+              .testTag(userData.username + "_box")) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
             Image(
-                painter = rememberAsyncImagePainter(user.photoUrl),
+                painter = rememberAsyncImagePainter(userData.photoUrl),
                 contentDescription = stringResource(id = R.string.user_picture),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop)
           }
           Spacer(modifier = Modifier.size(16.dp))
           Text(
-              text = user.username,
+              text = userData.username,
               modifier = Modifier.align(Alignment.CenterVertically),
               style = TextStyle(fontSize = 20.sp),
               lineHeight = 28.sp)
           Spacer(modifier = Modifier.weight(1f))
           MemberOptionButton(
-              groupUID, user.uid, user.username, navigationActions, db, userDatas, currUser)
+              groupUID, userData.uid, userData.username, navigationActions, db, currUser)
         }
       }
 }
@@ -200,7 +215,6 @@ fun MemberOptionButton(
     username: String,
     navigationActions: NavigationActions,
     db: DbRepository,
-    userDatas: MutableState<MutableList<User>>,
     currUser: String
 ) {
   var isRemoveUserDialogVisible by remember { mutableStateOf(false) }
@@ -256,18 +270,15 @@ fun MemberOptionButton(
                         Button(
                             onClick = {
                               groupViewModel.leaveGroup(groupUID, userUID)
-                              if (userUID != currUser) {
-                                userDatas.value =
-                                    userDatas.value.filter { it.uid != userUID }.toMutableList()
+                              if (userUID == currUser) {
                                 navigationActions.navigateTo(Route.GROUPSHOME)
-                                navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
                               } else {
-                                navigationActions.navigateTo(Route.GROUPSHOME)
+                                navigationActions.navigateTo("${Route.GROUPMEMBERS}/$groupUID")
                               }
                               isRemoveUserDialogVisible = false
                             },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Color.Red, contentColor = White)) {
@@ -277,7 +288,7 @@ fun MemberOptionButton(
                         Button(
                             onClick = { isRemoveUserDialogVisible = false },
                             modifier =
-                                Modifier.clip(RoundedCornerShape(5.dp)).width(80.dp).height(40.dp),
+                                Modifier.clip(RoundedCornerShape(4.dp)).width(80.dp).height(40.dp),
                             colors =
                                 ButtonDefaults.buttonColors(
                                     containerColor = Blue, contentColor = White)) {
@@ -288,4 +299,97 @@ fun MemberOptionButton(
           }
     }
   }
+}
+
+@Composable
+fun AddMemberButtonList(isBoxVisible: MutableState<Boolean>) {
+
+  Column {
+    Button(
+        onClick = { isBoxVisible.value = true },
+        shape = MaterialTheme.shapes.medium,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Blue,
+            )) {
+          Text(stringResource(R.string.add_member_from_list), color = Color.White)
+        }
+  }
+}
+
+@Composable
+fun ShowContact(
+    groupUID: String,
+    groupViewModel: GroupViewModel,
+    isBoxVisible: MutableState<Boolean>
+) {
+  groupViewModel.getAllFriendsGroup(groupViewModel.getCurrentUser())
+  val members by groupViewModel.membersGroup.observeAsState()
+  members?.let {
+    Box(modifier = Modifier.fillMaxSize()) {
+      LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item { Spacer(modifier = Modifier.height(64.dp)) }
+        item {
+          Box(modifier = Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = { isBoxVisible.value = false },
+                modifier = Modifier.align(Alignment.TopEnd).testTag("close_contact_list")) {
+                  Icon(
+                      imageVector = Icons.Default.Close,
+                      modifier = Modifier.size(40.dp),
+                      contentDescription = "Close friends List",
+                  )
+                }
+          }
+        }
+        if (members!!.isEmpty()) {
+          item {
+            Text(
+                text = stringResource(R.string.loadingP),
+                modifier = Modifier.fillMaxWidth().padding(16.dp))
+          }
+        }
+        item { Spacer(modifier = Modifier.height(4.dp)) }
+        items(members!!) { member -> ShowOneUser(member, groupViewModel, groupUID, isBoxVisible) }
+      }
+    }
+  }
+}
+
+@Composable
+fun ShowOneUser(
+    user: User,
+    groupViewModel: GroupViewModel,
+    groupUID: String,
+    isBoxVisible: MutableState<Boolean>
+) {
+  Box(
+      modifier =
+          Modifier.clickable {
+                groupViewModel.addUserToGroup(groupUID, user.uid) {}
+                isBoxVisible.value = false
+              }
+              .fillMaxWidth()
+              .background(Color.White)
+              .drawBehind {
+                val strokeWidth = 4f
+                val y = size.height - strokeWidth / 2
+                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
+              }) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
+            Image(
+                painter = rememberAsyncImagePainter(user.photoUrl),
+                contentDescription = stringResource(id = R.string.user_picture),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop)
+          }
+          Spacer(modifier = Modifier.size(16.dp))
+          Text(
+              text = user.username,
+              modifier = Modifier.align(Alignment.CenterVertically),
+              style = TextStyle(fontSize = 20.sp),
+              lineHeight = 28.sp)
+        }
+      }
 }

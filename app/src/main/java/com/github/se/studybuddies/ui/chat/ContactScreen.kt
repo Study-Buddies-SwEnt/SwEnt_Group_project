@@ -2,10 +2,7 @@ package com.github.se.studybuddies.ui.chat
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,18 +35,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.shared_elements.DeleteButton
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.SaveButton
@@ -73,7 +68,6 @@ fun ContactScreen(
 
   var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
 
-  val contactTestID = "Ha5sJPd71PFs1lYedpCy"
   val currentUserID = userViewModel.getCurrentUserUID()
   val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
   val contactData by contactsViewModel.contact.observeAsState()
@@ -85,8 +79,6 @@ fun ContactScreen(
 
   val showOnMapState = remember { mutableStateOf(contactData?.showOnMap ?: false) }
 
-  val context = LocalContext.current
-
   otherUserData?.let {
     nameState.value = it.username
     Log.d("contact", "otherUserData username is ${nameState.value}")
@@ -94,25 +86,6 @@ fun ContactScreen(
   }
 
   contactData?.let { showOnMapState.value = it.showOnMap }
-
-  val getContent =
-      rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { profilePictureUris -> photoState.value = profilePictureUris }
-      }
-  val imageInput = "image/*"
-
-  val requestPermissionLauncher =
-      rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-          getContent.launch(imageInput)
-        }
-      }
-  var permission = imagePermissionVersion()
-  // Check if the Android version is lower than TIRAMISU API 33
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    // For older Android versions, use READ_EXTERNAL_STORAGE permission
-    permission = "android.permission.READ_EXTERNAL_STORAGE"
-  }
 
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("modify_group_scaffold"),
@@ -124,7 +97,7 @@ fun ContactScreen(
               IconButton(onClick = { navigationActions.navigateTo(Route.PLACEHOLDER) }) {
                 Icon(
                     modifier = Modifier.size(20.dp),
-                    painter = painterResource(R.drawable.video_call),
+                    painter = painterResource(R.drawable.active_call),
                     contentDescription = "",
                     tint = Blue)
               }
@@ -145,7 +118,7 @@ fun ContactScreen(
                     item { Spacer(modifier = Modifier.padding(10.dp)) }
                     item {
                       Image(
-                          painter = rememberImagePainter(photoState.value),
+                          painter = rememberAsyncImagePainter(photoState.value),
                           contentDescription = "Profile Picture",
                           modifier =
                               Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)),

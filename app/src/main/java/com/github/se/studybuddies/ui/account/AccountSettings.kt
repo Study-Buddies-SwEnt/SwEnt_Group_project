@@ -94,7 +94,7 @@ fun AccountSettings(
             title = { Sub_title(title = stringResource(R.string.profile_setting)) },
             leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
-      }) { paddingValue ->
+      }) {
         Column(
             modifier = Modifier.fillMaxSize().testTag("account_settings_column"),
             horizontalAlignment = Alignment.CenterHorizontally,
