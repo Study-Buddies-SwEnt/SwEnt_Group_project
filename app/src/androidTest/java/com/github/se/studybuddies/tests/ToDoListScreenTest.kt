@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.data.todo.ToDo
+import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.screens.GroupsHomeScreen
@@ -114,18 +115,17 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
   fun testSetup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     toDoListViewModel = ToDoListViewModel(context)
-    toDoListViewModel.addToDo(testTask)
     composeTestRule.setContent { ToDoListScreen(toDoListViewModel, mockNavActions) }
   }
 
   @Test
-  fun assessEmptyGroup() {
-    ComposeScreen.onComposeScreen<GroupsHomeScreen>(composeTestRule) {
+  fun assessEmptyList() {
+    ComposeScreen.onComposeScreen<ToDoListScreen>(composeTestRule) {
       // As the tests don't have waiting time, the circular loading is never displayed
-      groupBox { assertDoesNotExist() }
-      circularLoading { assertDoesNotExist() }
-      groupScreenEmpty { assertIsDisplayed() }
-      emptyGroupText { assertIsDisplayed() }
+      noTaskText { assertIsDisplayed() }
+      todoListColumn { assertDoesNotExist() }
+      topAppBox{assertIsDisplayed()}
+      customSearchBar { assertIsDisplayed() }
     }
   }
 
