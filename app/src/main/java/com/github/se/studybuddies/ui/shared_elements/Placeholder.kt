@@ -27,9 +27,7 @@ fun Placeholder(navigationActions: NavigationActions) {
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "") },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       },
   ) {

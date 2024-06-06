@@ -11,6 +11,8 @@ import com.github.se.studybuddies.database.DbRepository
 import com.github.se.studybuddies.database.ServiceLocator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -20,6 +22,8 @@ class UserViewModel(
 ) : ViewModel() {
   private val _userData = MutableLiveData<User>()
   val userData: LiveData<User> = _userData
+  private val _userUid = MutableStateFlow<String>(uid ?: "")
+  val userID: StateFlow<String> = _userUid
 
   init {
     if (uid != null) {
@@ -30,6 +34,12 @@ class UserViewModel(
     }
   }
 
+  fun setUserUID(userUID: String) {
+    if (_userUid.value != userUID) {
+      _userUid.value = userUID
+    }
+  }
+
   fun getCurrentUserUID(): String {
     val currentUserUID = db.getCurrentUserUID()
     Log.d("UserVM", "Current UID fetched from UserViewModel is $currentUserUID")
@@ -37,7 +47,9 @@ class UserViewModel(
   }
 
   fun fetchUserData(uid: String) {
+    Log.d("UserVM", "fetched user data for id $uid")
     viewModelScope.launch { _userData.value = db.getUser(uid) }
+    Log.d("UserVM", "userData.value is ${_userData.value}")
   }
 
   suspend fun getDefaultProfilePicture(): Uri {
@@ -71,5 +83,11 @@ class UserViewModel(
 
   fun isFakeDatabase(): Boolean {
     return db.isFakeDatabase()
+  }
+
+  fun getUser(userID: String): User {
+    var user = User.empty()
+    viewModelScope.launch { user = db.getUser(userID)!! }
+    return user
   }
 }

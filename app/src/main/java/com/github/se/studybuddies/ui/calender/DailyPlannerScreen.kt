@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,17 +39,14 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Sub_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.CalendarViewModel
-import kotlin.math.*
 
 @Composable
 fun DailyPlannerScreen(
@@ -77,7 +72,7 @@ fun DailyPlannerScreen(
   PlannerScreen(
       date = date,
       title = stringResource(id = R.string.daily_planner_title),
-      navigationIcon = { GoBackRouteButton(navigationActions, Route.CALENDAR) },
+      navigationIcon = { GoBackRouteButton(navigationActions) },
       onDeleteModeToggle = { deleteMode = !deleteMode },
       isDeleteMode = deleteMode,
       goals = goals,

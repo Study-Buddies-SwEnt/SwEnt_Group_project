@@ -66,18 +66,27 @@ fun ContactScreen(
     directMessagesViewModel: DirectMessagesViewModel
 ) {
 
-  var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
+  contactsViewModel.fetchContactData(contactID)
 
   val currentUserID = userViewModel.getCurrentUserUID()
-  val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
+  // val otherUserID = contactsViewModel.getOtherUser(contactID, currentUserID)
+
   val contactData by contactsViewModel.contact.observeAsState()
-  userViewModel.fetchUserData(otherUserID)
+  val otherUID = contactData?.getOtherUser(currentUserID) ?: ""
+  Log.d("contact", "otheruserID is $otherUID")
+
+  userViewModel.fetchUserData(otherUID)
   val otherUserData by userViewModel.userData.observeAsState()
 
-  val nameState = remember { mutableStateOf(otherUserData?.username ?: "") }
+  Log.d("contact", "otheruserdata is $otherUserData")
+  Log.d("contact", "contactdata is $contactData")
+
+  val nameState = remember { mutableStateOf(otherUserData?.username ?: "username_error") }
   val photoState = remember { mutableStateOf(otherUserData?.photoUrl ?: Uri.EMPTY) }
 
   val showOnMapState = remember { mutableStateOf(contactData?.showOnMap ?: false) }
+
+  var isDeleteContactDialogVisible by remember { mutableStateOf(false) }
 
   otherUserData?.let {
     nameState.value = it.username
@@ -129,7 +138,7 @@ fun ContactScreen(
                     item { Spacer(modifier = Modifier.padding(0.dp)) }
                     item {
                       SaveButton(nameState) {
-                        contactsViewModel.updateContact(contactID, showOnMapState.value)
+                        contactsViewModel.updateContactShowOnMap(contactID, showOnMapState.value)
                         navigationActions.navigateTo(Route.CHAT)
                       }
                     }

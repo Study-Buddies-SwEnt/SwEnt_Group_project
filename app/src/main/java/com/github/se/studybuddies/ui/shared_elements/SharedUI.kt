@@ -266,8 +266,7 @@ fun GoBackRouteButton(
   Icon(
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
       contentDescription = stringResource(id = R.string.go_back),
-      modifier =
-          Modifier.clickable { navigationActions.goBack()}.testTag("go_back_button"))
+      modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
 @Composable

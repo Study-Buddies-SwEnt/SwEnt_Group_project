@@ -71,7 +71,7 @@ class GroupScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompos
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.GROUPSHOME) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 

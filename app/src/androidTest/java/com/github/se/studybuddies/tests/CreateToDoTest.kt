@@ -7,7 +7,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.action.ViewActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.screens.CreateToDoScreen
 import com.github.se.studybuddies.ui.todo.CreateToDo
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
@@ -71,7 +70,7 @@ class CreateToDoTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCompose
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo(Route.TODOLIST) }
+    verify { mockNavActions.goBack() }
     confirmVerified(mockNavActions)
   }
 
