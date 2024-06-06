@@ -126,6 +126,7 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
       todoListColumn { assertDoesNotExist() }
       topAppBox{assertIsDisplayed()}
       customSearchBar { assertIsDisplayed() }
+      addToDoButton{assertIsDisplayed()}
     }
   }
 
