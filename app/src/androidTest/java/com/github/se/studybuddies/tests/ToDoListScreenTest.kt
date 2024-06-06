@@ -121,7 +121,7 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
       composeTestRule
           .onNodeWithTag("testTodo1_name", useUnmergedTree = true)
           .assertExists()
-          .assertTextContains("Name")
+          .assertTextContains("Name1")
       composeTestRule.onNodeWithTag("testTodo1_status_text", useUnmergedTree = true).assertExists()
       composeTestRule
           .onNodeWithTag("testTodo1_status_button", useUnmergedTree = true)
