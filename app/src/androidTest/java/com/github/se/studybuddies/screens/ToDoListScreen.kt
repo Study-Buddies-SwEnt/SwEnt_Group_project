@@ -31,4 +31,6 @@ class ToDoListScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val customSearchBar: KNode = topAppBar.child { hasTestTag("custom_search_bar") }
   val searchBarIcon: KNode = customSearchBar.child { hasTestTag("custom_search_bar_icon") }
   val searchBarCLear: KNode = customSearchBar.child { hasTestTag("custom_search_bar_clear") }
+  val searchNoResult: KNode = customSearchBar.child { hasTestTag("no_result_text") }
+
 }
