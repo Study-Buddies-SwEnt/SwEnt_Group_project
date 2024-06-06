@@ -36,7 +36,10 @@ fun Placeholder(navigationActions: NavigationActions) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           Spacer(modifier = Modifier.height(120.dp))
-          Text(stringResource(R.string.feature_not_implemented_yet), textAlign = TextAlign.Center, modifier= M)
+          Text(
+              stringResource(R.string.feature_not_implemented_yet),
+              textAlign = TextAlign.Center,
+              modifier = Modifier.testTag("placeholder_text"))
         }
   }
 }
