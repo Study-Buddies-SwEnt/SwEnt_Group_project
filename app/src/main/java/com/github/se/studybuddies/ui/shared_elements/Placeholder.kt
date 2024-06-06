@@ -23,7 +23,7 @@ import com.github.se.studybuddies.navigation.NavigationActions
 fun Placeholder(navigationActions: NavigationActions) {
 
   Scaffold(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("placeholder_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "") },
@@ -32,11 +32,11 @@ fun Placeholder(navigationActions: NavigationActions) {
       },
   ) {
     Column(
-        modifier = Modifier.fillMaxSize().testTag("timer_column"),
+        modifier = Modifier.fillMaxSize().testTag("placeholder_column"),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           Spacer(modifier = Modifier.height(120.dp))
-          Text(stringResource(R.string.feature_not_implemented_yet), textAlign = TextAlign.Center)
+          Text(stringResource(R.string.feature_not_implemented_yet), textAlign = TextAlign.Center, modifier= M)
         }
   }
 }
