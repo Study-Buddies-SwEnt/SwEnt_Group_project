@@ -124,7 +124,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
             })
       },
       content = { innerPadding ->
-        if (todoList.value.isEmpty()) {
+        if (todoList.value.isEmpty() && searchQuery.isEmpty()) {
           Text(
               text = "You have no tasks yet. Create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),

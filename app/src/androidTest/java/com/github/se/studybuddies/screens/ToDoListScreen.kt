@@ -19,6 +19,7 @@ class ToDoListScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val todoListColumn: KNode = onNode { hasTestTag("todo_list_col") }
 
   val testTodo1Box: KNode = todoListColumn.child { hasTestTag("testTodo1_box") }
+  val testTodo2Box: KNode = todoListColumn.child { hasTestTag("testTodo2_box") }
   val testTodo1Row: KNode = testTodo1Box.child { hasTestTag("testTodo1_row") }
   val testTodo1Column: KNode = testTodo1Row.child { hasTestTag("testTodo1_column") }
   val testTodo1Date: KNode = testTodo1Column.child { hasTestTag("testTodo1_date") }

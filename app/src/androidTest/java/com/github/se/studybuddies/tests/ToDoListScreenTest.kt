@@ -6,15 +6,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.se.studybuddies.data.todo.ToDo
-import com.github.se.studybuddies.data.todo.ToDoList
 import com.github.se.studybuddies.data.todo.ToDoStatus
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
-import com.github.se.studybuddies.screens.GroupsHomeScreen
 import com.github.se.studybuddies.screens.ToDoListScreen
-import com.github.se.studybuddies.ui.groups.GroupsHome
 import com.github.se.studybuddies.ui.todo.ToDoListScreen
-import com.github.se.studybuddies.viewModels.GroupsHomeViewModel
 import com.github.se.studybuddies.viewModels.ToDoListViewModel
 import com.kaspersky.components.composesupport.config.withComposeSupport
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
@@ -48,14 +44,20 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
   lateinit var mockNavActions: NavigationActions
   private lateinit var toDoListViewModel: ToDoListViewModel
 
-  private val testID = "testTodo1"
-  private val testTask = ToDo(testID, "Name", LocalDate.now(), "Description", ToDoStatus.CREATED)
+  private val testID1 = "testTodo1"
+  private val testID2 = "testTodo2"
+  private val testDescriptions = "description"
+  private val testTask1 = ToDo(testID1, "Name1", LocalDate.now(), testDescriptions, ToDoStatus.CREATED)
+  private val testTask2 = ToDo(testID2, "Name2", LocalDate.now(), testDescriptions, ToDoStatus.CREATED)
+
+
 
   @Before
   fun testSetup() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     toDoListViewModel = ToDoListViewModel(context)
-    toDoListViewModel.addToDo(testTask)
+    toDoListViewModel.addToDo(testTask1)
+    toDoListViewModel.addToDo(testTask2)
     composeTestRule.setContent { ToDoListScreen(toDoListViewModel, mockNavActions) }
   }
 
@@ -96,10 +98,12 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
       }
       todoListColumn {
         assertIsDisplayed()
+
       }
       customSearchBar{
         assertIsDisplayed()
       }
+      noTaskText.assertIsNotDisplayed()
     }
   }
 
@@ -136,36 +140,49 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
   fun searchBarTest(){
     onComposeScreen<ToDoListScreen>(composeTestRule) {
 
+      searchBarIcon.assertIsDisplayed()
       customSearchBar{
     assertIsDisplayed()
-    assertHasClickAction()
         performClick()
-        performTextInput(testTask.name)
+        performTextClearance()
+        performTextInput(testTask1.name)
   }
-      searchBarCLear.assertIsDisplayed()
-      todoListColumn.assertIsDisplayed()
+      searchBarIcon.performClick()
+      testTodo1Box.assertIsDisplayed()
+      testTodo2Box.assertIsNotDisplayed()
+      searchNoResult.assertIsNotDisplayed()
+
+      customSearchBar{
+        assertIsDisplayed()
+        performClick()
+        performTextClearance()
+        performTextInput(testDescriptions)
+      }
+      searchBarIcon.performClick()
+      testTodo1Box.assertIsDisplayed()
+      testTodo2Box.assertIsDisplayed()
       searchNoResult.assertIsNotDisplayed()
 
       customSearchBar{
         val unlikelyName = Random.nextInt(9999999).toString()
         performClick()
+        performTextClearance()
         performTextInput(unlikelyName)
       }
-
-      searchBarIcon{
-        assertIsDisplayed()
-      performClick()}
-
-      searchNoResult{
-        assertIsDisplayed()
-        assertTextContains("No result found")
-      }
+      searchBarIcon.performClick()
+      composeTestRule.onNodeWithTag("no_result_text", useUnmergedTree = true)
+        .assertIsDisplayed()
+      noTaskText.assertIsNotDisplayed()
+      testTodo1Box.assertIsNotDisplayed()
+      testTodo2Box.assertIsNotDisplayed()
 
       searchBarCLear{
         assertIsDisplayed()
         performClick()
       }
-      todoListColumn.assertIsDisplayed()
+      searchBarIcon.performClick()
+      testTodo1Box.assertIsDisplayed()
+      testTodo2Box.assertIsDisplayed()
       searchNoResult.assertIsNotDisplayed()
 
     }}
@@ -180,7 +197,7 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
       }
     }
     // assert: the nav action has been called
-    verify { mockNavActions.navigateTo("${Route.EDITTODO}/$testID") }
+    verify { mockNavActions.navigateTo("${Route.EDITTODO}/$testID1") }
     confirmVerified(mockNavActions)
     }
 
@@ -190,7 +207,7 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
     fun taskStatusTest(){
       onComposeScreen<ToDoListScreen>(composeTestRule) {
 
-        assert(testTask.status == ToDoStatus.CREATED)
+        assert(testTask1.status == ToDoStatus.CREATED)
         composeTestRule.onNodeWithTag("testTodo1_status_text", useUnmergedTree = true)
           .assertTextContains(ToDoStatus.CREATED.name)
         composeTestRule.onNodeWithTag("testTodo1_status_box", useUnmergedTree = true)
@@ -200,7 +217,7 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
         verify { mockNavActions.navigateTo(Route.TODOLIST) }
         confirmVerified(mockNavActions)
 
-          toDoListViewModel.fetchTodoByUID(testID)
+          toDoListViewModel.fetchTodoByUID(testID1)
           assert(toDoListViewModel.todo.value.status == ToDoStatus.STARTED)
           composeTestRule.onNodeWithTag("testTodo1_status_text", useUnmergedTree = true)
             .assertExists()
@@ -211,7 +228,7 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
           confirmVerified(mockNavActions)
 
 
-          toDoListViewModel.fetchTodoByUID(testID)
+          toDoListViewModel.fetchTodoByUID(testID1)
           assert(toDoListViewModel.todo.value.status == ToDoStatus.DONE)
           composeTestRule.onNodeWithTag("testTodo1_status_text", useUnmergedTree = true)
                .assertExists()
@@ -249,8 +266,12 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
 
   @Test
   fun assessEmptyList() {
-    ComposeScreen.onComposeScreen<ToDoListScreen>(composeTestRule) {
-      // As the tests don't have waiting time, the circular loading is never displayed
+    onComposeScreen<ToDoListScreen>(composeTestRule) {
+      customSearchBar{
+        performClick()
+        performTextClearance()
+      }
+
       noTaskText { assertIsDisplayed()
       assertTextContains("You have no tasks yet. Create one.")}
       todoListColumn { assertDoesNotExist() }
