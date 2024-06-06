@@ -17,9 +17,9 @@ var fakeUser1 =
         username = "testUser1",
         photoUrl = Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
         location = "offline")
-var fakeUser2 =
+var fakeUserAlone =
     User(
-        uid = "userTest2",
+        uid = "aloneUserTest",
         email = "test2@gmail.com",
         username = "testUser2",
         photoUrl = Uri.parse("https://images.pexels.com/photos/6031345/pexels-photo-6031345.jpeg"),
@@ -88,9 +88,10 @@ val fakeGroup1 =
 val fakeContact1 =
     Contact(
         id = "contactTest1",
-        members = mutableListOf(fakeUser1.uid, fakeUser2.uid),
+        members = mutableListOf(fakeUser1.uid, fakeUser3.uid),
         showOnMap = true,
         hasStartedDM = false)
+
 val fakeGroup2 =
     Group(
         uid = "groupTest2",
@@ -104,14 +105,14 @@ val fakeGroup2 =
 val fakeUserDataCollection =
     mutableMapOf<String, User>().apply {
       put(fakeUser1.uid, fakeUser1)
-      put(fakeUser2.uid, fakeUser2)
+      put(fakeUserAlone.uid, fakeUserAlone)
       put(fakeUser3.uid, fakeUser3)
     }
 
 val fakeUserMembershipsCollection =
     mutableMapOf<String, MutableList<String>>().apply {
       put(fakeUser1.uid, mutableListOf(fakeGroup1.uid))
-      put(fakeUser2.uid, mutableListOf<String>())
+      put(fakeUserAlone.uid, mutableListOf<String>())
       put(fakeUser3.uid, mutableListOf(fakeGroup2.uid))
     }
 
@@ -121,13 +122,14 @@ val fakeContactDataCollection =
 val fakeUserContactCollection =
     mutableMapOf<String, MutableList<String>>().apply {
       put(fakeUser1.uid, mutableListOf(fakeContact1.id))
-      put(fakeUser2.uid, mutableListOf(fakeContact1.id))
+      put(fakeUserAlone.uid, mutableListOf())
     }
 
 val fakeUserRequestCollection =
     mutableMapOf<String, MutableList<String>>().apply {
-      put(fakeUser1.uid, mutableListOf(fakeUser2.uid, fakeUser3.uid))
-      put(fakeUser2.uid, mutableListOf(fakeUser1.uid))
+      put(fakeUser1.uid, mutableListOf(fakeUserAlone.uid, fakeUser3.uid))
+      put(fakeUserAlone.uid, mutableListOf())
+      put(fakeUser3.uid, mutableListOf(fakeUser1.uid))
     }
 
 val fakeGroupDataCollection =
