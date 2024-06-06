@@ -104,7 +104,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
       },
       topBar = {
         TopNavigationBar(
-            title = { Sub_title(title = "To do") },
+            title = { Sub_title(title = "Tasks") },
             leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {
               CustomSearchBar(
@@ -122,7 +122,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
             })
       },
       content = { innerPadding ->
-        if (todoList.value.isEmpty()) {
+        if (todoList.value.isEmpty() && searchQuery.isEmpty()) {
           Text(
               text = "You have no tasks yet. Create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
@@ -166,9 +166,9 @@ fun ToDoItem(
                 val todoUID = todo.uid
                 navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
               }
-              .testTag("${todo.uid} + _box")) {
+              .testTag(todo.uid + "_box")) {
         Row(
-            modifier = Modifier.fillMaxWidth().testTag("${todo.uid} + _row"),
+            modifier = Modifier.fillMaxWidth().testTag(todo.uid + "_row"),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
               Column(
@@ -176,7 +176,7 @@ fun ToDoItem(
                       Modifier.fillMaxHeight()
                           .fillMaxWidth(0.5F)
                           .padding(12.dp)
-                          .testTag("${todo.uid} + _column")
+                          .testTag(todo.uid + "_column")
                           .clickable {
                             val todoUID = todo.uid
                             navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
@@ -186,17 +186,17 @@ fun ToDoItem(
                     text = formatDate(todo.dueDate),
                     style = TextStyle(fontSize = 12.sp),
                     lineHeight = 16.sp,
-                    modifier = Modifier.align(Alignment.Start).testTag("${todo.uid} + _date"))
+                    modifier = Modifier.align(Alignment.Start).testTag(todo.uid + "_date"))
                 Text(
                     text = todo.name,
                     style = TextStyle(fontSize = 16.sp),
                     lineHeight = 28.sp,
-                    modifier = Modifier.align(Alignment.Start).testTag("${todo.uid} + _name"))
+                    modifier = Modifier.align(Alignment.Start).testTag(todo.uid + "_name"))
               }
               Text(
                   text = todo.status.name,
                   style = TextStyle(fontSize = 18.sp, color = statusColor(todo.status)),
-                  modifier = Modifier.testTag("${todo.uid} + _status_text"))
+                  modifier = Modifier.testTag(todo.uid + "_status_text"))
               Box(
                   modifier =
                       Modifier.size(60.dp)
@@ -285,7 +285,7 @@ fun CustomSearchBar(
       supportingText = {
         if (noResultFound) {
           Text(
-              text = "No result found",
+              text = "${R.string.no_result_found}",
               style =
                   TextStyle(
                       fontSize = 16.sp,
