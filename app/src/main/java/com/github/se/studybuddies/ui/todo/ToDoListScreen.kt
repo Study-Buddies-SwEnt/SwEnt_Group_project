@@ -88,9 +88,7 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
   }
 
   Scaffold(
-      modifier = Modifier
-          .fillMaxSize()
-          .testTag("todo_list_scaffold"),
+      modifier = Modifier.fillMaxSize().testTag("todo_list_scaffold"),
       floatingActionButton = {
         FloatingActionButton(
             onClick = { navigationActions.navigateTo(Route.CREATETODO) },
@@ -129,21 +127,19 @@ fun ToDoListScreen(toDoListViewModel: ToDoListViewModel, navigationActions: Navi
               text = "You have no tasks yet. Create one.",
               style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
               modifier =
-              Modifier
-                  .padding(innerPadding)
-                  .fillMaxSize()
-                  .padding(4.dp)
-                  .wrapContentHeight(Alignment.CenterVertically)
-                  .testTag("no_task_text"),
+                  Modifier.padding(innerPadding)
+                      .fillMaxSize()
+                      .padding(4.dp)
+                      .wrapContentHeight(Alignment.CenterVertically)
+                      .testTag("no_task_text"),
               textAlign = TextAlign.Center)
         } else {
           LazyColumn(
               modifier =
-              Modifier
-                  .padding(horizontal = 6.dp, vertical = 80.dp)
-                  .fillMaxSize()
-                  .background(LightBlue)
-                  .testTag("todo_list_col"),
+                  Modifier.padding(horizontal = 6.dp, vertical = 80.dp)
+                      .fillMaxSize()
+                      .background(LightBlue)
+                      .testTag("todo_list_col"),
               verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
               horizontalAlignment = Alignment.CenterHorizontally,
               content = {
@@ -163,47 +159,39 @@ fun ToDoItem(
 ) {
   Box(
       modifier =
-      Modifier
-          .background(color = White, shape = RoundedCornerShape(size = 10.dp))
-          .border(color = Blue, width = 2.dp, shape = RoundedCornerShape(size = 10.dp))
-          .fillMaxWidth()
-          .clickable {
-              val todoUID = todo.uid
-              navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
-          }
-          .testTag(todo.uid + "_box")) {
+          Modifier.background(color = White, shape = RoundedCornerShape(size = 10.dp))
+              .border(color = Blue, width = 2.dp, shape = RoundedCornerShape(size = 10.dp))
+              .fillMaxWidth()
+              .clickable {
+                val todoUID = todo.uid
+                navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
+              }
+              .testTag(todo.uid + "_box")) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(todo.uid + "_row"),
+            modifier = Modifier.fillMaxWidth().testTag(todo.uid + "_row"),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically) {
               Column(
                   modifier =
-                  Modifier
-                      .fillMaxHeight()
-                      .fillMaxWidth(0.5F)
-                      .padding(12.dp)
-                      .testTag(todo.uid + "_column")
-                      .clickable {
-                          val todoUID = todo.uid
-                          navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
-                      },
+                      Modifier.fillMaxHeight()
+                          .fillMaxWidth(0.5F)
+                          .padding(12.dp)
+                          .testTag(todo.uid + "_column")
+                          .clickable {
+                            val todoUID = todo.uid
+                            navigationActions.navigateTo("${Route.EDITTODO}/$todoUID")
+                          },
               ) {
                 Text(
                     text = formatDate(todo.dueDate),
                     style = TextStyle(fontSize = 12.sp),
                     lineHeight = 16.sp,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .testTag(todo.uid + "_date"))
+                    modifier = Modifier.align(Alignment.Start).testTag(todo.uid + "_date"))
                 Text(
                     text = todo.name,
                     style = TextStyle(fontSize = 16.sp),
                     lineHeight = 28.sp,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .testTag(todo.uid + "_name"))
+                    modifier = Modifier.align(Alignment.Start).testTag(todo.uid + "_name"))
               }
               Text(
                   text = todo.status.name,
@@ -211,16 +199,15 @@ fun ToDoItem(
                   modifier = Modifier.testTag(todo.uid + "_status_text"))
               Box(
                   modifier =
-                  Modifier
-                      .size(60.dp)
-                      .clickable {
-                          nextStatus(todo)
-                          toDoListViewModel.updateToDo(todo.uid, todo)
-                          navigationActions.navigateTo(Route.TODOLIST)
-                      }
-                      .background(Color.Transparent)
-                      .padding(8.dp)
-                      .testTag(todo.uid + "_status_box"),
+                      Modifier.size(60.dp)
+                          .clickable {
+                            nextStatus(todo)
+                            toDoListViewModel.updateToDo(todo.uid, todo)
+                            navigationActions.navigateTo(Route.TODOLIST)
+                          }
+                          .background(Color.Transparent)
+                          .padding(8.dp)
+                          .testTag(todo.uid + "_status_box"),
                   contentAlignment = Alignment.Center) {
                     Button(
                         onClick = {},
@@ -231,13 +218,12 @@ fun ToDoItem(
                                 Color.Transparent,
                                 Color.Transparent),
                         modifier =
-                        Modifier
-                            .width(20.dp)
-                            .height(20.dp)
-                            .background(color = Color.Transparent, shape = CircleShape)
-                            .border(BorderStroke(width = 4.dp, Blue), shape = CircleShape)
-                            .padding(40.dp)
-                            .testTag(todo.uid + "_status_button")) {}
+                            Modifier.width(20.dp)
+                                .height(20.dp)
+                                .background(color = Color.Transparent, shape = CircleShape)
+                                .border(BorderStroke(width = 4.dp, Blue), shape = CircleShape)
+                                .padding(40.dp)
+                                .testTag(todo.uid + "_status_button")) {}
                   }
             }
       }
@@ -260,11 +246,10 @@ fun CustomSearchBar(
       placeholder = { Text("Search a Task", color = Blue, fontSize = 20.sp) },
       singleLine = true,
       modifier =
-      Modifier
-          .padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
-          .width(360.dp)
-          .height(80.dp)
-          .testTag("custom_search_bar"),
+          Modifier.padding(start = 26.dp, top = 26.dp, end = 26.dp, bottom = 8.dp)
+              .width(360.dp)
+              .height(80.dp)
+              .testTag("custom_search_bar"),
       shape = RoundedCornerShape(28.dp),
       colors =
           TextFieldDefaults.outlinedTextFieldColors(
@@ -282,9 +267,7 @@ fun CustomSearchBar(
               Icon(
                   painterResource(R.drawable.search),
                   contentDescription = null,
-                  modifier = Modifier
-                      .padding(8.dp)
-                      .size(52.dp))
+                  modifier = Modifier.padding(8.dp).size(52.dp))
             }
       },
       trailingIcon = {
@@ -295,9 +278,7 @@ fun CustomSearchBar(
                 Icon(
                     Icons.Default.Clear,
                     contentDescription = null,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(30.dp))
+                    modifier = Modifier.padding(8.dp).size(30.dp))
               }
         }
       },
@@ -310,9 +291,7 @@ fun CustomSearchBar(
                       fontSize = 16.sp,
                   ),
               modifier =
-              Modifier
-                  .padding(horizontal = 16.dp, vertical = 0.dp)
-                  .testTag("no_result_text"),
+                  Modifier.padding(horizontal = 16.dp, vertical = 0.dp).testTag("no_result_text"),
           )
         }
       })
