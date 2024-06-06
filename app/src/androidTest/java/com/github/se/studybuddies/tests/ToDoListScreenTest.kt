@@ -29,6 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)
 class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
@@ -94,10 +95,96 @@ class ToDoListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCom
       todoListColumn {
         assertIsDisplayed()
       }
+      customSearchBar{
+        assertIsDisplayed()
+      }
     }
   }
 
+  @Test
+  fun todoListIsDisplayed(){
+  onComposeScreen<ToDoListScreen>(composeTestRule) {
+    todoListColumn { assertIsDisplayed() }
+
+    /*
+    testTodo1Box {
+      assertIsDisplayed()
+      assertHasClickAction()
+    }
+    testTodo1Row{
+      assertIsDisplayed()
+    }
+    testTodo1Column{
+      assertIsDisplayed()
+    }
+    testToDo1Name{
+      assertIsDisplayed()
+      assertTextContains("Name")
+    }
+    testTodo1Date{
+      assertIsDisplayed()
+      assertTextContains(formatDate(LocalDate.now()))
+    }
+    testTodo1StatusText{
+      assertIsDisplayed()
+    }
+    testTodo1StatusBox{
+      assertIsDisplayed()
+    }
+    testTodo1StatusButton{
+      assertIsDisplayed()
+    }
+
+     */
+    composeTestRule.onNodeWithTag("testTodo1_box", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_row", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_column", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_name", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_status_text", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_status_button", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_status_box", useUnmergedTree = true).assertExists()
+    composeTestRule.onNodeWithTag("testTodo1_date", useUnmergedTree = true).assertExists()
+
+  }
 }
+
+  private fun formatDate(date: LocalDate): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    return date.format(formatter)
+  }
+
+
+
+
+  @Test
+  fun searchBarTest(){
+    onComposeScreen<ToDoListScreen>(composeTestRule) {
+  customSearchBar{
+    assertIsDisplayed()
+    assertHasClickAction()
+  }
+      searchBarIcon{assertIsDisplayed()}
+      searchBarCLear{assertIsDisplayed()}
+}}
+
+  @Test
+  fun clickOnTaskTest(){
+    onComposeScreen<ToDoListScreen>(composeTestRule) {
+
+    }}
+
+
+
+    @Test
+    fun taskStatusTest(){
+      onComposeScreen<ToDoListScreen>(composeTestRule) {
+      }
+
+
+      }
+    }
+
+
 
   @RunWith(AndroidJUnit4::class)
   class EmptyToDoListTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeSupport()) {
