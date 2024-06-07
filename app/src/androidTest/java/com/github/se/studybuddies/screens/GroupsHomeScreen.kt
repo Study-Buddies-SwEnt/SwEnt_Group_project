@@ -24,8 +24,8 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
   val addLinkButton: KNode = addLinkRow.child { hasTestTag("AddLinkButton") }
   val addLinkIcon: KNode = groupScreenEmpty.child { hasTestTag("AddLinkIcon") }
   val addLinkTextField: KNode = groupScreenEmpty.child { hasTestTag("AddLinkTextField") }
-  val errorSnackbar: KNode = groupScreenEmpty.child { hasTestTag("ErrorSnackbar") }
-  val successSnackbar: KNode = groupScreenEmpty.child { hasTestTag("SuccessSnackbar") }
+  val errorSnackbar: KNode = groupScreenEmpty.child { hasTestTag("ErrorSnackBar") }
+  val successSnackbar: KNode = groupScreenEmpty.child { hasTestTag("SuccessSnackBar") }
 
   val groupScreen: KNode = drawerScaffold.child { hasTestTag("GroupsHome") }
   val groupList: KNode = groupScreen.child { hasTestTag("GroupsList") }

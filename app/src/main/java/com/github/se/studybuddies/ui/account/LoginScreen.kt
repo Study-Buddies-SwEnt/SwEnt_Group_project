@@ -43,6 +43,12 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.google.firebase.auth.FirebaseAuth
 
+/**
+ * The login screen for the app.
+ *
+ * @param navigationActions The navigation actions to use.
+ * @param onUserLoggedIn The callback to call when the user has logged in.
+ */
 @Composable
 fun LoginScreen(navigationActions: NavigationActions, onUserLoggedIn: (String) -> Unit) {
   val signInLauncher =

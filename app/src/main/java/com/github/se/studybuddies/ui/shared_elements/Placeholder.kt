@@ -18,6 +18,11 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 
+/**
+ * This composable is used to display a placeholder for features not yet implemented
+ *
+ * @param navigationActions The navigation actions.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Placeholder(navigationActions: NavigationActions) {

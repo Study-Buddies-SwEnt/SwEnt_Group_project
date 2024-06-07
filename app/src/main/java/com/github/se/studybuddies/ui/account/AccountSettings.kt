@@ -46,6 +46,14 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.UserViewModel
 
+/**
+ * Account settings screen that allows the user to change their profile picture and username
+ *
+ * @param uid the user id
+ * @param userViewModel the view model for the user
+ * @param backRoute the route to navigate to when the back button is clicked
+ * @param navigationActions the navigation actions to navigate to other screens
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AccountSettings(
@@ -118,6 +126,12 @@ fun AccountSettings(
       }
 }
 
+/**
+ * Sign out button that signs out the user and navigates to the login screen
+ *
+ * @param navigationActions the navigation actions to navigate to other screens
+ * @param userViewModel the view model for the user
+ */
 @Composable
 private fun SignOutButton(navigationActions: NavigationActions, userViewModel: UserViewModel) {
   val context = LocalContext.current // Get the context here

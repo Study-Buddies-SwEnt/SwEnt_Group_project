@@ -21,7 +21,14 @@ import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
-data class SoloStudyOption(val name: String, val icon_id: Int, val route: String) {}
+/**
+ * Data class to represent the options available for solo study.
+ *
+ * @param name: The name of the option.
+ * @param iconId: The id of the icon for the option.
+ * @param route: The route to navigate to when the option is selected.
+ */
+data class SoloStudyOption(val name: String, val iconId: Int, val route: String)
 
 val FLASH_CARD = SoloStudyOption("Flash Card", R.drawable.flash_cards, Route.PLACEHOLDER)
 val TODO_LIST = SoloStudyOption("ToDo List", R.drawable.to_do_list, Route.TODOLIST)
@@ -29,6 +36,7 @@ val TIMER = SoloStudyOption("Timer", R.drawable.timer, Route.TIMER)
 
 val CALENDAR = SoloStudyOption("Calendar", R.drawable.calendar, Route.CALENDAR)
 
+/** Composable function to display the buttons for the solo study options. */
 @Composable
 fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOption) {
   Button(
@@ -40,7 +48,7 @@ fun Solo_study_buttons(navigationActions: NavigationActions, option: SoloStudyOp
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.testTag(option.name + "_column")) {
               Icon(
-                  painter = painterResource(id = option.icon_id),
+                  painter = painterResource(id = option.iconId),
                   contentDescription = option.name,
                   tint = Blue,
                   modifier = Modifier.height(80.dp).width(100.dp).testTag(option.name + "_icon"))

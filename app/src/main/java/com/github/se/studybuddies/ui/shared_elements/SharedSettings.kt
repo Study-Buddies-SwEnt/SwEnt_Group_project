@@ -24,11 +24,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 
+/** Shared name setting element. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountFields(usernameState: MutableState<String>) {
@@ -46,10 +47,11 @@ fun AccountFields(usernameState: MutableState<String>) {
   Text(stringResource(R.string.msg_usename_user_will_see), modifier = Modifier.width(300.dp))
 }
 
+/** Shared profile picture setting element. */
 @Composable
 fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
-      painter = rememberImagePainter(photoState.value),
+      painter = rememberAsyncImagePainter(photoState.value),
       contentDescription = stringResource(R.string.profile_picture),
       modifier = Modifier.size(200.dp),
       contentScale = ContentScale.Crop)
@@ -59,10 +61,11 @@ fun SetProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
+/** Shared save button element. */
 @Composable
 fun SaveButton(
     usernameState: MutableState<String>,
-    testTag: String = "save_button",
+    testTag: String = stringResource(R.string.save_button),
     save: () -> Unit
 ) {
   val enabled = usernameState.value.isNotEmpty()

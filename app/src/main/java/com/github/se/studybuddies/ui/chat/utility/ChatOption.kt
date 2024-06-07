@@ -1,5 +1,6 @@
 package com.github.se.studybuddies.ui.chat.utility
 
+import android.Manifest
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,7 +35,6 @@ import com.github.se.studybuddies.data.Message
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.permissions.checkPermission
-import com.github.se.studybuddies.permissions.getStoragePermission
 import com.github.se.studybuddies.permissions.imagePermissionVersion
 import com.github.se.studybuddies.ui.chat.EditDialog
 import com.github.se.studybuddies.ui.theme.Blue
@@ -253,7 +253,7 @@ fun CommonOptions(
       }
     }
     is Message.FileMessage -> {
-      DownloadButton(permission = getStoragePermission(), context) {
+      DownloadButton(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE, context) {
         val name = selectedMessage.fileName
         CoroutineScope(Dispatchers.Main).launch {
           saveToStorage(context, selectedMessage.fileUri, name, SaveType.PDF())

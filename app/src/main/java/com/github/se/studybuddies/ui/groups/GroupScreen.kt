@@ -63,6 +63,16 @@ import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
+/**
+ * Group screen that displays the general chat, video call tab, shared timer tab and lists the
+ * topics of a group.
+ *
+ * @param groupUID the unique identifier of the group.
+ * @param groupViewModel the view model that provides the group data.
+ * @param chatViewModel the view model that provides the chat data.
+ * @param navigationActions the navigation actions.
+ * @param db the database repository.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GroupScreen(
@@ -195,6 +205,7 @@ fun GroupScreen(
       }
 }
 
+/** Represents a topic in the list above */
 @Composable
 fun TopicItem(groupUID: String, topic: Topic, navigationActions: NavigationActions) {
   val topicUid = topic.uid

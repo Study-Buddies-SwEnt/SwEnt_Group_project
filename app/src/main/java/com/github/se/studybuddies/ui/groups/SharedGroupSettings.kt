@@ -19,6 +19,11 @@ import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.ui.theme.Blue
 
+/**
+ * This composable is used to display the group fields.
+ *
+ * @param nameState The state of the group name.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupFields(nameState: MutableState<String>) {

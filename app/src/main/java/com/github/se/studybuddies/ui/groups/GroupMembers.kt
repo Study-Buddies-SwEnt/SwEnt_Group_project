@@ -66,6 +66,16 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
+/**
+ * GroupMembers is a composable function that displays the members of a group. It allows the user to
+ * add members to the group, remove members from the group, and view the profile of each member.
+ *
+ * @param groupUID The unique identifier of the group.
+ * @param groupViewModel The view model that contains the data of the group.
+ * @param navigationActions The navigation actions that allow the user to navigate to different
+ *   destinations.
+ * @param db The database repository that contains the data of the group.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun GroupMembers(
@@ -158,6 +168,7 @@ fun GroupMembers(
       }
 }
 
+/** Function to display the name */
 @Composable
 fun Name(nameState: MutableState<String>) {
   Spacer(Modifier.height(20.dp))
@@ -167,6 +178,7 @@ fun Name(nameState: MutableState<String>) {
       modifier = Modifier.testTag("ShowGroupNameInGroupMember"))
 }
 
+/** Function to display a member */
 @Composable
 fun MemberItem(
     groupUID: String,
@@ -206,6 +218,7 @@ fun MemberItem(
       }
 }
 
+/** Function to access options for each member */
 @Composable
 fun MemberOptionButton(
     groupUID: String,
@@ -259,7 +272,9 @@ fun MemberOptionButton(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                   Text(
-                      text = "Are you sure you want to remove $username from the group ?",
+                      text =
+                          stringResource(
+                              R.string.are_you_sure_you_want_to_remove_from_the_group, username),
                       color = Blue)
                   Spacer(modifier = Modifier.height(20.dp))
                   Row(

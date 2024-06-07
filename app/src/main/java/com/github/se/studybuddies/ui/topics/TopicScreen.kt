@@ -8,7 +8,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -92,6 +91,16 @@ import com.github.se.studybuddies.viewModels.ChatViewModel
 import com.github.se.studybuddies.viewModels.GroupViewModel
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
+/**
+ * Composable that displays the content of a topic.
+ *
+ * @param groupUID The ID of the group that the topic belongs to.
+ * @param topicUID The ID of the topic to display.
+ * @param groupViewModel The ViewModel that provides the data for the group.
+ * @param topicViewModel The ViewModel that provides the data for the topic.
+ * @param chatViewModel The ViewModel that provides the data for the chat.
+ * @param navigationActions The actions to navigate to other screens.
+ */
 @Composable
 fun TopicScreen(
     groupUID: String,
@@ -253,7 +262,7 @@ fun TopicScreen(
                           horizontalArrangement = Arrangement.SpaceBetween,
                           verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Practice",
+                                text = stringResource(R.string.practice),
                                 modifier =
                                     Modifier.weight(1f)
                                         .clickable { areaState.value = ItemArea.EXERCISES }
@@ -262,7 +271,7 @@ fun TopicScreen(
                                 style = TextStyle(fontSize = 20.sp),
                                 textAlign = TextAlign.Center)
                             Text(
-                                text = "Theory",
+                                text = stringResource(R.string.theory),
                                 modifier =
                                     Modifier.weight(1f)
                                         .clickable { areaState.value = ItemArea.THEORY }
@@ -382,6 +391,7 @@ fun TopicScreen(
       }
 }
 
+/** Composable that displays the content of a topic. */
 @Composable
 fun TopicContentItem(
     topicItem: TopicItem,
@@ -409,6 +419,7 @@ fun TopicContentItem(
   }
 }
 
+/** Composable that displays a file item. */
 @Composable
 fun FileItem(
     fileItem: TopicFile,
@@ -458,7 +469,7 @@ fun FileItem(
       }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+/** Composable that displays a folder item. */
 @Composable
 fun FolderItem(
     folderItem: TopicFolder,
@@ -522,6 +533,7 @@ fun FolderItem(
   }
 }
 
+/** Composable that displays a button to add a file or folder to a topic */
 @Composable
 fun AddInFolderButton(
     uid: String,
@@ -591,6 +603,7 @@ fun AddInFolderButton(
       }
 }
 
+/** Composable that displays the fields of a topic resource item */
 @Composable
 fun TopicItemField(
     enteredName: MutableState<String>,

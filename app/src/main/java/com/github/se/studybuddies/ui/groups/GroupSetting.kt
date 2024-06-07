@@ -2,7 +2,6 @@ package com.github.se.studybuddies.ui.groups
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -23,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -64,6 +62,15 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
+/**
+ * GroupSetting is a composable function that displays the group settings page. It allows the user
+ * to modify the group name, profile picture, add members to the group and share the group link.
+ *
+ * @param groupUID The group UID
+ * @param groupViewModel The group view model
+ * @param navigationActions The navigation actions
+ * @param db The database repository
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GroupSetting(
@@ -102,12 +109,8 @@ fun GroupSetting(
           getContent.launch(imageInput)
         }
       }
-  var permission = imagePermissionVersion()
-  // Check if the Android version is lower than TIRAMISU API 33
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    // For older Android versions, use READ_EXTERNAL_STORAGE permission
-    permission = "android.permission.READ_EXTERNAL_STORAGE"
-  }
+  val permission = imagePermissionVersion()
+
   Scaffold(
       modifier = Modifier.fillMaxSize().background(White).testTag("groupSettingScaffold"),
       topBar = {
@@ -157,7 +160,7 @@ fun GroupSetting(
       }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Allows to modify the name input in the field */
 @Composable
 fun ModifyName(nameState: MutableState<String>) {
   Spacer(Modifier.height(20.dp))
@@ -175,11 +178,12 @@ fun ModifyName(nameState: MutableState<String>) {
           ))
 }
 
+/** Allows to change the profile picture input in the field */
 @Composable
 fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
   Image(
       painter = rememberAsyncImagePainter(photoState.value),
-      contentDescription = "Profile Picture",
+      contentDescription = stringResource(id = R.string.profile_picture),
       modifier =
           Modifier.size(200.dp).border(1.dp, Blue, RoundedCornerShape(5.dp)).testTag("image_pp"),
       contentScale = ContentScale.Crop)
@@ -189,19 +193,20 @@ fun ModifyProfilePicture(photoState: MutableState<Uri>, onClick: () -> Unit) {
       modifier = Modifier.clickable { onClick() }.testTag("set_picture_button"))
 }
 
+/** Allows to add a member to the group with the user's UID */
 @Composable
 fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   var isTextFieldVisible by remember { mutableStateOf(false) }
   var text by remember { mutableStateOf("") }
   var showError by remember { mutableStateOf(false) }
-  var showSucces by remember { mutableStateOf(false) }
+  var showSuccess by remember { mutableStateOf(false) }
 
   Column(modifier = Modifier.testTag("add_member_column")) {
     Button(
         modifier = Modifier.testTag("add_member_button"),
         onClick = {
           isTextFieldVisible = !isTextFieldVisible
-          showSucces = false
+          showSuccess = false
           showError = false
         },
         shape = MaterialTheme.shapes.medium,
@@ -247,7 +252,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
                       if (text == "Error") text = ""
                     } else {
                       groupViewModel.fetchGroupData(groupUID)
-                      showSucces = true
+                      showSuccess = true
                       text = ""
                     }
                   }
@@ -266,13 +271,13 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
               modifier = Modifier.testTag("error_text"))
         }
   }
-  if (showSucces) {
+  if (showSuccess) {
     Snackbar(
         modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("success_snackbar"),
         action = {
           TextButton(
               modifier = Modifier.fillMaxWidth().testTag("success_button"),
-              onClick = { showSucces = false }) {}
+              onClick = { showSuccess = false }) {}
         }) {
           Text(
               stringResource(R.string.user_have_been_successfully_added_to_the_group),
@@ -281,6 +286,7 @@ fun AddMemberButtonUID(groupUID: String, groupViewModel: GroupViewModel) {
   }
 }
 
+/** Displays the button to allow the sharing of the group link */
 @Composable
 fun ShareLinkButton(groupLink: String) {
   var isTextVisible by remember { mutableStateOf(false) }

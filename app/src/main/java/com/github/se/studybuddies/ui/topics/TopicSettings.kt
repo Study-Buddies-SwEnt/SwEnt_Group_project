@@ -25,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +44,14 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
+/**
+ * Composable that displays the settings for a topic.
+ *
+ * @param topicUID The ID of the topic to display.
+ * @param groupUID The ID of the group that the topic belongs to.
+ * @param topicViewModel The ViewModel that provides the data for the topic.
+ * @param navigationActions The actions to navigate to other screens.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TopicSettings(
@@ -59,8 +66,6 @@ fun TopicSettings(
   val topicData by topicViewModel.topic.collectAsState()
 
   val nameState = remember { mutableStateOf(topicData.name) }
-  var exercisesState by remember { mutableStateOf(topicData.exercises) }
-  val theoryState = remember { mutableStateOf(topicData.theory) }
 
   topicData.let { nameState.value = it.name }
 

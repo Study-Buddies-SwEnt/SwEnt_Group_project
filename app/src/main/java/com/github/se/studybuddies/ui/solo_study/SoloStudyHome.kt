@@ -11,11 +11,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.MainScreenScaffold
 
+/**
+ * Solo study home screen.
+ *
+ * @param navigationActions Navigation actions to allow user to navigate to other screens.
+ */
 @Composable
 fun SoloStudyHome(navigationActions: NavigationActions) {
   MainScreenScaffold(
@@ -42,6 +49,6 @@ fun SoloStudyHome(navigationActions: NavigationActions) {
                   }
             }
       },
-      title = "Solo Study",
+      title = stringResource(id = R.string.solo_study),
       iconOptions = {})
 }

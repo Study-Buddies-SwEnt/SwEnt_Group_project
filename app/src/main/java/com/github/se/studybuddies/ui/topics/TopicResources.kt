@@ -1,5 +1,7 @@
 package com.github.se.studybuddies.ui.topics
 
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,8 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,7 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.data.FileArea
 import com.github.se.studybuddies.data.User
@@ -68,6 +70,13 @@ import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.TopicFileViewModel
 
+/**
+ * Composable that displays the resources and strong users for a topic file.
+ *
+ * @param fileID The ID of the file to display.
+ * @param topicFileViewModel The ViewModel that provides the data for the file.
+ * @param navigationActions The actions to navigate to other screens.
+ */
 @Composable
 fun TopicResources(
     fileID: String,
@@ -103,7 +112,7 @@ fun TopicResources(
   val expandImage = remember { mutableStateOf(false) }
   val expandedImage = remember { mutableStateOf(Uri.EMPTY) }
 
-  Box() {
+  Box {
     AddResources(topicFileViewModel, showOptions, showUploadImage, showUploadLink, showUploadFile)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -112,8 +121,8 @@ fun TopicResources(
               title = { Sub_title(nameState.value) },
               leftButton = {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Go back",
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(id = R.string.go_back),
                     modifier =
                         Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
               },
@@ -138,7 +147,7 @@ fun TopicResources(
                       horizontalArrangement = Arrangement.SpaceBetween,
                       verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Resources",
+                            text = stringResource(R.string.resources),
                             modifier =
                                 Modifier.weight(1f)
                                     .clickable { areaState.value = FileArea.RESOURCES }
@@ -147,7 +156,7 @@ fun TopicResources(
                             style = TextStyle(fontSize = 20.sp),
                             textAlign = TextAlign.Center)
                         Text(
-                            text = "Strong Users",
+                            text = stringResource(R.string.strong_users),
                             modifier =
                                 Modifier.weight(1f)
                                     .clickable { areaState.value = FileArea.STRONG_USERS }
@@ -233,7 +242,7 @@ private fun UserBox(user: User) {
                     modifier =
                         Modifier.size(52.dp).clip(CircleShape).background(Color.Transparent)) {
                       Image(
-                          painter = rememberImagePainter(user.photoUrl),
+                          painter = rememberAsyncImagePainter(user.photoUrl),
                           contentDescription = stringResource(R.string.user_profile_picture),
                           modifier = Modifier.fillMaxSize(),
                           contentScale = ContentScale.Crop)
@@ -300,9 +309,9 @@ fun AddResources(
 
 @Composable
 fun FullImage(show: MutableState<Boolean>, image: Uri, onDismiss: () -> Unit) {
-  val scale = remember { mutableStateOf(1f) }
-  val offsetX = remember { mutableStateOf(0f) }
-  val offsetY = remember { mutableStateOf(0f) }
+  val scale = remember { mutableFloatStateOf(1f) }
+  val offsetX = remember { mutableFloatStateOf(0f) }
+  val offsetY = remember { mutableFloatStateOf(0f) }
 
   if (show.value) {
     Column(

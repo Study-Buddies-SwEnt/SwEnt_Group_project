@@ -1,14 +1,14 @@
 package com.github.se.studybuddies.ui.shared_elements
 
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -32,7 +31,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,22 +47,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -72,18 +65,16 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.R.string.select_a_picture
-import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.navigation.BOTTOM_NAVIGATION_DESTINATIONS
 import com.github.se.studybuddies.navigation.Destination
-import com.github.se.studybuddies.navigation.GROUPS_SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.navigation.SETTINGS_DESTINATIONS
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/** Main screen scaffold element. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreenScaffold(
@@ -152,6 +143,7 @@ fun MainScreenScaffold(
       }
 }
 
+/** Top Navigation bar present throughout almost the entirety of the app. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopNavigationBar(
@@ -174,6 +166,7 @@ fun TopNavigationBar(
   }
 }
 
+/** Bottom navigation bar, allows also to chose icon size. */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BottomNavigationBar(
@@ -217,6 +210,7 @@ fun BottomNavigationBar(
   }
 }
 
+/** Main title element. */
 @Composable
 fun Main_title(title: String) {
   Text(
@@ -226,6 +220,7 @@ fun Main_title(title: String) {
       modifier = Modifier.testTag("main_title"))
 }
 
+/** Sub title element. */
 @Composable
 fun Sub_title(title: String) {
   Text(
@@ -235,6 +230,7 @@ fun Sub_title(title: String) {
       modifier = Modifier.testTag("sub_title"))
 }
 
+/** Drawer menu icon element. */
 @Composable
 fun DrawerMenuIcon(
     scope: CoroutineScope,
@@ -249,6 +245,7 @@ fun DrawerMenuIcon(
       }
 }
 
+/** Search icon element. */
 @Composable
 fun SearchIcon() {
   IconButton(onClick = { /*TODO*/}) {
@@ -259,6 +256,7 @@ fun SearchIcon() {
   }
 }
 
+/** Go back button element. */
 @Composable
 fun GoBackRouteButton(
     navigationActions: NavigationActions,
@@ -269,6 +267,7 @@ fun GoBackRouteButton(
       modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
+/** Alternative go back button element. */
 @Composable
 fun GoBackRouteToLastPageButton(
     navigationActions: NavigationActions,
@@ -279,54 +278,7 @@ fun GoBackRouteToLastPageButton(
       modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
-@Composable
-fun GroupsSettingsButton(navigationActions: NavigationActions) {
-  val expandedState = remember { mutableStateOf(false) }
-  IconButton(
-      onClick = { expandedState.value = true },
-  ) {
-    Icon(
-        painter = painterResource(R.drawable.dots_menu),
-        contentDescription = stringResource(id = R.string.dots_menu))
-  }
-  DropdownMenu(expanded = expandedState.value, onDismissRequest = { expandedState.value = false }) {
-    GROUPS_SETTINGS_DESTINATIONS.forEach { item ->
-      DropdownMenuItem(
-          onClick = {
-            expandedState.value = false
-            navigationActions.navigateTo(item.route)
-          }) {
-            Text(item.textId)
-          }
-    }
-  }
-}
-
-@Composable
-fun GroupItem(group: Group, navigationActions: NavigationActions) {
-  Box(
-      modifier =
-          Modifier.fillMaxWidth()
-              .clickable {
-                val groupUid = group.uid
-                navigationActions.navigateTo("${Route.GROUP}/$groupUid")
-              }
-              .drawBehind {
-                val strokeWidth = 1f
-                val y = size.height - strokeWidth / 2
-                drawLine(Color.LightGray, Offset(0f, y), Offset(size.width, y), strokeWidth)
-              }) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Image(
-              painter = rememberAsyncImagePainter(group.picture),
-              contentDescription = stringResource(R.string.group_profile_picture),
-              modifier = Modifier.size(32.dp),
-              contentScale = ContentScale.Crop)
-          Text(text = group.name, style = TextStyle(fontSize = 16.sp), lineHeight = 28.sp)
-        }
-      }
-}
-
+/** Secondary top bar element. */
 @Composable
 fun ChatTopBar(
     leftButton: @Composable () -> Unit,
@@ -350,21 +302,7 @@ fun ChatTopBar(
   )
 }
 
-@Composable
-private fun MenuButton(onClick: () -> Unit) {
-  IconButton(
-      onClick = {
-        onClick()
-        Log.d("MyPrint", "Clicked on the menu button")
-      }) {
-        Icon(
-            painterResource(R.drawable.menu),
-            contentDescription = stringResource(id = R.string.settings),
-            modifier = Modifier.size(28.dp),
-            tint = Blue)
-      }
-}
-
+/** Save button element. */
 @Composable
 fun SaveButton(enabled: Boolean, save: () -> Unit) {
   Button(
@@ -387,6 +325,7 @@ fun SaveButton(enabled: Boolean, save: () -> Unit) {
       }
 }
 
+/** Shared profile picture setting element. */
 @Composable
 fun DeleteButton(onClick: () -> Unit) {
   Button(

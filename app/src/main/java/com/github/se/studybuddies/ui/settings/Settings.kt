@@ -2,7 +2,6 @@ package com.github.se.studybuddies.ui.settings
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,8 +14,13 @@ import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
 import com.github.se.studybuddies.ui.shared_elements.Main_title
 import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 
+/**
+ * This composable is used to display the settings
+ *
+ * @param backRoute The route to go back to.
+ * @param navigationActions The navigation actions.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Settings(backRoute: String, navigationActions: NavigationActions) {
   Scaffold(

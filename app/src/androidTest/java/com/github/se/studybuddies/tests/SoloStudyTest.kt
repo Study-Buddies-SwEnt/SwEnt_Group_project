@@ -145,7 +145,7 @@ class SoloStudyTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withComposeS
       drawerScaffold { assertIsDisplayed() }
       soloTitle {
         assertIsDisplayed()
-        assertTextEquals("Solo Study")
+        assertTextEquals("Solo study")
       }
       topAppBox { assertIsDisplayed() }
       topAppBar { assertIsDisplayed() }

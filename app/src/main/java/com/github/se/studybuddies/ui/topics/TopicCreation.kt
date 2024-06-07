@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
 import com.github.se.studybuddies.navigation.Route
 import com.github.se.studybuddies.ui.shared_elements.GoBackRouteButton
@@ -33,6 +35,13 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.Blue
 import com.github.se.studybuddies.viewModels.TopicViewModel
 
+/**
+ * Composable function to create a new topic.
+ *
+ * @param groupUID: The UID of the group the topic is being created in.
+ * @param topicViewModel: The view model for the topic.
+ * @param navigationActions: The navigation actions for the app.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -55,14 +64,14 @@ fun TopicCreation(
             modifier = Modifier.fillMaxSize().padding(20.dp).testTag("create_topic_column"),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
-              Text("Enter Topic Name")
+              Text(stringResource(R.string.enter_topic_name))
 
               Spacer(Modifier.height(20.dp))
               OutlinedTextField(
                   value = nameState.value,
                   onValueChange = { nameState.value = it },
-                  label = { Text(("Topic Name"), color = Blue) },
-                  placeholder = { Text(("Enter Topic Name"), color = Blue) },
+                  label = { Text(stringResource(R.string.topic_name), color = Blue) },
+                  placeholder = { Text(stringResource(R.string.enter_topic_name), color = Blue) },
                   singleLine = true,
                   modifier =
                       Modifier.padding(0.dp)

@@ -21,6 +21,14 @@ import com.github.se.studybuddies.ui.shared_elements.TopNavigationBar
 import com.github.se.studybuddies.ui.theme.White
 import com.github.se.studybuddies.viewModels.GroupViewModel
 
+/**
+ * This composable is used to display the list of members in a group.
+ *
+ * @param groupUID The unique identifier of the group.
+ * @param groupViewModel The view model for the group.
+ * @param navigationActions The navigation actions.
+ * @param db The database repository.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MembersList(

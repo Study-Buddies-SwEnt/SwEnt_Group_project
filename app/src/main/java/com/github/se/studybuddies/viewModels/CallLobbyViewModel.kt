@@ -21,7 +21,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** ViewModel for the call lobby screen */
+/**
+ * ViewModel for the call lobby screen.
+ *
+ * @param uid The ID of the group for the call ID.
+ * @param callType The type of the call.
+ */
 class CallLobbyViewModel @Inject constructor(val uid: String, val callType: String) : ViewModel() {
 
   data class UiState(
