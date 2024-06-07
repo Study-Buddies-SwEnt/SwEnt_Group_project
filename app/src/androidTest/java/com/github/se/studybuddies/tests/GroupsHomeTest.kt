@@ -35,14 +35,15 @@ class AloneGroupsHomeTest : TestCase(kaspressoBuilder = Kaspresso.Builder.withCo
 
   @get:Rule val mockkRule = MockKRule(this)
   @RelaxedMockK lateinit var mockNavActions: NavigationActions
-  // userTest
-  // aloneUserTest
-  val uid = "userTest2"
+
+  val aloneUserID = "aloneUserTest"
   private val db = MockDatabase()
 
   @Before
   fun testSetup() {
-    composeTestRule.setContent { GroupsHome(uid, GroupsHomeViewModel(uid, db), mockNavActions, db) }
+    composeTestRule.setContent {
+      GroupsHome(aloneUserID, GroupsHomeViewModel(aloneUserID, db), mockNavActions, db)
+    }
   }
 
   @Test

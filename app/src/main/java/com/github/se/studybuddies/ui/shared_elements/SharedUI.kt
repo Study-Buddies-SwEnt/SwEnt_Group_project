@@ -260,13 +260,11 @@ fun SearchIcon() {
 @Composable
 fun GoBackRouteButton(
     navigationActions: NavigationActions,
-    backRoute: String,
 ) {
   Icon(
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
       contentDescription = stringResource(id = R.string.go_back),
-      modifier =
-          Modifier.clickable { navigationActions.navigateTo(backRoute) }.testTag("go_back_button"))
+      modifier = Modifier.clickable { navigationActions.goBack() }.testTag("go_back_button"))
 }
 
 /** Alternative go back button element. */

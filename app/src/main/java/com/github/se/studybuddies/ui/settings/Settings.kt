@@ -28,9 +28,7 @@ fun Settings(backRoute: String, navigationActions: NavigationActions) {
       topBar = {
         TopNavigationBar(
             title = { Main_title(title = stringResource(R.string.settings)) },
-            rightButton = {
-              GoBackRouteButton(navigationActions = navigationActions, backRoute = backRoute)
-            },
+            rightButton = { GoBackRouteButton(navigationActions = navigationActions) },
             leftButton = {})
       }) {
         Text("Settings", modifier = Modifier.testTag("settings_text"))

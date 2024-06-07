@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.se.studybuddies.R
 import com.github.se.studybuddies.navigation.NavigationActions
-import com.github.se.studybuddies.navigation.Route
 
 /**
  * This composable is used to display a placeholder for features not yet implemented
@@ -29,22 +28,23 @@ import com.github.se.studybuddies.navigation.Route
 fun Placeholder(navigationActions: NavigationActions) {
 
   Scaffold(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("placeholder_scaffold"),
       topBar = {
         TopNavigationBar(
             title = { Sub_title(title = "") },
-            leftButton = {
-              GoBackRouteButton(navigationActions = navigationActions, Route.SOLOSTUDYHOME)
-            },
+            leftButton = { GoBackRouteButton(navigationActions = navigationActions) },
             rightButton = {})
       },
   ) {
     Column(
-        modifier = Modifier.fillMaxSize().testTag("timer_column"),
+        modifier = Modifier.fillMaxSize().testTag("placeholder_column"),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
           Spacer(modifier = Modifier.height(120.dp))
-          Text(stringResource(R.string.feature_not_yet_implemented), textAlign = TextAlign.Center)
+          Text(
+              stringResource(R.string.feature_not_implemented_yet),
+              textAlign = TextAlign.Center,
+              modifier = Modifier.testTag("placeholder_text"))
         }
   }
 }

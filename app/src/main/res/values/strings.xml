@@ -73,7 +73,7 @@
     <string name="direct_messages_title">Messages</string>
     <string name="direct_messages_empty">There is no private messages chat</string>
     <string name="no_friends_found">No friends are available</string>
-    <string name="start_direct_message_title">New Chats</string>
+    <string name="start_direct_message_title">Add new contact</string>
     <string name="new_private_message_icon">New Private Message</string>
     <string name="edit_topic_name">Edit Topic Name</string>
     <string name="contentDescription_photo">Photo</string>
@@ -171,4 +171,10 @@
     <string name="resources_go_here">Resources go here</string>
     <string name="theory">Theory</string>
     <string name="practice">Practice</string>
+    <string name="contentDescription_icon_contacts">icon contacts</string>
+    <string name="contentDescription_icon_messages">icon direct messages</string>
+    <string name="contact_list">Contact list</string>
+    <string name="deny">Deny</string>
+    <string name="accept">Accept</string>
+    <string name="no_result_found">No result found</string>
 </resources>

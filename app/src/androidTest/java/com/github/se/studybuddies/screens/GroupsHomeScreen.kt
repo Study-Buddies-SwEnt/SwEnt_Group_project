@@ -16,7 +16,7 @@ class GroupsHomeScreen(semanticsProvider: SemanticsNodeInteractionsProvider) :
 
   val emptyGroupText: KNode = groupScreenEmpty.child { hasTestTag("EmptyGroupText") }
 
-  val addButtonRow: KNode = groupScreenEmpty.child { hasTestTag("AddGroupRow") }
+  val addButtonRow: KNode = onNode { hasTestTag("AddGroupRow") }
   val addButton: KNode = addButtonRow.child { hasTestTag("AddGroupButton") }
   val addButtonIcon: KNode = addButton.child { hasTestTag("AddGroupIcon") }
 

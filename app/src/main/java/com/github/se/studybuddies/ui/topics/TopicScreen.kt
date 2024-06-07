@@ -139,7 +139,7 @@ fun TopicScreen(
       topBar = {
         TopNavigationBar(
             title = { Sub_title(nameState.value) },
-            leftButton = { GoBackRouteButton(navigationActions, "${Route.GROUP}/$groupUID") },
+            leftButton = { GoBackRouteButton(navigationActions) },
             rightButton = {
               IconButton(
                   onClick = {

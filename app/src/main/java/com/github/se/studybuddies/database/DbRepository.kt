@@ -9,6 +9,7 @@ import com.github.se.studybuddies.data.DailyPlanner
 import com.github.se.studybuddies.data.Group
 import com.github.se.studybuddies.data.GroupList
 import com.github.se.studybuddies.data.Message
+import com.github.se.studybuddies.data.RequestList
 import com.github.se.studybuddies.data.TimerState
 import com.github.se.studybuddies.data.Topic
 import com.github.se.studybuddies.data.TopicFile
@@ -137,7 +138,7 @@ interface DbRepository {
       onResult: (Boolean, String?) -> Unit
   )
 
-  suspend fun startDirectMessage(otherUID: String): String
+  suspend fun startDirectMessage(otherUID: String, contactID: String)
 
   // using the topicData and topicItemData collections
   suspend fun getTopic(uid: String, callBack: (Topic) -> Unit)
@@ -178,17 +179,31 @@ interface DbRepository {
       onUpdate: (TopicList) -> Unit
   )
 
-  suspend fun createContact(otherUID: String, contactID: String)
+  suspend fun createContact(otherUID: String)
 
-  fun deleteContact(contactID: String)
+  suspend fun contactGetOtherUser(contactID: String, uid: String): String
+
+  suspend fun deleteContact(contactID: String)
 
   fun deletePrivateChat(chatID: String)
-
-  fun updateContact(contactID: String, showOnMap: Boolean)
 
   fun fileAddImage(fileID: String, image: Uri, callBack: () -> Unit)
 
   suspend fun getTopicFileImages(fileID: String): List<Uri>
+
+  suspend fun getAllRequests(uid: String): RequestList
+
+  suspend fun deleteRequest(requestID: String)
+
+  suspend fun getAllUsers(): List<User>
+
+  suspend fun acceptRequest(requestID: String)
+
+  suspend fun sendContactRequest(targetID: String)
+
+  fun updateContactShowOnMap(contactID: String, showOnMap: Boolean)
+
+  fun updateContactHasDM(contactID: String, hasDM: Boolean)
 
   companion object {
     const val topic_name = "name"

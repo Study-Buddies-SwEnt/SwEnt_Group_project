@@ -58,9 +58,9 @@ class GroupViewModel(
     }
   }
 
-  fun getAllFriends(uid: String) {
+  fun getAllUsers(uid: String) {
     viewModelScope.launch {
-      val friends = db.getAllFriends(uid)
+      val friends = db.getAllUsers()
       _members.postValue(friends)
     }
   }
